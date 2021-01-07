@@ -1,6 +1,7 @@
 package view;
 
 import controller.Controller;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -27,7 +28,7 @@ public class View {
     private final int MAP_SIZE = 9;
 
     ScrollPane scrollPane = new ScrollPane();
-    Canvas canvas = new Canvas(1000, 800);
+    Canvas canvas = new Canvas(700, 500);
 
     public View(Stage primaryStage) {
         this.stage = primaryStage;
@@ -71,13 +72,12 @@ public class View {
 
                 canvas.setOnMouseClicked(event -> {
 
-                    double x = findTileCoordX(event.getX(), event.getY());
-                    double y = findTileCoordY(event.getX(), event.getY());
+                    Point2D isoCoord = findTileCoord(event.getX(), event.getY());
 
                     String mousePos = "Mouse coordinates: x: " + event.getX() + " y: " + event.getY();
                     mousePosLabel.setText((mousePos));
 
-                    String text = "Tile coordinates: x: " + x + " y: " + y;
+                    String text = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
                     isoCoordLabel.setText(text);
                 });
             }
@@ -85,14 +85,11 @@ public class View {
         this.stage.setScene(new Scene(root));
     }
 
-    public double findTileCoordX(double mouseX, double mouseY){
-        double x = Math.floor(mouseY / tileHeight + mouseX  / tileWidth) - MAP_SIZE -1;
-        return x;
-    }
-
-    public double findTileCoordY(double mouseX, double mouseY){
-        double y = Math.floor(mouseX / tileWidth - mouseY / tileHeight) + MAP_SIZE -1;
-        return y;
+    public Point2D findTileCoord(double mouseX, double mouseY){
+        double x = Math.floor(mouseY / tileHeight + mouseX  / tileWidth);
+        double y = Math.floor(mouseX / tileWidth - mouseY / tileHeight);
+        Point2D isoCoord = new Point2D(x, y);
+        return isoCoord;
     }
 
     public void setController(Controller controller) {
