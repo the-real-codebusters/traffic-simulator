@@ -17,11 +17,52 @@ public class View {
     private Controller controller;
     private Stage stage;
 
+    private int tileWidth = 64;
+    private final int tileWidthHalf = tileWidth / 2;
+    private int tileHeight = 32;
+    private final int tileHeightHalf = tileHeight / 2;
+
+
     public View(Stage primaryStage) {
         this.stage = primaryStage;
         Canvas canvas = new Canvas(800, 600);
+
+        final int MAP_SIZE = 10;
+        Image image = new Image(getClass().getResource("/greentile.png").toString());
+
+        Label tileLabel = new Label();
+        tileLabel.setFont(new Font("Arial", 20));
+
         BorderPane root = new BorderPane();
+        root.setBottom(tileLabel);
         root.setCenter(canvas);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        double canvasCenterWidth = canvas.getWidth() / 2;
+        double canvasCenterHeight = canvas.getHeight() / 2;
+
+        for (int row = 0; row < MAP_SIZE; row++) {
+            for (int col = 0; col < MAP_SIZE; col++) {
+
+                ImageView tile = new ImageView(image);
+                double tileX = (col + row) * tileWidthHalf;
+                double tileY = (col - row) * tileHeightHalf;
+                tile.setX(tileX);
+                tile.setY(tileY);
+
+                gc.drawImage(image, tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE, tileY + canvasCenterHeight);
+
+                int finalCol = col;
+                int finalRow = row;
+                canvas.setOnMouseClicked(event -> {
+                    double x = Math.floor(((event.getY()  / tileHeight) + ((event.getX()  / tileWidth))));
+                    double y = Math.floor(((event.getY()) / tileHeight) - ((event.getX()) / tileWidth));
+
+                    String text = "Tile coordinates: x: " + x + " y: " + y;
+                    tileLabel.setText(text);
+                });
+            }
+        }
         this.stage.setScene(new Scene(root));
     }
 
