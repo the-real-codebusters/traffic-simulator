@@ -25,7 +25,7 @@ public class View {
     private final int tileWidthHalf = tileWidth / 2;
     private int tileHeight = 32;
     private final int tileHeightHalf = tileHeight / 2;
-    private final int MAP_SIZE = 9;
+    private final int MAP_SIZE = 4;
 
     ScrollPane scrollPane = new ScrollPane();
     Canvas canvas = new Canvas(700, 500);
@@ -68,7 +68,14 @@ public class View {
                 tile.setX(tileX);
                 tile.setY(tileY);
 
-                gc.drawImage(image, tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE, tileY + canvasCenterHeight);
+                System.out.println("TileX: " + tileX);
+                System.out.println("TileY: " + tileY + "\n");
+
+                System.out.println("StartX: " + (tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE));
+                System.out.println("StartY: " + (tileY + canvasCenterHeight - tileHeightHalf * MAP_SIZE) + "\n");
+
+                gc.drawImage(image, tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE,
+                        tileY + canvasCenterHeight - tileHeightHalf * MAP_SIZE);
 
                 canvas.setOnMouseClicked(event -> {
 
@@ -77,7 +84,8 @@ public class View {
                     String mousePos = "Mouse coordinates: x: " + event.getX() + " y: " + event.getY();
                     mousePosLabel.setText((mousePos));
 
-                    String text = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
+                    String text = "Tile coordinates: x: " + Math.floor(isoCoord.getX() - (canvasCenterHeight/tileHeight))
+                            + " y: " + Math.ceil(isoCoord.getY() + canvasCenterHeight/tileHeight);
                     isoCoordLabel.setText(text);
                 });
             }
