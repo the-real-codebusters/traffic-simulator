@@ -52,8 +52,6 @@ public class View {
 
                 gc.drawImage(image, tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE, tileY + canvasCenterHeight);
 
-                int finalCol = col;
-                int finalRow = row;
                 canvas.setOnMouseClicked(event -> {
                     double x = Math.floor(((event.getY()  / tileHeight) + ((event.getX()  / tileWidth))));
                     double y = Math.floor(((event.getY()) / tileHeight) - ((event.getX()) / tileWidth));
