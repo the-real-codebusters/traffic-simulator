@@ -1,6 +1,5 @@
 package view;
 
-import controller.Controller;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -15,32 +14,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-
 public class View {
-    private Controller controller;
     private Stage stage;
 
-    private int tileWidth = 64;
+    private final int tileWidth = 64;
     private final int tileWidthHalf = tileWidth / 2;
-    private int tileHeight = 32;
+    private final int tileHeight = 32;
     private final int tileHeightHalf = tileHeight / 2;
-    private final int MAP_SIZE = 4;
+    private final int MAP_SIZE = 10;
 
-    ScrollPane scrollPane = new ScrollPane();
-    Canvas canvas = new Canvas(700, 500);
+    private Canvas canvas = new Canvas(700, 500);
+    private AnchorPane anchorPane = new AnchorPane();
+    private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
     public View(Stage primaryStage) {
         this.stage = primaryStage;
-
-        scrollPane.setContent(canvas);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPannable(true);
-
-        Image image = new Image(getClass().getResource("/greentile.png").toString());
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -54,54 +42,77 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        anchorPane.getChildren().add(canvas);
 
         double canvasCenterWidth = canvas.getWidth() / 2;
         double canvasCenterHeight = canvas.getHeight() / 2;
 
+        // Zeichnet Map
+        drawMap();
+
+        // Ereignisbehandlung: Bei Mousklick, werden die Mousekoordinaten sowie die Koordinaten des angeklickten
+        // Tile ausgegeben
+        canvas.setOnMouseClicked(event -> {
+            double mouseX = event.getX();
+            double mouseY = event.getY();
+
+            String mouseCoords = "Mouse coordinates: x: " + mouseX + " y: " + mouseY;
+            mousePosLabel.setText(mouseCoords);
+
+            // Findet isometrische Koordinaten der Mouseposition
+            Point2D isoCoord = findTileCoord(mouseX, mouseY, canvasCenterWidth, canvasCenterHeight);
+
+            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
+            isoCoordLabel.setText(tileCoords);
+        });
+
+        this.stage.setScene(new Scene(root));
+    }
+
+    /**
+     * Zeichnet Map auf Canvas
+     * Überlegung: später könnte ein Array als Parameter übergeben werden, in dem die Tile-Typen mit Koordinaten
+     * angegenen werden (Beispeil: Bodenfeld [0,0], Wasser [1,2] etc.)
+     */
+    public void drawMap() {
+        Image image = new Image(getClass().getResource("/greentile.png").toString());
+        ImageView tile = new ImageView(image);
+
+        double canvasCenterWidth = canvas.getWidth() / 2;
+        double canvasCenterHeight = canvas.getHeight() / 2;
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Es wird wie über ein 2D-Array mit größe MAP_SIZE iteriert
         for (int row = 0; row < MAP_SIZE; row++) {
             for (int col = 0; col < MAP_SIZE; col++) {
 
-                ImageView tile = new ImageView(image);
+                // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
                 double tileX = (col + row) * tileWidthHalf;
                 double tileY = (col - row) * tileHeightHalf;
                 tile.setX(tileX);
                 tile.setY(tileY);
 
-                System.out.println("TileX: " + tileX);
-                System.out.println("TileY: " + tileY + "\n");
+                // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
+                double startX = tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE;
+                double startY = tileY + canvasCenterHeight;
 
-                System.out.println("StartX: " + (tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE));
-                System.out.println("StartY: " + (tileY + canvasCenterHeight - tileHeightHalf * MAP_SIZE) + "\n");
-
-                gc.drawImage(image, tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE,
-                        tileY + canvasCenterHeight - tileHeightHalf * MAP_SIZE);
-
-                canvas.setOnMouseClicked(event -> {
-
-                    Point2D isoCoord = findTileCoord(event.getX(), event.getY());
-
-                    String mousePos = "Mouse coordinates: x: " + event.getX() + " y: " + event.getY();
-                    mousePosLabel.setText((mousePos));
-
-                    String text = "Tile coordinates: x: " + Math.floor(isoCoord.getX() - (canvasCenterHeight/tileHeight))
-                            + " y: " + Math.ceil(isoCoord.getY() + canvasCenterHeight/tileHeight);
-                    isoCoordLabel.setText(text);
-                });
+                // Zeichnet Bild auf Canvas
+                gc.drawImage(image, startX, startY);
             }
         }
-        this.stage.setScene(new Scene(root));
     }
 
-    public Point2D findTileCoord(double mouseX, double mouseY){
-        double x = Math.floor(mouseY / tileHeight + mouseX  / tileWidth);
-        double y = Math.floor(mouseX / tileWidth - mouseY / tileHeight);
-        Point2D isoCoord = new Point2D(x, y);
-        return isoCoord;
-    }
-
-    public void setController(Controller controller) {
-        this.controller = controller;
+    /**
+     * Soll die Koordinaten der Mouseposition von Pixel zu isometrischen Koordinaten umrechnen
+     *
+     * @param mouseX x-Koordinate der Mouseposition
+     * @param mouseY y-Koordinate der Mouseposition
+     * @return ein Point2D mit isometrischen Koordinaten
+     */
+    public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
+        double x = Math.floor((mouseY / tileHeight + mouseX / tileWidth) - (canvasCenterHeight / tileHeight) - 1);
+        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight));
+        return new Point2D(x, y);
     }
 }
 

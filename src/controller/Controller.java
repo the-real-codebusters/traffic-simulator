@@ -10,6 +10,5 @@ public class Controller {
     public Controller(Model model, View view) {
         this.model = model;
         this.view = view;
-        this.view.setController(this);
     }
 }
