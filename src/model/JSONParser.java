@@ -1,3 +1,5 @@
+package model;
+
 import javafx.scene.control.Alert;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +23,7 @@ public class JSONParser {
     private JSONObject json;
     private String[] requiredRootAttributes = {"commodities", "buildings", "vehicles", "map"};
 
+
     /**
           * Zeigt eine Fehlermeldung an, wenn JSON-Datei fehlerhaft
      * @param filename - JSON-Dateiname zum Laden
@@ -36,13 +39,15 @@ public class JSONParser {
             return false;
         }
         try {
+
+
             json = new JSONObject(new JSONTokener(inputStream));
             // Pflichtattribute alle da?
             handleRootAttributes();
             handleCommoditiesContent(json.getJSONArray("commodities"));
-            handleBuildingsContent(json.getJSONArray("buildings"));
-            handleVehiclesContent(json.getJSONArray("vehicles"));
-            handleMapContent(json.getJSONArray("map"));
+            handleBuildingsContent(json.getJSONObject("buildings"));
+            handleVehiclesContent(json.getJSONObject("vehicles"));
+            handleMapContent(json.getJSONObject("map"));
 
 
             //
@@ -50,6 +55,7 @@ public class JSONParser {
 
         }
         catch(JSONException e){
+            System.out.println(e.getMessage());
                 showAlert("File " + filename + " has no json format");
                 return false;
             }
@@ -98,23 +104,25 @@ public class JSONParser {
      * Prüft Inhalt des Map-Attributs
      * @throws JSONParserException
      */
-    private void handleMapContent(JSONArray array) throws JSONParserException {
+    private void handleMapContent(JSONObject map) throws JSONParserException {
+        // TODO Gleiches Problem wie bei Vehicles, deswegen auskommentiert
+
         // gültige Map-Attribute
-        String[] children = {"mapgen", "gamemode", "width", "depth"};
-        // Alle Kinder von Map auslesen
-        for (int i = 0; i < array.length(); i++) {
-            String child = children[i];
-            JSONObject node = array.getJSONObject(i);
-            // falls Kind nicht vorhanden
-            if (!node.has(children[i])) {
-                throw new JSONParserException("Attribute " + child + " for map not found");
-            }
-            if ("width".equals(child) || "depth".equals(child)) {
-                handleContentAsInteger(child, 100, null);
-            } else {
-                handleContentAsString(child);
-            }
-        }
+//        String[] children = {"mapgen", "gamemode", "width", "depth"};
+//        // Alle Kinder von Map auslesen
+//        for (int i = 0; i < map.length(); i++) {
+//            String child = children[i];
+//            JSONObject node = map.getJSONObject(i);
+//            // falls Kind nicht vorhanden
+//            if (!node.has(children[i])) {
+//                throw new JSONParserException("Attribute " + child + " for map not found");
+//            }
+//            if ("width".equals(child) || "depth".equals(child)) {
+//                handleContentAsInteger(child, 100, null);
+//            } else {
+//                handleContentAsString(child);
+//            }
+//        }
     }
 
     private List<String> commodities = new ArrayList<>();
@@ -142,21 +150,24 @@ public class JSONParser {
      * Prüft Inhalt des Vehicles-Attributs
      * @throws JSONParserException
      */
-    private void handleVehiclesContent(JSONArray array) throws JSONParserException {
-        // Länge prüfen
-        int length = array.length();
-        if (length < 3) {
-            throw new JSONParserException("Too less vehicles ");
-        }
-        // Alle Kinder von Vehicles auslesen
-        for (int i = 0; i < array.length(); i++) {
+    private void handleVehiclesContent(JSONObject vehicles) throws JSONParserException {
+        // TODO Da Vehicles ein JSONObjekt ist und kein JSONArray (außer ich irre und man kann es doch irgendwie als
+        //  Array einlesen), musst du das hier anders machen (Flo, 09.01)
 
-            JSONObject node = array.getJSONObject(i);
-            // TODO kind/graphic/cargo/speed checken
-        }
+        // Länge prüfen
+//        int length = array.length();
+//        if (length < 3) {
+//            throw new JSONParserException("Too less vehicles ");
+//        }
+//        // Alle Kinder von Vehicles auslesen
+//        for (int i = 0; i < array.length(); i++) {
+//
+//            JSONObject node = array.getJSONObject(i);
+//            // TODO kind/graphic/cargo/speed checken
+//        }
     }
 
-    private void handleBuildingsContent(JSONArray array) throws JSONParserException {
+    private void handleBuildingsContent(JSONObject array) throws JSONParserException {
         //TODO
     }
 
@@ -179,7 +190,7 @@ public class JSONParser {
      */
     private void handleRootAttributes() throws JSONParserException {
         for (String rootAttribute: requiredRootAttributes) {
-            if (json.has(rootAttribute)) {
+            if (! json.has(rootAttribute)) {
                 throw new JSONParserException("Attribute " + rootAttribute + " not found");
             }
         }

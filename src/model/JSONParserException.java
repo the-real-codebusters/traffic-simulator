@@ -1,3 +1,5 @@
+package model;
+
 /**
  * Exception, die beim Parsen von JSON auftreten kann
  */
