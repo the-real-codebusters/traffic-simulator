@@ -27,6 +27,8 @@ public class View {
     private final int MAP_SIZE = 10;
 
     private Canvas canvas = new Canvas(700, 500);
+    private double canvasCenterWidth = canvas.getWidth() / 2;
+    private double canvasCenterHeight = canvas.getHeight() / 2;
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
@@ -45,29 +47,10 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
+//        anchorPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 
-        double canvasCenterWidth = canvas.getWidth() / 2;
-        double canvasCenterHeight = canvas.getHeight() / 2;
-
-        // Zeichnet Map
-//        drawMap();
-
-        // Ereignisbehandlung: Bei Mousklick, werden die Mousekoordinaten sowie die Koordinaten des angeklickten
-        // Tile ausgegeben
-        canvas.setOnMouseClicked(event -> {
-            double mouseX = event.getX();
-            double mouseY = event.getY();
-
-            String mouseCoords = "Mouse coordinates: x: " + mouseX + " y: " + mouseY;
-            mousePosLabel.setText(mouseCoords);
-
-            // Findet isometrische Koordinaten der Mouseposition
-            Point2D isoCoord = findTileCoord(mouseX, mouseY, canvasCenterWidth, canvasCenterHeight);
-
-            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
-            isoCoordLabel.setText(tileCoords);
-        });
+        showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
 
         this.stage.setScene(new Scene(root));
     }
@@ -84,8 +67,6 @@ public class View {
         Image image2 = new Image(getClass().getResource("/greentile.png").toString());
         ImageView tile2 = new ImageView(image);
 
-        double canvasCenterWidth = canvas.getWidth() / 2;
-        double canvasCenterHeight = canvas.getHeight() / 2;
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         // Es wird wie über ein 2D-Array mit größe MAP_SIZE iteriert
@@ -99,14 +80,13 @@ public class View {
                 tile.setY(tileY);
 
                 // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
-                double startX = tileX + canvasCenterWidth - tileWidthHalf * MAP_SIZE;
+                double startX = tileX + canvasCenterWidth - tileWidthHalf * fields.length;
                 double startY = tileY + canvasCenterHeight;
 
                 // Zeichnet Bild auf Canvas
 //                gc.drawImage(image, startX, startY);
 
                 if(fields[row][col].getFieldType().equals("gras")){
-                    System.out.println(fields[row][col].getFieldType());
                     gc.drawImage(image, startX, startY);
                 } else {
                     gc.drawImage(image2, startX, startY);
@@ -123,13 +103,33 @@ public class View {
      * @return ein Point2D mit isometrischen Koordinaten
      */
     public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
-        double x = Math.floor((mouseY / tileHeight + mouseX / tileWidth) - (canvasCenterHeight / tileHeight) - 1);
-        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight));
+        double x = Math.floor((mouseY / tileHeight + mouseX / tileWidth) - (canvasCenterHeight / tileHeight) -2);
+        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight) -1);
         return new Point2D(x, y);
     }
 
-    public Stage getStage() {
-        return stage;
+
+    /**
+     * Bei Mousklick, werden die Mousekoordinaten sowie die Koordinaten des angeklickten Tile ausgegeben
+     * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
+     * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
+     */
+    public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel){
+
+        // Ereignisbehandlung
+        canvas.setOnMouseClicked(event -> {
+            double mouseX = event.getX();
+            double mouseY = event.getY();
+
+            String mouseCoords = "Mouse coordinates: x: " + mouseX + " y: " + mouseY;
+            mousePosLabel.setText(mouseCoords);
+
+            // Findet isometrische Koordinaten der Mouseposition
+            Point2D isoCoord = findTileCoord(mouseX, mouseY, canvasCenterWidth, canvasCenterHeight);
+
+            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
+            isoCoordLabel.setText(tileCoords);
+        });
     }
 }
 

@@ -28,6 +28,5 @@ public class Controller {
         fields[4][4].setFieldType("green");
 
         view.drawMap(fields);
-        this.view.getStage().show();
     }
 }
