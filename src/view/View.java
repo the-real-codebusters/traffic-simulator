@@ -75,7 +75,7 @@ public class View {
      * angegenen werden (Beispeil: Bodenfeld [0,0], Wasser [1,2] etc.)
      */
     public void drawMap() {
-        Image image = new Image(getClass().getResource("/greentile.png").toString());
+        Image image = new Image(getClass().getResource("/Bodenplatte_Gras.png").toString());
         ImageView tile = new ImageView(image);
 
         double canvasCenterWidth = canvas.getWidth() / 2;
