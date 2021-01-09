@@ -7,7 +7,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -15,7 +14,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.Field;
 
-import java.util.ArrayList;
 
 public class View {
     private Stage stage;
@@ -24,7 +22,7 @@ public class View {
     private final int tileWidthHalf = tileWidth / 2;
     private final int tileHeight = 32;
     private final int tileHeightHalf = tileHeight / 2;
-    private final int MAP_SIZE = 10;
+    private int mapSize;
 
     private Canvas canvas = new Canvas(700, 500);
     private double canvasCenterWidth = canvas.getWidth() / 2;
@@ -47,7 +45,7 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
-//        anchorPane.setStyle("-fx-background-color: black");
+        scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
@@ -61,11 +59,8 @@ public class View {
      * angegenen werden (Beispeil: Bodenfeld [0,0], Wasser [1,2] etc.)
      */
     public void drawMap(Field[][] fields) {
-        Image image = new Image(getClass().getResource("/Bodenplatte_Gras.png").toString());
-        ImageView tile = new ImageView(image);
-
-        Image image2 = new Image(getClass().getResource("/greentile.png").toString());
-        ImageView tile2 = new ImageView(image);
+        Image greyGrassImage = new Image(getClass().getResource("/Bodenplatte_Gras.png").toString());
+        Image greenGrassImage = new Image(getClass().getResource("/greentile.png").toString());
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -76,21 +71,18 @@ public class View {
                 // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
                 double tileX = (col + row) * tileWidthHalf;
                 double tileY = (col - row) * tileHeightHalf;
-                tile.setX(tileX);
-                tile.setY(tileY);
 
                 // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
-                double startX = tileX + canvasCenterWidth - tileWidthHalf * fields.length;
+                double startX = tileX + canvasCenterWidth - tileWidthHalf * mapSize;
                 double startY = tileY + canvasCenterHeight;
 
-                // Zeichnet Bild auf Canvas
-//                gc.drawImage(image, startX, startY);
-
-                if(fields[row][col].getFieldType().equals("gras")){
-                    gc.drawImage(image, startX, startY);
+                // Bilder werden auf Canvas gezeichnet
+                if(fields[row][col].getFieldType().equals("grass")){
+                    gc.drawImage(greyGrassImage, startX, startY);
                 } else {
-                    gc.drawImage(image2, startX, startY);
+                    gc.drawImage(greenGrassImage, startX, startY);
                 }
+                //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
             }
         }
     }
@@ -103,8 +95,8 @@ public class View {
      * @return ein Point2D mit isometrischen Koordinaten
      */
     public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
-        double x = Math.floor((mouseY / tileHeight + mouseX / tileWidth) - (canvasCenterHeight / tileHeight) -2);
-        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight) -1);
+        double x = Math.floor((mouseY / tileHeight + mouseX / tileWidth) - (canvasCenterHeight / tileHeight) -5 + mapSize /2 - 1);
+        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight) -5 + mapSize /2);
         return new Point2D(x, y);
     }
 
@@ -130,6 +122,10 @@ public class View {
             String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
             isoCoordLabel.setText(tileCoords);
         });
+    }
+
+    public void setMapSize(int mapSize) {
+        this.mapSize = mapSize;
     }
 }
 

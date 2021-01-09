@@ -8,16 +8,38 @@ public class MapModel {
     private String gamemode;
     private int width;
     private int depth;
-    private Field[][] basicFieldGrid;
+    private Field[][] fieldGrid;
     private List<Building> buildings;
 
-    public MapModel(MapGenerator mapgen, String gamemode, int width, int depth, Field[][] basicFieldGrid,
-                    ArrayList<Building> buildings) {
-        this.mapgen = mapgen;
+    public MapModel(String gamemode, Field[][] fieldGrid, ArrayList<Building> buildings) {
         this.gamemode = gamemode;
-        this.width = width;
-        this.depth = depth;
-        this.basicFieldGrid = basicFieldGrid;
+        this.width = fieldGrid.length;
+        this.depth = fieldGrid.length;
+        this.fieldGrid = fieldGrid;
         this.buildings = buildings;
+    }
+
+    public MapGenerator getMapgen() {
+        return mapgen;
+    }
+
+    public String getGamemode() {
+        return gamemode;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public Field[][] getFieldGrid() {
+        return fieldGrid;
+    }
+
+    public List<Building> getBuildings() {
+        return buildings;
     }
 }

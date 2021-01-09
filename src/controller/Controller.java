@@ -15,18 +15,19 @@ public class Controller {
     public Controller(View view) {
         this.view = view;
 
-        Field[][] fields = new Field[8][8];
+        // fields, buildings und map wurden hier nur zu Testzwecken erzeugt und sollen später anhand der Daten in
+        // JSON erzeugt werden
+        Field[][] fields = new Field[6][6];
         List<Building> buildings = new ArrayList<>();
-        MapModel map = new MapModel(new MapGenerator("planverkehr"), "planverkehr",
-                8, 8, fields, new ArrayList<Building>());
+        MapModel map = new MapModel( "planverkehr", fields, new ArrayList<Building>());
 
-        for (int row = 0; row < fields.length; row++) {
-            for (int col = 0; col < fields.length; col++) {
-                fields[row][col] = new Field(0, "gras");
-            }
-        }
-        fields[4][4].setFieldType("green");
+        MapGenerator generator = new MapGenerator("planverkehr", map);
 
-        view.drawMap(fields);
+        int mapSize = generator.generateMap(map).length;
+        view.setMapSize(mapSize);
+
+        // Map wird durch Methode der View gezeichnet
+        view.drawMap(generator.generateMap(map));
+
     }
 }
