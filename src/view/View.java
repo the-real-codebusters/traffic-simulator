@@ -13,6 +13,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import model.Field;
+
+import java.util.ArrayList;
 
 public class View {
     private Stage stage;
@@ -48,7 +51,7 @@ public class View {
         double canvasCenterHeight = canvas.getHeight() / 2;
 
         // Zeichnet Map
-        drawMap();
+//        drawMap();
 
         // Ereignisbehandlung: Bei Mousklick, werden die Mousekoordinaten sowie die Koordinaten des angeklickten
         // Tile ausgegeben
@@ -74,17 +77,20 @@ public class View {
      * Überlegung: später könnte ein Array als Parameter übergeben werden, in dem die Tile-Typen mit Koordinaten
      * angegenen werden (Beispeil: Bodenfeld [0,0], Wasser [1,2] etc.)
      */
-    public void drawMap() {
+    public void drawMap(Field[][] fields) {
         Image image = new Image(getClass().getResource("/Bodenplatte_Gras.png").toString());
         ImageView tile = new ImageView(image);
+
+        Image image2 = new Image(getClass().getResource("/greentile.png").toString());
+        ImageView tile2 = new ImageView(image);
 
         double canvasCenterWidth = canvas.getWidth() / 2;
         double canvasCenterHeight = canvas.getHeight() / 2;
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         // Es wird wie über ein 2D-Array mit größe MAP_SIZE iteriert
-        for (int row = 0; row < MAP_SIZE; row++) {
-            for (int col = 0; col < MAP_SIZE; col++) {
+        for (int row = 0; row < fields.length; row++) {
+            for (int col = 0; col < fields.length; col++) {
 
                 // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
                 double tileX = (col + row) * tileWidthHalf;
@@ -97,7 +103,14 @@ public class View {
                 double startY = tileY + canvasCenterHeight;
 
                 // Zeichnet Bild auf Canvas
-                gc.drawImage(image, startX, startY);
+//                gc.drawImage(image, startX, startY);
+
+                if(fields[row][col].getFieldType().equals("gras")){
+                    System.out.println(fields[row][col].getFieldType());
+                    gc.drawImage(image, startX, startY);
+                } else {
+                    gc.drawImage(image2, startX, startY);
+                }
             }
         }
     }
@@ -113,6 +126,10 @@ public class View {
         double x = Math.floor((mouseY / tileHeight + mouseX / tileWidth) - (canvasCenterHeight / tileHeight) - 1);
         double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight));
         return new Point2D(x, y);
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 }
 
