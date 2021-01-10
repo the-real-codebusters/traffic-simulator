@@ -15,19 +15,21 @@ public class Controller {
     public Controller(View view) {
         this.view = view;
 
-        // fields, buildings und map wurden hier nur zu Testzwecken erzeugt und sollen später anhand der Daten in
-        // JSON erzeugt werden
-        Field[][] fields = new Field[6][6];
+        // buildings und map sind hier lediglich Testobjekte und sollen später anhand der Daten in der
+        // JSON-Datei erzeugt werden
         List<Building> buildings = new ArrayList<>();
-        MapModel map = new MapModel( "planverkehr", fields, new ArrayList<Building>());
+        MapModel map = new MapModel( "planverkehr", 10, 10, new ArrayList<>());
 
+        // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator("planverkehr", map);
+        Field[][] generatedMap = generator.generateMap(map);
 
-        int mapSize = generator.generateMap(map).length;
-        view.setMapSize(mapSize);
+        // Breite und Tiefe der Map aus dem Model werden in der View übernommen
+        view.setMapWidth(map.getWidth());
+        view.setMapDepth(map.getDepth());
 
         // Map wird durch Methode der View gezeichnet
-        view.drawMap(generator.generateMap(map));
+        view.drawMap(generatedMap);
 
     }
 }
