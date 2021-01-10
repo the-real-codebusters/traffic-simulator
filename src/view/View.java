@@ -42,6 +42,7 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
+        root.setTop(new MenuPane());
         anchorPane.getChildren().add(canvas);
 
         double canvasCenterWidth = canvas.getWidth() / 2;
