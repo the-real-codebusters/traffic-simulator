@@ -9,10 +9,7 @@ import org.json.JSONTokener;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static view.ErrorAlert.showAlert;
 
@@ -84,7 +81,7 @@ public class JSONParser {
      * @param name
      * @throws JSONParserException
      */
-    private void handleContentAsInteger(JSONObject json, String name, Integer lower, Integer upper) throws JSONParserException{
+    private int handleContentAsInteger(JSONObject json, String name, Integer lower, Integer upper) throws JSONParserException{
         try {
             int value = json.getInt(name);
             if (lower != null && value < lower) {
@@ -93,6 +90,7 @@ public class JSONParser {
             if (upper != null && value > upper) {
                 throw new JSONParserException ("attribute " + name + " has invalid upper bound");
             }
+            return value;
         }
         catch(JSONException e) {
             throw new JSONParserException ("no integer format for attribute " + name + " defined");
@@ -104,7 +102,7 @@ public class JSONParser {
      * @param name
      * @throws JSONParserException
      */
-    private void handleContentAsDouble(JSONObject json, String name, Double lower, Double upper) throws JSONParserException{
+    private double handleContentAsDouble(JSONObject json, String name, Double lower, Double upper) throws JSONParserException{
         try {
             double value = json.getDouble(name);
             if (lower != null && value < lower) {
@@ -113,6 +111,7 @@ public class JSONParser {
             if (upper != null && value > upper) {
                 throw new JSONParserException ("attribute " + name + " has invalid upper bound");
             }
+            return value;
         }
         catch(JSONException e) {
             throw new JSONParserException ("no double format for attribute " + name + " defined");
@@ -294,9 +293,146 @@ public class JSONParser {
 
     }
 
-    private void handleBuildingsContent(JSONObject array) throws JSONParserException {
-        //TODO
+    private List<Building> buildings = new ArrayList<>();
+
+    public List<Building> getBuildings() {
+        return buildings;
     }
+
+    public void getBuildingsAsString() {
+        for (Building b: buildings) {
+            System.out.println(b);
+        }
+    }
+
+    /**
+     * Prueft buildings auf Richtigkeit und befüllt die Liste mit erzeugten Objekten
+     * @param buildings
+     * @throws JSONParserException
+     */
+    private void handleBuildingsContent(JSONObject buildings) throws JSONParserException {
+        Iterator<String> keys = buildings.keys();
+        while (keys.hasNext()) {
+            String data = keys.next();
+            JSONObject buildingsDetails = buildings.getJSONObject(data);
+            Building building = handleBuildMenuContent(buildingsDetails);
+            if (building != null) {
+                this.buildings.add(building);
+            }
+        }
+    }
+
+    /**
+     * prueft alle Buildings-Attribute mit vorhandenem Element buildmenu mit Wert 'road' und liefert ein neues Building-Objekt zurück
+     * @param buildings
+     * @return
+     * @throws JSONParserException
+     */
+    private Building handleBuildMenuContent(JSONObject buildings) throws JSONParserException {
+        if (buildings.has("buildmenu")) {
+            Building building = new Building();
+            // TODO: welche gültigen buildmenus sind erlaubt?
+            String buildmenu = handleContentAsString(buildings, "buildmenu");
+            if (buildmenu.equals("road")) {
+                int width = handleContentAsInteger(buildings, "width", null, null);
+                int depth = handleContentAsInteger(buildings, "depth", null, null);
+                int dz = handleContentAsInteger(buildings, "dz", null, null);
+                Map<String, List<Double>> pointMap = handleBuildMenuPoints(buildings.getJSONObject("points"));
+                List<List<String>> roadList = handleBuildMenuRoads(buildings.getJSONArray("roads"));
+                Map<String, String> combinesMap = new HashMap<>();
+                if (buildings.has("combines")) {
+                    combinesMap = handleBuildMenuCombines(buildings.getJSONObject("combines"));
+                }
+                building.setType(buildmenu);
+                building.setWidth(width);
+                building.setDepth(depth);
+                building.setDz(dz);
+                building.setPoints(pointMap);
+                building.setRoads(roadList);
+                building.setCombines(combinesMap);
+                return building;
+            }
+
+
+        }
+        return null;
+    }
+
+    /**
+     * Prüfe combines und befuelle entsprechend die Map
+     * @param combines
+     * @return
+     * @throws JSONParserException
+     */
+    private Map<String, String> handleBuildMenuCombines(JSONObject combines) throws JSONParserException {
+        Map<String, String> combineData = new HashMap<>();
+        Iterator<String> keys = combines.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            //TODO: prüfe ob Wert stimmt
+            String value = combines.optString(key);
+            combineData.put(key,value);
+        }
+        return combineData;
+    }
+
+    /**
+     * Prüfe roads und befuelle entsprechend die zweidimensionale Liste
+     * @param roads
+     * @return
+     * @throws JSONParserException
+     */
+    private List<List<String>> handleBuildMenuRoads(JSONArray roads) throws JSONParserException {
+        if (roads.isEmpty()) {
+            throw new JSONParserException("roads are empty ");
+        }
+        List<List<String>> roadList = new ArrayList<>();
+
+        for (int i = 0; i <roads.length(); i++) {
+            JSONArray roadsData = roads.getJSONArray(i);
+            if (roadsData.isEmpty()) {
+                throw new JSONParserException("roads data are empty ");
+            }
+            List<String> innerList = new ArrayList<>();
+            for (int j = 0; j <roadsData.length(); j++) {
+                innerList.add(roadsData.getString(j));
+            }
+            roadList.add(innerList);
+        }
+        return roadList;
+    }
+
+    /**
+     * Prüfe points und befuelle entsprechend die Map
+     * @param points
+     * @return
+     * @throws JSONParserException
+     */
+    private Map<String, List<Double>> handleBuildMenuPoints(JSONObject points) throws JSONParserException {
+        Map<String, List<Double>> pointMap = new HashMap<>();
+        Iterator<String> keys = points.keys();
+        while (keys.hasNext()) {
+            String data = keys.next();
+            //TODO: prüfe ob himmelsrichtung stimmt
+            JSONArray values = points.optJSONArray(data);
+            List<Double> pointData = new ArrayList<>();
+            if (values.isEmpty()) {
+                throw new JSONParserException("points data are empty ");
+            }
+            for (int i = 0; i < values.length(); i++) {
+                try {
+                    Double d = values.getDouble(i);
+                    pointData.add(d);
+                }
+                catch(JSONException e) {
+                    throw new JSONParserException("wrong double format for attribute " + data);
+                }
+            }
+            pointMap.put(data,pointData );
+        }
+        return pointMap;
+    }
+
 
 
 
