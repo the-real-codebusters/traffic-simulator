@@ -9,10 +9,7 @@ import org.json.JSONTokener;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static view.ErrorAlert.showAlert;
 
@@ -32,7 +29,7 @@ public class JSONParser {
      * @param filename - JSON-Dateiname zum Laden
      * @return - true im Erfolgsfall, sonst false
      */
-    public boolean parse(String filename) {
+    public boolean parse(String filename, Model model) {
         // JSON-Datei wird eingelesen
         InputStream inputStream = null;
         try {
@@ -47,10 +44,9 @@ public class JSONParser {
             handleRootAttributes();
             // pruefe root-attribute nacheinander
             handleCommoditiesContent(json.getJSONArray("commodities"));
-            handleBuildingsContent(json.getJSONObject("buildings"));
+            handleBuildingsContent(json.getJSONObject("buildings"), model);
             handleVehiclesContent(json.getJSONObject("vehicles"));
             handleMapContent(json.getJSONObject("map"));
-
        }
         catch(JSONException e){
             System.out.println(e.getMessage());
@@ -294,8 +290,21 @@ public class JSONParser {
 
     }
 
-    private void handleBuildingsContent(JSONObject array) throws JSONParserException {
-        //TODO
+    private void handleBuildingsContent(JSONObject buildings, Model model) throws JSONParserException {
+        //TODO Muss noch fast ganz umgesetzt werden! Es ist nur das Abspeichern der Buildmenüs gegeben
+
+        Set<String> buildMenus = new HashSet<>();
+
+        Iterator<String> keys = buildings.keys();
+        while(keys.hasNext()) {
+            String buildingName = keys.next();
+            JSONObject building = buildings.getJSONObject(buildingName);
+            if(building.has("buildmenu")){
+                buildMenus.add(building.getString("buildmenu"));
+            }
+
+        }
+        model.setBuildmenus(buildMenus);
     }
 
 

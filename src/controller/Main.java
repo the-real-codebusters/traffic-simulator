@@ -10,11 +10,11 @@ public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
         JSONParser parser = new JSONParser();
-        if (parser.parse("resources/planverkehr.json")) {
-            View view = new View(stage);
+        Model model = new Model();
+        if (parser.parse("resources/planverkehr.json", model)) {
+            View view = new View(stage, model);
             stage.setTitle("Green tiles");
             stage.show();
-            Model model = new Model();
             Controller controller = new Controller(model, view);
         }
     }

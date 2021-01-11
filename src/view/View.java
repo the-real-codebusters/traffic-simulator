@@ -1,5 +1,6 @@
 package view;
 
+import controller.Controller;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -13,6 +14,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import model.Model;
 
 public class View {
     private Stage stage;
@@ -27,7 +29,8 @@ public class View {
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
-    public View(Stage primaryStage) {
+
+    public View(Stage primaryStage, Model model) {
         this.stage = primaryStage;
 
         Label isoCoordLabel = new Label();
@@ -37,12 +40,12 @@ public class View {
         mousePosLabel.setFont(new Font("Arial", 15));
 
         BorderPane root = new BorderPane();
-        root.setPrefSize(700, 500);
+        root.setPrefSize(1024, 768);
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
-        root.setTop(new MenuPane());
+        root.setTop(new MenuPane(model));
         anchorPane.getChildren().add(canvas);
 
         double canvasCenterWidth = canvas.getWidth() / 2;
@@ -115,5 +118,6 @@ public class View {
         double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + (canvasCenterHeight / tileHeight));
         return new Point2D(x, y);
     }
+
 }
 

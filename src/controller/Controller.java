@@ -4,6 +4,8 @@ import model.JSONParser;
 import model.Model;
 import view.View;
 
+import java.util.Set;
+
 public class Controller {
     private View view;
     private Model model;
@@ -12,4 +14,5 @@ public class Controller {
         this.model = model;
         this.view = view;
     }
+
 }
