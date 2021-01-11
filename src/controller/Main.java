@@ -9,6 +9,7 @@ public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
         View view = new View(stage);
+        Controller controller = new Controller(view);
         stage.setTitle("Green tiles");
         stage.show();
         Model model = new Model();

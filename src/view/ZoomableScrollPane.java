@@ -67,6 +67,7 @@ public class ZoomableScrollPane extends ScrollPane {
     private Node centeredNode(Node outerNode) {
         VBox vBox = new VBox(outerNode);
         vBox.setAlignment(Pos.CENTER);
+        vBox.setStyle("-fx-background-color: black");
         return vBox;
     }
 
