@@ -1,11 +1,13 @@
 package model;
 
 public abstract class Vehicle {
-    private String kind;
+    private String kind; // TODO: sollten wir eventuell einen Enum statt einen String verwenden?
     //    graphic
     private boolean canTransportCargo;
     private double speed;
 //    private Storage cargo;
+
+    // TODO: Graph oder Stations zu Fahrzeug hinzufügen
 
     public String getKind() {
         return kind;
