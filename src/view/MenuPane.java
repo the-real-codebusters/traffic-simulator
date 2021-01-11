@@ -1,6 +1,5 @@
 package view;
 
-import controller.Controller;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -11,7 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import model.Model;
+import model.BasicModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +22,9 @@ public class MenuPane extends AnchorPane {
     private List<String> tabNames = List.of("buildings", "nature", "height", "vehicles");
     private HBox hBox;
     private TabPane tabPane = new TabPane();
-    private Model model;
+    private BasicModel model;
 
-    public MenuPane(Model model) {
+    public MenuPane(BasicModel model) {
         this.model = model;
         hBox = new HBox(tabPane);
         this.getChildren().add(hBox);

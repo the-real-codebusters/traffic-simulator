@@ -1,7 +1,7 @@
 package controller;
 
+import model.BasicModel;
 import model.JSONParser;
-import model.Model;
 import view.View;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -10,12 +10,12 @@ public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
         JSONParser parser = new JSONParser();
-        Model model = new Model();
+        BasicModel model = new BasicModel();
         if (parser.parse("resources/planverkehr.json", model)) {
             View view = new View(stage, model);
             stage.setTitle("Green tiles");
             stage.show();
-            Controller controller = new Controller(model, view);
+            Controller controller = new Controller(view);
         }
     }
 

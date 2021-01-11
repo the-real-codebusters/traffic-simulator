@@ -29,7 +29,7 @@ public class JSONParser {
      * @param filename - JSON-Dateiname zum Laden
      * @return - true im Erfolgsfall, sonst false
      */
-    public boolean parse(String filename, Model model) {
+    public boolean parse(String filename, BasicModel model) {
         // JSON-Datei wird eingelesen
         InputStream inputStream = null;
         try {
@@ -290,7 +290,7 @@ public class JSONParser {
 
     }
 
-    private void handleBuildingsContent(JSONObject buildings, Model model) throws JSONParserException {
+    private void handleBuildingsContent(JSONObject buildings, BasicModel model) throws JSONParserException {
         //TODO Muss noch fast ganz umgesetzt werden! Es ist nur das Abspeichern der Buildmenüs gegeben
 
         Set<String> buildMenus = new HashSet<>();
