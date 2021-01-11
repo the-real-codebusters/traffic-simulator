@@ -5,7 +5,6 @@ import model.Field;
 import model.MapGenerator;
 import model.MapModel;
 import model.JSONParser;
-import model.Model;
 import view.View;
 
 import java.util.ArrayList;

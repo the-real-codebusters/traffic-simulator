@@ -1,9 +1,11 @@
+package model;
+
 public abstract class Vehicle {
     private String kind;
     //    graphic
     private boolean canTransportCargo;
     private double speed;
-    private Storage cargo;
+//    private Storage cargo;
 
     public String getKind() {
         return kind;
@@ -29,11 +31,11 @@ public abstract class Vehicle {
         this.speed = speed;
     }
 
-    public Storage getCargo() {
-        return cargo;
-    }
-
-    public void setCargo(Storage cargo) {
-        this.cargo = cargo;
-    }
+//    public Storage getCargo() {
+//        return cargo;
+//    }
+//
+//    public void setCargo(Storage cargo) {
+//        this.cargo = cargo;
+//    }
 }
