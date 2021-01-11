@@ -6,7 +6,6 @@ import model.MapGenerator;
 import model.MapModel;
 import model.JSONParser;
 import view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +31,6 @@ public class Controller {
         // Map wird durch Methode der View gezeichnet
         view.drawMap(generatedMap);
 
-        JSONParser parser = new JSONParser();
-        parser.parse(getClass().getResource("/planverkehr.json").getPath());
     }
+
 }

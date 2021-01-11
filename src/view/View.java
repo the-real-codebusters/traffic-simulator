@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import model.BasicModel;
 import model.Field;
 
 
@@ -31,7 +32,8 @@ public class View {
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
-    public View(Stage primaryStage) {
+
+    public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
 
         Label isoCoordLabel = new Label();
@@ -41,11 +43,12 @@ public class View {
         mousePosLabel.setFont(new Font("Arial", 15));
 
         BorderPane root = new BorderPane();
-//        root.setPrefSize(700, 500);
+        root.setPrefSize(1024, 768);
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
+        root.setTop(new MenuPane(model));
         scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 
@@ -99,7 +102,6 @@ public class View {
         double y = Math.floor((mouseX/tileWidth - mouseY/tileHeight) + (canvasCenterHeight/tileHeight) - 5 + mapWidth/2);
         return new Point2D(x, y);
     }
-
 
     /**
      * Bei Mausklick, werden die Mauskoordinaten sowie die Koordinaten des angeklickten Tile ausgegeben

@@ -1,5 +1,6 @@
 package model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class BasicModel {
@@ -9,6 +10,8 @@ public class BasicModel {
     private double speedOfDay;
     private MapModel map;
 //    private ToolsModel tools;
+
+    private Set<String> buildmenus = new HashSet<>();
 
     public Set<String> getCommodities() {
         return commodities;
@@ -58,4 +61,11 @@ public class BasicModel {
 //        this.tools = tools;
 //    }
 
+    public Set<String> getBuildmenus() {
+        return buildmenus;
+    }
+
+    public void setBuildmenus(Set<String> buildmenus) {
+        this.buildmenus = buildmenus;
+    }
 }
