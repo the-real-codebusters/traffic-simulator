@@ -59,20 +59,15 @@ public class MenuPane extends AnchorPane {
             tabContents.add(new AnchorPane());
         }
 
-        // Hbox erstellen
-        // Vom Model alle Buildings dazu geben lassen
-        // Hbox mit Graphiken zu buildings befüllen
-
         for(String name: tabNames){
             HBox container = boxWithLayout();
-
+            List<String> buildings = model.getBuildingNamesForBuildmenu(name);
+            for(String building: buildings){
+                ImageView imageView = imageViewWithLayout(building);
+                container.getChildren().add(imageView);
+            }
+            tabContents.set(tabNames.indexOf(name), container);
         }
-
-        //nature
-        HBox natureContainer = boxWithLayout();
-        ImageView tree = imageViewWithLayout("tree");
-        natureContainer.getChildren().add(tree);
-        tabContents.set(tabNames.indexOf("nature"), natureContainer);
     }
 
     private HBox boxWithLayout(){
