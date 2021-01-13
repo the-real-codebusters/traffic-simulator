@@ -15,7 +15,7 @@ public class Controller {
         // buildings und map sind hier lediglich Testobjekte und sollen später anhand der Daten in der
         // JSON-Datei erzeugt werden
         List<Building> buildings = new ArrayList<>();
-        MapModel map = new MapModel("planverkehr", 10, 10, new ArrayList<>());
+        MapModel map = new MapModel( 10, 10, new ArrayList<>());
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator("planverkehr", map);

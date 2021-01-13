@@ -11,7 +11,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         JSONParser parser = new JSONParser();
         BasicModel model = new BasicModel();
-        if (parser.parse("resources/planverkehr.json", model)) {
+        if (parser.parse("resources/planverkehr/planverkehr.json", model)) {
             View view = new View(stage, model);
             stage.setTitle("Green tiles");
             stage.show();

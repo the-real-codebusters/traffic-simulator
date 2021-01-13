@@ -32,9 +32,12 @@ public class View {
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
+    private BasicModel model;
+
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
+        this.model = model;
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -48,7 +51,7 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
-        root.setTop(new MenuPane(model));
+        root.setTop(new MenuPane(model, this));
         scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 
@@ -62,8 +65,8 @@ public class View {
      * enthält
      */
     public void drawMap(Field[][] fields) {
-        Image greyGrassImage = new Image(getClass().getResource("/Bodenplatte_Gras.png").toString());
-        Image greenGrassImage = new Image(getClass().getResource("/greentile.png").toString());
+        Image greyGrassImage = new Image(getClass().getResource("/planverkehr/Bodenplatte_Gras.png").toString());
+        Image greenGrassImage = new Image(getClass().getResource("/planverkehr/greentile.png").toString());
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -124,6 +127,12 @@ public class View {
             String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
             isoCoordLabel.setText(tileCoords);
         });
+    }
+
+    public Image getResourceForImageName(String imageName){
+        String gamemode = model.getGamemode();
+        Image image = new Image(getClass().getResource("/"+gamemode+"/"+imageName+".png").toString());
+        return image;
     }
 
     public void setMapWidth(int mapWidth) {

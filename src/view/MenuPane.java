@@ -23,9 +23,12 @@ public class MenuPane extends AnchorPane {
     private HBox hBox;
     private TabPane tabPane = new TabPane();
     private BasicModel model;
+    private View view;
 
-    public MenuPane(BasicModel model) {
+
+    public MenuPane(BasicModel model, View view) {
         this.model = model;
+        this.view = view;
         hBox = new HBox(tabPane);
         this.getChildren().add(hBox);
 
@@ -60,6 +63,11 @@ public class MenuPane extends AnchorPane {
         // Vom Model alle Buildings dazu geben lassen
         // Hbox mit Graphiken zu buildings befüllen
 
+        for(String name: tabNames){
+            HBox container = boxWithLayout();
+
+        }
+
         //nature
         HBox natureContainer = boxWithLayout();
         ImageView tree = imageViewWithLayout("tree");
@@ -75,15 +83,15 @@ public class MenuPane extends AnchorPane {
     }
 
     private ImageView imageViewWithLayout(String imageName){
-        Image image = new Image(getClass().getResource("/"+imageName+".png").toString());
-        ImageView view = new ImageView(image);
-        view.setPreserveRatio(true);
-        view.setFitHeight(90);
-        view.setOnMouseClicked(event -> {
+        Image image = view.getResourceForImageName(imageName);
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(90);
+        imageView.setOnMouseClicked(event -> {
             // TODO
             System.out.println("Auf "+imageName+" geklickt");
         });
-        return view;
+        return imageView;
     }
 
     private VBox buildingContent(String typ){
