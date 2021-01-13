@@ -139,7 +139,11 @@ public class TrafficGraph {
                 String nameOfVertex2 = mapOfVertexes.keySet().toArray()[j].toString();
                 Vertex v2 = mapOfVertexes.get(nameOfVertex2);
                 if (!v1.equals(v2)) {
-                    if (v1.coordsRelativeToMapOrigin().equals(v2.coordsRelativeToMapOrigin())) {
+                    double differenceX = Math.abs(v1.coordsRelativeToMapOrigin().getX() - v2.coordsRelativeToMapOrigin().getX());
+                    double differenceY = Math.abs(v1.coordsRelativeToMapOrigin().getY() - v2.coordsRelativeToMapOrigin().getY());
+                    // da laut Aufgabenstellung double-Werte nicht auf Gleichheit getestet werden sollen (siehe S. 10),
+                    // wird hier geprüft, ob der Unterschied unter 0.1 liegt
+                    if(Math.abs(differenceX - differenceY) < 0.1) {
                         System.out.println("Joining vertices " + v1.getName() + " " + v2.getName());
                         joinVertices(v1, v2);
                         j--;
