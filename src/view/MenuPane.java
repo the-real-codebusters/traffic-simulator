@@ -19,7 +19,7 @@ import java.util.Set;
 public class MenuPane extends AnchorPane {
 
     private List<Node> tabContents = new ArrayList();
-    private List<String> tabNames = List.of("buildings", "nature", "height", "vehicles");
+    private List<String> tabNames = new ArrayList<>();
     private HBox hBox;
     private TabPane tabPane = new TabPane();
     private BasicModel model;
@@ -45,28 +45,26 @@ public class MenuPane extends AnchorPane {
 
     private void generateTabContents(){
 
+        // Get Buildmenus from Model
+        Set<String> buildmenus = model.getBuildmenus();
+
+        tabNames.addAll(buildmenus);
+        tabNames.addAll(List.of("height", "vehicles"));
+
         // dummys:
         for (int i=0; i<tabNames.size(); i++){
             tabContents.add(new AnchorPane());
         }
 
-        // buildings
-        HBox buildingContainer = boxWithLayout();
-        Set<String> buildmenus = model.getBuildmenus();
-        if(tabNames.contains("nature")) buildmenus.remove("nature");
-        for(String name: buildmenus) {
-            Separator separator = new Separator();
-            separator.setOrientation(Orientation.VERTICAL);
-            buildingContainer.getChildren().addAll(buildingContent(name), separator);
-        }
-        tabContents.set(0, buildingContainer);
-
+        // Hbox erstellen
+        // Vom Model alle Buildings dazu geben lassen
+        // Hbox mit Graphiken zu buildings befüllen
 
         //nature
         HBox natureContainer = boxWithLayout();
         ImageView tree = imageViewWithLayout("tree");
         natureContainer.getChildren().add(tree);
-        tabContents.set(1, natureContainer);
+        tabContents.set(tabNames.indexOf("nature"), natureContainer);
     }
 
     private HBox boxWithLayout(){
