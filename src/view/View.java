@@ -51,7 +51,7 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
-        root.setTop(new MenuPane(model, this));
+        root.setTop(new MenuPane(model, this, canvas));
         scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 
@@ -68,29 +68,33 @@ public class View {
         Image greyGrassImage = new Image(getClass().getResource("/planverkehr/Bodenplatte_Gras.png").toString());
         Image greenGrassImage = new Image(getClass().getResource("/planverkehr/greentile.png").toString());
 
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = 0; col < mapWidth; col++) {
             for (int row = 0; row < mapDepth; row++) {
 
-                // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
-                double tileX = (col + row) * tileWidthHalf;
-                double tileY = (col - row) * tileHeightHalf;
-
-                // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
-                double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth;
-                double startY = tileY + canvasCenterHeight;
-
                 // Bilder werden auf Canvas anhand von fieldType gezeichnet
                 if (fields[col][row].getFieldType().equals("grey")) {
-                    gc.drawImage(greyGrassImage, startX, startY);
+                    drawTileImage(col, row, greyGrassImage);
                 } else {
-                    gc.drawImage(greenGrassImage, startX, startY);
+                    drawTileImage(col, row, greenGrassImage);
                 }
                 //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
             }
         }
+    }
+
+
+    public void drawTileImage(int tileXCoord, int tileYCoord, Image image){
+
+        // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
+        double tileX = (tileXCoord + tileYCoord) * tileWidthHalf;
+        double tileY = (tileXCoord - tileYCoord) * tileHeightHalf;
+
+        // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
+        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth;
+        double startY = tileY + canvasCenterHeight;
+
+        canvas.getGraphicsContext2D().drawImage(image, startX, startY);
     }
 
     /**
@@ -141,6 +145,14 @@ public class View {
 
     public void setMapDepth(int mapDepth) {
         this.mapDepth = mapDepth;
+    }
+
+    public double getCanvasCenterWidth() {
+        return canvasCenterWidth;
+    }
+
+    public double getCanvasCenterHeight() {
+        return canvasCenterHeight;
     }
 }
 

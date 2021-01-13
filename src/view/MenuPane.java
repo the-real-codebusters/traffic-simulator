@@ -2,7 +2,9 @@ package view;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,11 +26,35 @@ public class MenuPane extends AnchorPane {
     private TabPane tabPane = new TabPane();
     private BasicModel model;
     private View view;
+    private Canvas canvas;
 
+    // Wenn null, kein Bauwerk ist ausgewählt
+    private String selectedBuilding;
 
-    public MenuPane(BasicModel model, View view) {
+    // x, y
+    private int[] hoveredTileBefore = new int[2];
+
+    public MenuPane(BasicModel model, View view, Canvas canvas) {
         this.model = model;
         this.view = view;
+        this.canvas = canvas;
+
+        canvas.setOnMouseMoved(event -> {
+
+            // TODO Benutze echte Buildings aus Model
+
+            if(selectedBuilding != null){
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+
+                Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+                Image image = view.getResourceForImageName(selectedBuilding);
+                ImageView imageView = new ImageView(image);
+
+            }
+
+        });
+
         hBox = new HBox(tabPane);
         this.getChildren().add(hBox);
 
@@ -84,29 +110,10 @@ public class MenuPane extends AnchorPane {
         imageView.setFitHeight(90);
         imageView.setOnMouseClicked(event -> {
             // TODO
+            selectedBuilding = imageName;
             System.out.println("Auf "+imageName+" geklickt");
         });
         return imageView;
     }
 
-    private VBox buildingContent(String typ){
-        //TODO Befülle nach konkret vorhandenen baubaren Bauwerken für jeweiligen Typ
-
-        VBox vBox = new VBox(10);
-        HBox hBox = new HBox(10);
-        if(typ.equals("road")){
-            ImageView street = imageViewWithLayout("street");
-            hBox.getChildren().add(street);
-        }
-        else if(typ.equals("rail")){
-            ImageView street = imageViewWithLayout("railroad");
-            hBox.getChildren().add(street);
-        }
-        else if(typ.equals("airport")){
-            ImageView street = imageViewWithLayout("tower");
-            hBox.getChildren().add(street);
-        }
-        vBox.getChildren().addAll(new Text(typ), hBox);
-        return vBox;
-    }
 }
