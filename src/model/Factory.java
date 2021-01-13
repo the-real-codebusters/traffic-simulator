@@ -8,4 +8,16 @@ public class Factory extends Special {
     private Map<String, Integer> produce = new HashMap<>();
     private Map<String, Integer> consume = new HashMap<>();
     private int duration;
+
+    public void setProduce(Map<String, Integer> produce) {
+        this.produce = produce;
+    }
+
+    public void setConsume(Map<String, Integer> consume) {
+        this.consume = consume;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
 }

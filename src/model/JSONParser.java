@@ -401,7 +401,7 @@ public class JSONParser {
     }
 
     /**
-     * prueft alle Road-Attribute auf Richtigkeit liefert ein neues Road-Objekt zurück
+     * prueft alle Road-Attribute auf Richtigkeit liefert ein neues Road-Objekt zurück. Buildmenu kann optional übergeben und geprüft werden
      * @param json
      * @return
      * @throws JSONParserException
@@ -437,6 +437,7 @@ public class JSONParser {
      * @throws JSONParserException
      */
     private boolean checkBuildMenu(String expected, String actual) throws JSONParserException {
+        //TODO: expected null?
         if (!expected.equals(actual)) {
             throw new JSONParserException("build menue + " + actual + " undefined, expected " + expected);
         }
@@ -444,26 +445,120 @@ public class JSONParser {
     }
 
     //TODO:
-    private Tower handleTaxiwayContent(JSONObject json) throws JSONParserException {
-        return null;
+    private Taxiway handleTaxiwayContent(JSONObject json) throws JSONParserException {
+        Taxiway taxiway = new Taxiway();
+        String buildmenu = handleContentAsString(json, "buildmenu");
+        checkBuildMenu(taxiway.getBuildmenu(), buildmenu);
+
+        setDefaultAttributes(taxiway, json);
+
+        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
+        List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
+
+        taxiway.setPoints(pointMap);
+        taxiway.setPlanes(planes);
+
+        return taxiway;
     }
-    private Tower handleRunwayContent(JSONObject json) throws JSONParserException {
-        return null;
+    private Runway handleRunwayContent(JSONObject json) throws JSONParserException {
+        Runway runway = new Runway();
+        String buildmenu = handleContentAsString(json, "buildmenu");
+        checkBuildMenu(runway.getBuildmenu(), buildmenu);
+
+        setDefaultAttributes(runway, json);
+
+        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
+        List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
+
+        JSONArray entryJson = json.getJSONArray("entry");
+
+        if (entryJson.isEmpty()) {
+            throw new JSONParserException("signal data is empty ");
+        }
+        List<String> entries = new ArrayList<>();
+        for (int i = 0; i < entryJson.length(); i++) {
+            entries.add(entryJson.getString(i));
+        }
+
+        runway.setPoints(pointMap);
+        runway.setPlanes(planes);
+        runway.setEntry(entries);
+
+        return runway;
     }
-    private Tower handleBusstopContent(JSONObject json) throws JSONParserException {
-        return null;
+    private Busstop handleBusstopContent(JSONObject json) throws JSONParserException {
+        Busstop busstop = new Busstop();
+        String buildmenu = handleContentAsString(json, "buildmenu");
+        checkBuildMenu(busstop.getBuildmenu(), buildmenu);
+
+        setDefaultAttributes(busstop, json);
+
+        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
+        List<List<String>> roads = handleBuildMenuInfrastructure(json.getJSONArray("roads"));
+
+        busstop.setPoints(pointMap);
+        busstop.setRoads(roads);
+
+        return busstop;
     }
-    private Tower handleFactoryContent(JSONObject json) throws JSONParserException {
-        return null;
+    private Factory handleFactoryContent(JSONObject json) throws JSONParserException {
+        Factory factory = new Factory();
+
+        setDefaultAttributes(factory, json);
+
+        //TODO: productions ein mal array, ein mal nicht (siehe handleCargoContent)
+
+        return factory;
     }
-    private Tower handleJustCombinesContent(JSONObject json) throws JSONParserException {
-        return null;
+    private Justcombines handleJustCombinesContent(JSONObject json) throws JSONParserException {
+        Justcombines justcombines = new Justcombines();
+        String buildmenu = handleContentAsString(json, "buildmenu");
+        checkBuildMenu(justcombines.getBuildmenu(), buildmenu);
+
+        setDefaultAttributes(justcombines, json);
+
+        Map<String, String> combinesMap =handleBuildMenuCombines(json.getJSONObject("combines"));
+
+        justcombines.setCombines(combinesMap);
+        return justcombines;
     }
-    private Tower handleNatureContent(JSONObject json) throws JSONParserException {
-        return null;
+    private Nature handleNatureContent(JSONObject json) throws JSONParserException {
+        Nature nature = new Nature();
+        String buildmenu = handleContentAsString(json, "buildmenu");
+        checkBuildMenu(nature.getBuildmenu(), buildmenu);
+
+        setDefaultAttributes(nature, json);
+        return nature;
     }
-    private Tower handleRailsContent(JSONObject json, String... buildmenu) throws JSONParserException {
-        return null;
+    private Rail handleRailsContent(JSONObject json, String... buildmenu) throws JSONParserException {
+        Rail rail = new Rail();
+        setDefaultAttributes(rail, json);
+
+        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
+        List<List<String>> railList = handleBuildMenuInfrastructure(json.getJSONArray("rails"));
+
+        if (buildmenu.length == 1) {
+            rail.setBuildmenu(buildmenu[0]);
+        }
+
+        List<String> signals = new ArrayList<>();
+        if (json.has("signals")) {
+            JSONArray signalJson = json.getJSONArray("signals");
+
+            if (signalJson.isEmpty()) {
+                throw new JSONParserException("signal data is empty ");
+            }
+
+            for (int i = 0; i < signalJson.length(); i++) {
+                signals.add(signalJson.getString(i));
+            }
+        }
+
+
+        rail.setPoints(pointMap);
+        rail.setRails(railList);
+        rail.setSignals(signals);
+        return rail;
     }
 
     /**
@@ -496,7 +591,7 @@ public class JSONParser {
                 String buildmenu = handleContentAsString(buildingsDetails, "buildmenu");
                 switch (buildmenu) {
                     case "road": return handleRoadContent(buildingsDetails, buildmenu);
-                    case "rails": return handleRailsContent(buildingsDetails, buildmenu);
+                    case "rail": return handleRailsContent(buildingsDetails, buildmenu);
                     default:
                         throw new JSONParserException("wrong buildmenu + " + buildmenu + "  defined");
                 }

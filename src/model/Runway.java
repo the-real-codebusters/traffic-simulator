@@ -11,4 +11,20 @@ public class Runway extends Special {
 
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> planes = new ArrayList<>();
+
+    public String getBuildmenu() {
+        return buildmenu;
+    }
+
+    public void setEntry(List<String> entry) {
+        this.entry = entry;
+    }
+
+    public void setPoints(Map<String, List<Double>> points) {
+        this.points = points;
+    }
+
+    public void setPlanes(List<List<String>> planes) {
+        this.planes = planes;
+    }
 }
