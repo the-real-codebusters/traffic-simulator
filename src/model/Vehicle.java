@@ -7,8 +7,6 @@ public abstract class Vehicle {
     private double speed;
 //    private Storage cargo;
 
-    // TODO: Graph oder Stations zu Fahrzeug hinzufügen
-
     public String getKind() {
         return kind;
     }

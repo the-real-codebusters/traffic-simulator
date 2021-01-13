@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class Station {
     // Bauwerke, aus denen eine Haltestelle besteht (z.B. dürfen ein Bahnhof und eine Bushaltestelle gemeinsam eine
-    // Station bilden, um Warenumstieg zu ermöglichen
+    // Station bilden, um Warenumstieg zu ermöglichen. Eine Station kann aber auch nur aus einem Bauwerk bestehen
     private List<Building> components;
 
     private String id;
