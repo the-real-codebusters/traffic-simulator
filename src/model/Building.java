@@ -1,4 +1,4 @@
 package model;
 
-public class Building {
+public abstract class Building {
 }
