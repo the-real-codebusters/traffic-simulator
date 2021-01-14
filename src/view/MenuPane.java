@@ -113,6 +113,8 @@ public class MenuPane extends AnchorPane {
         drawHoveredImageBefore(xCoordBefore+1, yCoordBefore, fields);
         drawHoveredImageBefore(xCoordBefore, yCoordBefore+1, fields);
         drawHoveredImageBefore(xCoordBefore+1, yCoordBefore+1, fields);
+
+        // Bei Bildern, die über das Feld hinausschauen, müssen auch angrenzende Felder neu gezeichnet werden
     }
 
     private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
@@ -120,6 +122,12 @@ public class MenuPane extends AnchorPane {
         view.drawTileImage(xCoordBefore, yCoordBefore, hoveredImageBefore, false);
     }
 
+    /**
+     *
+     * @param mouseEvent
+     * @param transparent
+     * @return Gibt die Koordinaten des Tiles zurück, auf das gezeichnet wurde
+     */
     private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent){
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
@@ -154,6 +162,8 @@ public class MenuPane extends AnchorPane {
                     {
                         drawHoveredImage(event, false);
                         selectedBuilding = null;
+
+                        // TODO Speichere platziertes Bauwerk im Model und rufe drawMap auf statt drawHoveredImage
                     }
                 });
     }
