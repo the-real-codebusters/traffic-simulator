@@ -12,11 +12,19 @@ public class BasicModel {
     private double speedOfDay;
     private MapModel map;
 
-    // TODO Das muss geändert und vom JSONParser befüllt werden
-    private String gamemode = "planverkehr";
+    private String gamemode;
 //    private ToolsModel tools;
 
     private Set<String> buildmenus = new HashSet<>();
+
+    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode, Set<String> buildmenus) {
+        this.commodities = commodities;
+        this.day = day;
+        this.speedOfDay = speedOfDay;
+        this.map = map;
+        this.gamemode = gamemode;
+        this.buildmenus = buildmenus;
+    }
 
     public List<String> getBuildingNamesForBuildmenu(String buildmenu) {
         // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
@@ -93,6 +101,10 @@ public class BasicModel {
 
     public String getGamemode() {
         return gamemode;
+    }
+
+    public Field[][] getFieldGridOfMap(){
+        return map.getFieldGrid();
     }
 
 }

@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.BasicModel;
+import model.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,6 @@ public class MenuPane extends AnchorPane {
 
     // x, y
     private Point2D hoveredTileBefore;
-    private Image hoveredImageBefore;
 
     public MenuPane(BasicModel model, View view, Canvas canvas) {
         this.model = model;
@@ -47,18 +47,19 @@ public class MenuPane extends AnchorPane {
 
             if(selectedBuilding != null){
 
-                if(hoveredImageBefore != null){
-                    view.drawTileImage((int) hoveredTileBefore.getX(), (int) hoveredTileBefore.getY(), hoveredImageBefore);
+                if(hoveredTileBefore != null){
+                    removeDrawedImagesBecauseOfHover();
                 }
 
                 double mouseX = event.getX();
                 double mouseY = event.getY();
                 Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+                int xCoord = (int) isoCoord.getX();
+                int yCoord = (int) isoCoord.getY();
                 Image image = view.getResourceForImageName(selectedBuilding, true);
-                view.drawTileImage((int) isoCoord.getX(), (int) isoCoord.getY(), image);
-
-                hoveredImageBefore = image;
+                view.drawTileImage(xCoord, yCoord, image);
                 hoveredTileBefore = isoCoord;
+
             }
 
 
@@ -123,6 +124,21 @@ public class MenuPane extends AnchorPane {
             System.out.println("Auf "+imageName+" geklickt");
         });
         return imageView;
+    }
+
+    private void removeDrawedImagesBecauseOfHover(){
+        int xCoordBefore = (int) hoveredTileBefore.getX();
+        int yCoordBefore = (int) hoveredTileBefore.getY();
+        Field[][] fields = model.getFieldGridOfMap();
+        drawHoveredImageBefore(xCoordBefore, yCoordBefore, fields);
+        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore, fields);
+        drawHoveredImageBefore(xCoordBefore, yCoordBefore+1, fields);
+        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore+1, fields);
+    }
+
+    private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
+        Image hoveredImageBefore = view.getSingleFieldImage(xCoordBefore, yCoordBefore, fields);
+        view.drawTileImage(xCoordBefore, yCoordBefore, hoveredImageBefore);
     }
 
 }

@@ -9,13 +9,12 @@ import java.util.List;
 public class Controller {
     private View view;
 
-    public Controller(View view) {
+    public Controller(View view, MapModel map) {
         this.view = view;
 
         // buildings und map sind hier lediglich Testobjekte und sollen später anhand der Daten in der
         // JSON-Datei erzeugt werden
         List<Building> buildings = new ArrayList<>();
-        MapModel map = new MapModel( 10, 10, new ArrayList<>());
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator("planverkehr", map);
