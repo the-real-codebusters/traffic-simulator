@@ -16,6 +16,9 @@ import javafx.stage.Stage;
 import model.BasicModel;
 import model.Field;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class View {
     private Stage stage;
@@ -34,6 +37,8 @@ public class View {
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
     private BasicModel model;
+
+    private Map<String, Image> imageCache = new HashMap<>();
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -140,18 +145,26 @@ public class View {
     }
 
     public Image getResourceForImageName(String imageName, boolean ínSizeOfOneTile){
+
+        Image cachedImage = imageCache.get(imageName);
+        if(cachedImage != null){
+            return cachedImage;
+        }
+
         String gamemode = model.getGamemode();
         Image image;
+
         if(ínSizeOfOneTile){
             image = new Image(
-                    getClass().getResource("/"+gamemode+"/"+imageName+".png").toString(),
+                    "/"+gamemode+"/"+imageName+".png",
                     tileWidth,
                     tileHeight,
                     false,
                     true);
+            imageCache.put(imageName, image);
         }
         else {
-            image = new Image(getClass().getResource("/"+gamemode+"/"+imageName+".png").toString());
+            image = new Image("/"+gamemode+"/"+imageName+".png");
         }
 
         return image;
