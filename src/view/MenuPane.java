@@ -116,7 +116,7 @@ public class MenuPane extends AnchorPane {
 
     private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
         Image hoveredImageBefore = view.getSingleFieldImage(xCoordBefore, yCoordBefore, fields);
-        view.drawTileImage(xCoordBefore, yCoordBefore, hoveredImageBefore);
+        view.drawTileImage(xCoordBefore, yCoordBefore, hoveredImageBefore, false);
     }
 
     private void setCanvasEvents(){
@@ -133,7 +133,7 @@ public class MenuPane extends AnchorPane {
                 int xCoord = (int) isoCoord.getX();
                 int yCoord = (int) isoCoord.getY();
                 Image image = view.getResourceForImageName(selectedBuilding, true);
-                view.drawTileImage(xCoord, yCoord, image);
+                view.drawTileImage(xCoord, yCoord, image, true);
                 hoveredTileBefore = isoCoord;
             }
         });

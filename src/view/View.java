@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -71,7 +72,7 @@ public class View {
 
                 // Bilder werden auf Canvas anhand von fieldType gezeichnet
                 Image image = getSingleFieldImage(col, row, fields);
-                drawTileImage(col, row, image);
+                drawTileImage(col, row, image, false);
             }
         }
     }
@@ -86,7 +87,7 @@ public class View {
         return getResourceForImageName(name, true);
     }
 
-    public void drawTileImage(int tileXCoord, int tileYCoord, Image image){
+    public void drawTileImage(int tileXCoord, int tileYCoord, Image image, boolean transparent){
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
         double tileX = (tileXCoord + tileYCoord) * tileWidthHalf;
@@ -96,7 +97,10 @@ public class View {
         double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth;
         double startY = tileY + canvasCenterHeight;
 
+        if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, startX, startY);
+        canvas.getGraphicsContext2D().setGlobalAlpha(1);
+
     }
 
     /**
