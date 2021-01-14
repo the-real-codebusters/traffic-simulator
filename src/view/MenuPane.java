@@ -1,5 +1,6 @@
 package view;
 
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
@@ -119,6 +120,17 @@ public class MenuPane extends AnchorPane {
         view.drawTileImage(xCoordBefore, yCoordBefore, hoveredImageBefore, false);
     }
 
+    private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent){
+        double mouseX = mouseEvent.getX();
+        double mouseY = mouseEvent.getY();
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
+        Image image = view.getResourceForImageName(selectedBuilding, true);
+        view.drawTileImage(xCoord, yCoord, image, transparent);
+        return isoCoord;
+    }
+
     private void setCanvasEvents(){
         canvas.setOnMouseMoved(event -> {
             if(selectedBuilding != null){
@@ -127,14 +139,7 @@ public class MenuPane extends AnchorPane {
                     removeDrawedImagesBecauseOfHover();
                 }
 
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-                Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
-                int xCoord = (int) isoCoord.getX();
-                int yCoord = (int) isoCoord.getY();
-                Image image = view.getResourceForImageName(selectedBuilding, true);
-                view.drawTileImage(xCoord, yCoord, image, true);
-                hoveredTileBefore = isoCoord;
+                hoveredTileBefore = drawHoveredImage(event, true);
             }
         });
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED,
@@ -142,6 +147,13 @@ public class MenuPane extends AnchorPane {
                     if(event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                         selectedBuilding = null;
                         removeDrawedImagesBecauseOfHover();
+                    }
+                    else if(
+                            event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
+                            selectedBuilding != null)
+                    {
+                        drawHoveredImage(event, false);
+                        selectedBuilding = null;
                     }
                 });
     }
