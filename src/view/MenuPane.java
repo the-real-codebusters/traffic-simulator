@@ -8,6 +8,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -29,10 +31,9 @@ public class MenuPane extends AnchorPane {
     private View view;
     private Canvas canvas;
 
-    // Wenn null, kein Bauwerk ist ausgewählt
+    // Wenn null, ist kein Bauwerk ausgewählt
     private String selectedBuilding;
 
-    // x, y
     private Point2D hoveredTileBefore;
 
     public MenuPane(BasicModel model, View view, Canvas canvas) {
@@ -40,30 +41,7 @@ public class MenuPane extends AnchorPane {
         this.view = view;
         this.canvas = canvas;
 
-        canvas.setOnMouseMoved(event -> {
-
-            // TODO Benutze echte Buildings aus Model
-
-
-            if(selectedBuilding != null){
-
-                if(hoveredTileBefore != null){
-                    removeDrawedImagesBecauseOfHover();
-                }
-
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-                Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
-                int xCoord = (int) isoCoord.getX();
-                int yCoord = (int) isoCoord.getY();
-                Image image = view.getResourceForImageName(selectedBuilding, true);
-                view.drawTileImage(xCoord, yCoord, image);
-                hoveredTileBefore = isoCoord;
-
-            }
-
-
-        });
+        setCanvasEvents();
 
         hBox = new HBox(tabPane);
         this.getChildren().add(hBox);
@@ -139,6 +117,33 @@ public class MenuPane extends AnchorPane {
     private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
         Image hoveredImageBefore = view.getSingleFieldImage(xCoordBefore, yCoordBefore, fields);
         view.drawTileImage(xCoordBefore, yCoordBefore, hoveredImageBefore);
+    }
+
+    private void setCanvasEvents(){
+        canvas.setOnMouseMoved(event -> {
+            if(selectedBuilding != null){
+
+                if(hoveredTileBefore != null){
+                    removeDrawedImagesBecauseOfHover();
+                }
+
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+                Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+                int xCoord = (int) isoCoord.getX();
+                int yCoord = (int) isoCoord.getY();
+                Image image = view.getResourceForImageName(selectedBuilding, true);
+                view.drawTileImage(xCoord, yCoord, image);
+                hoveredTileBefore = isoCoord;
+            }
+        });
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED,
+                event -> {
+                    if(event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
+                        selectedBuilding = null;
+                        removeDrawedImagesBecauseOfHover();
+                    }
+                });
     }
 
 }
