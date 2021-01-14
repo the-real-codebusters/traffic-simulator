@@ -81,7 +81,7 @@ public class View {
         //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
 
         String name;
-        if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black3";
+        if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black";
         else if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
         else name = "greentile";
         return getResourceForImageName(name, true);
