@@ -48,7 +48,7 @@ public class MapGenerator {
                 mapModel.getFieldGrid()[row][col] = new Field(0, fieldType);
             }
         }
-        mapModel.printFieldsArray();
+//        mapModel.printFieldsArray();
         return mapModel.getFieldGrid();
     }
 }
