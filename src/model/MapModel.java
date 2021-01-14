@@ -5,14 +5,13 @@ import java.util.List;
 
 public class MapModel {
     private MapGenerator mapgen;
-    private String gamemode;
+
     private int width;
     private int depth;
     private Field[][] fieldGrid;
     private List<Building> buildings;
 
-    public MapModel(String gamemode, int width, int depth, ArrayList<Building> buildings) {
-        this.gamemode = gamemode;
+    public MapModel(int width, int depth, ArrayList<Building> buildings) {
         this.width = width;
         this.depth = depth;
         this.fieldGrid = new Field[width][depth];
@@ -20,10 +19,6 @@ public class MapModel {
     }
 
     public MapGenerator getMapgen() { return mapgen; }
-
-    public String getGamemode() {
-        return gamemode;
-    }
 
     public int getWidth() {
         return width;
@@ -41,6 +36,9 @@ public class MapModel {
         return buildings;
     }
 
+    public void setFieldGrid(Field[][] fieldGrid) {
+        this.fieldGrid = fieldGrid;
+    }
 
     // Methode für Testzwecke zum Überprüfen ob Indizes des fieldGrid im Model mit Indizes in der View übereinstimmen
     public void printFieldsArray() {
