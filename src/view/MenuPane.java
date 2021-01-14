@@ -32,7 +32,8 @@ public class MenuPane extends AnchorPane {
     private String selectedBuilding;
 
     // x, y
-    private int[] hoveredTileBefore = new int[2];
+    private Point2D hoveredTileBefore;
+    private Image hoveredImageBefore;
 
     public MenuPane(BasicModel model, View view, Canvas canvas) {
         this.model = model;
@@ -43,15 +44,23 @@ public class MenuPane extends AnchorPane {
 
             // TODO Benutze echte Buildings aus Model
 
+
             if(selectedBuilding != null){
+
+                if(hoveredImageBefore != null){
+                    view.drawTileImage((int) hoveredTileBefore.getX(), (int) hoveredTileBefore.getY(), hoveredImageBefore);
+                }
+
                 double mouseX = event.getX();
                 double mouseY = event.getY();
-
                 Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
-                Image image = view.getResourceForImageName(selectedBuilding);
-                ImageView imageView = new ImageView(image);
+                Image image = view.getResourceForImageName(selectedBuilding, true);
+                view.drawTileImage((int) isoCoord.getX(), (int) isoCoord.getY(), image);
 
+                hoveredImageBefore = image;
+                hoveredTileBefore = isoCoord;
             }
+
 
         });
 
@@ -104,7 +113,7 @@ public class MenuPane extends AnchorPane {
     }
 
     private ImageView imageViewWithLayout(String imageName){
-        Image image = view.getResourceForImageName(imageName);
+        Image image = view.getResourceForImageName(imageName, false);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(90);

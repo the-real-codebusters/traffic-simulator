@@ -36,6 +36,9 @@ public class MapModel {
         return buildings;
     }
 
+    public void setFieldGrid(Field[][] fieldGrid) {
+        this.fieldGrid = fieldGrid;
+    }
 
     // Methode für Testzwecke zum Überprüfen ob Indizes des fieldGrid im Model mit Indizes in der View übereinstimmen
     public void printFieldsArray() {

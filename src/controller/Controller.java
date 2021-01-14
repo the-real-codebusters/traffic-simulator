@@ -20,6 +20,7 @@ public class Controller {
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator("planverkehr", map);
         Field[][] generatedMap = generator.generateMap(map);
+        map.setFieldGrid(generatedMap);
 
         // Breite und Tiefe der Map aus dem Model werden in der View übernommen
         view.setMapWidth(map.getWidth());

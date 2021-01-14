@@ -65,24 +65,26 @@ public class View {
      * enthält
      */
     public void drawMap(Field[][] fields) {
-        Image greyGrassImage = new Image(getClass().getResource("/planverkehr/Bodenplatte_Gras.png").toString());
-        Image greenGrassImage = new Image(getClass().getResource("/planverkehr/greentile.png").toString());
-
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = 0; col < mapWidth; col++) {
             for (int row = 0; row < mapDepth; row++) {
 
                 // Bilder werden auf Canvas anhand von fieldType gezeichnet
-                if (fields[col][row].getFieldType().equals("grey")) {
-                    drawTileImage(col, row, greyGrassImage);
-                } else {
-                    drawTileImage(col, row, greenGrassImage);
-                }
-                //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
+                Image image = getSingleFieldImage(col, row, fields);
+                drawTileImage(col, row, image);
             }
         }
     }
 
+    public Image getSingleFieldImage(int column, int row, Field[][] fields){
+        //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
+
+        String name;
+        if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black";
+        else if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
+        else name = "greentile";
+        return getResourceForImageName(name, true);
+    }
 
     public void drawTileImage(int tileXCoord, int tileYCoord, Image image){
 
@@ -133,9 +135,21 @@ public class View {
         });
     }
 
-    public Image getResourceForImageName(String imageName){
+    public Image getResourceForImageName(String imageName, boolean ínSizeOfOneTile){
         String gamemode = model.getGamemode();
-        Image image = new Image(getClass().getResource("/"+gamemode+"/"+imageName+".png").toString());
+        Image image;
+        if(ínSizeOfOneTile){
+            image = new Image(
+                    getClass().getResource("/"+gamemode+"/"+imageName+".png").toString(),
+                    tileWidth,
+                    tileHeight,
+                    false,
+                    true);
+        }
+        else {
+            image = new Image(getClass().getResource("/"+gamemode+"/"+imageName+".png").toString());
+        }
+
         return image;
     }
 
