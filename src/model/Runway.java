@@ -27,4 +27,14 @@ public class Runway extends Special {
     public void setPlanes(List<List<String>> planes) {
         this.planes = planes;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +" Runway{" +
+                "buildmenu='" + buildmenu + '\'' +
+                ", entry=" + entry +
+                ", points=" + points +
+                ", planes=" + planes +
+                '}';
+    }
 }

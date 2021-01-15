@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Justcombines extends Special {
-    //TODO: keine Standardattribute wie depth, width, dz vorhanden
+    //keine Standardattribute wie depth, width, dz vorhanden
     private String buildmenu = "rail";
     private Map<String, String> combines = new HashMap<>();
 
@@ -15,5 +15,13 @@ public class Justcombines extends Special {
 
     public void setCombines(Map<String, String> combines) {
         this.combines = combines;
+    }
+
+    @Override
+    public String toString() {
+        return "Justcombines{" +
+                "buildmenu='" + buildmenu + '\'' +
+                ", combines=" + combines +
+                '}';
     }
 }

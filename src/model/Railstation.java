@@ -21,4 +21,13 @@ public class Railstation extends Special {
     public String getBuildmenu() {
         return buildmenu;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +" Railstation{" +
+                "buildmenu='" + buildmenu + '\'' +
+                ", points=" + points +
+                ", rails=" + rails +
+                '}';
+    }
 }

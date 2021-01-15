@@ -22,4 +22,13 @@ public class Taxiway extends Special{
     public void setPlanes(List<List<String>> planes) {
         this.planes = planes;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " Taxiway{" +
+                "buildmenu='" + buildmenu + '\'' +
+                ", points=" + points +
+                ", planes=" + planes +
+                '}';
+    }
 }

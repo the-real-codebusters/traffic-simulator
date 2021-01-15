@@ -10,7 +10,7 @@ public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
         JSONParser parser = new JSONParser();
-        if (parser.parse("resources/test.json")) {
+        if (parser.parse("resources/planverkehr.json")) {
             parser.getBuildingsAsString();
             View view = new View(stage);
             stage.setTitle("Green tiles");

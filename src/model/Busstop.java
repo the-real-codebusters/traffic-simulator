@@ -21,4 +21,13 @@ public class Busstop extends Special {
     public void setRoads(List<List<String>> roads) {
         this.roads = roads;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +" Busstop{" +
+                "buildmenu='" + buildmenu + '\'' +
+                ", points=" + points +
+                ", roads=" + roads +
+                '}';
+    }
 }

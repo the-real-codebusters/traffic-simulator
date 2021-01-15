@@ -29,4 +29,13 @@ public class Building {
     public int getDz() {
         return dz;
     }
+
+    @Override
+    public String toString() {
+        return "Building{" +
+                "width=" + width +
+                ", depth=" + depth +
+                ", dz=" + dz +
+                '}';
+    }
 }

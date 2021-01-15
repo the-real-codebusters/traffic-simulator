@@ -12,7 +12,6 @@ public class Rail extends Building {
     // optional
     private String buildmenu;
 
-    //TODO: Himmelsrichtungen (key) als enum definieren
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> rails = new ArrayList<>();
     // optional
@@ -37,15 +36,12 @@ public class Rail extends Building {
 
     @Override
     public String toString() {
-        return "Building{" +
+        return super.toString() +" Rail{" +
                 "buildmenu='" + buildmenu + '\'' +
-                ", width=" + getWidth() +
-                ", depth=" + getDepth() +
                 ", points=" + points +
                 ", rails=" + rails +
-                ", dz=" + getDz() +
+                ", signals=" + signals +
                 '}';
     }
-
 }
 

@@ -7,6 +7,8 @@ public class Factory extends Special {
 
     private Map<String, Integer> produce = new HashMap<>();
     private Map<String, Integer> consume = new HashMap<>();
+    //optional
+    private Map<String, Integer> storage = new HashMap<>();
     private int duration;
 
     public void setProduce(Map<String, Integer> produce) {
@@ -17,7 +19,21 @@ public class Factory extends Special {
         this.consume = consume;
     }
 
+    public void setStorage(Map<String, Integer> storage) {
+        this.storage = storage;
+    }
+
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " Factory{" +
+                "produce=" + produce +
+                ", consume=" + consume +
+                ", storage=" + storage +
+                ", duration=" + duration +
+                '}';
     }
 }

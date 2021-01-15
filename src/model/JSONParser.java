@@ -23,6 +23,7 @@ public class JSONParser {
     private JSONObject json;
     private List<String> requiredRootAttributes = Arrays.asList("commodities", "buildings", "vehicles", "map");
     private List<String> commodities = new ArrayList<>();
+    private List<Building> buildings = new ArrayList<>();
 
     /**
      * Zeigt eine Fehlermeldung an, wenn JSON-Datei fehlerhaft
@@ -255,6 +256,52 @@ public class JSONParser {
             }
         }
     }
+
+    /**
+     * Prüft Production-Daten und befüllt sie in ein Factory-Objekt
+     * @param productionDetails
+     * @param factory
+     * @throws JSONParserException
+     */
+    private void checkProductionData(JSONObject productionDetails, Factory factory) throws  JSONParserException {
+        Map<String, Integer> produceMap = new HashMap<>();
+        Map<String, Integer> consumeMap = new HashMap<>();
+        int duration = 0;
+        Iterator<String> keys = productionDetails.keys();
+        // über alle Elemente iterieren
+        while (keys.hasNext()) {
+            String data = keys.next();
+            if (data.equals("produce")) {
+                // produce Daten holen
+                JSONObject prod = productionDetails.getJSONObject(data);
+                Iterator<String> keysProd = prod.keys();
+                while (keysProd.hasNext()) {
+                    String type = keysProd.next();
+                    int amount = prod.optInt(data);
+                    produceMap.put(type, amount);
+                }
+            }
+            else if (data.equals("consume")) {
+                // consume Daten holen
+                JSONObject cons = productionDetails.getJSONObject(data);
+                Iterator<String> keysCons = cons.keys();
+                while (keysCons.hasNext()) {
+                    String type = keysCons.next();
+                    int amount = cons.optInt(data);
+                    consumeMap.put(type, amount);
+                }
+            }
+            else if (data.equals("duration")) {
+                duration = handleContentAsInteger(productionDetails, "duration", 0, null);
+            }
+            else {
+                throw new JSONParserException ("invalid attribute for production: " + data);
+            }
+        }
+        factory.setProduce(produceMap);
+        factory.setConsume(consumeMap);
+        factory.setDuration(duration);
+    }
     /**
      * Prüft Inhalt des Vehicles-Attributs
      * @throws JSONParserException
@@ -291,18 +338,6 @@ public class JSONParser {
             throw new JSONParserException("At least one wagon should be definied");
         }
 
-    }
-
-    private List<Building> buildings = new ArrayList<>();
-
-    public List<Building> getBuildings() {
-        return buildings;
-    }
-
-    public void getBuildingsAsString() {
-        for (Building b: buildings) {
-            System.out.println(b);
-        }
     }
 
     /**
@@ -437,14 +472,12 @@ public class JSONParser {
      * @throws JSONParserException
      */
     private boolean checkBuildMenu(String expected, String actual) throws JSONParserException {
-        //TODO: expected null?
         if (!expected.equals(actual)) {
             throw new JSONParserException("build menue + " + actual + " undefined, expected " + expected);
         }
         return true;
     }
 
-    //TODO:
     private Taxiway handleTaxiwayContent(JSONObject json) throws JSONParserException {
         Taxiway taxiway = new Taxiway();
         String buildmenu = handleContentAsString(json, "buildmenu");
@@ -501,21 +534,53 @@ public class JSONParser {
 
         return busstop;
     }
+
     private Factory handleFactoryContent(JSONObject json) throws JSONParserException {
         Factory factory = new Factory();
 
         setDefaultAttributes(factory, json);
+        // prüfe Storage-Attribut
+        Map<String, Integer> storageMap = new HashMap<>();
+        if (json.has("storage")) {
+            JSONObject storage  = json.getJSONObject("storage");
+            Iterator<String> keys = storage.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                int value = storage.optInt(key);
+                storageMap.put(key,value);
+            }
+        }
 
-        //TODO: productions ein mal array, ein mal nicht (siehe handleCargoContent)
+        Object productions = json.get("productions");
+        // Productions kommt entweder einzeln oder als Array vor
+        if (productions instanceof JSONObject) {
+            checkProductionData((JSONObject)productions, factory);
+        }
+        else if (productions instanceof  JSONArray){
+            JSONArray array = (JSONArray) productions;
 
+            if (array.isEmpty()) {
+                throw new JSONParserException("productions" + " is empty ");
+            }
+            for (int i = 0; i < array.length(); i++) {
+                try {
+                    JSONObject prodDetails = array.getJSONObject(i);
+                    checkProductionData((JSONObject)prodDetails, factory);
+                } catch (JSONException e) {
+                    throw new JSONParserException("no string format defined");
+                }
+            }
+        }
+        else {
+            throw new JSONParserException("production "+ " has invalid format ");
+        }
         return factory;
     }
+
     private Justcombines handleJustCombinesContent(JSONObject json) throws JSONParserException {
         Justcombines justcombines = new Justcombines();
         String buildmenu = handleContentAsString(json, "buildmenu");
         checkBuildMenu(justcombines.getBuildmenu(), buildmenu);
-
-        setDefaultAttributes(justcombines, json);
 
         Map<String, String> combinesMap =handleBuildMenuCombines(json.getJSONObject("combines"));
 
@@ -524,8 +589,11 @@ public class JSONParser {
     }
     private Nature handleNatureContent(JSONObject json) throws JSONParserException {
         Nature nature = new Nature();
-        String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(nature.getBuildmenu(), buildmenu);
+        if (json.has("buildmenu")) {
+            String buildmenu = handleContentAsString(json, "buildmenu");
+            checkBuildMenu(nature.getBuildmenu(), buildmenu);
+        }
+
 
         setDefaultAttributes(nature, json);
         return nature;
@@ -562,7 +630,7 @@ public class JSONParser {
     }
 
     /**
-     * prueft alle Buildings-Attribute mit vorhandenem Element buildmenu mit Wert 'road' und liefert ein neues Building-Objekt zurück
+     * prueft alle Buildings-Attribute geordnet nach Attribut special und liefert ein neues Building-Objekt zurück
      * @param buildingsDetails
      * @return
      * @throws JSONParserException
@@ -623,7 +691,6 @@ public class JSONParser {
         Iterator<String> keys = combines.keys();
         while (keys.hasNext()) {
             String key = keys.next();
-            //TODO: prüfe ob Wert stimmt
             String value = combines.optString(key);
             combineData.put(key,value);
         }
@@ -667,7 +734,6 @@ public class JSONParser {
         Iterator<String> keys = points.keys();
         while (keys.hasNext()) {
             String data = keys.next();
-            //TODO: prüfe ob himmelsrichtung stimmt
             JSONArray values = points.optJSONArray(data);
             List<Double> pointData = new ArrayList<>();
             if (values.isEmpty()) {
@@ -687,12 +753,6 @@ public class JSONParser {
         return pointMap;
     }
 
-
-
-
-
-
-
     /**
      * Prüft ob alle Pflichtattribute der Wurzelknoten vorhanden sind
      * @throws JSONParserException
@@ -705,4 +765,17 @@ public class JSONParser {
         }
     }
 
+
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    /**
+     * Alle Buildings in Textform ausgeben
+     */
+    public void getBuildingsAsString() {
+        for (Building b: buildings) {
+            System.out.println(b);
+        }
+    }
 }

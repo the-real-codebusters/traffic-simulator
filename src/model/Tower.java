@@ -11,4 +11,12 @@ public class Tower extends Special{
     public void setMaxplanes(int maxplanes) {
         this.maxplanes = maxplanes;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() +" Tower{" +
+                "buildmenu='" + buildmenu + '\'' +
+                ", maxplanes=" + maxplanes +
+                '}';
+    }
 }
