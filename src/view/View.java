@@ -33,6 +33,9 @@ public class View {
     private Canvas canvas = new Canvas(700, 500);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
+    private double viewPortWidth = 1024;
+    private double viewPortHeight = 768;
+
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
@@ -52,13 +55,13 @@ public class View {
         mousePosLabel.setFont(new Font("Arial", 15));
 
         BorderPane root = new BorderPane();
-        root.setPrefSize(1024, 768);
+//        root.setPrefSize(1024, 768);
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
         root.setTop(new MenuPane(model, this, canvas));
-        scrollPane.setStyle("-fx-background-color: black");
+//        scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
@@ -92,15 +95,35 @@ public class View {
         return getResourceForImageName(name, true);
     }
 
-    public void drawTileImage(int tileXCoord, int tileYCoord, Image image, boolean transparent){
+    public void drawTileImage(int row, int column, Image image, boolean transparent){
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
-        double tileX = (tileXCoord + tileYCoord) * tileWidthHalf;
-        double tileY = (tileXCoord - tileYCoord) * tileHeightHalf;
+        double tileX = (row - column) * tileWidthHalf;
+        double tileY = (row + column) * tileHeightHalf;
+
+//        System.out.println("TileX: " + tileX);
+//        System.out.println("TileY: " + tileY);
+
+        // Bestimmt Mittelpunkt der Figur angegeben Tiles
+        double mapCenterX = mapWidth/2;
+        double mapCenterY = mapDepth/2;
+
+        // Bestimmt Mittelpunkt der Figur angegeben in Pixel
+        double mapCenterXPixel = mapCenterX * tileWidth;
+        double mapCenterYPixel = mapCenterY * tileHeight;
+
+
+        double differenceWidthHeigth = mapWidth - mapDepth;
+        System.out.println(differenceWidthHeigth);
+
+        double tileOffset = differenceWidthHeigth * 0.25;
+        System.out.println(tileOffset);
 
         // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
-        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth;
-        double startY = tileY + canvasCenterHeight;
+//        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - tileWidth;
+//        double startY = tileY + canvasCenterHeight - tileHeightHalf * mapDepth - tileHeight;
+        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - (tileOffset * tileWidth);
+        double startY = tileY + canvasCenterHeight - tileHeightHalf * mapDepth - (tileOffset * tileHeight);
 
         if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, startX, startY);
@@ -116,8 +139,11 @@ public class View {
      * @return ein Point2D mit isometrischen Koordinaten
      */
     public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
-        double x = Math.floor((mouseY/tileHeight + mouseX/tileWidth) - (canvasCenterHeight/tileHeight) - 5 + mapDepth/2 - 1);
-        double y = Math.floor((mouseX/tileWidth - mouseY/tileHeight) + (canvasCenterHeight/tileHeight) - 5 + mapWidth/2);
+//        double x = Math.floor((mouseY/tileHeight + mouseX/tileWidth) - (canvasCenterHeight/tileHeight) - 5 + mapDepth/2 - 1);
+//        double y = Math.floor((mouseX/tileWidth - mouseY/tileHeight) + (canvasCenterHeight/tileHeight) - 5 + mapWidth/2);
+//        return new Point2D(x, y);
+        double x = Math.floor(mouseX/tileWidth + mouseY/tileHeight);
+        double y = Math.floor(mouseY/tileHeight - mouseX/tileWidth);
         return new Point2D(x, y);
     }
 
