@@ -3,10 +3,8 @@ package view;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -23,14 +21,14 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private final int tileWidth = 64;
-    private final int tileWidthHalf = tileWidth / 2;
-    private final int tileHeight = 32;
-    private final int tileHeightHalf = tileHeight / 2;
+    private final int tileBreite = 64;
+    private final double tileWidthHalf = tileBreite / 2;
+    private final int tileHoehe = 32;
+    private final double tileHeightHalf = tileHoehe / 2;
     private int mapWidth;
     private int mapDepth;
 
-    private Canvas canvas = new Canvas(700, 500);
+    private Canvas canvas = new Canvas(800, 500);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
     private double viewPortWidth = 1024;
@@ -90,7 +88,8 @@ public class View {
 
         String name;
         if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black";
-        else if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
+        else
+            if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
         else name = "greentile";
         return getResourceForImageName(name, true);
     }
@@ -101,29 +100,16 @@ public class View {
         double tileX = (row - column) * tileWidthHalf;
         double tileY = (row + column) * tileHeightHalf;
 
-//        System.out.println("TileX: " + tileX);
-//        System.out.println("TileY: " + tileY);
-
-        // Bestimmt Mittelpunkt der Figur angegeben Tiles
-        double mapCenterX = mapWidth/2;
-        double mapCenterY = mapDepth/2;
-
-        // Bestimmt Mittelpunkt der Figur angegeben in Pixel
-        double mapCenterXPixel = mapCenterX * tileWidth;
-        double mapCenterYPixel = mapCenterY * tileHeight;
-
-
+        // Differenz zwischen Breite und Tiefe der Map
         double differenceWidthHeigth = mapWidth - mapDepth;
-        System.out.println(differenceWidthHeigth);
 
         double tileOffset = differenceWidthHeigth * 0.25;
-        System.out.println(tileOffset);
 
-        // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
+        // Bilder sollen so platziert werden, dass die Map zentriert auf dem Canvas ist
 //        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - tileWidth;
 //        double startY = tileY + canvasCenterHeight - tileHeightHalf * mapDepth - tileHeight;
-        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - (tileOffset * tileWidth);
-        double startY = tileY + canvasCenterHeight - tileHeightHalf * mapDepth - (tileOffset * tileHeight);
+        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - (tileOffset * tileBreite);
+        double startY = (tileY + canvasCenterHeight - tileHeightHalf * mapDepth) - (tileOffset * tileHoehe);
 
         if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, startX, startY);
@@ -141,9 +127,22 @@ public class View {
     public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
 //        double x = Math.floor((mouseY/tileHeight + mouseX/tileWidth) - (canvasCenterHeight/tileHeight) - 5 + mapDepth/2 - 1);
 //        double y = Math.floor((mouseX/tileWidth - mouseY/tileHeight) + (canvasCenterHeight/tileHeight) - 5 + mapWidth/2);
-//        return new Point2D(x, y);
-        double x = Math.floor(mouseX/tileWidth + mouseY/tileHeight);
-        double y = Math.floor(mouseY/tileHeight - mouseX/tileWidth);
+
+        double offsetX = 0;
+        double offsetY = 0;
+        if(mapWidth%2 != 0){
+            offsetX = tileWidthHalf/ tileBreite;
+        }
+        if(mapDepth%2 != 0){
+            offsetY = tileHeightHalf/ tileHoehe;
+        }
+
+        double tileOffsetY = mapDepth - (mapDepth - mapDepth/2 -1);
+
+        double x = Math.floor((mouseX/ tileBreite + mouseY/ tileHoehe) - canvasCenterHeight/ tileHoehe
+                - (canvasCenterWidth/ tileBreite) + (mapWidth/2) + offsetX);
+        double y = Math.floor((mouseX/ tileBreite - mouseY/ tileHoehe) + canvasCenterHeight/tileHoehe
+                - (canvasCenterWidth/ tileBreite) + (mapDepth/2) + offsetY );
         return new Point2D(x, y);
     }
 
@@ -183,8 +182,8 @@ public class View {
         if(ínSizeOfOneTile){
             image = new Image(
                     "/"+gamemode+"/"+imageName+".png",
-                    tileWidth,
-                    tileHeight,
+                    tileBreite,
+                    tileHoehe,
                     false,
                     true);
             imageCache.put(imageName, image);
