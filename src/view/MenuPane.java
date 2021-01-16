@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.BasicModel;
+import model.Building;
 import model.Field;
 
 import java.util.ArrayList;
@@ -76,10 +77,11 @@ public class MenuPane extends AnchorPane {
 
         for(String name: tabNames){
             HBox container = boxWithLayout();
-            List<String> buildings = model.getBuildingsForBuildmenu(name);
-            for(String building: buildings){
-                ImageView imageView = imageViewWithLayout(building);
-                container.getChildren().add(imageView);
+            List<Building> buildings = model.getBuildingsForBuildmenu(name);
+            for(Building building: buildings){
+//                ImageView imageView = imageViewWithLayout(building.);
+//                container.getChildren().add(imageView);
+                //TODO
             }
             tabContents.set(tabNames.indexOf(name), container);
         }

@@ -30,25 +30,16 @@ public class BasicModel {
         this.buildings = buildings;
     }
 
-    public List<String> getBuildingsForBuildmenu(String buildmenu) {
-        // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
+    public List<Building> getBuildingsForBuildmenu(String buildmenu) {
+        List<Building> bs = new ArrayList<>();
 
-//        for(Building building: buildings){
-//            if(building)
-//        }
-
-        List<String> names = new ArrayList<>();
-        if(buildmenu.equals("nature")){
-            names.add("tree");
+        for(Building building: buildings){
+            String menu = building.getBuildmenu();
+            if( menu != null && menu.equals(buildmenu)){
+                bs.add(building);
+            }
         }
-        else if(buildmenu.equals("road")){
-            names.add("street");
-        }
-        else if(buildmenu.equals("airport")){
-            names.add("terminal");
-        }
-
-        return names;
+        return bs;
     }
 
     public Set<String> getCommodities() {
