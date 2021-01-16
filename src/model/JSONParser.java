@@ -416,6 +416,8 @@ public class JSONParser {
         int width = handleContentAsInteger(json, "width", null, null);
         int depth = handleContentAsInteger(json, "depth", null, null);
         int dz = handleContentAsInteger(json, "dz", null, null);
+        String buildmenu = json.has("buildmenu") ? handleContentAsString(json, "buildmenu") : null;
+        building.setBuildmenu(buildmenu);
         building.setWidth(width);
         building.setDepth(depth);
         building.setDz(dz);

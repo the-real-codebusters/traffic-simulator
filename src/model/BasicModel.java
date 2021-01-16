@@ -30,8 +30,12 @@ public class BasicModel {
         this.buildings = buildings;
     }
 
-    public List<String> getBuildingNamesForBuildmenu(String buildmenu) {
+    public List<String> getBuildingsForBuildmenu(String buildmenu) {
         // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
+
+//        for(Building building: buildings){
+//            if(building)
+//        }
 
         List<String> names = new ArrayList<>();
         if(buildmenu.equals("nature")){

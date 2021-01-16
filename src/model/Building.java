@@ -5,7 +5,16 @@ public class Building {
     private int depth;
     private int dz;
     private String buildingName;
+    private String buildmenu;
 
+
+    public String getBuildmenu() {
+        return buildmenu;
+    }
+
+    public void setBuildmenu(String buildmenu) {
+        this.buildmenu = buildmenu;
+    }
 
     public String getBuildingName() {
         return buildingName;

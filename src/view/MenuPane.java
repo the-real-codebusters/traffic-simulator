@@ -76,7 +76,7 @@ public class MenuPane extends AnchorPane {
 
         for(String name: tabNames){
             HBox container = boxWithLayout();
-            List<String> buildings = model.getBuildingNamesForBuildmenu(name);
+            List<String> buildings = model.getBuildingsForBuildmenu(name);
             for(String building: buildings){
                 ImageView imageView = imageViewWithLayout(building);
                 container.getChildren().add(imageView);
