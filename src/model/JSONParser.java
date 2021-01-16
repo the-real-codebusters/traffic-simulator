@@ -344,8 +344,9 @@ public class JSONParser {
      * @param buildings
      * @throws JSONParserException
      */
-    private void handleBuildingsContent(JSONObject buildings) throws JSONParserException {
+    private void handleBuildingsContent(JSONObject buildings, BasicModel model) throws JSONParserException {
         Iterator<String> keys = buildings.keys();
+        Set<String> buildMenus = new HashSet<>();
         while (keys.hasNext()) {
             String data = keys.next();
             JSONObject buildingsDetails = buildings.getJSONObject(data);
@@ -353,10 +354,11 @@ public class JSONParser {
             if (building != null) {
                 this.buildings.add(building);
             }
-            if(building.has("buildmenu")){
-                buildMenus.add(building.getString("buildmenu"));
+            if(buildingsDetails.has("buildmenu")){
+                buildMenus.add(buildingsDetails.getString("buildmenu"));
             }
         }
+        model.setBuildmenus(buildMenus);
     }
 
 
