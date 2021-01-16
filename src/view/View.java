@@ -21,18 +21,16 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private final int tileBreite = 64;
-    private final double tileWidthHalf = tileBreite / 2;
-    private final int tileHoehe = 32;
-    private final double tileHeightHalf = tileHoehe / 2;
+    private final double tileWidth = 64;
+    private final double tileWidthHalf = tileWidth / 2;
+    private final double tileHeight = 32;
+    private final double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;
 
     private Canvas canvas = new Canvas(800, 500);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
-    private double viewPortWidth = 1024;
-    private double viewPortHeight = 768;
 
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
@@ -53,14 +51,14 @@ public class View {
         mousePosLabel.setFont(new Font("Arial", 15));
 
         BorderPane root = new BorderPane();
-//        root.setPrefSize(1024, 768);
+        root.setPrefSize(1024, 768);
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
         root.setTop(new MenuPane(model, this, canvas));
-//        scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
+        anchorPane.setStyle("-fx-border-color: red");
 
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
 
@@ -74,7 +72,7 @@ public class View {
     public void drawMap(Field[][] fields) {
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = 0; col < mapWidth; col++) {
-            for (int row = 0; row < mapDepth; row++) {
+            for (int row = mapDepth - 1; row >= 0; row--) {
 
                 // Bilder werden auf Canvas anhand von fieldType gezeichnet
                 Image image = getSingleFieldImage(col, row, fields);
@@ -87,29 +85,27 @@ public class View {
         //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
 
         String name;
-        if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black";
-        else
-            if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
+        if(column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
+        else if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
         else name = "greentile";
         return getResourceForImageName(name, true);
     }
 
     public void drawTileImage(int row, int column, Image image, boolean transparent){
 
-        // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
-        double tileX = (row - column) * tileWidthHalf;
-        double tileY = (row + column) * tileHeightHalf;
+        // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
+        // Zeichenreihenfolge von oben rechts nach unten links
+        double tileX = (row + column) * tileWidthHalf;
+        double tileY = (row - column) * tileHeightHalf;
 
         // Differenz zwischen Breite und Tiefe der Map
         double differenceWidthHeigth = mapWidth - mapDepth;
 
         double tileOffset = differenceWidthHeigth * 0.25;
 
-        // Bilder sollen so platziert werden, dass die Map zentriert auf dem Canvas ist
-//        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - tileWidth;
-//        double startY = tileY + canvasCenterHeight - tileHeightHalf * mapDepth - tileHeight;
-        double startX = (tileX + canvasCenterWidth - tileWidthHalf) - (tileOffset * tileBreite);
-        double startY = (tileY + canvasCenterHeight - tileHeightHalf * mapDepth) - (tileOffset * tileHoehe);
+        // Zeichenreihenfolge von oben rechts nach unten links
+        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
+        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
 
         if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, startX, startY);
@@ -125,24 +121,20 @@ public class View {
      * @return ein Point2D mit isometrischen Koordinaten
      */
     public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
-//        double x = Math.floor((mouseY/tileHeight + mouseX/tileWidth) - (canvasCenterHeight/tileHeight) - 5 + mapDepth/2 - 1);
-//        double y = Math.floor((mouseX/tileWidth - mouseY/tileHeight) + (canvasCenterHeight/tileHeight) - 5 + mapWidth/2);
 
         double offsetX = 0;
         double offsetY = 0;
         if(mapWidth%2 != 0){
-            offsetX = tileWidthHalf/ tileBreite;
+            offsetX = tileWidthHalf/ tileWidth;
         }
         if(mapDepth%2 != 0){
-            offsetY = tileHeightHalf/ tileHoehe;
+            offsetY = tileHeightHalf/ tileHeight;
         }
 
-        double tileOffsetY = mapDepth - (mapDepth - mapDepth/2 -1);
-
-        double x = Math.floor((mouseX/ tileBreite + mouseY/ tileHoehe) - canvasCenterHeight/ tileHoehe
-                - (canvasCenterWidth/ tileBreite) + (mapWidth/2) + offsetX);
-        double y = Math.floor((mouseX/ tileBreite - mouseY/ tileHoehe) + canvasCenterHeight/tileHoehe
-                - (canvasCenterWidth/ tileBreite) + (mapDepth/2) + offsetY );
+        double x = Math.floor((mouseX/ tileWidth + mouseY/ tileHeight) - canvasCenterHeight/ tileHeight
+                - (canvasCenterWidth/ tileWidth) + (mapWidth/2) + offsetX);
+        double y = Math.floor((mouseX/ tileWidth - mouseY/ tileHeight) + canvasCenterHeight/ tileHeight
+                - (canvasCenterWidth/ tileWidth) + (mapDepth/2) + offsetY );
         return new Point2D(x, y);
     }
 
@@ -182,8 +174,8 @@ public class View {
         if(ínSizeOfOneTile){
             image = new Image(
                     "/"+gamemode+"/"+imageName+".png",
-                    tileBreite,
-                    tileHoehe,
+                    tileWidth,
+                    tileHeight,
                     false,
                     true);
             imageCache.put(imageName, image);

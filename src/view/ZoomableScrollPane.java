@@ -27,7 +27,6 @@ public class ZoomableScrollPane extends ScrollPane {
     public ZoomableScrollPane(AnchorPane anchorPane) {
         super();
         this.anchorPane = anchorPane;
-        anchorPane.setStyle("-fx-border-color: red");
         this.zoomNode = new Group(anchorPane);
         setContent(outerNode(zoomNode));
 
