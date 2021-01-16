@@ -28,7 +28,8 @@ public class View {
     private int mapWidth;
     private int mapDepth;
 
-    private Canvas canvas = new Canvas(800, 500);
+    // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
+    private Canvas canvas = new Canvas(4096, 4096);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -43,6 +44,7 @@ public class View {
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         this.model = model;
+        scrollPane.setPrefSize(1000, 600);
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -51,18 +53,35 @@ public class View {
         mousePosLabel.setFont(new Font("Arial", 15));
 
         BorderPane root = new BorderPane();
-        root.setPrefSize(1024, 768);
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
         root.setTop(new MenuPane(model, this, canvas));
         anchorPane.getChildren().add(canvas);
-        anchorPane.setStyle("-fx-border-color: red");
+        anchorPane.setStyle("-fx-border-color: red; -fx-border-width : 5 5 5 5");
+        centerCanvasInScrollPane(scrollPane, canvas);
 
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
 
         this.stage.setScene(new Scene(root));
+    }
+
+
+    /**
+     * Zentriert das Canvas mittig auf dem Scrollpane, wenn z.B das Canvas größer ist, als der sichtbare Bereich
+     * @param scrollPane auf dem ScrollPane wird das Canvas platziert
+     * @param canvas soll mittig auf ScrollPane platziert werden
+     */
+    public void centerCanvasInScrollPane(ScrollPane scrollPane, Canvas canvas) {
+        // Gibt die Höhe des Inhalts der ScrollPane an
+        double h = scrollPane.getContent().getBoundsInLocal().getHeight();
+        double y = (canvas.getBoundsInParent().getMaxY() + canvas.getBoundsInParent().getMinY()) / 2.0;
+        // Gibt Höhe des sichtbaren Bereichs an
+        double v = scrollPane.getViewportBounds().getHeight();
+        double w = scrollPane.getViewportBounds().getWidth();
+        scrollPane.setVvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
+        scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
     }
 
     /**
