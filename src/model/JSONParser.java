@@ -30,7 +30,7 @@ public class JSONParser {
      * @param filename - JSON-Dateiname zum Laden
      * @return - true im Erfolgsfall, sonst false
      */
-    public boolean parse(String filename) {
+    public boolean parse(String filename, BasicModel model) {
         // JSON-Datei wird eingelesen
         InputStream inputStream = null;
         try {
@@ -45,10 +45,9 @@ public class JSONParser {
             handleRootAttributes();
             // pruefe root-attribute nacheinander
             handleCommoditiesContent(json.getJSONArray("commodities"));
-            handleBuildingsContent(json.getJSONObject("buildings"));
+            handleBuildingsContent(json.getJSONObject("buildings"), model);
             handleVehiclesContent(json.getJSONObject("vehicles"));
             handleMapContent(json.getJSONObject("map"));
-
        }
         catch(JSONException e){
             System.out.println(e.getMessage());
@@ -354,8 +353,12 @@ public class JSONParser {
             if (building != null) {
                 this.buildings.add(building);
             }
+            if(building.has("buildmenu")){
+                buildMenus.add(building.getString("buildmenu"));
+            }
         }
     }
+
 
     /**
      * prueft alle Railstation-Attribute auf Richtigkeit liefert ein neues Railstation-Objekt zurück
