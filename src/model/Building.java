@@ -4,7 +4,16 @@ public class Building {
     private int width;
     private int depth;
     private int dz;
+    private String buildingName;
 
+
+    public String getBuildingName() {
+        return buildingName;
+    }
+
+    public void setBuildingName(String buildingName) {
+        this.buildingName = buildingName;
+    }
 
     public void setDepth(int depth) {
         this.depth = depth;

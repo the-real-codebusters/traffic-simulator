@@ -348,10 +348,11 @@ public class JSONParser {
         Iterator<String> keys = buildings.keys();
         Set<String> buildMenus = new HashSet<>();
         while (keys.hasNext()) {
-            String data = keys.next();
-            JSONObject buildingsDetails = buildings.getJSONObject(data);
+            String name = keys.next();
+            JSONObject buildingsDetails = buildings.getJSONObject(name);
             Building building = handleBuildMenuContent(buildingsDetails);
             if (building != null) {
+                building.setBuildingName(name);
                 this.buildings.add(building);
             }
             if(buildingsDetails.has("buildmenu")){
