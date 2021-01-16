@@ -34,16 +34,16 @@ public class Controller {
         TrafficGraph graphWithDuplicates = new TrafficGraph();
 
         // Methoden von TrafficGraph werden getestet
-        directedGraph.testGraphAdd();
-        System.out.println();
-        directedGraph.testGraphRemove();
-        System.out.println();
-        undirectedGraph.testGraphAddBidirectional();
-        System.out.println();
-        undirectedGraph.testGraphRemoveBidirectional();
-        System.out.println();
-        directedGraph.testJoinPoints();
-        System.out.println();
-        graphWithDuplicates.testChekForDuplicates();
+//        directedGraph.testGraphAdd();
+//        System.out.println();
+//        directedGraph.testGraphRemove();
+//        System.out.println();
+//        undirectedGraph.testGraphAddBidirectional();
+//        System.out.println();
+//        undirectedGraph.testGraphRemoveBidirectional();
+//        System.out.println();
+//        directedGraph.testJoinPoints();
+//        System.out.println();
+//        graphWithDuplicates.testChekForDuplicates();
     }
 }
