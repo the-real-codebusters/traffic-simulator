@@ -16,14 +16,18 @@ public class BasicModel {
 //    private ToolsModel tools;
 
     private Set<String> buildmenus = new HashSet<>();
+    private List<Building> buildings;
 
-    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode, Set<String> buildmenus) {
+
+    public BasicModel(Set<String> commodities, int day, double speedOfDay,
+                      MapModel map, String gamemode, Set<String> buildmenus, ArrayList<Building> buildings) {
         this.commodities = commodities;
         this.day = day;
         this.speedOfDay = speedOfDay;
         this.map = map;
         this.gamemode = gamemode;
         this.buildmenus = buildmenus;
+        this.buildings = buildings;
     }
 
     public List<String> getBuildingNamesForBuildmenu(String buildmenu) {
@@ -107,4 +111,11 @@ public class BasicModel {
         return map.getFieldGrid();
     }
 
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    public void setBuildings(List<Building> buildings) {
+        this.buildings = buildings;
+    }
 }

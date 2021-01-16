@@ -23,7 +23,6 @@ public class JSONParser {
     private JSONObject json;
     private List<String> requiredRootAttributes = Arrays.asList("commodities", "buildings", "vehicles", "map");
     private List<String> commodities = new ArrayList<>();
-    private List<Building> buildings = new ArrayList<>();
 
     /**
      * Zeigt eine Fehlermeldung an, wenn JSON-Datei fehlerhaft
@@ -353,7 +352,7 @@ public class JSONParser {
             Building building = handleBuildMenuContent(buildingsDetails);
             if (building != null) {
                 building.setBuildingName(name);
-                this.buildings.add(building);
+                model.getBuildings().add(building);
             }
             if(buildingsDetails.has("buildmenu")){
                 buildMenus.add(buildingsDetails.getString("buildmenu"));
@@ -771,17 +770,4 @@ public class JSONParser {
         }
     }
 
-
-    public List<Building> getBuildings() {
-        return buildings;
-    }
-
-    /**
-     * Alle Buildings in Textform ausgeben
-     */
-    public void getBuildingsAsString() {
-        for (Building b: buildings) {
-            System.out.println(b);
-        }
-    }
 }

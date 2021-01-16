@@ -9,13 +9,11 @@ public class MapModel {
     private int width;
     private int depth;
     private Field[][] fieldGrid;
-    private List<Building> buildings;
 
-    public MapModel(int width, int depth, ArrayList<Building> buildings) {
+    public MapModel(int width, int depth) {
         this.width = width;
         this.depth = depth;
         this.fieldGrid = new Field[width][depth];
-        this.buildings = buildings;
     }
 
     public MapGenerator getMapgen() { return mapgen; }
@@ -30,10 +28,6 @@ public class MapModel {
 
     public Field[][] getFieldGrid() {
         return fieldGrid;
-    }
-
-    public List<Building> getBuildings() {
-        return buildings;
     }
 
     public void setFieldGrid(Field[][] fieldGrid) {
