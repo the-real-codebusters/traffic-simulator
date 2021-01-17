@@ -39,11 +39,13 @@ public class View {
     private BasicModel model;
 
     private Map<String, Image> imageCache = new HashMap<>();
+    BuildingToImageMapping mapping;
 
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         this.model = model;
+        mapping = new BuildingToImageMapping(model.getGamemode());
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -57,7 +59,7 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
-        root.setTop(new MenuPane(model, this, canvas));
+        root.setTop(new MenuPane(model, this, canvas, mapping));
         scrollPane.setStyle("-fx-background-color: black");
         anchorPane.getChildren().add(canvas);
 

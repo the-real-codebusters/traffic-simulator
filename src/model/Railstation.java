@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Railstation extends Special {
-    private String buildmenu = "rail";
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> rails = new ArrayList<>();
 
@@ -16,10 +15,6 @@ public class Railstation extends Special {
 
     public void setRails(List<List<String>> rails) {
         this.rails = rails;
-    }
-
-    public String getBuildmenu() {
-        return buildmenu;
     }
 
     @Override

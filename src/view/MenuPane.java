@@ -37,11 +37,13 @@ public class MenuPane extends AnchorPane {
     private String selectedBuilding;
 
     private Point2D hoveredTileBefore;
+    BuildingToImageMapping mapping;
 
-    public MenuPane(BasicModel model, View view, Canvas canvas) {
+    public MenuPane(BasicModel model, View view, Canvas canvas, BuildingToImageMapping mapping) {
         this.model = model;
         this.view = view;
         this.canvas = canvas;
+        this.mapping = mapping;
 
         setCanvasEvents();
 
@@ -78,9 +80,12 @@ public class MenuPane extends AnchorPane {
         for(String name: tabNames){
             HBox container = boxWithLayout();
             List<Building> buildings = model.getBuildingsForBuildmenu(name);
+            if(name.equals("road")) System.out.println("test "+buildings.size());
             for(Building building: buildings){
-//                ImageView imageView = imageViewWithLayout(building.);
-//                container.getChildren().add(imageView);
+                String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+                if(imageName == null) continue;
+                ImageView imageView = imageViewWithLayout(imageName);
+                container.getChildren().add(imageView);
                 //TODO
             }
             tabContents.set(tabNames.indexOf(name), container);

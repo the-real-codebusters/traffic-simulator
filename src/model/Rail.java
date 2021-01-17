@@ -8,18 +8,20 @@ import java.util.stream.Collectors;
 
 public class Rail extends Building {
 
-
-    // optional
-    private String buildmenu;
-
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> rails = new ArrayList<>();
     // optional
     private List<String> signals = new ArrayList<>();
 
+    // optional
+    private Map<String, String> combines = new HashMap<>();
 
-    public void setBuildmenu(String buildmenu) {
-        this.buildmenu = buildmenu;
+    public Map<String, String> getCombines() {
+        return combines;
+    }
+
+    public void setCombines(Map<String, String> combines) {
+        this.combines = combines;
     }
 
     public void setPoints(Map<String, List<Double>> points) {

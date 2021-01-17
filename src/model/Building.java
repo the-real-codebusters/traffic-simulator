@@ -1,11 +1,11 @@
 package model;
 
 public class Building {
-    private int width;
-    private int depth;
-    private int dz;
-    private String buildingName;
-    private String buildmenu;
+    protected int width;
+    protected int depth;
+    protected int dz;
+    protected String buildingName;
+    protected String buildmenu;
 
 
     public String getBuildmenu() {

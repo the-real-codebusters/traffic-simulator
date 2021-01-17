@@ -349,10 +349,12 @@ public class JSONParser {
         while (keys.hasNext()) {
             String name = keys.next();
             JSONObject buildingsDetails = buildings.getJSONObject(name);
+            System.out.println("name "+name);
             Building building = handleBuildMenuContent(buildingsDetails);
             if (building != null) {
                 building.setBuildingName(name);
                 model.getBuildings().add(building);
+                System.out.println("handleBuildingsContent "+name+" "+building.getBuildmenu());
             }
             if(buildingsDetails.has("buildmenu")){
                 buildMenus.add(buildingsDetails.getString("buildmenu"));
@@ -370,10 +372,11 @@ public class JSONParser {
      */
     private Railstation handleRailstationContent(JSONObject json) throws JSONParserException {
         Railstation railstation = new Railstation();
+        setDefaultAttributes(railstation, json);
+
         String buildmenu = handleContentAsString(json, "buildmenu");
         checkBuildMenu(railstation.getBuildmenu(), buildmenu);
 
-        setDefaultAttributes(railstation, json);
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> railList = handleBuildMenuInfrastructure(json.getJSONArray("rails"));
@@ -392,10 +395,11 @@ public class JSONParser {
      */
     private Terminal handleTerminalContent(JSONObject json) throws JSONParserException {
         Terminal terminal = new Terminal();
+        setDefaultAttributes(terminal, json);
+
         String buildmenu = handleContentAsString(json, "buildmenu");
         checkBuildMenu(terminal.getBuildmenu(), buildmenu);
 
-        setDefaultAttributes(terminal, json);
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
@@ -431,10 +435,10 @@ public class JSONParser {
      */
     private Tower handleTowerContent(JSONObject json) throws JSONParserException {
         Tower tower = new Tower();
-        String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(tower.getBuildmenu(), buildmenu);
 
         setDefaultAttributes(tower, json);
+        String buildmenu = handleContentAsString(json, "buildmenu");
+        checkBuildMenu(tower.getBuildmenu(), buildmenu);
 
         int maxplanes = handleContentAsInteger(json, "maxplanes", 0, null);
         tower.setMaxplanes(maxplanes);
@@ -454,13 +458,18 @@ public class JSONParser {
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> roadList = handleBuildMenuInfrastructure(json.getJSONArray("roads"));
+        if(roadList.get(0).get(0).equals("ne") && roadList.get(0).get(1).equals("c") && roadList.size() == 1) {
+            System.out.print("Derisses ne  ");
+        }
         Map<String, String> combinesMap = new HashMap<>();
         if (json.has("combines")) {
             combinesMap = handleBuildMenuCombines(json.getJSONObject("combines"));
         }
         if (buildmenu.length == 1) {
+            System.out.println("handleRoadContent "+buildmenu[0]);
             road.setBuildmenu(buildmenu[0]);
         }
+        System.out.println("handleRoadContent "+road.getBuildmenu());
 
         road.setPoints(pointMap);
         road.setRoads(roadList);
@@ -487,10 +496,10 @@ public class JSONParser {
 
     private Taxiway handleTaxiwayContent(JSONObject json) throws JSONParserException {
         Taxiway taxiway = new Taxiway();
+        setDefaultAttributes(taxiway, json);
         String buildmenu = handleContentAsString(json, "buildmenu");
         checkBuildMenu(taxiway.getBuildmenu(), buildmenu);
 
-        setDefaultAttributes(taxiway, json);
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
@@ -502,10 +511,10 @@ public class JSONParser {
     }
     private Runway handleRunwayContent(JSONObject json) throws JSONParserException {
         Runway runway = new Runway();
+        setDefaultAttributes(runway, json);
         String buildmenu = handleContentAsString(json, "buildmenu");
         checkBuildMenu(runway.getBuildmenu(), buildmenu);
 
-        setDefaultAttributes(runway, json);
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
@@ -528,10 +537,11 @@ public class JSONParser {
     }
     private Busstop handleBusstopContent(JSONObject json) throws JSONParserException {
         Busstop busstop = new Busstop();
+        setDefaultAttributes(busstop, json);
+
         String buildmenu = handleContentAsString(json, "buildmenu");
         checkBuildMenu(busstop.getBuildmenu(), buildmenu);
 
-        setDefaultAttributes(busstop, json);
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> roads = handleBuildMenuInfrastructure(json.getJSONArray("roads"));
@@ -584,25 +594,30 @@ public class JSONParser {
         return factory;
     }
 
-    private Justcombines handleJustCombinesContent(JSONObject json) throws JSONParserException {
-        Justcombines justcombines = new Justcombines();
+    private Rail handleJustCombinesContent(JSONObject json) throws JSONParserException {
+        Rail rail = new Rail();
+
         String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(justcombines.getBuildmenu(), buildmenu);
+        rail.setBuildmenu(buildmenu);
 
-        Map<String, String> combinesMap =handleBuildMenuCombines(json.getJSONObject("combines"));
+        Map<String, String> combinesMap = new HashMap<>();
+        if (json.has("combines")) {
+            combinesMap = handleBuildMenuCombines(json.getJSONObject("combines"));
+        }
+        rail.setCombines(combinesMap);
 
-        justcombines.setCombines(combinesMap);
-        return justcombines;
+
+        return rail;
     }
     private Nature handleNatureContent(JSONObject json) throws JSONParserException {
         Nature nature = new Nature();
+        setDefaultAttributes(nature, json);
         if (json.has("buildmenu")) {
             String buildmenu = handleContentAsString(json, "buildmenu");
             checkBuildMenu(nature.getBuildmenu(), buildmenu);
         }
 
 
-        setDefaultAttributes(nature, json);
         return nature;
     }
     private Rail handleRailsContent(JSONObject json, String... buildmenu) throws JSONParserException {

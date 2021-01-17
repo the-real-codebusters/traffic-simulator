@@ -31,9 +31,14 @@ public class BasicModel {
     }
 
     public List<Building> getBuildingsForBuildmenu(String buildmenu) {
+        buildings.forEach(x -> System.out.println(x.getBuildingName()+"  "+x.getBuildmenu()));
+
         List<Building> bs = new ArrayList<>();
 
         for(Building building: buildings){
+            if(building.getBuildingName() != null && building.getBuildingName().equals("road-ne")){
+                System.out.println("test "+building.getBuildmenu());
+            }
             String menu = building.getBuildmenu();
             if( menu != null && menu.equals(buildmenu)){
                 bs.add(building);
