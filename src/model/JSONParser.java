@@ -127,8 +127,8 @@ public class JSONParser {
     private void handleMapContent(JSONObject map) throws JSONParserException {
         int width = 0;
         int depth = 0;
-        String mapgen;
-        String gamemode;
+        String mapgen = "";
+        String gamemode = "";
         // gültige Map-Attribute
         String[] children = {"mapgen", "gamemode", "width", "depth"};
         // Alle Kinder von Map auslesen
@@ -144,12 +144,13 @@ public class JSONParser {
                 mapgen = handleContentAsString(map, children[i]);
             } else {
                 gamemode = handleContentAsString(map, children[i]);
-                // eingelesener gamemode wird model hinzugefügt
-                model.setGamemode(gamemode);
             }
             // mapModel wird aus eingelesenen Werten erzeugt und dem model hinzugefügt
             MapModel mapModel = new MapModel(width, depth, new ArrayList<>());
+            mapModel.setMapgen(mapgen);
+            // mapModel und eingelesener gamemode werden dem model hinzugefügt
             model.setMap(mapModel);
+            model.setGamemode(gamemode);
 
         }
    }
