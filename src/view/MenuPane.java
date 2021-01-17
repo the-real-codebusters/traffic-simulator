@@ -114,6 +114,13 @@ public class MenuPane extends AnchorPane {
         drawHoveredImageBefore(xCoordBefore, yCoordBefore+1, fields);
         drawHoveredImageBefore(xCoordBefore+1, yCoordBefore+1, fields);
 
+        // Jetzt werden alle 8 Felder, die an dem HoveredImage angrenzen neugezeichnet
+        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore, fields);
+        drawHoveredImageBefore(xCoordBefore, yCoordBefore-1, fields);
+        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore-1, fields);
+        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore+1, fields);
+        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore-1, fields);
+
         // Bei Bildern, die über das Feld hinausschauen, müssen auch angrenzende Felder neu gezeichnet werden
     }
 
