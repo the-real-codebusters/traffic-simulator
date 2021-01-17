@@ -21,9 +21,9 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private final double tileWidth = 64;
+    private final double tileWidth = 128;
     private final double tileWidthHalf = tileWidth / 2;
-    private final double tileHeight = 32;
+    private final double tileHeight = 64;
     private final double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;

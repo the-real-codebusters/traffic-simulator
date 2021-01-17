@@ -38,7 +38,7 @@ public class MapGenerator {
                 Building building = null;
                 int i = 0;
                 while(building == null){
-                    if(new Random().nextInt(100) < 80) {
+                    if(new Random().nextInt(100) < 50) {
                         building = natureBuildings.get(i);
                         // TODO: Ist es nötig neue Instanzen für jedes neue Building zu kreiieren?
                         // 
