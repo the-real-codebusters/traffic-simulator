@@ -9,7 +9,7 @@ import java.util.List;
 public class Controller {
     private View view;
 
-    public Controller(View view, MapModel map) {
+    public Controller(View view, MapModel map, BasicModel model) {
         this.view = view;
 
         // buildings und map sind hier lediglich Testobjekte und sollen später anhand der Daten in der
@@ -18,7 +18,7 @@ public class Controller {
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator("planverkehr", map);
-        Field[][] generatedMap = generator.generateMap(map);
+        Field[][] generatedMap = generator.generateMap(map, model);
         map.setFieldGrid(generatedMap);
 
         // Breite und Tiefe der Map aus dem Model werden in der View übernommen

@@ -20,7 +20,7 @@ public class Main extends Application {
             View view = new View(stage, model);
             stage.setTitle("Green tiles");
             stage.show();
-            Controller controller = new Controller(view, map);
+            Controller controller = new Controller(view, map, model);
         }
     }
 

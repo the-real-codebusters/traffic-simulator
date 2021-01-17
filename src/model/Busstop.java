@@ -17,6 +17,7 @@ public class Busstop extends Special {
         this.roads = roads;
     }
 
+
     @Override
     public String toString() {
         return super.toString() +" Busstop{" +

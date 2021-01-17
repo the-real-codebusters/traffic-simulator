@@ -85,12 +85,14 @@ public class View {
     }
 
     public Image getSingleFieldImage(int column, int row, Field[][] fields){
-        //TODO: Methode zur Ermittlung des gewünschten Bildes anhand des FieldTypes
-
         String name;
         if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black";
-        else if(fields[column][row].getFieldType().equals("grey")) name = "Bodenplatte_Gras";
-        else name = "greentile";
+        else {
+            if(fields[column][row].getBuilding() == null) throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
+            String buildingName = fields[column][row].getBuilding().getBuildingName();
+            name = mapping.getImageNameForBuildingName(buildingName);
+        }
+
         return getResourceForImageName(name, true);
     }
 

@@ -617,7 +617,6 @@ public class JSONParser {
             checkBuildMenu(nature.getBuildmenu(), buildmenu);
         }
 
-
         return nature;
     }
     private Rail handleRailsContent(JSONObject json, String... buildmenu) throws JSONParserException {
@@ -661,19 +660,22 @@ public class JSONParser {
         if (buildingsDetails.has("special")) {
             // behandelt alle Elemente mit Attribut special
             String special = handleContentAsString(buildingsDetails, "special");
+            Special specialObject;
             switch (special) {
-                case "railstation": return handleRailstationContent(buildingsDetails);
-                case "tower": return handleTowerContent(buildingsDetails);
-                case "terminal": return handleTerminalContent(buildingsDetails);
-                case "taxiway": return handleTaxiwayContent(buildingsDetails);
-                case "runway": return handleRunwayContent(buildingsDetails);
-                case "nature": return handleNatureContent(buildingsDetails);
+                case "railstation": specialObject = handleRailstationContent(buildingsDetails); break;
+                case "tower": specialObject = handleTowerContent(buildingsDetails); break;
+                case "terminal": specialObject = handleTerminalContent(buildingsDetails); break;
+                case "taxiway": specialObject = handleTaxiwayContent(buildingsDetails); break;
+                case "runway": specialObject = handleRunwayContent(buildingsDetails); break;
+                case "nature": specialObject = handleNatureContent(buildingsDetails); break;
                 case "justcombines": return handleJustCombinesContent(buildingsDetails);
-                case "factory": return handleFactoryContent(buildingsDetails);
-                case "busstop": return handleBusstopContent(buildingsDetails);
+                case "factory": specialObject = handleFactoryContent(buildingsDetails); break;
+                case "busstop": specialObject = handleBusstopContent(buildingsDetails); break;
                 default:
                     throw new JSONParserException("special + " + special + " not defined");
             }
+            specialObject.setSpecial(special);
+            return specialObject;
         }
         else {
             // behandelt alle Elemente ohne Attribut special (road, rail)

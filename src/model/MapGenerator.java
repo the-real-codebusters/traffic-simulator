@@ -19,36 +19,38 @@ public class MapGenerator {
      * @param mapModel wird benutzt, um größe der Map zu bestimmen und Array der Felder zu befüllen
      * @return eine 2D-Liste von Feldern mit zufälligen Feldtypen
      */
-    public Field[][] generateMap(MapModel mapModel) {
+    public Field[][] generateMap(MapModel mapModel, BasicModel basicModel) {
 
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
-        String fieldType;
 
-        //Momentan noch hardcoded, da nur 2 Graphiken verfügbar
-        List<String> fieldTypes = new ArrayList<>();
-        fieldTypes.add("grass");
-        fieldTypes.add("green_grass");
+        List<Building> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
+        System.out.println("Size nature buildings "+natureBuildings.size());
+
         //TODO: geeignete Datenstruktur zur Speicherung der Typen überlegen. Eventuell benötigen wir
         // Unterkategorien, z.B: Kategorie Nature -> Unterkategorien Baum, Gras, Wasser usw.
 
 
-        // FieldType wird für jedes Feld entsprechend einer Wahrscheinlichkeit bestimmt
-        // Hier haben die "grauen" Grassfelder eine viel höhere Wahrscheinlichkeit als die grünen
-        // Später sollen Grassfelder allgemein eine hohe Wahrscheinlichkeit bekommen, während Wasserfelder und
-        // Felder mit Produktionsanlagen eine niedrigere prozentuale Wahrscheinlichkeit bekommen
+        //TODO Es gibt gar kein gras im Planverkehr JSON -> Stone statt Gras zeichnen und einbauen
+
         for (int row = 0; row < mapWidth; row++) {
             for (int col = 0; col < mapDepth; col++) {
-                if (new Random().nextInt(100) < 90) {
-                    fieldType = "grey";
-                } else {
-                    fieldType = "green";
+                Building building = null;
+                int i = 0;
+                while(building == null){
+                    if(new Random().nextInt(100) < 80) {
+                        building = natureBuildings.get(i);
+                        // TODO: Ist es nötig neue Instanzen für jedes neue Building zu kreiieren?
+                        // 
+//                         building = natureBuildings.get(i).getNewInstance();
+                    }
+                    i++;
+                    if(i >= natureBuildings.size()) i = 0;
                 }
                 // Felder im mapModel werden mit Höhe 0 und zugewiesenem FieldType initialisiert
-                mapModel.getFieldGrid()[row][col] = new Field(0, fieldType);
+                mapModel.getFieldGrid()[row][col] = new Field(0, building);
             }
         }
-//        mapModel.printFieldsArray();
         return mapModel.getFieldGrid();
     }
 }
