@@ -3,10 +3,8 @@ package view;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -23,16 +21,18 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private final int tileWidth = 64;
-    private final int tileWidthHalf = tileWidth / 2;
-    private final int tileHeight = 32;
-    private final int tileHeightHalf = tileHeight / 2;
+    private final double tileWidth = 64;
+    private final double tileWidthHalf = tileWidth / 2;
+    private final double tileHeight = 32;
+    private final double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;
 
-    private Canvas canvas = new Canvas(700, 500);
+    // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
+    private Canvas canvas = new Canvas(4096, 4096);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
+
     private AnchorPane anchorPane = new AnchorPane();
     private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
 
@@ -46,6 +46,7 @@ public class View {
         this.stage = primaryStage;
         this.model = model;
         mapping = new BuildingToImageMapping(model.getGamemode());
+        scrollPane.setPrefSize(1000, 600);
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -54,18 +55,36 @@ public class View {
         mousePosLabel.setFont(new Font("Arial", 15));
 
         BorderPane root = new BorderPane();
-        root.setPrefSize(1024, 768);
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(scrollPane);
         root.setTop(new MenuPane(model, this, canvas, mapping));
-        scrollPane.setStyle("-fx-background-color: black");
+
         anchorPane.getChildren().add(canvas);
+        anchorPane.setStyle("-fx-border-color: red; -fx-border-width : 5 5 5 5");
+        centerCanvasInScrollPane(scrollPane, canvas);
 
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
 
         this.stage.setScene(new Scene(root));
+    }
+
+
+    /**
+     * Zentriert das Canvas mittig auf dem Scrollpane, wenn z.B das Canvas größer ist, als der sichtbare Bereich
+     * @param scrollPane auf dem ScrollPane wird das Canvas platziert
+     * @param canvas soll mittig auf ScrollPane platziert werden
+     */
+    public void centerCanvasInScrollPane(ScrollPane scrollPane, Canvas canvas) {
+        // Gibt die Höhe des Inhalts der ScrollPane an
+        double h = scrollPane.getContent().getBoundsInLocal().getHeight();
+        double y = (canvas.getBoundsInParent().getMaxY() + canvas.getBoundsInParent().getMinY()) / 2.0;
+        // Gibt Höhe des sichtbaren Bereichs an
+        double v = scrollPane.getViewportBounds().getHeight();
+        double w = scrollPane.getViewportBounds().getWidth();
+        scrollPane.setVvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
+        scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
     }
 
     /**
@@ -75,7 +94,7 @@ public class View {
     public void drawMap(Field[][] fields) {
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = 0; col < mapWidth; col++) {
-            for (int row = 0; row < mapDepth; row++) {
+            for (int row = mapDepth - 1; row >= 0; row--) {
 
                 // Bilder werden auf Canvas anhand von fieldType gezeichnet
                 Image image = getSingleFieldImage(col, row, fields);
@@ -86,7 +105,7 @@ public class View {
 
     public Image getSingleFieldImage(int column, int row, Field[][] fields){
         String name;
-        if(column < 0 || row < 0 || column >= mapWidth || row >= mapWidth) name = "black";
+        if(column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             if(fields[column][row].getBuilding() == null) throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
             String buildingName = fields[column][row].getBuilding().getBuildingName();
@@ -96,15 +115,21 @@ public class View {
         return getResourceForImageName(name, true);
     }
 
-    public void drawTileImage(int tileXCoord, int tileYCoord, Image image, boolean transparent){
+    public void drawTileImage(int row, int column, Image image, boolean transparent){
 
-        // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten
-        double tileX = (tileXCoord + tileYCoord) * tileWidthHalf;
-        double tileY = (tileXCoord - tileYCoord) * tileHeightHalf;
+        // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
+        // Zeichenreihenfolge von oben rechts nach unten links
+        double tileX = (row + column) * tileWidthHalf;
+        double tileY = (row - column) * tileHeightHalf;
 
-        // Bilder sollen ausgehend vom Mittelpunkt des Canvas gezeichnet werden
-        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth;
-        double startY = tileY + canvasCenterHeight;
+        // Differenz zwischen Breite und Tiefe der Map
+        double differenceWidthHeigth = mapWidth - mapDepth;
+
+        double tileOffset = differenceWidthHeigth * 0.25;
+
+        // Zeichenreihenfolge von oben rechts nach unten links
+        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
+        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
 
         if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, startX, startY);
@@ -120,8 +145,20 @@ public class View {
      * @return ein Point2D mit isometrischen Koordinaten
      */
     public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
-        double x = Math.floor((mouseY/tileHeight + mouseX/tileWidth) - (canvasCenterHeight/tileHeight) - 5 + mapDepth/2 - 1);
-        double y = Math.floor((mouseX/tileWidth - mouseY/tileHeight) + (canvasCenterHeight/tileHeight) - 5 + mapWidth/2);
+
+        double offsetX = 0;
+        double offsetY = 0;
+        if(mapWidth%2 != 0){
+            offsetX = tileWidthHalf/ tileWidth;
+        }
+        if(mapDepth%2 != 0){
+            offsetY = tileHeightHalf/ tileHeight;
+        }
+
+        double x = Math.floor((mouseX/ tileWidth + mouseY/ tileHeight) - canvasCenterHeight/ tileHeight
+                - (canvasCenterWidth/ tileWidth) + (mapWidth/2) + offsetX);
+        double y = Math.floor((mouseX/ tileWidth - mouseY/ tileHeight) + canvasCenterHeight/ tileHeight
+                - (canvasCenterWidth/ tileWidth) + (mapDepth/2) + offsetY );
         return new Point2D(x, y);
     }
 
