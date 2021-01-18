@@ -9,6 +9,16 @@ public class Building {
     protected String buildingName;
     protected String buildmenu;
 
+    protected Field originTile;
+
+    public Field getOriginTile() {
+        return originTile;
+    }
+
+    public void setOriginTile(Field originTile) {
+        this.originTile = originTile;
+    }
+
     public String getBuildmenu() {
         return buildmenu;
     }

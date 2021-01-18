@@ -6,6 +6,7 @@ public class Field {
 
     private int height;
     private Building building;
+    boolean isBuildingOrigin;
 
     public Field(int height, Building building) {
         this.height = height;
@@ -31,4 +32,11 @@ public class Field {
         this.height = height;
     }
 
+    public boolean isBuildingOrigin() {
+        return isBuildingOrigin;
+    }
+
+    public void setBuildingOrigin(boolean buildingOrigin) {
+        isBuildingOrigin = buildingOrigin;
+    }
 }

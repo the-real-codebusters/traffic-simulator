@@ -108,12 +108,11 @@ public class View {
         String buildingName;
         if(column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
-            Field field = fields[column][row];
+            Field field = fields[row][column];
             if(field.getHeight() < 0){
                 buildingName = "water";
             }
             else if(field.getBuilding() == null) {
-                System.out.println("fail");
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
             }
             else  buildingName = field.getBuilding().getBuildingName();
@@ -123,7 +122,7 @@ public class View {
         return getResourceForImageName(name, true);
     }
 
-    public void drawTileImage(int row, int column, Image image, boolean transparent){
+    public void drawTileImage(int column, int row, Image image, boolean transparent){
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
         // Zeichenreihenfolge von oben rechts nach unten links

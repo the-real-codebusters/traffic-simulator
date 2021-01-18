@@ -16,11 +16,18 @@ public class MapModel {
         this.fieldGrid = new Field[width][depth];
     }
 
-//    public placeBuilding(int row, int column, Building building){
-//        Field originTile = fieldGrid[row][column];
-//        if(originTile == null) originTile = new Field(0, building);
-//
-//    }
+    public void placeBuilding(int row, int column, Building building){
+
+        for(int r=row; r<row+building.getDepth(); r++){
+            for(int c=column; c<column+building.getWidth(); c++){
+                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Field(0, building);
+                else fieldGrid[r][c].setBuilding(building);
+            }
+        }
+        Field originTile = fieldGrid[row][column];
+        originTile.setBuildingOrigin(true);
+    }
+
     public MapGenerator getMapgen() { return mapgen; }
 
     public int getWidth() {
