@@ -10,6 +10,7 @@ public class Field {
     public Field(int height, Building building) {
         this.height = height;
         this.building = building;
+        if(height < 0 ) this.building = null;
     }
 
     // TODO: Braucht diese Klasse eventuell eine equals() Methode? ich denke eigentlich nicht, deshalb gelöscht

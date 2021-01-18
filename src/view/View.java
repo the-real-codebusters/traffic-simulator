@@ -105,10 +105,18 @@ public class View {
 
     public Image getSingleFieldImage(int column, int row, Field[][] fields){
         String name;
+        String buildingName;
         if(column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
-            if(fields[column][row].getBuilding() == null) throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
-            String buildingName = fields[column][row].getBuilding().getBuildingName();
+            Field field = fields[column][row];
+            if(field.getHeight() < 0){
+                buildingName = "water";
+            }
+            else if(field.getBuilding() == null) {
+                System.out.println("fail");
+                throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
+            }
+            else  buildingName = field.getBuilding().getBuildingName();
             name = mapping.getImageNameForBuildingName(buildingName);
         }
 

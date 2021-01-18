@@ -33,22 +33,30 @@ public class MapGenerator {
 
         //TODO Es gibt gar kein gras im Planverkehr JSON -> Stone statt Gras zeichnen und einbauen
 
+
         for (int row = 0; row < mapWidth; row++) {
             for (int col = 0; col < mapDepth; col++) {
-                Building building = null;
-                int i = 0;
-                while(building == null){
-                    if(new Random().nextInt(100) < 50) {
-                        building = natureBuildings.get(i);
-                        // TODO: Ist es nötig neue Instanzen für jedes neue Building zu kreiieren?
-                        // 
-//                         building = natureBuildings.get(i).getNewInstance();
-                    }
-                    i++;
-                    if(i >= natureBuildings.size()) i = 0;
+                int probWater = 5;
+                if(row > 0 && col > 0) {
+                    if(mapModel.getFieldGrid()[row-1][col].getHeight() < 0) probWater+=100;
+                    if(mapModel.getFieldGrid()[row][col-1].getHeight() < 0) probWater+=700;
                 }
-                // Felder im mapModel werden mit Höhe 0 und zugewiesenem FieldType initialisiert
-                mapModel.getFieldGrid()[row][col] = new Field(0, building);
+                Building building = null;
+                int heightRandom =  new Random().nextInt(1000);
+                int height = 0;
+                if(heightRandom <= probWater) height = -1;
+                else if(heightRandom > 850 && heightRandom < 950) height = 1;
+                else if(heightRandom > 810 && heightRandom <= 850) height = 2;
+                else if(heightRandom > 950 && heightRandom <= 980) height = 3;
+                else if(heightRandom > 980) height = 4;
+
+                int buildingRandom = new Random().nextInt(natureBuildings.size());
+                building = natureBuildings.get(buildingRandom);
+                // TODO: Ist es nötig neue Instanzen für jedes neue Building zu kreiieren?
+                //
+//                         building = natureBuildings.get(i).getNewInstance();
+
+                mapModel.getFieldGrid()[row][col] = new Field(height, building);
             }
         }
         return mapModel.getFieldGrid();
