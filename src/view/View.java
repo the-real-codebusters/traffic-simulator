@@ -88,14 +88,14 @@ public class View {
         scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
     }
 
-    //TODO Checken: Sind die Zuordnungen von row -> Depth, column -> width so richtig? Ist es überall konsistent
+    //TODO Checken: Sind die Zuordnungen von row -> Depth, column -> width so richtig? Ist es überall konsistent?
 
     /**
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
     public void drawMap(Field[][] fields) {
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
-        for (int col = 0; col < mapWidth; col++) {
+        for (int col = mapWidth-1; col >= 0; col--) {
             for (int row = mapDepth - 1; row >= 0; row--) {
 
                 Field field = fields[row][col];
@@ -109,7 +109,6 @@ public class View {
                     Image image = getSingleFieldImage(col, row, fields);
                     drawTileImage(col, row, image, false);
                 }
-
             }
         }
     }

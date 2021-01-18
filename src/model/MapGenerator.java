@@ -30,7 +30,9 @@ public class MapGenerator {
         Random randomGenerator = new Random();
         for(Building factory: factoryBuildings){
             int maxNumberOfPlacements = ((mapDepth*mapWidth)/(factory.getDepth()*factory.getWidth()))/100;
-            int numberOfPlacements = randomGenerator.nextInt(maxNumberOfPlacements)+1;
+            int numberOfPlacements;
+            if(maxNumberOfPlacements==0) numberOfPlacements = 1;
+            else numberOfPlacements = randomGenerator.nextInt(maxNumberOfPlacements)+1;
             int maxColumn = mapWidth - factory.getWidth() -1;
             int maxRow = mapDepth - factory.getDepth() -1;
             Building factoryInstance = factory.getNewInstance();
