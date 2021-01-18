@@ -141,7 +141,7 @@ public class MenuPane extends AnchorPane {
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
-        Image image = view.getResourceForImageName(selectedBuilding, view.getTileWidth(), view.getTileHeight(), true);
+        Image image = view.getResourceForImageName(selectedBuilding, view.getTileWidth(), view.getTileHeight());
         view.drawTileImage(xCoord, yCoord, image, transparent);
         return isoCoord;
     }

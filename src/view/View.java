@@ -93,7 +93,7 @@ public class View {
      */
     public void drawMap(Field[][] fields) {
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
-        for (int col = 0; col < mapWidth; col++) {
+        for (int col = 0; col < mapWidth-1; col++) {
             for (int row = mapDepth - 1; row >= 0; row--) {
 
                 Field field = fields[row][col];
@@ -104,9 +104,7 @@ public class View {
                         String buildingName = field.getBuilding().getBuildingName();
                         String name = mapping.getImageNameForBuildingName(buildingName);
 
-//                        Image im = getResourceForImageName(name, 1000, 1000, false);
-//                        Image im = getResourceForImageName(name, tileWidth*building.getWidth(), tileHeight*building.getDepth(), false);
-                        Image im = getResourceForImageName(name, tileWidth, tileHeight, true);
+                        Image im = getResourceForImageName(name, tileWidth*2, tileHeight*2);
 
                         double tileX = ((row + col) + (building.getDepth()+building.getWidth()-2)/2) * tileWidthHalf ;
                         double tileY = ((row - col) + (building.getDepth()-building.getWidth())/2) * tileHeightHalf;
@@ -172,7 +170,7 @@ public class View {
             name = mapping.getImageNameForBuildingName(buildingName);
         }
 
-        return getResourceForImageName(name, tileWidth, tileHeight, true);
+        return getResourceForImageName(name, tileWidth, tileHeight);
     }
 
     public void drawTileImage(int column, int row, Image image, boolean transparent){
@@ -245,14 +243,11 @@ public class View {
         });
     }
 
-    public Image getResourceForImageName(String imageName, double width, double height, boolean caching) {
+    public Image getResourceForImageName(String imageName, double width, double height) {
 
-        if(caching){
-            Image cachedImage = imageCache.get(imageName);
-            if (cachedImage != null) {
-                if(Math.abs(cachedImage.getHeight() - height) < 2 && Math.abs(cachedImage.getWidth() - width) < 2)
-                    return cachedImage;
-            }
+        Image cachedImage = imageCache.get(imageName+(int)width+(int)height);
+        if (cachedImage != null) {
+            return cachedImage;
         }
 
 
@@ -263,14 +258,14 @@ public class View {
                     height,
                     false,
                     true);
-        imageCache.put(imageName, image);
+        imageCache.put(imageName+(int)image.getWidth()+(int)image.getHeight(), image);
         return image;
     }
 
-        public Image getResourceForImageName(String imageName){
-            String gamemode = model.getGamemode();
-            Image image = new Image("/"+gamemode+"/"+imageName+".png");
-            return image;
+    public Image getResourceForImageName(String imageName){
+        String gamemode = model.getGamemode();
+        Image image = new Image("/"+gamemode+"/"+imageName+".png");
+        return image;
     }
 
     public void setMapWidth(int mapWidth) {
