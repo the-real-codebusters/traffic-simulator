@@ -104,10 +104,17 @@ public class View {
                         String buildingName = field.getBuilding().getBuildingName();
                         String name = mapping.getImageNameForBuildingName(buildingName);
 
-                        Image im = getResourceForImageName(name, tileWidth*2, tileHeight*2);
+                        Image r = getResourceForImageName(name);
+                        double ratio = r.getHeight() / r.getWidth();
+                        double imageWidth = tileWidth;
+                        double imageHeight = imageWidth*ratio;
+                        double heightRatio = imageHeight / tileHeight;
 
-                        double tileX = ((row + col) + (building.getDepth()+building.getWidth()-2)/2) * tileWidthHalf ;
-                        double tileY = ((row - col) + (building.getDepth()-building.getWidth())/2) * tileHeightHalf;
+                        Image im = getResourceForImageName(name, imageWidth, imageHeight);
+
+
+                        double tileX = (row + col) * tileWidthHalf;
+                        double tileY = (row - col)  * tileHeightHalf - tileHeightHalf*heightRatio + tileHeightHalf;
 
                         // Differenz zwischen Breite und Tiefe der Map
                         double differenceWidthHeigth = mapWidth - mapDepth;
@@ -116,9 +123,12 @@ public class View {
 
                         // Zeichenreihenfolge von oben rechts nach unten links
                         double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
-                        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
+                        double startY = tileY + canvasCenterHeight - (tileOffset * tileHeight);
 
                         canvas.getGraphicsContext2D().drawImage(im, startX, startY);
+////                        double tileX = ((row + col) + (building.getDepth()+building.getWidth()-2)/1) * tileWidthHalf ;
+////                        double tileY = ((row - col) + (building.getDepth()-building.getWidth())/1) * tileHeightHalf;
+
 
 //                        drawImageOverMoreTiles(
 //                                building.getWidth(),
