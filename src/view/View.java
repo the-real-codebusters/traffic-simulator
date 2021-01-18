@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.BasicModel;
+import model.Building;
 import model.Field;
 
 import java.util.HashMap;
@@ -88,19 +89,71 @@ public class View {
     }
 
     /**
-     * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields, das die Koordinaten sowie den FieldType
-     * enthält
+     * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
     public void drawMap(Field[][] fields) {
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = 0; col < mapWidth; col++) {
             for (int row = mapDepth - 1; row >= 0; row--) {
 
-                // Bilder werden auf Canvas anhand von fieldType gezeichnet
-                Image image = getSingleFieldImage(col, row, fields);
-                drawTileImage(col, row, image, false);
+                Field field = fields[row][col];
+                Building building = field.getBuilding();
+                if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
+                    if(field.isBuildingOrigin()){
+                        Image image = getSingleFieldImage(col, row, fields);
+                        String buildingName = field.getBuilding().getBuildingName();
+                        String name = mapping.getImageNameForBuildingName(buildingName);
+
+//                        Image im = getResourceForImageName(name, 1000, 1000, false);
+//                        Image im = getResourceForImageName(name, tileWidth*building.getWidth(), tileHeight*building.getDepth(), false);
+                        Image im = getResourceForImageName(name, tileWidth, tileHeight, true);
+
+                        double tileX = ((row + col) + (building.getDepth()+building.getWidth()-2)/2) * tileWidthHalf ;
+                        double tileY = ((row - col) + (building.getDepth()-building.getWidth())/2) * tileHeightHalf;
+
+                        // Differenz zwischen Breite und Tiefe der Map
+                        double differenceWidthHeigth = mapWidth - mapDepth;
+
+                        double tileOffset = differenceWidthHeigth * 0.25;
+
+                        // Zeichenreihenfolge von oben rechts nach unten links
+                        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
+                        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
+
+                        canvas.getGraphicsContext2D().drawImage(im, startX, startY);
+
+//                        drawImageOverMoreTiles(
+//                                building.getWidth(),
+//                                building.getDepth(),
+//                                building.getOriginRow(),
+//                                building.getOriginColumn(),
+//                                im);
+                    }
+
+                }
+                else {
+                    Image image = getSingleFieldImage(col, row, fields);
+                    drawTileImage(col, row, image, false);
+                }
+
             }
         }
+    }
+
+    private void drawImageOverMoreTiles(int width, int depth, int rowOrigin , int columnOrigin, Image image){
+        double tileX = (rowOrigin + columnOrigin) * tileWidthHalf;
+        double tileY = (rowOrigin - columnOrigin) * tileHeightHalf;
+
+        // Differenz zwischen Breite und Tiefe der Map
+        double differenceWidthHeigth = mapWidth - mapDepth;
+
+        double tileOffset = differenceWidthHeigth * 0.25;
+
+        // Zeichenreihenfolge von oben rechts nach unten links
+        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
+        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
+
+        canvas.getGraphicsContext2D().drawImage(image, startX, startY);
     }
 
     public Image getSingleFieldImage(int column, int row, Field[][] fields){
@@ -119,7 +172,7 @@ public class View {
             name = mapping.getImageNameForBuildingName(buildingName);
         }
 
-        return getResourceForImageName(name, true);
+        return getResourceForImageName(name, tileWidth, tileHeight, true);
     }
 
     public void drawTileImage(int column, int row, Image image, boolean transparent){
@@ -136,7 +189,7 @@ public class View {
 
         // Zeichenreihenfolge von oben rechts nach unten links
         double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
-        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
+        double startY = tileY + canvasCenterHeight - (tileOffset * tileHeight);
 
         if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, startX, startY);
@@ -192,30 +245,32 @@ public class View {
         });
     }
 
-    public Image getResourceForImageName(String imageName, boolean ínSizeOfOneTile){
+    public Image getResourceForImageName(String imageName, double width, double height, boolean caching) {
 
-        Image cachedImage = imageCache.get(imageName);
-        if(cachedImage != null){
-            return cachedImage;
+        if(caching){
+            Image cachedImage = imageCache.get(imageName);
+            if (cachedImage != null) {
+                if(Math.abs(cachedImage.getHeight() - height) < 2 && Math.abs(cachedImage.getWidth() - width) < 2)
+                    return cachedImage;
+            }
         }
+
 
         String gamemode = model.getGamemode();
-        Image image;
-
-        if(ínSizeOfOneTile){
-            image = new Image(
-                    "/"+gamemode+"/"+imageName+".png",
-                    tileWidth,
-                    tileHeight,
+        Image image = new Image(
+                    "/" + gamemode + "/" + imageName + ".png",
+                    width,
+                    height,
                     false,
                     true);
-            imageCache.put(imageName, image);
-        }
-        else {
-            image = new Image("/"+gamemode+"/"+imageName+".png");
-        }
-
+        imageCache.put(imageName, image);
         return image;
+    }
+
+        public Image getResourceForImageName(String imageName){
+            String gamemode = model.getGamemode();
+            Image image = new Image("/"+gamemode+"/"+imageName+".png");
+            return image;
     }
 
     public void setMapWidth(int mapWidth) {
@@ -232,6 +287,14 @@ public class View {
 
     public double getCanvasCenterHeight() {
         return canvasCenterHeight;
+    }
+
+    public double getTileWidth() {
+        return tileWidth;
+    }
+
+    public double getTileHeight() {
+        return tileHeight;
     }
 }
 

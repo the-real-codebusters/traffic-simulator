@@ -14,7 +14,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         JSONParser parser = new JSONParser();
 
-        MapModel map = new MapModel( 300, 300);
+        MapModel map = new MapModel( 301, 300);
         BasicModel model = new BasicModel(null, 0, 1.0, map, "planverkehr",
                 null, new ArrayList<>());
 

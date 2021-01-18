@@ -100,7 +100,7 @@ public class MenuPane extends AnchorPane {
     }
 
     private ImageView imageViewWithLayout(String imageName){
-        Image image = view.getResourceForImageName(imageName, false);
+        Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(90);
@@ -141,7 +141,7 @@ public class MenuPane extends AnchorPane {
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
-        Image image = view.getResourceForImageName(selectedBuilding, true);
+        Image image = view.getResourceForImageName(selectedBuilding, view.getTileWidth(), view.getTileHeight(), true);
         view.drawTileImage(xCoord, yCoord, image, transparent);
         return isoCoord;
     }

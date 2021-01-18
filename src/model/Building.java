@@ -9,14 +9,23 @@ public class Building {
     protected String buildingName;
     protected String buildmenu;
 
-    protected Field originTile;
+    protected int originColumn;
+    protected int originRow;
 
-    public Field getOriginTile() {
-        return originTile;
+    public int getOriginColumn() {
+        return originColumn;
     }
 
-    public void setOriginTile(Field originTile) {
-        this.originTile = originTile;
+    public void setOriginColumn(int originColumn) {
+        this.originColumn = originColumn;
+    }
+
+    public int getOriginRow() {
+        return originRow;
+    }
+
+    public void setOriginRow(int originRow) {
+        this.originRow = originRow;
     }
 
     public String getBuildmenu() {

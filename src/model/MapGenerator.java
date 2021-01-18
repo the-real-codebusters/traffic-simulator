@@ -35,8 +35,12 @@ public class MapGenerator {
             int maxRow = mapDepth - factory.getDepth() -1;
             Building factoryInstance = factory.getNewInstance();
             while(numberOfPlacements > 0){
-                mapModel.placeBuilding(randomGenerator.nextInt(maxRow), randomGenerator.nextInt(maxColumn), factoryInstance);
-                numberOfPlacements--;
+                int row = randomGenerator.nextInt(maxRow);
+                int column = randomGenerator.nextInt(maxColumn);
+                if(mapModel.canPlaceBuilding(row, column, factoryInstance)) {
+                    mapModel.placeBuilding(row, column, factoryInstance);
+                    numberOfPlacements--;
+                }
             }
         }
 

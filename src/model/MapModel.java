@@ -26,6 +26,8 @@ public class MapModel {
         }
         Field originTile = fieldGrid[row][column];
         originTile.setBuildingOrigin(true);
+        building.setOriginColumn(column);
+        building.setOriginRow(row);
     }
 
     public boolean canPlaceBuilding(int row, int column, Building building){
