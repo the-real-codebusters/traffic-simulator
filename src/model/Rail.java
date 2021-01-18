@@ -16,6 +16,17 @@ public class Rail extends Building {
     // optional
     private Map<String, String> combines = new HashMap<>();
 
+    @Override
+    public Rail getNewInstance(){
+        Rail instance = new Rail();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setRails(List.copyOf(rails));
+        instance.setSignals(List.copyOf(signals));
+        instance.setCombines(Map.copyOf(combines));
+        return instance;
+    }
+
     public Map<String, String> getCombines() {
         return combines;
     }

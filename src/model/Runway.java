@@ -11,6 +11,15 @@ public class Runway extends Special {
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> planes = new ArrayList<>();
 
+    @Override
+    public Runway getNewInstance(){
+        Runway instance = new Runway();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setSpecial(getSpecial());
+        return instance;
+    }
+
     public void setEntry(List<String> entry) {
         this.entry = entry;
     }

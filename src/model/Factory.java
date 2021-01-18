@@ -11,6 +11,16 @@ public class Factory extends Special {
     private Map<String, Integer> storage = new HashMap<>();
     private int duration;
 
+    @Override
+    public Factory getNewInstance(){
+        Factory instance = new Factory();
+        setInstanceStandardAttributes(instance);
+        instance.setConsume(Map.copyOf(consume));
+        instance.setProduce(Map.copyOf(produce));
+        instance.setSpecial(getSpecial());
+        return instance;
+    }
+
     public void setProduce(Map<String, Integer> produce) {
         this.produce = produce;
     }

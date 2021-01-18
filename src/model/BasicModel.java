@@ -47,13 +47,13 @@ public class BasicModel {
         return bs;
     }
 
-    public List<Building> getBuildingsForSpecialUse(String special) {
+    public List<Special> getBuildingsForSpecialUse(String special) {
 
-        List<Building> bs = new ArrayList<>();
+        List<Special> bs = new ArrayList<>();
 
         for(Building building: buildings){
             if(building instanceof Special && ((Special) building).getSpecial().equals(special)){
-                bs.add(building);
+                bs.add((Special) building);
             }
         }
         return bs;

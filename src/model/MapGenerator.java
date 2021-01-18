@@ -28,15 +28,16 @@ public class MapGenerator {
     }
 
     private void generateFactories(int mapWidth, int mapDepth, Field[][] mapFieldGrid, BasicModel basicModel){
-        List<Building> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
+        List<Special> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
         Random randomGenerator = new Random();
         for(Building factory: factoryBuildings){
             int maxNumberOfPlacements = ((mapDepth*mapWidth)/(factory.getDepth()*factory.getWidth()))/10;
             int numberOfPlacements = randomGenerator.nextInt(maxNumberOfPlacements)+1;
             int maxColumn = mapWidth - factory.getWidth() -1;
             int maxRow = mapDepth - factory.getDepth() -1;
+            Building factoryInstance = factory.getNewInstance();
             while(numberOfPlacements > 0){
-                mapFieldGrid[randomGenerator.nextInt(maxRow)][randomGenerator.nextInt(maxColumn)].setBuilding(factory);
+                mapFieldGrid[randomGenerator.nextInt(maxRow)][randomGenerator.nextInt(maxColumn)].setBuilding(factoryInstance);
                 numberOfPlacements--;
             }
         }
@@ -44,7 +45,7 @@ public class MapGenerator {
     }
 
     private void generateNature(int mapWidth, int mapDepth, Field[][] mapFieldGrid, BasicModel basicModel) {
-        List<Building> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
+        List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
 
         //TODO: geeignete Datenstruktur zur Speicherung der Typen überlegen. Eventuell benötigen wir
         // Unterkategorien, z.B: Kategorie Nature -> Unterkategorien Baum, Gras, Wasser usw.
@@ -70,11 +71,7 @@ public class MapGenerator {
                 else if(heightRandom > 980) height = 4;
 
                 int buildingRandom = new Random().nextInt(natureBuildings.size());
-                building = natureBuildings.get(buildingRandom);
-                // TODO: Ist es nötig neue Instanzen für jedes neue Building zu kreiieren?
-                //
-//                         building = natureBuildings.get(i).getNewInstance();
-
+                building = natureBuildings.get(buildingRandom).getNewInstance();
                 mapFieldGrid[row][col] = new Field(height, building);
             }
         }

@@ -10,6 +10,15 @@ public class Taxiway extends Special{
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> planes = new ArrayList<>();
 
+    @Override
+    public Taxiway getNewInstance(){
+        Taxiway instance = new Taxiway();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setSpecial(getSpecial());
+        return instance;
+    }
+
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;
     }

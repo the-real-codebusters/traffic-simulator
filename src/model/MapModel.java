@@ -16,6 +16,11 @@ public class MapModel {
         this.fieldGrid = new Field[width][depth];
     }
 
+//    public placeBuilding(int row, int column, Building building){
+//        Field originTile = fieldGrid[row][column];
+//        if(originTile == null) originTile = new Field(0, building);
+//
+//    }
     public MapGenerator getMapgen() { return mapgen; }
 
     public int getWidth() {

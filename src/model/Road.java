@@ -14,6 +14,15 @@ public class Road extends Building {
     // optional
     private Map<String, String> combines = new HashMap<>();
 
+    @Override
+    public Road getNewInstance(){
+        Road instance = new Road();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setCombines(Map.copyOf(combines));
+        return instance;
+    }
+
 
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;

@@ -49,25 +49,20 @@ public class Building {
         return dz;
     }
 
-    public Building getNewInstance(){
-        Gson gson = new Gson();
-        Building instance = gson.fromJson(gson.toJson(this), this.getClass());
+
+    protected Building getNewInstance(){
+        Building instance = new Building();
+        setInstanceStandardAttributes(instance);
         return instance;
     }
 
-//    protected Building getNewInstance(){
-//        Building instance = new Building();
-//        setInstanceStandardAttributes(instance);
-//        return instance;
-//    }
-//
-//    protected void setInstanceStandardAttributes(Building instance){
-//        instance.setBuildmenu(this.getBuildmenu());
-//        instance.setBuildingName(this.getBuildingName());
-//        instance.setDepth(this.getDepth());
-//        instance.setWidth(this.getWidth());
-//        instance.setDz(this.getDz());
-//    }
+    protected void setInstanceStandardAttributes(Building instance){
+        instance.setBuildmenu(this.getBuildmenu());
+        instance.setBuildingName(this.getBuildingName());
+        instance.setDepth(this.getDepth());
+        instance.setWidth(this.getWidth());
+        instance.setDz(this.getDz());
+    }
 
     @Override
     public String toString() {

@@ -9,6 +9,16 @@ public class Railstation extends Special {
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> rails = new ArrayList<>();
 
+    @Override
+    public Railstation getNewInstance(){
+        Railstation instance = new Railstation();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setRails(List.copyOf(rails));
+        instance.setSpecial(getSpecial());
+        return instance;
+    }
+
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;
     }

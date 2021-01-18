@@ -9,6 +9,17 @@ public class Busstop extends Special {
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> roads = new ArrayList<>();
 
+    @Override
+    public Busstop getNewInstance(){
+        Busstop instance = new Busstop();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setRoads(List.copyOf(roads));
+        instance.setSpecial(getSpecial());
+        return instance;
+    }
+
+
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;
     }

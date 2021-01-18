@@ -1,7 +1,18 @@
 package model;
 
+import java.util.Map;
+
 public class Tower extends Special{
     private int maxplanes;
+
+    @Override
+    public Tower getNewInstance(){
+        Tower instance = new Tower();
+        setInstanceStandardAttributes(instance);
+        instance.setSpecial(getSpecial());
+        instance.setMaxplanes(maxplanes);
+        return instance;
+    }
 
     public void setMaxplanes(int maxplanes) {
         this.maxplanes = maxplanes;
