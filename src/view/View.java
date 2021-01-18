@@ -273,8 +273,14 @@ public class View {
     }
 
     public Image getResourceForImageName(String imageName){
+        Image cachedImage = imageCache.get(imageName+"raw");
+        if (cachedImage != null) {
+            return cachedImage;
+        }
+
         String gamemode = model.getGamemode();
         Image image = new Image("/"+gamemode+"/"+imageName+".png");
+        imageCache.put(imageName+"raw", image);
         return image;
     }
 
