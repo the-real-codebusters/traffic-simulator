@@ -21,8 +21,8 @@ public class BuildingToImageMapping {
     }
 
     private void createPlanverkehrMapping(){
-        mapping.put("construction yard", "red");
-        mapping.put("glassworks", "red");
+        mapping.put("construction yard", "factories/constructionYard");
+        mapping.put("glassworks", "factories/glassworks");
         mapping.put("photovoltaic factory", "factories/photovoltaicFactory");
         mapping.put("silicone factory", "factories/siliconeFactory");
         mapping.put("chemical plant", "factories/chemicalPlant");

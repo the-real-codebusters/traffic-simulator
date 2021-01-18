@@ -18,8 +18,8 @@ public class MapModel {
 
     public void placeBuilding(int row, int column, Building building){
 
-        for(int r=row; r<row+building.getDepth(); r++){
-            for(int c=column; c<column+building.getWidth(); c++){
+        for(int r=row; r<row+building.getWidth(); r++){
+            for(int c=column; c<column+building.getDepth(); c++){
                 if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Field(0, building);
                 else fieldGrid[r][c].setBuilding(building);
             }
@@ -30,9 +30,10 @@ public class MapModel {
         building.setOriginRow(row);
     }
 
+
     public boolean canPlaceBuilding(int row, int column, Building building){
-        for(int r=row; r<row+building.getDepth(); r++){
-            for(int c=column; c<column+building.getWidth(); c++){
+        for(int r=row; r<row+building.getWidth(); r++){
+            for(int c=column; c<column+building.getDepth(); c++){
                 Field tile = fieldGrid[r][c];
                 if(tile.getHeight() < 0) return false;
                 if(! (tile.getBuilding() instanceof Nature)) return false;

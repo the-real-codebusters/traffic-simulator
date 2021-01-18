@@ -88,6 +88,8 @@ public class View {
         scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
     }
 
+    //TODO Checken: Sind die Zuordnungen von row -> Depth, column -> width so richtig? Ist es überall konsistent
+
     /**
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
@@ -100,44 +102,8 @@ public class View {
                 Building building = field.getBuilding();
                 if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
                     if(field.isBuildingOrigin()){
-                        Image image = getSingleFieldImage(col, row, fields);
-                        String buildingName = field.getBuilding().getBuildingName();
-                        String name = mapping.getImageNameForBuildingName(buildingName);
-
-                        Image r = getResourceForImageName(name);
-                        double ratio = r.getHeight() / r.getWidth();
-                        double imageWidth = tileWidth;
-                        double imageHeight = imageWidth*ratio;
-                        double heightRatio = imageHeight / tileHeight;
-
-                        Image im = getResourceForImageName(name, imageWidth, imageHeight);
-
-
-                        double tileX = (row + col) * tileWidthHalf;
-                        double tileY = (row - col)  * tileHeightHalf - tileHeightHalf*heightRatio + tileHeightHalf;
-
-                        // Differenz zwischen Breite und Tiefe der Map
-                        double differenceWidthHeigth = mapWidth - mapDepth;
-
-                        double tileOffset = differenceWidthHeigth * 0.25;
-
-                        // Zeichenreihenfolge von oben rechts nach unten links
-                        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
-                        double startY = tileY + canvasCenterHeight - (tileOffset * tileHeight);
-
-                        canvas.getGraphicsContext2D().drawImage(im, startX, startY);
-////                        double tileX = ((row + col) + (building.getDepth()+building.getWidth()-2)/1) * tileWidthHalf ;
-////                        double tileY = ((row - col) + (building.getDepth()-building.getWidth())/1) * tileHeightHalf;
-
-
-//                        drawImageOverMoreTiles(
-//                                building.getWidth(),
-//                                building.getDepth(),
-//                                building.getOriginRow(),
-//                                building.getOriginColumn(),
-//                                im);
+                        drawBuildingOverMoreTiles(field, building, row, col);
                     }
-
                 }
                 else {
                     Image image = getSingleFieldImage(col, row, fields);
@@ -148,20 +114,22 @@ public class View {
         }
     }
 
-    private void drawImageOverMoreTiles(int width, int depth, int rowOrigin , int columnOrigin, Image image){
-        double tileX = (rowOrigin + columnOrigin) * tileWidthHalf;
-        double tileY = (rowOrigin - columnOrigin) * tileHeightHalf;
+    private void drawBuildingOverMoreTiles(Field field, Building building, int row, int column){
+        String buildingName = field.getBuilding().getBuildingName();
+        String name = mapping.getImageNameForBuildingName(buildingName);
 
-        // Differenz zwischen Breite und Tiefe der Map
-        double differenceWidthHeigth = mapWidth - mapDepth;
+        Image r = getResourceForImageName(name);
+        double ratio = r.getHeight() / r.getWidth();
+        double imageWidth = tileWidth + (tileWidth*0.5)*(building.getDepth()+building.getWidth()-2);
+        double imageHeight = imageWidth*ratio;
+        double heightRatio = imageHeight / tileHeight;
 
-        double tileOffset = differenceWidthHeigth * 0.25;
+        Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
-        // Zeichenreihenfolge von oben rechts nach unten links
-        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
-        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
-
-        canvas.getGraphicsContext2D().drawImage(image, startX, startY);
+        double tileX = (row + column) * tileWidthHalf;
+        double tileY = (row - column)  * tileHeightHalf - tileHeightHalf*heightRatio + tileHeightHalf;
+        Point2D drawOrigin = moveCoordinates(tileX, tileY);
+        canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
     }
 
     public Image getSingleFieldImage(int column, int row, Field[][] fields){
@@ -190,6 +158,14 @@ public class View {
         double tileX = (row + column) * tileWidthHalf;
         double tileY = (row - column) * tileHeightHalf;
 
+        Point2D drawOrigin = moveCoordinates(tileX, tileY);
+
+        if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
+        canvas.getGraphicsContext2D().drawImage(image, drawOrigin.getX(), drawOrigin.getY());
+        canvas.getGraphicsContext2D().setGlobalAlpha(1);
+    }
+
+    private Point2D moveCoordinates(double tileX, double tileY){
         // Differenz zwischen Breite und Tiefe der Map
         double differenceWidthHeigth = mapWidth - mapDepth;
 
@@ -198,11 +174,7 @@ public class View {
         // Zeichenreihenfolge von oben rechts nach unten links
         double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
         double startY = tileY + canvasCenterHeight - (tileOffset * tileHeight);
-
-        if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
-        canvas.getGraphicsContext2D().drawImage(image, startX, startY);
-        canvas.getGraphicsContext2D().setGlobalAlpha(1);
-
+        return new Point2D(startX, startY);
     }
 
     /**
