@@ -13,19 +13,38 @@ public class MapGenerator {
         this.mapModel = mapModel;
     }
 
-    /**
-     * Generiert eine Map mit prozentualer Verteilung der Felder anhand des FieldType
-     *
-     * @param mapModel wird benutzt, um größe der Map zu bestimmen und Array der Felder zu befüllen
-     * @return eine 2D-Liste von Feldern mit zufälligen Feldtypen
-     */
-    public Field[][] generateMap(MapModel mapModel, BasicModel basicModel) {
+    public Field[][] generateMap(BasicModel basicModel) {
 
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
+        Field[][] mapFieldGrid = mapModel.getFieldGrid();
 
+        generateNature(mapWidth, mapDepth, mapFieldGrid, basicModel);
+        generateFactories(mapWidth, mapDepth, mapFieldGrid, basicModel);
+
+        System.out.println("finished");
+
+        return mapFieldGrid;
+    }
+
+    private void generateFactories(int mapWidth, int mapDepth, Field[][] mapFieldGrid, BasicModel basicModel){
+        List<Building> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
+        Random randomGenerator = new Random();
+        for(Building factory: factoryBuildings){
+            int maxNumberOfPlacements = ((mapDepth*mapWidth)/(factory.getDepth()*factory.getWidth()))/10;
+            int numberOfPlacements = randomGenerator.nextInt(maxNumberOfPlacements)+1;
+            int maxColumn = mapWidth - factory.getWidth() -1;
+            int maxRow = mapDepth - factory.getDepth() -1;
+            while(numberOfPlacements > 0){
+                mapFieldGrid[randomGenerator.nextInt(maxRow)][randomGenerator.nextInt(maxColumn)].setBuilding(factory);
+                numberOfPlacements--;
+            }
+        }
+
+    }
+
+    private void generateNature(int mapWidth, int mapDepth, Field[][] mapFieldGrid, BasicModel basicModel) {
         List<Building> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
-        System.out.println("Size nature buildings "+natureBuildings.size());
 
         //TODO: geeignete Datenstruktur zur Speicherung der Typen überlegen. Eventuell benötigen wir
         // Unterkategorien, z.B: Kategorie Nature -> Unterkategorien Baum, Gras, Wasser usw.
@@ -38,8 +57,8 @@ public class MapGenerator {
             for (int col = 0; col < mapDepth; col++) {
                 int probWater = 5;
                 if(row > 0 && col > 0) {
-                    if(mapModel.getFieldGrid()[row-1][col].getHeight() < 0) probWater+=100;
-                    if(mapModel.getFieldGrid()[row][col-1].getHeight() < 0) probWater+=700;
+                    if(mapFieldGrid[row-1][col].getHeight() < 0) probWater+=100;
+                    if(mapFieldGrid[row][col-1].getHeight() < 0) probWater+=700;
                 }
                 Building building = null;
                 int heightRandom =  new Random().nextInt(1000);
@@ -56,9 +75,8 @@ public class MapGenerator {
                 //
 //                         building = natureBuildings.get(i).getNewInstance();
 
-                mapModel.getFieldGrid()[row][col] = new Field(height, building);
+                mapFieldGrid[row][col] = new Field(height, building);
             }
         }
-        return mapModel.getFieldGrid();
     }
 }
