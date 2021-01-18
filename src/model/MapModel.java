@@ -13,7 +13,7 @@ public class MapModel {
     public MapModel(int width, int depth) {
         this.width = width;
         this.depth = depth;
-        this.fieldGrid = new Field[width][depth];
+        this.fieldGrid = new Field[depth][width];
     }
 
     public void placeBuilding(int row, int column, Building building){

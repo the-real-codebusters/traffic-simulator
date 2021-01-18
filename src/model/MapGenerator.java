@@ -57,8 +57,8 @@ public class MapGenerator {
 
         Field[][] mapFieldGrid = mapModel.getFieldGrid();
 
-        for (int row = 0; row < mapWidth; row++) {
-            for (int col = 0; col < mapDepth; col++) {
+        for (int row = 0; row < mapDepth; row++) {
+            for (int col = 0; col < mapWidth; col++) {
                 int probWater = 5;
                 if(row > 0 && col > 0) {
                     if(mapFieldGrid[row-1][col].getHeight() < 0) probWater+=100;
