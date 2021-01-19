@@ -172,7 +172,8 @@ public class View {
 
         // Zeichenreihenfolge von oben rechts nach unten links
         double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
-        double startY = tileY + canvasCenterHeight - (tileOffset * tileHeight);
+        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
+        System.out.println(startX+"  "+startY);
         return new Point2D(startX, startY);
     }
 
@@ -198,6 +199,7 @@ public class View {
                 - (canvasCenterWidth/ tileWidth) + (mapWidth/2) + offsetX);
         double y = Math.floor((mouseX/ tileWidth - mouseY/ tileHeight) + canvasCenterHeight/ tileHeight
                 - (canvasCenterWidth/ tileWidth) + (mapDepth/2) + offsetY );
+        System.out.println(mouseX + "  "+mouseY+"  "+x+"  "+y);
         return new Point2D(x, y);
     }
 
