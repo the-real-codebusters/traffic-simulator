@@ -32,6 +32,9 @@ public class MapModel {
 
 
     public boolean canPlaceBuilding(int row, int column, Building building){
+        if((row+building.getWidth()) >= depth) return  false;
+        if((column+building.getDepth()) >= width) return  false;
+
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Field tile = fieldGrid[r][c];

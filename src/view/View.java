@@ -113,7 +113,7 @@ public class View {
         }
     }
 
-    private void drawBuildingOverMoreTiles(Field field, Building building, int row, int column){
+    public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column){
         String buildingName = field.getBuilding().getBuildingName();
         String name = mapping.getImageNameForBuildingName(buildingName);
 

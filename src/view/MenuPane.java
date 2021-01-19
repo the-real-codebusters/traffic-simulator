@@ -34,7 +34,7 @@ public class MenuPane extends AnchorPane {
     private Canvas canvas;
 
     // Wenn null, ist kein Bauwerk ausgewählt
-    private String selectedBuilding;
+    private Building selectedBuilding;
 
     private Point2D hoveredTileBefore;
     BuildingToImageMapping mapping;
@@ -82,9 +82,11 @@ public class MenuPane extends AnchorPane {
             List<Building> buildings = model.getBuildingsForBuildmenu(name);
             if(name.equals("road")) System.out.println("test "+buildings.size());
             for(Building building: buildings){
+
+                //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
                 String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
                 if(imageName == null) continue;
-                ImageView imageView = imageViewWithLayout(imageName);
+                ImageView imageView = imageViewWithLayout(building);
                 container.getChildren().add(imageView);
                 //TODO
             }
@@ -99,41 +101,58 @@ public class MenuPane extends AnchorPane {
         return box;
     }
 
-    private ImageView imageViewWithLayout(String imageName){
+    private ImageView imageViewWithLayout(Building building){
+        String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(90);
         imageView.setOnMouseClicked(event -> {
             // TODO
-            selectedBuilding = imageName;
-            System.out.println("Auf "+imageName+" geklickt");
+            selectedBuilding = building;
         });
         return imageView;
     }
 
-    private void removeDrawedImagesBecauseOfHover(){
-        int xCoordBefore = (int) hoveredTileBefore.getX();
-        int yCoordBefore = (int) hoveredTileBefore.getY();
-        Field[][] fields = model.getFieldGridOfMap();
-        drawHoveredImageBefore(xCoordBefore, yCoordBefore, fields);
-        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore, fields);
-        drawHoveredImageBefore(xCoordBefore, yCoordBefore+1, fields);
-        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore+1, fields);
-        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore+1, fields);
-        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore-1, fields);
-        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore, fields);
-        drawHoveredImageBefore(xCoordBefore, yCoordBefore-1, fields);
+//    private void removeDrawedImagesBecauseOfHover(){
+//        int xCoordBefore = (int) hoveredTileBefore.getX();
+//        int yCoordBefore = (int) hoveredTileBefore.getY();
+//        Field[][] fields = model.getFieldGridOfMap();
+//        drawHoveredImageBefore(xCoordBefore, yCoordBefore, fields);
+//        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore, fields);
+//        drawHoveredImageBefore(xCoordBefore, yCoordBefore+1, fields);
+//        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore+1, fields);
+//        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore+1, fields);
+//        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore-1, fields);
+//        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore, fields);
+//        drawHoveredImageBefore(xCoordBefore, yCoordBefore-1, fields);
+//
+//        // Bei Bildern, die über das Feld hinausschauen, müssen auch angrenzende Felder neu gezeichnet werden
+//    }
 
+//    private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
+//        if(xCoordBefore < 0 || yCoordBefore < 0){
+//            // Tu erstmal nichts
+////            drawBlackImage(xCoordBefore, yCoordBefore);
+//        }
+//        else {
+//            Field field = fields[yCoordBefore][xCoordBefore];
+//            Building building = field.getBuilding();
+//            System.out.println(building+" "+building.getBuildingName());
+//            if(building != null && (building.getDepth() > 1 || building.getWidth() > 1)) {
+//                field = fields[building.getOriginRow()][building.getOriginColumn()];
+//                view.drawBuildingOverMoreTiles(field, building, building.getOriginRow(), building.getOriginColumn());
+//            }
+//            else {
+//                drawTileImageAtCoords(xCoordBefore, yCoordBefore, fields);
+//            }
+//        }
+//    }
 
-
-        // Bei Bildern, die über das Feld hinausschauen, müssen auch angrenzende Felder neu gezeichnet werden
-    }
-
-    private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
-        Image hoveredImageBefore = view.getSingleFieldImage(yCoordBefore, xCoordBefore, fields);
-        view.drawTileImage(yCoordBefore, xCoordBefore, hoveredImageBefore, false);
-    }
+//    private void drawTileImageAtCoords(int xCoord, int yCoord, Field[][] fields){
+//        Image hoveredImageBefore = view.getSingleFieldImage(yCoord, xCoord, fields);
+//        view.drawTileImage(yCoord, xCoord, hoveredImageBefore, false);
+//    }
 
     /**
      *
@@ -147,17 +166,33 @@ public class MenuPane extends AnchorPane {
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
-        Image image = view.getResourceForImageName(selectedBuilding, view.getTileWidth(), view.getTileHeight());
-        view.drawTileImage(yCoord, xCoord, image, transparent);
-        return isoCoord;
+
+        if(xCoord < 0 || yCoord < 0) {
+//            drawBlackImage(xCoord, yCoord);
+            // Tu erstmal nichts
+            return isoCoord;
+        }
+        if(model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)){
+            String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
+            Image image = view.getResourceForImageName(imageName, view.getTileWidth(), view.getTileHeight());
+            view.drawTileImage(yCoord, xCoord, image, transparent);
+            return isoCoord;
+        }
+        else return hoveredTileBefore;
     }
+
+//    private void drawBlackImage(int xCoord, int yCoord){
+//        Image image = view.getResourceForImageName("black", view.getTileWidth(), view.getTileHeight());
+//        view.drawTileImage(yCoord, xCoord, image, false);
+//    }
 
     private void setCanvasEvents(){
         canvas.setOnMouseMoved(event -> {
             if(selectedBuilding != null){
 
                 if(hoveredTileBefore != null){
-                    removeDrawedImagesBecauseOfHover();
+//                    removeDrawedImagesBecauseOfHover();
+                    view.drawMap(model.getFieldGridOfMap());
                 }
 
                 hoveredTileBefore = drawHoveredImage(event, true);
@@ -167,7 +202,8 @@ public class MenuPane extends AnchorPane {
                 event -> {
                     if(event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                         selectedBuilding = null;
-                        removeDrawedImagesBecauseOfHover();
+//                        removeDrawedImagesBecauseOfHover();
+                        view.drawMap(model.getFieldGridOfMap());
                     }
                     else if(
                             event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
