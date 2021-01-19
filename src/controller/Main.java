@@ -12,6 +12,7 @@ import java.util.ArrayList;
 public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
+        BasicModel model = new BasicModel();
         JSONParser parser = new JSONParser();
 
         MapModel map = new MapModel( 30, 40);
@@ -19,8 +20,9 @@ public class Main extends Application {
                 null, new ArrayList<>());
 
         if (parser.parse("resources/planverkehr/planverkehr.json", model)) {
+            model.printModelAttributes();
             View view = new View(stage, model);
-            stage.setTitle("Green tiles");
+            stage.setTitle("Planverkehr");
             stage.show();
             Controller controller = new Controller(view, map, model);
         }

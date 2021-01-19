@@ -85,8 +85,8 @@ public class View {
         double v = scrollPane.getViewportBounds().getHeight();
         double w = scrollPane.getViewportBounds().getWidth();
         scrollPane.setVvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
-        scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
-    }
+        scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * w) / (h - w)));
+}
 
     //TODO Checken: Sind die Zuordnungen von row -> Depth, column -> width so richtig? Ist es überall konsistent?
 

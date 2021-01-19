@@ -3,8 +3,6 @@ package controller;
 import model.*;
 import view.View;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Controller {
     private View view;
@@ -12,12 +10,8 @@ public class Controller {
     public Controller(View view, MapModel map, BasicModel model) {
         this.view = view;
 
-        // buildings und map sind hier lediglich Testobjekte und sollen später anhand der Daten in der
-        // JSON-Datei erzeugt werden
-        List<Building> buildings = new ArrayList<>();
-
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
-        MapGenerator generator = new MapGenerator("planverkehr", map);
+        MapGenerator generator = new MapGenerator(map.getMapgen(), map);
         Field[][] generatedMap = generator.generateMap(model);
         map.setFieldGrid(generatedMap);
 

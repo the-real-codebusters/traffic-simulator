@@ -30,8 +30,17 @@ public class BasicModel {
         this.buildings = buildings;
     }
 
-    public List<Building> getBuildingsForBuildmenu(String buildmenu) {
-        buildings.forEach(x -> System.out.println(x.getBuildingName()+"  "+x.getBuildmenu()));
+    public BasicModel() {
+        this.commodities = new HashSet<String>();
+        this.day = 0;
+        this.speedOfDay = 1.0;
+        this.map = null;
+        this.gamemode = null;
+        this.buildmenus = null;
+    }
+
+    public List<String> getBuildingNamesForBuildmenu(String buildmenu) {
+        // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
 
         List<Building> bs = new ArrayList<>();
 
@@ -59,8 +68,9 @@ public class BasicModel {
         return bs;
     }
 
-
-
+    public void addCommodities(List<String> commodities) {
+        this.commodities.addAll(commodities);
+    }
 
     public Set<String> getCommodities() {
         return commodities;
@@ -122,15 +132,28 @@ public class BasicModel {
         return gamemode;
     }
 
+    public void setGamemode(String gamemode) {
+        this.gamemode = gamemode;
+    }
+
     public Field[][] getFieldGridOfMap(){
         return map.getFieldGrid();
     }
 
-    public List<Building> getBuildings() {
-        return buildings;
-    }
-
-    public void setBuildings(List<Building> buildings) {
-        this.buildings = buildings;
+    public void printModelAttributes(){
+        System.out.println("Model attributes: ");
+        System.out.print("Commodities: ");
+        for(String commodity : commodities){
+            System.out.print(commodity + ", ");
+        }
+        System.out.println();
+        System.out.println("Day: " + day);
+        System.out.println("Speed of day: " + speedOfDay);
+        System.out.println("Map with following attributes:\n    Width: " + map.getWidth() + "\n    Depth: " + map.getDepth());
+        System.out.println("Gamemode: " + gamemode);
+        System.out.print("Buildings: ");
+        for(String buildmenu : buildmenus){
+            System.out.print(buildmenu + ", ");
+        }
     }
 }
