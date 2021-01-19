@@ -16,7 +16,7 @@ public class BasicModel {
 //    private ToolsModel tools;
 
     private Set<String> buildmenus = new HashSet<>();
-    private List<Building> buildings;
+    private List<Building> buildings = new ArrayList<>();
 
 
     public BasicModel(Set<String> commodities, int day, double speedOfDay,

@@ -44,6 +44,7 @@ public class MenuPane extends AnchorPane {
         this.view = view;
         this.canvas = canvas;
         this.mapping = mapping;
+        tabPane.setFocusTraversable(false);
 
         setCanvasEvents();
 
@@ -192,7 +193,7 @@ public class MenuPane extends AnchorPane {
 
                 if(hoveredTileBefore != null){
 //                    removeDrawedImagesBecauseOfHover();
-                    view.drawMap(model.getFieldGridOfMap());
+                    view.drawMap();
                 }
 
                 hoveredTileBefore = drawHoveredImage(event, true);
@@ -203,7 +204,7 @@ public class MenuPane extends AnchorPane {
                     if(event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                         selectedBuilding = null;
 //                        removeDrawedImagesBecauseOfHover();
-                        view.drawMap(model.getFieldGridOfMap());
+                        view.drawMap();
                     }
                     else if(
                             event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&

@@ -1,11 +1,15 @@
 package view;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -22,20 +26,27 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private final double tileWidth = 128;
+    private final int tileWidth = 128;
     private final double tileWidthHalf = tileWidth / 2;
-    private final double tileHeight = 64;
+    private final int tileHeight = 64;
     private final double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;
 
     // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
-    private Canvas canvas = new Canvas(4096, 4096);
+    private Canvas canvas = new Canvas(1000, 600);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
-    private AnchorPane anchorPane = new AnchorPane();
-    private ScrollPane scrollPane = new ZoomableScrollPane(anchorPane);
+
+    private int cameraOffsetX = 0;
+    private int cameraOffsetY = 0;
+    private Field[][] fields;
+
+    // Gibt an, ab und bis welchen Index die Tiles des Arrays sichtbar sind
+    int startIndex = (int) findTileCoord(0, 0, canvasCenterWidth, canvasCenterHeight).getX();
+    int endIndex = (int) findTileCoord(canvasCenterWidth, canvasCenterHeight, canvasCenterWidth, canvasCenterHeight).getX();
+
 
     private BasicModel model;
 
@@ -47,7 +58,7 @@ public class View {
         this.stage = primaryStage;
         this.model = model;
         mapping = new BuildingToImageMapping(model.getGamemode());
-        scrollPane.setPrefSize(1000, 600);
+        fields = model.getFieldGridOfMap();
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -59,59 +70,66 @@ public class View {
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
-        root.setCenter(scrollPane);
+        root.setCenter(canvas);
         root.setTop(new MenuPane(model, this, canvas, mapping));
 
-        anchorPane.getChildren().add(canvas);
-        anchorPane.setStyle("-fx-border-color: red; -fx-border-width : 5 5 5 5");
-        centerCanvasInScrollPane(scrollPane, canvas);
-
+        canvas.setFocusTraversable(true);
+        scrollOnKeyPressed();
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
 
         this.stage.setScene(new Scene(root));
     }
 
 
-    /**
-     * Zentriert das Canvas mittig auf dem Scrollpane, wenn z.B das Canvas größer ist, als der sichtbare Bereich
-     * @param scrollPane auf dem ScrollPane wird das Canvas platziert
-     * @param canvas soll mittig auf ScrollPane platziert werden
-     */
-    public void centerCanvasInScrollPane(ScrollPane scrollPane, Canvas canvas) {
-        // Gibt die Höhe des Inhalts der ScrollPane an
-        double h = scrollPane.getContent().getBoundsInLocal().getHeight();
-        double y = (canvas.getBoundsInParent().getMaxY() + canvas.getBoundsInParent().getMinY()) / 2.0;
-        // Gibt Höhe des sichtbaren Bereichs an
-        double v = scrollPane.getViewportBounds().getHeight();
-        double w = scrollPane.getViewportBounds().getWidth();
-        scrollPane.setVvalue(scrollPane.getVmax() * ((y - 0.5 * v) / (h - v)));
-        scrollPane.setHvalue(scrollPane.getVmax() * ((y - 0.5 * w) / (h - w)));
-}
+    public void scrollOnKeyPressed(){
+        canvas.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent ke) {
+                int delta = tileWidth;
+                if (ke.getCode() == KeyCode.DOWN) {
+                    cameraOffsetY += delta / 2;
+                } else if (ke.getCode() == KeyCode.UP) {
+                    cameraOffsetY -= delta / 2;
+                } else if (ke.getCode() == KeyCode.RIGHT) {
+                    cameraOffsetX += delta;
+                } else if (ke.getCode() == KeyCode.LEFT) {
+                    cameraOffsetX -= delta;
+                }
+                System.out.println("OffsetX: " + cameraOffsetX);
+                System.out.println("OffsetY: " + cameraOffsetY);
+                drawMap();
+            }
+        });
+    }
 
     //TODO Checken: Sind die Zuordnungen von row -> Depth, column -> width so richtig? Ist es überall konsistent?
 
     /**
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
-    public void drawMap(Field[][] fields) {
+    public void drawMap() {
+        // Hintergrund wird schwarz gesetzt
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.fillRect(0,0,canvas.getWidth(), canvas.getHeight());
+
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = mapWidth-1; col >= 0; col--) {
             for (int row = 0; row < mapDepth; row++) {
 
-                Field field = fields[row][col];
-                Building building = field.getBuilding();
-                if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
-                    if(field.isBuildingOrigin()){
-                        drawBuildingOverMoreTiles(field, building, row, col);
-                    }
-                }
-                else {
+//                Field field = fields[row][col];
+//                Building building = field.getBuilding();
+//                if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
+//                    if(field.isBuildingOrigin()){
+//                        drawBuildingOverMoreTiles(field, building, row, col);
+//                    }
+//                }
+//                else {
                     Image image = getSingleFieldImage(col, row, fields);
                     drawTileImage(col, row, image, false);
-                }
+//                }
             }
         }
     }
+
 
     public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column){
         String buildingName = field.getBuilding().getBuildingName();
@@ -173,7 +191,9 @@ public class View {
         // Zeichenreihenfolge von oben rechts nach unten links
         double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
         double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
-        System.out.println(startX+"  "+startY);
+        startX -= cameraOffsetX;
+        startY -= cameraOffsetY;
+//        System.out.println(startX+"  "+startY);
         return new Point2D(startX, startY);
     }
 
@@ -188,27 +208,27 @@ public class View {
 
         double offsetX = 0;
         double offsetY = 0;
-        if(mapWidth%2 != 0){
-            offsetX = tileWidthHalf/ tileWidth;
+        if (mapWidth % 2 != 0) {
+            offsetX = tileWidthHalf / tileWidth;
         }
-        if(mapDepth%2 != 0){
-            offsetY = tileHeightHalf/ tileHeight;
+        if (mapDepth % 2 != 0) {
+            offsetY = tileHeightHalf / tileHeight;
         }
 
-        double x = Math.floor((mouseX/ tileWidth + mouseY/ tileHeight) - canvasCenterHeight/ tileHeight
-                - (canvasCenterWidth/ tileWidth) + (mapWidth/2) + offsetX);
-        double y = Math.floor((mouseX/ tileWidth - mouseY/ tileHeight) + canvasCenterHeight/ tileHeight
-                - (canvasCenterWidth/ tileWidth) + (mapDepth/2) + offsetY );
-        System.out.println(mouseX + "  "+mouseY+"  "+x+"  "+y);
+        double x = Math.floor((mouseX / tileWidth + mouseY / tileHeight) - canvasCenterHeight / tileHeight
+                - (canvasCenterWidth / tileWidth) + (mapWidth / 2) + offsetX) + cameraOffsetX / tileWidth + cameraOffsetY / tileHeight;
+        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + canvasCenterHeight / tileHeight
+                - (canvasCenterWidth / tileWidth) + (mapDepth / 2) + offsetY) - cameraOffsetY / tileHeight + cameraOffsetX / tileWidth;
         return new Point2D(x, y);
     }
 
-    /**
-     * Bei Mausklick, werden die Mauskoordinaten sowie die Koordinaten des angeklickten Tile ausgegeben
-     *
-     * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
-     * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
-     */
+
+        /**
+         * Bei Mausklick, werden die Mauskoordinaten sowie die Koordinaten des angeklickten Tile ausgegeben
+         *
+         * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
+         * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
+         */
     public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel) {
 
         canvas.setOnMouseClicked(event -> {
@@ -279,6 +299,14 @@ public class View {
 
     public double getTileHeight() {
         return tileHeight;
+    }
+
+    public int getCameraOffsetX() {
+        return cameraOffsetX;
+    }
+
+    public int getCameraOffsetY() {
+        return cameraOffsetY;
     }
 }
 
