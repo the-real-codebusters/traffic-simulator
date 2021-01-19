@@ -96,7 +96,7 @@ public class View {
     public void drawMap(Field[][] fields) {
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
         for (int col = mapWidth-1; col >= 0; col--) {
-            for (int row = mapDepth - 1; row >= 0; row--) {
+            for (int row = 0; row < mapDepth; row++) {
 
                 Field field = fields[row][col];
                 Building building = field.getBuilding();
