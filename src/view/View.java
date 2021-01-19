@@ -19,7 +19,13 @@ import model.BasicModel;
 import model.Building;
 import model.Field;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -138,11 +144,13 @@ public class View {
 
 
     public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column) {
-        if(field.isBuildingOrigin()) {
+        if (field.isBuildingOrigin()) {
             String buildingName = field.getBuilding().getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
 
             Image r = getResourceForImageName(name);
+//            String gamemode = model.getGamemode();
+//            Dimension imageDimension = getDimensionForImageName("/" + gamemode + "/" + name + ".png");
             double ratio = r.getHeight() / r.getWidth();
             double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
 //        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
@@ -282,6 +290,27 @@ public class View {
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
         return image;
+    }
+
+    private Dimension getDimensionForImageName(String imageName) {
+        try {
+            ImageInputStream in = ImageIO.createImageInputStream(imageName);
+                final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+                if (readers.hasNext()) {
+                    ImageReader reader = readers.next();
+                    try {
+                        reader.setInput(in);
+                        return new Dimension(reader.getWidth(0), reader.getHeight(0));
+                    } finally {
+                        reader.dispose();
+                    }
+                }
+        }
+        catch (IOException e){
+            System.out.println(e);
+            // TODO handle exception
+        }
+        return null;
     }
 
     public void setMapWidth(int mapWidth) {
