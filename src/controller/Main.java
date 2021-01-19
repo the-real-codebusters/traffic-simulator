@@ -8,15 +8,15 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
-        BasicModel model = new BasicModel();
         JSONParser parser = new JSONParser();
 
         MapModel map = new MapModel( 30, 40);
-        BasicModel model = new BasicModel(null, 0, 1.0, map, "planverkehr",
+        BasicModel model = new BasicModel(new HashSet<>(), 0, 1.0, map, "planverkehr",
                 null, new ArrayList<>());
 
         if (parser.parse("resources/planverkehr/planverkehr.json", model)) {

@@ -39,7 +39,7 @@ public class BasicModel {
         this.buildmenus = null;
     }
 
-    public List<String> getBuildingNamesForBuildmenu(String buildmenu) {
+    public List<Building> getBuildingsForBuildmenu(String buildmenu) {
         // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
 
         List<Building> bs = new ArrayList<>();
@@ -134,6 +134,14 @@ public class BasicModel {
 
     public void setGamemode(String gamemode) {
         this.gamemode = gamemode;
+    }
+
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    public void setBuildings(List<Building> buildings) {
+        this.buildings = buildings;
     }
 
     public Field[][] getFieldGridOfMap(){
