@@ -164,7 +164,7 @@ public class MenuPane extends AnchorPane {
     private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent){
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 
@@ -213,7 +213,7 @@ public class MenuPane extends AnchorPane {
                         drawHoveredImage(event, false);
                         double mouseX = event.getX();
                         double mouseY = event.getY();
-                        Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+                        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
                         int xCoord = (int) isoCoord.getX();
                         int yCoord = (int) isoCoord.getY();
                         model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);

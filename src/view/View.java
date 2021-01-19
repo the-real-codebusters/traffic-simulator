@@ -44,8 +44,8 @@ public class View {
     private Field[][] fields;
 
     // Gibt an, ab und bis welchen Index die Tiles des Arrays sichtbar sind
-    int startIndex = (int) findTileCoord(0, 0, canvasCenterWidth, canvasCenterHeight).getX();
-    int endIndex = (int) findTileCoord(canvasCenterWidth, canvasCenterHeight, canvasCenterWidth, canvasCenterHeight).getX();
+    int startIndex = (int) findTileCoord(0, 0).getX();
+    int endIndex = (int) findTileCoord(canvasCenterWidth, canvasCenterHeight).getX();
 
 
     private BasicModel model;
@@ -111,21 +111,35 @@ public class View {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.fillRect(0,0,canvas.getWidth(), canvas.getHeight());
 
-        // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
-        for (int col = mapWidth-1; col >= 0; col--) {
-            for (int row = 0; row < mapDepth; row++) {
+        int minimumX = (int) findTileCoord(0,0).getX();
+        System.out.println(minimumX);
+        int maximumX = (int) findTileCoord(canvas.getWidth(),canvas.getHeight()).getX();
+        System.out.println(maximumX);
+        int minimumY = (int) findTileCoord(0,canvas.getHeight()).getY();
+        System.out.println(minimumY);
+        int maximumY = (int) findTileCoord(canvas.getWidth(),0).getY();
+        System.out.println(maximumY);
 
-//                Field field = fields[row][col];
-//                Building building = field.getBuilding();
-//                if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
-//                    if(field.isBuildingOrigin()){
-//                        drawBuildingOverMoreTiles(field, building, row, col);
-//                    }
-//                }
-//                else {
-                    Image image = getSingleFieldImage(col, row, fields);
-                    drawTileImage(col, row, image, false);
-//                }
+        // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
+//        for (int col = mapWidth-1; col >= 0; col--) {
+//            for (int row = 0; row < mapDepth; row++) {
+//
+                for (int col = maximumY; col >= minimumY; col--) {
+                    for (int row = minimumX; row <= maximumX; row++) {
+
+                if(row > 0 && col > 0 && row < fields.length && col < fields[0].length){
+                    Field field = fields[row][col];
+                    Building building = field.getBuilding();
+                    if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
+                        if(field.isBuildingOrigin()){
+                            drawBuildingOverMoreTiles(field, building, row, col);
+                        }
+                }
+                    else {
+                        Image image = getSingleFieldImage(col, row, fields);
+                        drawTileImage(col, row, image, false);
+                    }
+                }
             }
         }
     }
@@ -204,7 +218,7 @@ public class View {
      * @param mouseY y-Koordinate der Mausposition
      * @return ein Point2D mit isometrischen Koordinaten
      */
-    public Point2D findTileCoord(double mouseX, double mouseY, double canvasCenterWidth, double canvasCenterHeight) {
+    public Point2D findTileCoord(double mouseX, double mouseY) {
 
         double offsetX = 0;
         double offsetY = 0;
@@ -239,7 +253,7 @@ public class View {
             mousePosLabel.setText(mouseCoords);
 
             // Findet isometrische Koordinaten der Mouseposition
-            Point2D isoCoord = findTileCoord(mouseX, mouseY, canvasCenterWidth, canvasCenterHeight);
+            Point2D isoCoord = findTileCoord(mouseX, mouseY);
 
             String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
             isoCoordLabel.setText(tileCoords);
