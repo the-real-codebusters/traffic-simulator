@@ -5,29 +5,23 @@ import java.util.Objects;
 public class Field {
 
     private int height;
-    private String fieldType;
+    private Building building;
+    boolean isBuildingOrigin;
 
-    public Field(int height, String fieldType) {
+    public Field(int height, Building building) {
         this.height = height;
-        this.fieldType = fieldType;
+        this.building = building;
+        if(height < 0 ) this.building = null;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    // TODO: Braucht diese Klasse eventuell eine equals() Methode? ich denke eigentlich nicht, deshalb gelöscht
 
-        Field field = (Field) o;
-
-        if (height != field.height) return false;
-        return Objects.equals(fieldType, field.fieldType);
+    public Building getBuilding() {
+        return building;
     }
 
-    @Override
-    public int hashCode() {
-        int result = height;
-        result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
-        return result;
+    public void setBuilding(Building building) {
+        this.building = building;
     }
 
     public int getHeight() {
@@ -38,11 +32,11 @@ public class Field {
         this.height = height;
     }
 
-    public String getFieldType() {
-        return fieldType;
+    public boolean isBuildingOrigin() {
+        return isBuildingOrigin;
     }
 
-    public void setFieldType(String fieldType) {
-        this.fieldType = fieldType;
+    public void setBuildingOrigin(boolean buildingOrigin) {
+        isBuildingOrigin = buildingOrigin;
     }
 }

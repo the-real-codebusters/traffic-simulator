@@ -6,14 +6,18 @@ import java.util.List;
 import java.util.Map;
 
 public class Runway extends Special {
-    private String buildmenu = "airport";
     private List<String> entry = new ArrayList<>();
 
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> planes = new ArrayList<>();
 
-    public String getBuildmenu() {
-        return buildmenu;
+    @Override
+    public Runway getNewInstance(){
+        Runway instance = new Runway();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setSpecial(getSpecial());
+        return instance;
     }
 
     public void setEntry(List<String> entry) {

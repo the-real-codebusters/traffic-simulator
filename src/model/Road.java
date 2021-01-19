@@ -8,19 +8,21 @@ import java.util.stream.Collectors;
 
 public class Road extends Building {
 
-    // optional
-    private String buildmenu;
-
 
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> roads = new ArrayList<>();
     // optional
     private Map<String, String> combines = new HashMap<>();
 
-
-    public void setBuildmenu(String buildmenu) {
-        this.buildmenu = buildmenu;
+    @Override
+    public Road getNewInstance(){
+        Road instance = new Road();
+        setInstanceStandardAttributes(instance);
+        instance.setPoints(Map.copyOf(points));
+        instance.setCombines(Map.copyOf(combines));
+        return instance;
     }
+
 
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;
@@ -39,7 +41,7 @@ public class Road extends Building {
     public String toString() {
 
         return super.toString() + " Road{" +
-                "buildmenu='" + buildmenu + '\'' +
+                "buildmenu='" + this.getBuildmenu() + '\'' +
                 ", points=" + points +
                 ", roads=" + roads +
                 ", combines=" + convertMap(combines) +

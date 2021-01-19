@@ -16,14 +16,18 @@ public class BasicModel {
 //    private ToolsModel tools;
 
     private Set<String> buildmenus = new HashSet<>();
+    private List<Building> buildings;
 
-    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode, Set<String> buildmenus) {
+
+    public BasicModel(Set<String> commodities, int day, double speedOfDay,
+                      MapModel map, String gamemode, Set<String> buildmenus, ArrayList<Building> buildings) {
         this.commodities = commodities;
         this.day = day;
         this.speedOfDay = speedOfDay;
         this.map = map;
         this.gamemode = gamemode;
         this.buildmenus = buildmenus;
+        this.buildings = buildings;
     }
 
     public BasicModel() {
@@ -35,21 +39,33 @@ public class BasicModel {
         this.buildmenus = null;
     }
 
-    public List<String> getBuildingNamesForBuildmenu(String buildmenu) {
+    public List<Building> getBuildingsForBuildmenu(String buildmenu) {
         // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
 
-        List<String> names = new ArrayList<>();
-        if(buildmenu.equals("nature")){
-            names.add("tree");
-        }
-        else if(buildmenu.equals("road")){
-            names.add("street");
-        }
-        else if(buildmenu.equals("airport")){
-            names.add("terminal");
-        }
+        List<Building> bs = new ArrayList<>();
 
-        return names;
+        for(Building building: buildings){
+            if(building.getBuildingName() != null && building.getBuildingName().equals("road-ne")){
+                System.out.println("test "+building.getBuildmenu());
+            }
+            String menu = building.getBuildmenu();
+            if( menu != null && menu.equals(buildmenu)){
+                bs.add(building);
+            }
+        }
+        return bs;
+    }
+
+    public List<Special> getBuildingsForSpecialUse(String special) {
+
+        List<Special> bs = new ArrayList<>();
+
+        for(Building building: buildings){
+            if(building instanceof Special && ((Special) building).getSpecial().equals(special)){
+                bs.add((Special) building);
+            }
+        }
+        return bs;
     }
 
     public void addCommodities(List<String> commodities) {
@@ -118,6 +134,14 @@ public class BasicModel {
 
     public void setGamemode(String gamemode) {
         this.gamemode = gamemode;
+    }
+
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    public void setBuildings(List<Building> buildings) {
+        this.buildings = buildings;
     }
 
     public Field[][] getFieldGridOfMap(){
