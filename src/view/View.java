@@ -81,7 +81,7 @@ public class View {
     }
 
 
-    public void scrollOnKeyPressed(){
+    public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent ke) {
                 int delta = tileWidth;
@@ -109,33 +109,25 @@ public class View {
     public void drawMap() {
         // Hintergrund wird schwarz gesetzt
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.fillRect(0,0,canvas.getWidth(), canvas.getHeight());
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        int minimumX = (int) findTileCoord(0,0).getX();
-        System.out.println(minimumX);
-        int maximumX = (int) findTileCoord(canvas.getWidth(),canvas.getHeight()).getX();
-        System.out.println(maximumX);
-        int minimumY = (int) findTileCoord(0,canvas.getHeight()).getY();
-        System.out.println(minimumY);
-        int maximumY = (int) findTileCoord(canvas.getWidth(),0).getY();
-        System.out.println(maximumY);
+        int minimumX = (int) findTileCoord(0, 0).getX();
+        int maximumX = (int) findTileCoord(canvas.getWidth(), canvas.getHeight()).getX();
+        int minimumY = (int) findTileCoord(0, canvas.getHeight()).getY();
+        int maximumY = (int) findTileCoord(canvas.getWidth(), 0).getY();
 
         // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
-//        for (int col = mapWidth-1; col >= 0; col--) {
-//            for (int row = 0; row < mapDepth; row++) {
-//
-                for (int col = maximumY; col >= minimumY; col--) {
-                    for (int row = minimumX; row <= maximumX; row++) {
+        for (int col = maximumY; col >= minimumY; col--) {
+            for (int row = minimumX; row <= maximumX; row++) {
 
-                if(row > 0 && col > 0 && row < fields.length && col < fields[0].length){
+                if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Field field = fields[row][col];
                     Building building = field.getBuilding();
-                    if(building!=null && (building.getWidth() > 1 || building.getDepth() > 1)){
-                        if(field.isBuildingOrigin()){
+                    if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
+                        if (field.isBuildingOrigin()) {
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
-                }
-                    else {
+                    } else {
                         Image image = getSingleFieldImage(col, row, fields);
                         drawTileImage(col, row, image, false);
                     }
@@ -145,44 +137,45 @@ public class View {
     }
 
 
-    public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column){
-        String buildingName = field.getBuilding().getBuildingName();
-        String name = mapping.getImageNameForBuildingName(buildingName);
+    public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column) {
+        if(field.isBuildingOrigin()) {
+            String buildingName = field.getBuilding().getBuildingName();
+            String name = mapping.getImageNameForBuildingName(buildingName);
 
-        Image r = getResourceForImageName(name);
-        double ratio = r.getHeight() / r.getWidth();
-        double imageWidth = tileWidth + (tileWidth*0.5)*(building.getDepth()+building.getWidth()-2);
-        double imageHeight = imageWidth*ratio;
-        double heightRatio = imageHeight / tileHeight;
+            Image r = getResourceForImageName(name);
+            double ratio = r.getHeight() / r.getWidth();
+            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
+//        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
+            double imageHeight = imageWidth * ratio;
+            double heightRatio = imageHeight / tileHeight;
 
-        Image im = getResourceForImageName(name, imageWidth, imageHeight);
+            Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
-        double tileX = (row + column) * tileWidthHalf;
-        double tileY = (row - column)  * tileHeightHalf - tileHeightHalf*heightRatio + tileHeightHalf;
-        Point2D drawOrigin = moveCoordinates(tileX, tileY);
-        canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
+            double tileX = (row + column) * tileWidthHalf;
+            double tileY = (row - column) * tileHeightHalf - tileHeightHalf * heightRatio + tileHeightHalf;
+            Point2D drawOrigin = moveCoordinates(tileX, tileY);
+            canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
+        }
     }
 
-    public Image getSingleFieldImage(int column, int row, Field[][] fields){
+    public Image getSingleFieldImage(int column, int row, Field[][] fields) {
         String name;
         String buildingName;
-        if(column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
+        if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             Field field = fields[row][column];
-            if(field.getHeight() < 0){
+            if (field.getHeight() < 0) {
                 buildingName = "water";
-            }
-            else if(field.getBuilding() == null) {
+            } else if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
-            }
-            else  buildingName = field.getBuilding().getBuildingName();
+            } else buildingName = field.getBuilding().getBuildingName();
             name = mapping.getImageNameForBuildingName(buildingName);
         }
 
         return getResourceForImageName(name, tileWidth, tileHeight);
     }
 
-    public void drawTileImage(int column, int row, Image image, boolean transparent){
+    public void drawTileImage(int column, int row, Image image, boolean transparent) {
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
         // Zeichenreihenfolge von oben rechts nach unten links
@@ -191,12 +184,12 @@ public class View {
 
         Point2D drawOrigin = moveCoordinates(tileX, tileY);
 
-        if(transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
+        if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, drawOrigin.getX(), drawOrigin.getY());
         canvas.getGraphicsContext2D().setGlobalAlpha(1);
     }
 
-    private Point2D moveCoordinates(double tileX, double tileY){
+    private Point2D moveCoordinates(double tileX, double tileY) {
         // Differenz zwischen Breite und Tiefe der Map
         double differenceWidthHeigth = mapWidth - mapDepth;
 
@@ -237,12 +230,12 @@ public class View {
     }
 
 
-        /**
-         * Bei Mausklick, werden die Mauskoordinaten sowie die Koordinaten des angeklickten Tile ausgegeben
-         *
-         * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
-         * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
-         */
+    /**
+     * Bei Mausklick, werden die Mauskoordinaten sowie die Koordinaten des angeklickten Tile ausgegeben
+     *
+     * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
+     * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
+     */
     public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel) {
 
         canvas.setOnMouseClicked(event -> {
@@ -262,7 +255,7 @@ public class View {
 
     public Image getResourceForImageName(String imageName, double width, double height) {
 
-        Image cachedImage = imageCache.get(imageName+(int)width+(int)height);
+        Image cachedImage = imageCache.get(imageName + (int) width + (int) height);
         if (cachedImage != null) {
             return cachedImage;
         }
@@ -270,24 +263,24 @@ public class View {
 
         String gamemode = model.getGamemode();
         Image image = new Image(
-                    "/" + gamemode + "/" + imageName + ".png",
-                    width,
-                    height,
-                    false,
-                    true);
-        imageCache.put(imageName+(int)image.getWidth()+(int)image.getHeight(), image);
+                "/" + gamemode + "/" + imageName + ".png",
+                width,
+                height,
+                false,
+                true);
+        imageCache.put(imageName + (int) image.getWidth() + (int) image.getHeight(), image);
         return image;
     }
 
-    public Image getResourceForImageName(String imageName){
-        Image cachedImage = imageCache.get(imageName+"raw");
+    public Image getResourceForImageName(String imageName) {
+        Image cachedImage = imageCache.get(imageName + "raw");
         if (cachedImage != null) {
             return cachedImage;
         }
 
         String gamemode = model.getGamemode();
-        Image image = new Image("/"+gamemode+"/"+imageName+".png");
-        imageCache.put(imageName+"raw", image);
+        Image image = new Image("/" + gamemode + "/" + imageName + ".png");
+        imageCache.put(imageName + "raw", image);
         return image;
     }
 
