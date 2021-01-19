@@ -210,8 +210,13 @@ public class MenuPane extends AnchorPane {
                             selectedBuilding != null)
                     {
                         drawHoveredImage(event, false);
+                        double mouseX = event.getX();
+                        double mouseY = event.getY();
+                        Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+                        int xCoord = (int) isoCoord.getX();
+                        int yCoord = (int) isoCoord.getY();
+                        model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
                         selectedBuilding = null;
-
                         // TODO Speichere platziertes Bauwerk im Model und rufe drawMap auf statt drawHoveredImage
                     }
                 });

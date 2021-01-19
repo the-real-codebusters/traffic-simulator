@@ -18,16 +18,17 @@ public class MapModel {
 
     public void placeBuilding(int row, int column, Building building){
 
-        for(int r=row; r<row+building.getWidth(); r++){
-            for(int c=column; c<column+building.getDepth(); c++){
-                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Field(0, building);
-                else fieldGrid[r][c].setBuilding(building);
+        Building instance = building.getNewInstance();
+        for(int r=row; r<row+instance.getWidth(); r++){
+            for(int c=column; c<column+instance.getDepth(); c++){
+                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Field(0, instance);
+                else fieldGrid[r][c].setBuilding(instance);
             }
         }
         Field originTile = fieldGrid[row][column];
         originTile.setBuildingOrigin(true);
-        building.setOriginColumn(column);
-        building.setOriginRow(row);
+        instance.setOriginColumn(column);
+        instance.setOriginRow(row);
     }
 
 
