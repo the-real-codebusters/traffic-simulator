@@ -20,6 +20,7 @@ import static view.ErrorAlert.showAlert;
  */
 public class JSONParser {
 
+    private BasicModel model;
     private JSONObject json;
     private List<String> requiredRootAttributes = Arrays.asList("commodities", "buildings", "vehicles", "map");
     private List<String> commodities = new ArrayList<>();
@@ -31,6 +32,7 @@ public class JSONParser {
      * @return - true im Erfolgsfall, sonst false
      */
     public boolean parse(String filename, BasicModel model) {
+        this.model = model;
         // JSON-Datei wird eingelesen
         InputStream inputStream = null;
         try {
@@ -123,6 +125,10 @@ public class JSONParser {
      * @throws JSONParserException
      */
     private void handleMapContent(JSONObject map) throws JSONParserException {
+        int width = 0;
+        int depth = 0;
+        String mapgen = "";
+        String gamemode = "";
         // gültige Map-Attribute
         String[] children = {"mapgen", "gamemode", "width", "depth"};
         // Alle Kinder von Map auslesen
@@ -130,11 +136,21 @@ public class JSONParser {
             if (!map.has(children[i])) {
                 throw new JSONParserException("Attribute " + children[i] + " for map not found");
             }
-            if ("width".equals(children[i]) || "depth".equals(children[i])) {
-                handleContentAsInteger(map, children[i], 100, null);
+            if ("width".equals(children[i])) {
+                width = handleContentAsInteger(map, children[i], 100, null);
+            } else if("depth".equals(children[i])){
+                depth = handleContentAsInteger(map, children[i], 100, null);
+            } else if ("mapgen".equals(children[i])) {
+                mapgen = handleContentAsString(map, children[i]);
             } else {
-                handleContentAsString(map, children[i]);
+                gamemode = handleContentAsString(map, children[i]);
             }
+            // mapModel wird aus eingelesenen Werten erzeugt und dem model hinzugefügt
+            MapModel mapModel = new MapModel(width, depth, new ArrayList<>());
+            mapModel.setMapgen(mapgen);
+            // mapModel und eingelesener gamemode werden dem model hinzugefügt
+            model.setMap(mapModel);
+            model.setGamemode(gamemode);
 
         }
    }
@@ -158,6 +174,8 @@ public class JSONParser {
                 throw new JSONParserException("no string format defined");
             }
         }
+        // ausgelesene commodities werden dem model hinzugefügt
+        model.addCommodities(commodities);
     }
 
     /**

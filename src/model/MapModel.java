@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapModel {
-    private MapGenerator mapgen;
+    private String mapgen;
 
     private int width;
     private int depth;
@@ -18,7 +18,11 @@ public class MapModel {
         this.buildings = buildings;
     }
 
-    public MapGenerator getMapgen() { return mapgen; }
+    public String getMapgen() { return mapgen; }
+
+    public void setMapgen(String mapgen) {
+        this.mapgen = mapgen;
+    }
 
     public int getWidth() {
         return width;
