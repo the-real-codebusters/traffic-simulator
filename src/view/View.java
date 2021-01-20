@@ -6,12 +6,9 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -39,6 +36,8 @@ public class View {
     private final double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;
+
+    private Map<String, Double> imageNameToimageRatio = new HashMap<>();
 
     // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
     private Canvas canvas = new Canvas(1000, 600);
@@ -117,22 +116,29 @@ public class View {
 //                if(previousMouseX != -1.0 && previousMouseY != -1.0) {
             double mousePosX = me.getX();
             double mousePosY = me.getY();
-            System.out.println("mousePosX: " + mousePosX);
-            System.out.println("mousePosY: " + mousePosY);
-            System.out.println("previousMouseX: " + previousMouseX);
-            System.out.println("previousMouseY: " + previousMouseY);
+//            System.out.println("mousePosX: " + mousePosX);
+//            System.out.println("mousePosY: " + mousePosY);
+//            System.out.println("previousMouseX: " + previousMouseX);
+//            System.out.println("previousMouseY: " + previousMouseY);
             double deltaX = previousMouseX - mousePosX;
             double deltaY = previousMouseY - mousePosY;
-            System.out.println("deltaX: " + deltaX);
-            System.out.println("deltaY: " + deltaY);
+//            System.out.println("deltaX: " + deltaX);
+//            System.out.println("deltaY: " + deltaY);
 
-            cameraOffsetX += deltaX;
-            cameraOffsetY += deltaY;
+            if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30 && previousMouseX != -1.0 && previousMouseY != -1.0) {
+                cameraOffsetX += deltaX;
+                cameraOffsetY += deltaY;
+                drawMap();
+            }
 
             previousMouseX = mousePosX;
             previousMouseY = mousePosY;
-            drawMap();
+
 //                }
+        });
+
+        canvas.setOnMouseDragExited(me -> {
+            System.out.println("scroll fertig");
         });
     }
 
@@ -158,14 +164,14 @@ public class View {
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Field field = fields[row][col];
                     Building building = field.getBuilding();
-                    if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
-                        if (field.isBuildingOrigin()) {
-                            drawBuildingOverMoreTiles(field, building, row, col);
-                        }
-                    } else {
+//                    if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
+//                        if (field.isBuildingOrigin()) {
+//                            drawBuildingOverMoreTiles(field, building, row, col);
+//                        }
+//                    } else {
                         Image image = getSingleFieldImage(col, row, fields);
                         drawTileImage(col, row, image, false);
-                    }
+//                    }
                 }
             }
         }
@@ -176,11 +182,18 @@ public class View {
         if (field.isBuildingOrigin()) {
             String buildingName = field.getBuilding().getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
+            double ratio;
 
-            Image r = getResourceForImageName(name);
+            if(imageNameToimageRatio.containsKey(name)){
+                ratio = imageNameToimageRatio.get(name);
+            } else {
+                Image r = getResourceForImageName(name);
 //            String gamemode = model.getGamemode();
 //            Dimension imageDimension = getDimensionForImageName("/" + gamemode + "/" + name + ".png");
-            double ratio = r.getHeight() / r.getWidth();
+                ratio = r.getHeight() / r.getWidth();
+                imageNameToimageRatio.put(name, ratio);
+            }
+
             double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
 //        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
@@ -312,12 +325,14 @@ public class View {
     public Image getResourceForImageName(String imageName) {
         Image cachedImage = imageCache.get(imageName + "raw");
         if (cachedImage != null) {
+            System.out.println("Used cached image " + imageName);
             return cachedImage;
         }
 
         String gamemode = model.getGamemode();
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
+        System.out.println("Image neugeladen " + imageName);
         return image;
     }
 
