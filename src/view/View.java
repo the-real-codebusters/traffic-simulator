@@ -115,32 +115,18 @@ public class View {
 
     public void scrollOnMouseDragged() {
         canvas.setOnMouseDragged(me -> {
-//                if(previousMouseX != -1.0 && previousMouseY != -1.0) {
             double mousePosX = me.getX();
             double mousePosY = me.getY();
-//            System.out.println("mousePosX: " + mousePosX);
-//            System.out.println("mousePosY: " + mousePosY);
-//            System.out.println("previousMouseX: " + previousMouseX);
-//            System.out.println("previousMouseY: " + previousMouseY);
             double deltaX = previousMouseX - mousePosX;
             double deltaY = previousMouseY - mousePosY;
-//            System.out.println("deltaX: " + deltaX);
-//            System.out.println("deltaY: " + deltaY);
 
             if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30 && previousMouseX != -1.0 && previousMouseY != -1.0) {
                 cameraOffsetX += deltaX;
                 cameraOffsetY += deltaY;
                 drawMap();
             }
-
             previousMouseX = mousePosX;
             previousMouseY = mousePosY;
-
-//                }
-        });
-
-        canvas.setOnMouseDragExited(me -> {
-            System.out.println("scroll fertig");
         });
     }
 
@@ -193,17 +179,9 @@ public class View {
             String buildingName = field.getBuilding().getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
             double ratio = imageNameToimageRatio.get(name);
-//
-//            if(imageNameToimageRatio.containsKey(name)){
-//                ratio = imageNameToimageRatio.get(name);
-//            } else {
-//                Image r = getResourceForImageName(name);
-//                ratio = r.getHeight() / r.getWidth();
-//                imageNameToimageRatio.put(name, ratio);
-//            }
-//
-            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
-//        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
+
+//            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
+        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
             double heightRatio = imageHeight / tileHeight;
 
@@ -313,20 +291,22 @@ public class View {
 
     public Image getResourceForImageName(String imageName, double width, double height) {
 
-        Image cachedImage = imageCache.get(imageName + (int) width + (int) height);
+        int widthAsInt = (int) Math.round(width);
+        int heightAsInt = (int) Math.round(height);
+
+        Image cachedImage = imageCache.get(imageName + widthAsInt + heightAsInt);
         if (cachedImage != null) {
             return cachedImage;
         }
 
-
         String gamemode = model.getGamemode();
         Image image = new Image(
                 "/" + gamemode + "/" + imageName + ".png",
-                width,
-                height,
+                widthAsInt,
+                heightAsInt,
                 false,
                 true);
-        imageCache.put(imageName + (int) image.getWidth() + (int) image.getHeight(), image);
+        imageCache.put(imageName + widthAsInt + heightAsInt, image);
         return image;
     }
 
