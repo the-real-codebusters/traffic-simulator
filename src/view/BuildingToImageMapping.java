@@ -1,7 +1,6 @@
 package view;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BuildingToImageMapping {
 
@@ -45,5 +44,9 @@ public class BuildingToImageMapping {
         mapping.put("sand pit", "factories/sandPit");
 
 
+    }
+
+    public Collection<String> getImageNames(){
+        return mapping.values();
     }
 }

@@ -82,6 +82,8 @@ public class View {
         root.setCenter(canvas);
         root.setTop(new MenuPane(model, this, canvas, mapping));
 
+        storeImageRatios();
+
         canvas.setFocusTraversable(true);
         scrollOnKeyPressed();
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
@@ -164,16 +166,24 @@ public class View {
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Field field = fields[row][col];
                     Building building = field.getBuilding();
-//                    if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
-//                        if (field.isBuildingOrigin()) {
-//                            drawBuildingOverMoreTiles(field, building, row, col);
-//                        }
-//                    } else {
+                    if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
+                        if (field.isBuildingOrigin()) {
+                            drawBuildingOverMoreTiles(field, building, row, col);
+                        }
+                    } else {
                         Image image = getSingleFieldImage(col, row, fields);
                         drawTileImage(col, row, image, false);
-//                    }
+                    }
                 }
             }
+        }
+    }
+
+    private void storeImageRatios(){
+        for(String name : mapping.getImageNames()){
+            Image r = getResourceForImageName(name);
+            double ratio = r.getHeight() / r.getWidth();
+            imageNameToimageRatio.put(name, ratio);
         }
     }
 
@@ -182,18 +192,16 @@ public class View {
         if (field.isBuildingOrigin()) {
             String buildingName = field.getBuilding().getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
-            double ratio;
-
-            if(imageNameToimageRatio.containsKey(name)){
-                ratio = imageNameToimageRatio.get(name);
-            } else {
-                Image r = getResourceForImageName(name);
-//            String gamemode = model.getGamemode();
-//            Dimension imageDimension = getDimensionForImageName("/" + gamemode + "/" + name + ".png");
-                ratio = r.getHeight() / r.getWidth();
-                imageNameToimageRatio.put(name, ratio);
-            }
-
+            double ratio = imageNameToimageRatio.get(name);
+//
+//            if(imageNameToimageRatio.containsKey(name)){
+//                ratio = imageNameToimageRatio.get(name);
+//            } else {
+//                Image r = getResourceForImageName(name);
+//                ratio = r.getHeight() / r.getWidth();
+//                imageNameToimageRatio.put(name, ratio);
+//            }
+//
             double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
 //        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
