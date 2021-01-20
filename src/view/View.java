@@ -1,6 +1,5 @@
 package view;
 
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -8,8 +7,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -33,7 +30,9 @@ public class View {
     private int mapWidth;
     private int mapDepth;
 
-    private Map<String, Double> imageNameToimageRatio = new HashMap<>();
+    private Map<String, Double> imageNameToImageRatio = new HashMap<>();
+    private Map<String, Double> imageNameToImageHeight = new HashMap<>();
+
 
     // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
     private Canvas canvas = new Canvas(1200, 600);
@@ -217,7 +216,9 @@ public class View {
         for(String name : mapping.getImageNames()){
             Image r = getResourceForImageName(name);
             double ratio = r.getHeight() / r.getWidth();
-            imageNameToimageRatio.put(name, ratio);
+            imageNameToImageRatio.put(name, ratio);
+            imageNameToImageHeight.put(name, r.getHeight());
+
         }
     }
 
@@ -226,12 +227,16 @@ public class View {
         if (field.isBuildingOrigin()) {
             String buildingName = field.getBuilding().getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
-            double ratio = imageNameToimageRatio.get(name);
+            double ratio = imageNameToImageRatio.get(name);
 
 //            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
         double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
-            double heightRatio = imageHeight / tileHeight;
+            double heightOfFloorTiles = tileHeightHalf * (building.getDepth() + building.getWidth());
+            double heightAboveFloorTiles =  imageNameToImageHeight.get(name) - heightOfFloorTiles;
+           // double heightRatio = (imageHeight / tileHeight) * ratio * 1.27;
+            double heightRatio = (imageHeight / tileHeight) * ratio * (heightAboveFloorTiles / heightOfFloorTiles);
+            System.out.println("name "+ name +" height "+ (heightAboveFloorTiles / heightOfFloorTiles));
 
             Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
