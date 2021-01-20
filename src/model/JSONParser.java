@@ -145,7 +145,7 @@ public class JSONParser {
                 gamemode = handleContentAsString(map, children[i]);
             }
             // mapModel wird aus eingelesenen Werten erzeugt und dem model hinzugefügt
-            MapModel mapModel = new MapModel(width, depth);
+            MapModel mapModel = new MapModel(40, 50);
             mapModel.setMapgen(mapgen);
             // mapModel und eingelesener gamemode werden dem model hinzugefügt
             model.setMap(mapModel);

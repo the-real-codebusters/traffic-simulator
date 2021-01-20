@@ -10,6 +10,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -49,6 +50,9 @@ public class View {
     private int cameraOffsetY = 0;
     private Field[][] fields;
 
+    private double previousMouseX = -1.0;
+    private double previousMouseY = -1.0;
+
     // Gibt an, ab und bis welchen Index die Tiles des Arrays sichtbar sind
     int startIndex = (int) findTileCoord(0, 0).getX();
     int endIndex = (int) findTileCoord(canvasCenterWidth, canvasCenterHeight).getX();
@@ -82,6 +86,7 @@ public class View {
         canvas.setFocusTraversable(true);
         scrollOnKeyPressed();
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
+        scrollOnMouseDragged();
 
         this.stage.setScene(new Scene(root));
     }
@@ -104,6 +109,30 @@ public class View {
                 System.out.println("OffsetY: " + cameraOffsetY);
                 drawMap();
             }
+        });
+    }
+
+    public void scrollOnMouseDragged() {
+        canvas.setOnMouseDragged(me -> {
+//                if(previousMouseX != -1.0 && previousMouseY != -1.0) {
+            double mousePosX = me.getX();
+            double mousePosY = me.getY();
+            System.out.println("mousePosX: " + mousePosX);
+            System.out.println("mousePosY: " + mousePosY);
+            System.out.println("previousMouseX: " + previousMouseX);
+            System.out.println("previousMouseY: " + previousMouseY);
+            double deltaX = previousMouseX - mousePosX;
+            double deltaY = previousMouseY - mousePosY;
+            System.out.println("deltaX: " + deltaX);
+            System.out.println("deltaY: " + deltaY);
+
+            cameraOffsetX += deltaX;
+            cameraOffsetY += deltaY;
+
+            previousMouseX = mousePosX;
+            previousMouseY = mousePosY;
+            drawMap();
+//                }
         });
     }
 
@@ -295,18 +324,17 @@ public class View {
     private Dimension getDimensionForImageName(String imageName) {
         try {
             ImageInputStream in = ImageIO.createImageInputStream(imageName);
-                final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
-                if (readers.hasNext()) {
-                    ImageReader reader = readers.next();
-                    try {
-                        reader.setInput(in);
-                        return new Dimension(reader.getWidth(0), reader.getHeight(0));
-                    } finally {
-                        reader.dispose();
-                    }
+            final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+            if (readers.hasNext()) {
+                ImageReader reader = readers.next();
+                try {
+                    reader.setInput(in);
+                    return new Dimension(reader.getWidth(0), reader.getHeight(0));
+                } finally {
+                    reader.dispose();
                 }
-        }
-        catch (IOException e){
+            }
+        } catch (IOException e) {
             System.out.println(e);
             // TODO handle exception
         }
