@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -17,13 +18,8 @@ import model.BasicModel;
 import model.Building;
 import model.Field;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
-import java.io.IOException;
+
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -40,27 +36,24 @@ public class View {
     private Map<String, Double> imageNameToimageRatio = new HashMap<>();
 
     // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
-    private Canvas canvas = new Canvas(1000, 600);
+    private Canvas canvas = new Canvas(1200, 600);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
 
-    private int cameraOffsetX = 0;
-    private int cameraOffsetY = 0;
+    private double cameraOffsetX = 0.0;
+    private double cameraOffsetY = 0.0;
     private Field[][] fields;
 
     private double previousMouseX = -1.0;
     private double previousMouseY = -1.0;
 
-    // Gibt an, ab und bis welchen Index die Tiles des Arrays sichtbar sind
-    int startIndex = (int) findTileCoord(0, 0).getX();
-    int endIndex = (int) findTileCoord(canvasCenterWidth, canvasCenterHeight).getX();
-
-
     private BasicModel model;
 
     private Map<String, Image> imageCache = new HashMap<>();
     BuildingToImageMapping mapping;
+
+    private double zoomFactor =1.05;
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -85,31 +78,38 @@ public class View {
         storeImageRatios();
 
         canvas.setFocusTraversable(true);
-        scrollOnKeyPressed();
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
+        scrollOnKeyPressed();
         scrollOnMouseDragged();
+        zoom();
 
         this.stage.setScene(new Scene(root));
     }
 
 
+    public void zoom (){
+        canvas.setOnScroll(scrollEvent -> {
+            double scrollDelta = scrollEvent.getDeltaY();
+            System.out.println(scrollDelta);
+        });
+    }
+
+
     public void scrollOnKeyPressed() {
-        canvas.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            public void handle(KeyEvent ke) {
-                int delta = tileWidth;
-                if (ke.getCode() == KeyCode.DOWN) {
-                    cameraOffsetY += delta / 2;
-                } else if (ke.getCode() == KeyCode.UP) {
-                    cameraOffsetY -= delta / 2;
-                } else if (ke.getCode() == KeyCode.RIGHT) {
-                    cameraOffsetX += delta;
-                } else if (ke.getCode() == KeyCode.LEFT) {
-                    cameraOffsetX -= delta;
-                }
-                System.out.println("OffsetX: " + cameraOffsetX);
-                System.out.println("OffsetY: " + cameraOffsetY);
-                drawMap();
+        canvas.setOnKeyPressed(ke -> {
+            int delta = tileWidth;
+            if (ke.getCode() == KeyCode.DOWN) {
+                cameraOffsetY += delta / 2;
+            } else if (ke.getCode() == KeyCode.UP) {
+                cameraOffsetY -= delta / 2;
+            } else if (ke.getCode() == KeyCode.RIGHT) {
+                cameraOffsetX += delta;
+            } else if (ke.getCode() == KeyCode.LEFT) {
+                cameraOffsetX -= delta;
             }
+            System.out.println("OffsetX: " + cameraOffsetX);
+            System.out.println("OffsetY: " + cameraOffsetY);
+            drawMap();
         });
     }
 
@@ -236,7 +236,6 @@ public class View {
         double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
         startX -= cameraOffsetX;
         startY -= cameraOffsetY;
-//        System.out.println(startX+"  "+startY);
         return new Point2D(startX, startY);
     }
 
@@ -259,9 +258,9 @@ public class View {
         }
 
         double x = Math.floor((mouseX / tileWidth + mouseY / tileHeight) - canvasCenterHeight / tileHeight
-                - (canvasCenterWidth / tileWidth) + (mapWidth / 2) + offsetX) + cameraOffsetX / tileWidth + cameraOffsetY / tileHeight;
+                - (canvasCenterWidth / tileWidth) + (mapWidth / 2) + offsetX + cameraOffsetX / tileWidth + cameraOffsetY / tileHeight);
         double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + canvasCenterHeight / tileHeight
-                - (canvasCenterWidth / tileWidth) + (mapDepth / 2) + offsetY) - cameraOffsetY / tileHeight + cameraOffsetX / tileWidth;
+                - (canvasCenterWidth / tileWidth) + (mapDepth / 2) + offsetY - cameraOffsetY / tileHeight + cameraOffsetX / tileWidth);
         return new Point2D(x, y);
     }
 
@@ -313,35 +312,13 @@ public class View {
     public Image getResourceForImageName(String imageName) {
         Image cachedImage = imageCache.get(imageName + "raw");
         if (cachedImage != null) {
-            System.out.println("Used cached image " + imageName);
             return cachedImage;
         }
 
         String gamemode = model.getGamemode();
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
-        System.out.println("Image neugeladen " + imageName);
         return image;
-    }
-
-    private Dimension getDimensionForImageName(String imageName) {
-        try {
-            ImageInputStream in = ImageIO.createImageInputStream(imageName);
-            final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
-            if (readers.hasNext()) {
-                ImageReader reader = readers.next();
-                try {
-                    reader.setInput(in);
-                    return new Dimension(reader.getWidth(0), reader.getHeight(0));
-                } finally {
-                    reader.dispose();
-                }
-            }
-        } catch (IOException e) {
-            System.out.println(e);
-            // TODO handle exception
-        }
-        return null;
     }
 
     public void setMapWidth(int mapWidth) {
@@ -366,14 +343,6 @@ public class View {
 
     public double getTileHeight() {
         return tileHeight;
-    }
-
-    public int getCameraOffsetX() {
-        return cameraOffsetX;
-    }
-
-    public int getCameraOffsetY() {
-        return cameraOffsetY;
     }
 }
 
