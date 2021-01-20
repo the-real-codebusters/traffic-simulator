@@ -26,10 +26,10 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private final int tileWidth = 128;
-    private final double tileWidthHalf = tileWidth / 2;
-    private final int tileHeight = 64;
-    private final double tileHeightHalf = tileHeight / 2;
+    private int tileWidth = 128;
+    private double tileWidthHalf = tileWidth / 2;
+    private int tileHeight = 64;
+    private double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;
 
@@ -53,7 +53,9 @@ public class View {
     private Map<String, Image> imageCache = new HashMap<>();
     BuildingToImageMapping mapping;
 
-    private double zoomFactor =1.05;
+    private double zoomFactor = 1.0;
+    private static final double MAX_SCALE = 10.0d;
+    private static final double MIN_SCALE = .1d;
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -81,7 +83,9 @@ public class View {
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
         scrollOnKeyPressed();
         scrollOnMouseDragged();
-        zoom();
+
+//        zoom();
+//        zoom2();
 
         this.stage.setScene(new Scene(root));
     }
@@ -90,9 +94,53 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            System.out.println(scrollDelta);
+            System.out.println("Deltay: " + scrollDelta);
+            double zoomFactor = Math.exp(scrollDelta * 0.04);
+            tileWidth *= zoomFactor;
+            tileHeight *= zoomFactor;
+            drawMap();
+
         });
     }
+
+    public void zoom2 (){
+        canvas.setOnScroll(event -> {
+            double delta = 1.2;
+            double scale = canvas.getScaleY(); // currently we only use Y, same value is used for X
+            double oldScale = scale;
+
+            if (event.getDeltaY() < 0) scale /= delta;
+            else scale *= delta;
+
+            scale = clamp(scale, MIN_SCALE, MAX_SCALE);
+            double f = (scale / oldScale) - 1;
+            double dx = (event.getSceneX() - (canvas.getBoundsInParent().getWidth() / 2 + canvas.getBoundsInParent().getMinX()));
+            double dy = (event.getSceneY() - (canvas.getBoundsInParent().getHeight() / 2 + canvas.getBoundsInParent().getMinY()));
+
+            canvas.setScaleY(scale);
+            // note: pivot value must be untransformed, i. e. without scaling
+            setPivot(f * dx, f * dy);
+            event.consume();
+        });
+    }
+
+
+    public void setPivot( double x, double y) {
+        canvas.setTranslateX(canvas.getTranslateX()-x);
+        canvas.setTranslateY(canvas.getTranslateY()-y);
+    }
+
+    public static double clamp( double value, double min, double max) {
+
+        if( Double.compare(value, min) < 0)
+            return min;
+
+        if( Double.compare(value, max) > 0)
+            return max;
+
+        return value;
+    }
+
 
 
     public void scrollOnKeyPressed() {
