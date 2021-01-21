@@ -233,15 +233,22 @@ public class View {
         double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
             double heightOfFloorTiles = tileHeightHalf * (building.getDepth() + building.getWidth());
-            double heightAboveFloorTiles =  imageNameToImageHeight.get(name) - heightOfFloorTiles;
+            double heightAboveFloorTiles =  imageHeight - heightOfFloorTiles;
            // double heightRatio = (imageHeight / tileHeight) * ratio * 1.27;
-            double heightRatio = (imageHeight / tileHeight) * ratio * (heightAboveFloorTiles / heightOfFloorTiles);
-            System.out.println("name "+ name +" height "+ (heightAboveFloorTiles / heightOfFloorTiles));
+            double heightRatio = (imageHeight / tileHeight);
+//            if((heightAboveFloorTiles / heightOfFloorTiles)>1) {
+////                heightRatio -= heightAboveFloorTiles;
+//            }
+//            else if((heightAboveFloorTiles / heightOfFloorTiles)>0.1) {
+//                heightRatio *= ratio * (heightAboveFloorTiles / heightOfFloorTiles);
+//            }
+            // TODO construction yard lädt eventuell falsche Breite? (5 statt 4 ?)
+            System.out.println("name "+ name +"ratio "+ratio+" height "+ heightAboveFloorTiles +"  " +heightOfFloorTiles);
 
             Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
             double tileX = (row + column) * tileWidthHalf;
-            double tileY = (row - column) * tileHeightHalf - tileHeightHalf * heightRatio + tileHeightHalf;
+            double tileY = (row - column) * tileHeightHalf - heightOfFloorTiles/2 + tileHeightHalf - heightAboveFloorTiles;
             Point2D drawOrigin = moveCoordinates(tileX, tileY);
             canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
         }
@@ -261,17 +268,23 @@ public class View {
             name = mapping.getImageNameForBuildingName(buildingName);
         }
 
-        return getResourceForImageName(name, tileWidth, tileHeight);
+        double ratio = imageNameToImageRatio.get(name);
+
+        return getResourceForImageName(name, tileWidth, tileWidth*ratio);
     }
 
     public void drawTileImage(int column, int row, Image image, boolean transparent) {
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
         // Zeichenreihenfolge von oben rechts nach unten links
+
+        double heightAboveTile = image.getHeight() - tileHeight;
+
         double tileX = (row + column) * tileWidthHalf;
-        double tileY = (row - column) * tileHeightHalf;
+        double tileY = (row - column) * tileHeightHalf - heightAboveTile;
 
         Point2D drawOrigin = moveCoordinates(tileX, tileY);
+
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, drawOrigin.getX(), drawOrigin.getY());
