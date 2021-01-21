@@ -90,7 +90,7 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            double zoomFactor = Math.exp(scrollDelta * 0.01);
+            double zoomFactor = Math.exp(scrollDelta * 0.005);
             tileWidth = tileWidth * zoomFactor;
             tileHeight = tileHeight * zoomFactor;
             System.out.println("tileWidth: " + tileWidth);
