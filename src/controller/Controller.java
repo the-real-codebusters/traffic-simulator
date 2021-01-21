@@ -7,8 +7,9 @@ import view.View;
 public class Controller {
     private View view;
 
-    public Controller(View view, MapModel map, BasicModel model) {
+    public Controller(View view, BasicModel model) {
         this.view = view;
+        MapModel map = model.getMap();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
@@ -20,7 +21,7 @@ public class Controller {
         view.setMapDepth(map.getDepth());
 
         // Map wird durch Methode der View gezeichnet
-        view.drawMap(generatedMap);
+        view.drawMap();
 
         // Dummy-Graphen zum Testen der Methoden
         TrafficGraph directedGraph = new TrafficGraph();

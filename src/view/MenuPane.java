@@ -44,6 +44,7 @@ public class MenuPane extends AnchorPane {
         this.view = view;
         this.canvas = canvas;
         this.mapping = mapping;
+        tabPane.setFocusTraversable(false);
 
         setCanvasEvents();
 
@@ -163,7 +164,7 @@ public class MenuPane extends AnchorPane {
     private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent){
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 
@@ -192,7 +193,7 @@ public class MenuPane extends AnchorPane {
 
                 if(hoveredTileBefore != null){
 //                    removeDrawedImagesBecauseOfHover();
-                    view.drawMap(model.getFieldGridOfMap());
+                    view.drawMap();
                 }
 
                 hoveredTileBefore = drawHoveredImage(event, true);
@@ -203,7 +204,7 @@ public class MenuPane extends AnchorPane {
                     if(event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                         selectedBuilding = null;
 //                        removeDrawedImagesBecauseOfHover();
-                        view.drawMap(model.getFieldGridOfMap());
+                        view.drawMap();
                     }
                     else if(
                             event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
@@ -212,7 +213,7 @@ public class MenuPane extends AnchorPane {
                         drawHoveredImage(event, false);
                         double mouseX = event.getX();
                         double mouseY = event.getY();
-                        Point2D isoCoord = view.findTileCoord(mouseX, mouseY, view.getCanvasCenterWidth(), view.getCanvasCenterHeight());
+                        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
                         int xCoord = (int) isoCoord.getX();
                         int yCoord = (int) isoCoord.getY();
                         model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
