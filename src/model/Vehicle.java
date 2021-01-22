@@ -1,6 +1,6 @@
 package model;
 
-public abstract class Vehicle {
+public class Vehicle {
     private String kind; // TODO: sollten wir eventuell einen Enum statt einen String verwenden?
     //    graphic
     private boolean canTransportCargo;

@@ -189,6 +189,8 @@ public class JSONParser {
 
         String kind = "";
 
+        Vehicle vehicle = new Vehicle();
+
         // Alle Kinder von Vehicles auslesen
         for (int i = 0; i < vehicles.length(); i++) {
             // Engine-Type hat kein Cargo
