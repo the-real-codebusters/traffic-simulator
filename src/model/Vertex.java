@@ -47,4 +47,12 @@ public class Vertex {
         double y = yCoordinateRelativeToTileOrigin + yCoordinateInGameMap;
         return new Point2D(x, y);
     }
+
+    public int getxCoordinateInGameMap() {
+        return xCoordinateInGameMap;
+    }
+
+    public int getyCoordinateInGameMap() {
+        return yCoordinateInGameMap;
+    }
 }

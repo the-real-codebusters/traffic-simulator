@@ -93,13 +93,10 @@ public class View {
             double zoomFactor = Math.exp(scrollDelta * 0.01);
             tileWidth = tileWidth * zoomFactor;
             tileHeight = tileHeight * zoomFactor;
-            System.out.println("tileWidth: " + tileWidth);
-            System.out.println("tileHeight: " + tileHeight);
+
             tileWidthHalf = tileWidthHalf * zoomFactor;
             tileHeightHalf = tileHeightHalf * zoomFactor;
-            System.out.println("tileWidthHalf: " + tileWidthHalf);
-            System.out.println("tileHeightHalf: " + tileHeightHalf);
-            System.out.println();
+
             drawMap();
 
         });
@@ -157,8 +154,6 @@ public class View {
             } else if (ke.getCode() == KeyCode.LEFT) {
                 cameraOffsetX -= delta;
             }
-            System.out.println("OffsetX: " + cameraOffsetX);
-            System.out.println("OffsetY: " + cameraOffsetY);
             drawMap();
         });
     }

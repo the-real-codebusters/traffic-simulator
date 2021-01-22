@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BasicModel {
     private Set<String> commodities;
@@ -11,6 +8,7 @@ public class BasicModel {
     private int day;
     private double speedOfDay;
     private MapModel map;
+    private TrafficGraph roadsGraph;
 
     private String gamemode;
 //    private ToolsModel tools;
@@ -19,8 +17,8 @@ public class BasicModel {
     private List<Building> buildings = new ArrayList<>();
 
 
-    public BasicModel(Set<String> commodities, int day, double speedOfDay,
-                      MapModel map, String gamemode, Set<String> buildmenus, ArrayList<Building> buildings) {
+    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
+                      Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
         this.commodities = commodities;
         this.day = day;
         this.speedOfDay = speedOfDay;
@@ -28,6 +26,7 @@ public class BasicModel {
         this.gamemode = gamemode;
         this.buildmenus = buildmenus;
         this.buildings = buildings;
+        this.roadsGraph = roadsGraph;
     }
 
     public BasicModel() {
@@ -37,6 +36,7 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
+        this.roadsGraph = new TrafficGraph();
     }
 
     public List<Building> getBuildingsForBuildmenu(String buildmenu) {
@@ -46,7 +46,7 @@ public class BasicModel {
 
         for(Building building: buildings){
             if(building.getBuildingName() != null && building.getBuildingName().equals("road-ne")){
-                System.out.println("test "+building.getBuildmenu());
+                System.out.println("test "+building.getBuildingName());
             }
             String menu = building.getBuildmenu();
             if( menu != null && menu.equals(buildmenu)){
@@ -55,6 +55,19 @@ public class BasicModel {
         }
         return bs;
     }
+
+
+    public List<Road> getRoadsFromBuildings() {
+
+        List<Road> roads = new ArrayList<>();
+        for(Building building: buildings){
+            if(building.getBuildingName() != null && building.getBuildingName().contains("road")){
+                roads.add((Road) building);
+            }
+        }
+        return roads;
+    }
+
 
     public List<Special> getBuildingsForSpecialUse(String special) {
 
@@ -66,6 +79,43 @@ public class BasicModel {
             }
         }
         return bs;
+    }
+
+
+    public void addPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile){
+        List<Road> roads = getRoadsFromBuildings();
+        for (Road road : roads) {
+            if (selectedBuilding.getBuildingName().equals(road.getBuildingName())) {
+
+                Map<String, List<Double>> points = road.getPoints();
+                for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
+
+                    // Damit name unique bleibt, sonst gäbe es Duplikate
+                    String vertexName = xCoordOfTile+"-"+yCoordOfTile+"-"+entry.getKey();
+
+                    double xCoordOfPoint = entry.getValue().get(0);
+                    double yCoordOfPoint = entry.getValue().get(1);
+
+                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
+
+                    double vXcord = v.coordsRelativeToMapOrigin().getX();
+                    double vYcord = v.coordsRelativeToMapOrigin().getY();
+                    System.out.println("Points: " + v.getName() + " " + vXcord + " " + vYcord);
+
+                    getRoadsGraph().addVertex(v);
+
+                    for (Vertex v1 : getRoadsGraph().getMapOfVertexes().values()){
+                        if(!v.getName().equals(v1.getName())
+                                && (v.getxCoordinateInGameMap() == v1.getxCoordinateInGameMap())
+                                && (v.getyCoordinateInGameMap() == v1.getyCoordinateInGameMap())) {
+                            getRoadsGraph().addEdgeBidirectional(v1.getName(), v.getName());
+                        }
+                    }
+                }
+            }
+        }
+        getRoadsGraph().checkForDuplicatePoints();
+        getRoadsGraph().printGraph();
     }
 
     public void addCommodities(List<String> commodities) {
@@ -119,6 +169,15 @@ public class BasicModel {
 //    public void setTools(ToolsModel tools) {
 //        this.tools = tools;
 //    }
+
+
+    public TrafficGraph getRoadsGraph() {
+        return roadsGraph;
+    }
+
+    public void setRoadsGraph(TrafficGraph roadsGraph) {
+        this.roadsGraph = roadsGraph;
+    }
 
     public Set<String> getBuildmenus() {
         return buildmenus;

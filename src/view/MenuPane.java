@@ -15,12 +15,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import model.BasicModel;
-import model.Building;
-import model.Field;
+import model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MenuPane extends AnchorPane {
@@ -53,19 +52,19 @@ public class MenuPane extends AnchorPane {
 
         generateTabContents();
 
-        for (int i=0; i<tabNames.size(); i++){
+        for (int i = 0; i < tabNames.size(); i++) {
             addTab(tabNames.get(i), tabContents.get(i));
         }
     }
 
-    private void addTab(String name, Node content){
+    private void addTab(String name, Node content) {
         Tab tab = new Tab();
         tab.setText(name);
         tab.setContent(content);
         tabPane.getTabs().add(tab);
     }
 
-    private void generateTabContents(){
+    private void generateTabContents() {
 
         // Get Buildmenus from Model
         Set<String> buildmenus = model.getBuildmenus();
@@ -74,19 +73,19 @@ public class MenuPane extends AnchorPane {
         tabNames.addAll(List.of("height", "vehicles"));
 
         // dummys:
-        for (int i=0; i<tabNames.size(); i++){
+        for (int i = 0; i < tabNames.size(); i++) {
             tabContents.add(new AnchorPane());
         }
 
-        for(String name: tabNames){
+        for (String name : tabNames) {
             HBox container = boxWithLayout();
             List<Building> buildings = model.getBuildingsForBuildmenu(name);
-            if(name.equals("road")) System.out.println("test "+buildings.size());
-            for(Building building: buildings){
+            if (name.equals("road")) System.out.println("test " + buildings.size());
+            for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
                 String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
-                if(imageName == null) continue;
+                if (imageName == null) continue;
                 ImageView imageView = imageViewWithLayout(building);
                 container.getChildren().add(imageView);
                 //TODO
@@ -95,14 +94,14 @@ public class MenuPane extends AnchorPane {
         }
     }
 
-    private HBox boxWithLayout(){
+    private HBox boxWithLayout() {
         HBox box = new HBox(10);
         box.setPrefHeight(100);
-        box.setPadding(new Insets(5,20,5,20));
+        box.setPadding(new Insets(5, 20, 5, 20));
         return box;
     }
 
-    private ImageView imageViewWithLayout(Building building){
+    private ImageView imageViewWithLayout(Building building) {
         String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
@@ -156,30 +155,28 @@ public class MenuPane extends AnchorPane {
 //    }
 
     /**
-     *
      * @param mouseEvent
      * @param transparent
      * @return Gibt die Koordinaten des Tiles zurück, auf das gezeichnet wurde
      */
-    private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent){
+    private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 
-        if(xCoord < 0 || yCoord < 0) {
+        if (xCoord < 0 || yCoord < 0) {
 //            drawBlackImage(xCoord, yCoord);
             // Tu erstmal nichts
             return isoCoord;
         }
-        if(model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)){
+        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
             String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
             Image image = view.getResourceForImageName(imageName, view.getTileWidth(), view.getTileHeight());
             view.drawTileImage(yCoord, xCoord, image, transparent);
             return isoCoord;
-        }
-        else return hoveredTileBefore;
+        } else return hoveredTileBefore;
     }
 
 //    private void drawBlackImage(int xCoord, int yCoord){
@@ -187,11 +184,11 @@ public class MenuPane extends AnchorPane {
 //        view.drawTileImage(yCoord, xCoord, image, false);
 //    }
 
-    private void setCanvasEvents(){
+    private void setCanvasEvents() {
         canvas.setOnMouseMoved(event -> {
-            if(selectedBuilding != null){
+            if (selectedBuilding != null) {
 
-                if(hoveredTileBefore != null){
+                if (hoveredTileBefore != null) {
 //                    removeDrawedImagesBecauseOfHover();
                     view.drawMap();
                 }
@@ -201,27 +198,40 @@ public class MenuPane extends AnchorPane {
         });
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED,
                 event -> {
-                    if(event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
+                    if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                         selectedBuilding = null;
 //                        removeDrawedImagesBecauseOfHover();
                         view.drawMap();
-                    }
-                    else if(
+                    } else if (
                             event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
-                            selectedBuilding != null)
-                    {
+                                    selectedBuilding != null) {
                         double mouseX = event.getX();
                         double mouseY = event.getY();
                         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
                         int xCoord = (int) isoCoord.getX();
                         int yCoord = (int) isoCoord.getY();
-                        if(model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)){
+                        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
                             model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+
+                            System.out.println("Building placed: " + selectedBuilding.getBuildingName()
+                                    + " at coordinates: " + xCoord + " " + yCoord);
+
+                            model.addPointsToGraph(selectedBuilding, xCoord, yCoord);
+
+//                            model.getRoadsGraph().printGraph();
+//                            if (selectedBuilding.getBuildmenu().equals("road")) {
+//                                if (selectedBuilding.getBuildingName().equals("road-sw")
+//                                        && model.getMap().getFieldGrid()[2][2].getBuilding().getBuildingName().equals("road-ne")) {
+//                                    Building roadTest = new Building();
+//                                    roadTest.setBuildingName("road-ne-sw");
+//                                    model.getMap().getFieldGrid()[2][2].setBuilding(roadTest);
+//                                }
+//                            }
+
                             selectedBuilding = null;
                             view.drawMap();
                         }
                     }
                 });
     }
-
 }
