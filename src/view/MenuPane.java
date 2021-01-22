@@ -218,7 +218,6 @@ public class MenuPane extends AnchorPane {
 
                             model.addPointsToGraph(selectedBuilding, xCoord, yCoord);
 
-//                            model.getRoadsGraph().printGraph();
 //                            if (selectedBuilding.getBuildmenu().equals("road")) {
 //                                if (selectedBuilding.getBuildingName().equals("road-sw")
 //                                        && model.getMap().getFieldGrid()[2][2].getBuilding().getBuildingName().equals("road-ne")) {

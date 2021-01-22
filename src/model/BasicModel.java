@@ -4,7 +4,7 @@ import java.util.*;
 
 public class BasicModel {
     private Set<String> commodities;
-//    private List<Reservation> reservations;
+    //    private List<Reservation> reservations;
     private int day;
     private double speedOfDay;
     private MapModel map;
@@ -44,12 +44,12 @@ public class BasicModel {
 
         List<Building> bs = new ArrayList<>();
 
-        for(Building building: buildings){
-            if(building.getBuildingName() != null && building.getBuildingName().equals("road-ne")){
-                System.out.println("test "+building.getBuildingName());
+        for (Building building : buildings) {
+            if (building.getBuildingName() != null && building.getBuildingName().equals("road-ne")) {
+                System.out.println("test " + building.getBuildingName());
             }
             String menu = building.getBuildmenu();
-            if( menu != null && menu.equals(buildmenu)){
+            if (menu != null && menu.equals(buildmenu)) {
                 bs.add(building);
             }
         }
@@ -58,13 +58,14 @@ public class BasicModel {
 
     /**
      * Erzeugt eine Liste mit Elementen des Typs Road aus den Buildings im Model
+     *
      * @return eine Liste mit Elementen des Typs Road
      */
     public List<Road> getRoadsFromBuildings() {
 
         List<Road> roads = new ArrayList<>();
-        for(Building building: buildings){
-            if(building.getBuildingName() != null && building.getBuildingName().contains("road")){
+        for (Building building : buildings) {
+            if (building.getBuildingName() != null && building.getBuildingName().contains("road")) {
                 roads.add((Road) building);
             }
         }
@@ -76,8 +77,8 @@ public class BasicModel {
 
         List<Special> bs = new ArrayList<>();
 
-        for(Building building: buildings){
-            if(building instanceof Special && ((Special) building).getSpecial().equals(special)){
+        for (Building building : buildings) {
+            if (building instanceof Special && ((Special) building).getSpecial().equals(special)) {
                 bs.add((Special) building);
             }
         }
@@ -89,11 +90,12 @@ public class BasicModel {
      * Fügt die Points eines Straßenfelds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
      * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
      * zusammengeführt.
+     *
      * @param selectedBuilding das aus der Menüleiste ausgewählte Building (ein Straßenfeld)
-     * @param xCoordOfTile x-Koordinate des Tiles, auf das die Straße platziert wurde
-     * @param yCoordOfTile y-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
      */
-    public void addPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile){
+    public void addPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
         List<Road> roads = getRoadsFromBuildings();
         for (Road road : roads) {
             if (selectedBuilding.getBuildingName().equals(road.getBuildingName())) {
@@ -101,34 +103,36 @@ public class BasicModel {
                 Map<String, List<Double>> points = road.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
 
-                    // Damit name unique bleibt, sonst gäbe es Duplikate
-                    String vertexName = xCoordOfTile+"-"+yCoordOfTile+"-"+entry.getKey();
+                    // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
+                    // sonst gäbe es Duplikate, da points aus verschiedenen Felder denselben Namen haben könnten
+                    String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
+                    String vertexName = identifier + entry.getKey();
 
                     double xCoordOfPoint = entry.getValue().get(0);
                     double yCoordOfPoint = entry.getValue().get(1);
 
                     Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
 
-                    double vXcord = v.coordsRelativeToMapOrigin().getX();
-                    double vYcord = v.coordsRelativeToMapOrigin().getY();
-                    System.out.println("Points: " + v.getName() + " " + vXcord + " " + vYcord);
-
                     roadsGraph.addVertex(v);
 
-                    for (Vertex v1 : roadsGraph.getMapOfVertexes().values()){
-                        // If-Abfrage stellt sicher, dass ein Knoten nicht mit sich selber verbunden wird
-                        // und dass nur Knoten miteinander verbunden werden, die sich auf demselben Tile befinden
-                        if(!v.getName().equals(v1.getName())
-                                && (v.getxCoordinateInGameMap() == v1.getxCoordinateInGameMap())
-                                && (v.getyCoordinateInGameMap() == v1.getyCoordinateInGameMap())) {
-                            roadsGraph.addEdgeBidirectional(v1.getName(), v.getName());
+                    for (Vertex v1 : roadsGraph.getMapOfVertexes().values()) {
+                        List<List<String>> edges = road.getRoads();
+                        for (int i = 0; i < edges.size(); i++) {
+                            String from = identifier + edges.get(i).get(0);
+                            String to = identifier + edges.get(i).get(1);
+                            System.out.println("From: " + from);
+                            System.out.println("To: " + to);
+
+                            if ((v.getName().equals(from) && v1.getName().equals(to)) ||
+                                    (v.getName().equals(to) && v1.getName().equals(from)))
+                                roadsGraph.addEdgeBidirectional(v1.getName(), v.getName());
                         }
                     }
                 }
             }
         }
         roadsGraph.checkForDuplicatePoints();
-//        roadsGraph.printGraph();
+        roadsGraph.printGraph();
     }
 
     public void addCommodities(List<String> commodities) {
@@ -216,14 +220,14 @@ public class BasicModel {
         this.buildings = buildings;
     }
 
-    public Field[][] getFieldGridOfMap(){
+    public Field[][] getFieldGridOfMap() {
         return map.getFieldGrid();
     }
 
-    public void printModelAttributes(){
+    public void printModelAttributes() {
         System.out.println("Model attributes: ");
         System.out.print("Commodities: ");
-        for(String commodity : commodities){
+        for (String commodity : commodities) {
             System.out.print(commodity + ", ");
         }
         System.out.println();
@@ -232,7 +236,7 @@ public class BasicModel {
         System.out.println("Map with following attributes:\n    Width: " + map.getWidth() + "\n    Depth: " + map.getDepth());
         System.out.println("Gamemode: " + gamemode);
         System.out.print("Buildings: ");
-        for(String buildmenu : buildmenus){
+        for (String buildmenu : buildmenus) {
             System.out.print(buildmenu + ", ");
         }
     }

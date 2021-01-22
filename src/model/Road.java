@@ -40,6 +40,10 @@ public class Road extends Building {
         return points;
     }
 
+    public List<List<String>> getRoads() {
+        return roads;
+    }
+
     @Override
     public String toString() {
 
