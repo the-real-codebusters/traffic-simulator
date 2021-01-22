@@ -56,7 +56,10 @@ public class BasicModel {
         return bs;
     }
 
-
+    /**
+     * Erzeugt eine Liste mit Elementen des Typs Road aus den Buildings im Model
+     * @return eine Liste mit Elementen des Typs Road
+     */
     public List<Road> getRoadsFromBuildings() {
 
         List<Road> roads = new ArrayList<>();
@@ -82,6 +85,14 @@ public class BasicModel {
     }
 
 
+    /**
+     * Fügt die Points eines Straßenfelds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
+     * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
+     * zusammengeführt.
+     * @param selectedBuilding das aus der Menüleiste ausgewählte Building (ein Straßenfeld)
+     * @param xCoordOfTile x-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @param yCoordOfTile y-Koordinate des Tiles, auf das die Straße platziert wurde
+     */
     public void addPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile){
         List<Road> roads = getRoadsFromBuildings();
         for (Road road : roads) {
@@ -102,20 +113,22 @@ public class BasicModel {
                     double vYcord = v.coordsRelativeToMapOrigin().getY();
                     System.out.println("Points: " + v.getName() + " " + vXcord + " " + vYcord);
 
-                    getRoadsGraph().addVertex(v);
+                    roadsGraph.addVertex(v);
 
-                    for (Vertex v1 : getRoadsGraph().getMapOfVertexes().values()){
+                    for (Vertex v1 : roadsGraph.getMapOfVertexes().values()){
+                        // If-Abfrage stellt sicher, dass ein Knoten nicht mit sich selber verbunden wird
+                        // und dass nur Knoten miteinander verbunden werden, die sich auf demselben Tile befinden
                         if(!v.getName().equals(v1.getName())
                                 && (v.getxCoordinateInGameMap() == v1.getxCoordinateInGameMap())
                                 && (v.getyCoordinateInGameMap() == v1.getyCoordinateInGameMap())) {
-                            getRoadsGraph().addEdgeBidirectional(v1.getName(), v.getName());
+                            roadsGraph.addEdgeBidirectional(v1.getName(), v.getName());
                         }
                     }
                 }
             }
         }
-        getRoadsGraph().checkForDuplicatePoints();
-        getRoadsGraph().printGraph();
+        roadsGraph.checkForDuplicatePoints();
+//        roadsGraph.printGraph();
     }
 
     public void addCommodities(List<String> commodities) {
