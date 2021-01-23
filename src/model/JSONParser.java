@@ -201,13 +201,14 @@ public class JSONParser {
                 throw new JSONParserException("Attribute " + children[i] + " for vehicles not found");
             }
             if ("speed".equals(children[i])) {
-                handleContentAsDouble(vehicles, children[i], 0.0, null);
+                vehicle.setSpeed(handleContentAsDouble(vehicles, children[i], 0.0, null));
             }  else if ("kind".equals(children[i])) {
                 kind = handleContentAsString(vehicles, children[i]);
+                vehicle.setKind(kind);
             } else if ("graphic".equals(children[i])) {
-                handleContentAsString(vehicles, children[i]);
+                vehicle.setGraphic(handleContentAsString(vehicles, children[i]));
             } else if( "cargo".equals(children[i])) {
-                handleCargoContent(vehicles, children[i]);
+                handleCargoContent(vehicles, children[i], vehicle);
             }
 
         }
@@ -220,7 +221,7 @@ public class JSONParser {
      * @param name
      * @throws JSONParserException
      */
-    private void handleCargoContent(JSONObject vehicles, String name) throws JSONParserException {
+    private void handleCargoContent(JSONObject vehicles, String name, Vehicle vehicleInstance) throws JSONParserException {
         Object cargo = vehicles.get(name);
         // Cargo kommt entweder einzeln oder als Array vor
         if (cargo instanceof JSONObject) {

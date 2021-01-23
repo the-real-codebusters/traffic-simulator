@@ -2,9 +2,9 @@ package model;
 
 public class Vehicle {
     private String kind; // TODO: sollten wir eventuell einen Enum statt einen String verwenden?
-    //    graphic
     private boolean canTransportCargo;
     private double speed;
+    private String graphic;
 //    private Storage cargo;
 
     public String getKind() {
@@ -31,7 +31,15 @@ public class Vehicle {
         this.speed = speed;
     }
 
-//    public Storage getCargo() {
+    public String getGraphic() {
+        return graphic;
+    }
+
+    public void setGraphic(String graphic) {
+        this.graphic = graphic;
+    }
+
+    //    public Storage getCargo() {
 //        return cargo;
 //    }
 //
