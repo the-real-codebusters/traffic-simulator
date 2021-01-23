@@ -1,8 +1,6 @@
 package view;
 
-import javafx.event.Event;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -13,8 +11,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import model.*;
 
 import java.util.ArrayList;
@@ -80,7 +76,6 @@ public class MenuPane extends AnchorPane {
         for (String name : tabNames) {
             HBox container = boxWithLayout();
             List<Building> buildings = model.getBuildingsForBuildmenu(name);
-            if (name.equals("road")) System.out.println("test " + buildings.size());
             for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
@@ -210,27 +205,53 @@ public class MenuPane extends AnchorPane {
                         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
                         int xCoord = (int) isoCoord.getX();
                         int yCoord = (int) isoCoord.getY();
+
+                        String originalBuildingName = selectedBuilding.getBuildingName();
+
                         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+
+                            if (selectedBuilding instanceof Road) {
+                                checkCombines(xCoord, yCoord);
+                            }
+
                             model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+                            selectedBuilding.setBuildingName(originalBuildingName);
 
-                            System.out.println("Building placed: " + selectedBuilding.getBuildingName()
-                                    + " at coordinates: " + xCoord + " " + yCoord);
-
-                            model.addPointsToGraph(selectedBuilding, xCoord, yCoord);
-
-//                            if (selectedBuilding.getBuildmenu().equals("road")) {
-//                                if (selectedBuilding.getBuildingName().equals("road-sw")
-//                                        && model.getMap().getFieldGrid()[2][2].getBuilding().getBuildingName().equals("road-ne")) {
-//                                    Building roadTest = new Building();
-//                                    roadTest.setBuildingName("road-ne-sw");
-//                                    model.getMap().getFieldGrid()[2][2].setBuilding(roadTest);
-//                                }
-//                            }
+                            model.addRoadPointsToGraph(selectedBuilding, xCoord, yCoord);
 
                             selectedBuilding = null;
                             view.drawMap();
                         }
                     }
                 });
+    }
+
+
+    /**
+     * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
+     * werden kann. Falls dies der Fall ist, wird das daraus entstehende Feld im Model gespeichert und in der View
+     * angezeigt
+     * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
+     * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
+     */
+    public void checkCombines(int xCoord, int yCoord) {
+
+        Field selectedField = model.getMap().getFieldGrid()[xCoord][yCoord];
+        Building buildingOnSelectedTile = selectedField.getBuilding();
+        if (buildingOnSelectedTile instanceof Road) {
+            Map<String, String> combinations = ((Road) selectedBuilding).getCombines();
+            for (Map.Entry<String, String> entry : combinations.entrySet()) {
+                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
+                    String newBuildingName = entry.getValue();
+
+                    System.out.println(selectedBuilding.getBuildingName() + " and " +
+                                    buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
+
+                    selectedBuilding.setBuildingName(newBuildingName);
+                    selectedField.setBuilding(buildingOnSelectedTile);
+
+                }
+            }
+        }
     }
 }

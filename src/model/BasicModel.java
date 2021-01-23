@@ -46,7 +46,7 @@ public class BasicModel {
 
         for (Building building : buildings) {
             if (building.getBuildingName() != null && building.getBuildingName().equals("road-ne")) {
-                System.out.println("test " + building.getBuildingName());
+//                System.out.println("test " + building.getBuildingName());
             }
             String menu = building.getBuildmenu();
             if (menu != null && menu.equals(buildmenu)) {
@@ -95,7 +95,7 @@ public class BasicModel {
      * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
      * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
      */
-    public void addPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
+    public void addRoadPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
         List<Road> roads = getRoadsFromBuildings();
         for (Road road : roads) {
             if (selectedBuilding.getBuildingName().equals(road.getBuildingName())) {
@@ -120,8 +120,8 @@ public class BasicModel {
                         for (int i = 0; i < edges.size(); i++) {
                             String from = identifier + edges.get(i).get(0);
                             String to = identifier + edges.get(i).get(1);
-                            System.out.println("From: " + from);
-                            System.out.println("To: " + to);
+//                            System.out.println("From: " + from);
+//                            System.out.println("To: " + to);
 
                             if ((v.getName().equals(from) && v1.getName().equals(to)) ||
                                     (v.getName().equals(to) && v1.getName().equals(from)))
@@ -133,6 +133,7 @@ public class BasicModel {
         }
         roadsGraph.checkForDuplicatePoints();
         roadsGraph.printGraph();
+        System.out.println();
     }
 
     public void addCommodities(List<String> commodities) {

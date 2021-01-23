@@ -44,6 +44,10 @@ public class Road extends Building {
         return roads;
     }
 
+    public Map<String, String> getCombines() {
+        return combines;
+    }
+
     @Override
     public String toString() {
 
