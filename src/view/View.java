@@ -7,6 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -160,18 +161,20 @@ public class View {
 
     public void scrollOnMouseDragged() {
         canvas.setOnMouseDragged(me -> {
-            double mousePosX = me.getX();
-            double mousePosY = me.getY();
-            double deltaX = previousMouseX - mousePosX;
-            double deltaY = previousMouseY - mousePosY;
+            if (me.getButton().compareTo(MouseButton.SECONDARY) == 0) {
+                double mousePosX = me.getX();
+                double mousePosY = me.getY();
+                double deltaX = previousMouseX - mousePosX;
+                double deltaY = previousMouseY - mousePosY;
 
-            if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30 && previousMouseX != -1.0 && previousMouseY != -1.0) {
-                cameraOffsetX += deltaX;
-                cameraOffsetY += deltaY;
-                drawMap();
+                if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30 && previousMouseX != -1.0 && previousMouseY != -1.0) {
+                    cameraOffsetX += deltaX;
+                    cameraOffsetY += deltaY;
+                    drawMap();
+                }
+                previousMouseX = mousePosX;
+                previousMouseY = mousePosY;
             }
-            previousMouseX = mousePosX;
-            previousMouseY = mousePosY;
         });
     }
 
@@ -393,6 +396,18 @@ public class View {
 
     public double getTileHeight() {
         return tileHeight;
+    }
+
+    public double getPreviousMouseX() {
+        return previousMouseX;
+    }
+
+    public double getPreviousMouseY() {
+        return previousMouseY;
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 }
 

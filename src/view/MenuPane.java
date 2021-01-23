@@ -1,5 +1,6 @@
 package view;
 
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -191,39 +192,61 @@ public class MenuPane extends AnchorPane {
                 hoveredTileBefore = drawHoveredImage(event, true);
             }
         });
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED,
-                event -> {
-                    if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
-                        selectedBuilding = null;
+
+
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
+                selectedBuilding = null;
 //                        removeDrawedImagesBecauseOfHover();
-                        view.drawMap();
-                    } else if (
-                            event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
-                                    selectedBuilding != null) {
-                        double mouseX = event.getX();
-                        double mouseY = event.getY();
-                        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-                        int xCoord = (int) isoCoord.getX();
-                        int yCoord = (int) isoCoord.getY();
+                view.drawMap();
+            } else if (
+                    event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
+                            selectedBuilding != null) {
+                managePlacement(event);
+            }
+        });
 
-                        String originalBuildingName = selectedBuilding.getBuildingName();
 
-                        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragEvent -> {
 
-                            if (selectedBuilding instanceof Road) {
-                                checkCombines(xCoord, yCoord);
-                            }
+            if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
+                    selectedBuilding != null) {
+                managePlacement(dragEvent);
+            }
+        });
+    }
 
-                            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-                            selectedBuilding.setBuildingName(originalBuildingName);
 
-                            model.addRoadPointsToGraph(selectedBuilding, xCoord, yCoord);
+    /**
+     * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
+     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob dieses mit dem
+     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
+     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
+     * @param event MouseEvent, wodurch die Methode ausgelöst wurde
+     */
+    public void managePlacement(MouseEvent event) {
+        // TODO gehört die Methode evtl. eher in den Controller?
+        double mouseX = event.getX();
+        double mouseY = event.getY();
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
 
-                            selectedBuilding = null;
-                            view.drawMap();
-                        }
-                    }
-                });
+        String originalBuildingName = selectedBuilding.getBuildingName();
+
+        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+
+            if (selectedBuilding instanceof Road) {
+                checkCombines(xCoord, yCoord);
+            }
+
+            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            selectedBuilding.setBuildingName(originalBuildingName);
+
+            model.addRoadPointsToGraph(selectedBuilding, xCoord, yCoord);
+//            selectedBuilding = null;
+            view.drawMap();
+        }
     }
 
 
@@ -231,6 +254,7 @@ public class MenuPane extends AnchorPane {
      * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
      * werden kann. Falls dies der Fall ist, wird das daraus entstehende Feld im Model gespeichert und in der View
      * angezeigt
+     *
      * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
      * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
      */
@@ -245,7 +269,7 @@ public class MenuPane extends AnchorPane {
                     String newBuildingName = entry.getValue();
 
                     System.out.println(selectedBuilding.getBuildingName() + " and " +
-                                    buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
+                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
 
                     selectedBuilding.setBuildingName(newBuildingName);
                     selectedField.setBuilding(buildingOnSelectedTile);
