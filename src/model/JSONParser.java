@@ -189,6 +189,8 @@ public class JSONParser {
 
         String kind = "";
 
+        Vehicle vehicle = new Vehicle();
+
         // Alle Kinder von Vehicles auslesen
         for (int i = 0; i < vehicles.length(); i++) {
             // Engine-Type hat kein Cargo
@@ -199,16 +201,17 @@ public class JSONParser {
                 throw new JSONParserException("Attribute " + children[i] + " for vehicles not found");
             }
             if ("speed".equals(children[i])) {
-                handleContentAsDouble(vehicles, children[i], 0.0, null);
+                vehicle.setSpeed(handleContentAsDouble(vehicles, children[i], 0.0, null));
             }  else if ("kind".equals(children[i])) {
                 kind = handleContentAsString(vehicles, children[i]);
+                vehicle.setKind(kind);
             } else if ("graphic".equals(children[i])) {
-                handleContentAsString(vehicles, children[i]);
+                vehicle.setGraphic(handleContentAsString(vehicles, children[i]));
             } else if( "cargo".equals(children[i])) {
-                handleCargoContent(vehicles, children[i]);
+                handleCargoContent(vehicles, children[i], vehicle);
             }
-
         }
+        model.getVehicles().add(vehicle);
         return kind;
     }
 
@@ -218,11 +221,13 @@ public class JSONParser {
      * @param name
      * @throws JSONParserException
      */
-    private void handleCargoContent(JSONObject vehicles, String name) throws JSONParserException {
+    private void handleCargoContent(JSONObject vehicles, String name, Vehicle vehicleInstance) throws JSONParserException {
+
+        HashMap<String, Integer> cargoMaxima = new HashMap<>();
         Object cargo = vehicles.get(name);
         // Cargo kommt entweder einzeln oder als Array vor
         if (cargo instanceof JSONObject) {
-            checkCargoData((JSONObject)cargo, name);
+            handleCargoData((JSONObject)cargo, name, cargoMaxima);
         }
         else if (cargo instanceof  JSONArray){
             JSONArray array = (JSONArray) cargo;
@@ -233,7 +238,7 @@ public class JSONParser {
             for (int i = 0; i < array.length(); i++) {
                 try {
                     JSONObject cargoDetails = array.getJSONObject(i);
-                    checkCargoData(cargoDetails, name);
+                    handleCargoData(cargoDetails, name, cargoMaxima);
                 } catch (JSONException e) {
                     throw new JSONParserException("no string format defined");
                 }
@@ -243,6 +248,8 @@ public class JSONParser {
             throw new JSONParserException(name + " has invalid format ");
         }
 
+        Storage storage = new Storage(cargoMaxima);
+        vehicleInstance.setStorage(storage);
     }
 
     /**
@@ -251,7 +258,8 @@ public class JSONParser {
      * @param name
      * @throws JSONParserException
      */
-    private void checkCargoData(JSONObject cargoDetails, String name) throws  JSONParserException {
+    private void handleCargoData(JSONObject cargoDetails, String name, Map<String, Integer> cargoMaxima)
+            throws  JSONParserException {
         Iterator<String> keys = cargoDetails.keys();
         while (keys.hasNext()) {
             String data = keys.next();
@@ -266,10 +274,12 @@ public class JSONParser {
                 if (value_int <= 0) {
                     throw new JSONParserException ("attribute " + name + " has negative value");
                 }
+                cargoMaxima.put(data, value_int);
             }
             catch(NumberFormatException e){
                 throw new JSONParserException ("no integer format for attribute " + name + " defined");
             }
+
         }
     }
 
