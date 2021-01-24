@@ -5,23 +5,16 @@ import java.util.Map;
 
 public class Storage {
 
-    private Map<String, Integer> maxima = new HashMap<>();
+    private Map<String, Integer> maxima;
     private Map<String, Integer> cargo = new HashMap<>();
 
     public Storage(Map<String, Integer> maxima) {
         this.maxima = maxima;
     }
 
-    public Map<String, Integer> getMaxima() {
-        return maxima;
-    }
-
-    public void setMaxima(Map<String, Integer> maxima) {
-        this.maxima = maxima;
-    }
-
-    public Map<String, Integer> getCargo() {
-        return cargo;
+    public Storage getNewInstance(){
+        Map<String, Integer> maxima = new HashMap<>(this.maxima);
+        return new Storage(maxima);
     }
 
     /**
@@ -41,6 +34,18 @@ public class Storage {
             // Bei sonst korrektem Programm sollte diese Ausnahme nie geworfen werden.
         }
         cargo.replace(commodity, changedCargoAmount);
+    }
+
+    public Map<String, Integer> getMaxima() {
+        return maxima;
+    }
+
+    public void setMaxima(Map<String, Integer> maxima) {
+        this.maxima = maxima;
+    }
+
+    public Map<String, Integer> getCargo() {
+        return cargo;
     }
 }
 

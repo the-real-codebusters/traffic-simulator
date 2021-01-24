@@ -11,6 +11,16 @@ public class Vehicle {
     private String graphic;
     private Storage storage;
 
+    public Vehicle getNewInstance(){
+        Vehicle instance = new Vehicle();
+        instance.setKind(kind);
+        instance.setCanTransportCargo(canTransportCargo);
+        instance.setSpeed(speed);
+        instance.setGraphic(graphic);
+        instance.setStorage(storage.getNewInstance());
+        return instance;
+    }
+
     /**
      * Lädt eine Ware commodity mit der Menge amount ein. Wenn mehr Waren eingeladen werden sollen als Platz vorhanden
      * ist, wird der Rest der Ware vernichtet.
