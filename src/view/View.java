@@ -222,12 +222,12 @@ public class View {
 
     public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column) {
         if (field.isBuildingOrigin()) {
-            String buildingName = field.getBuilding().getBuildingName();
+            String buildingName = building.getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
 
 //            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
-        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
+            double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
             double heightRatio = imageHeight / tileHeight;
 

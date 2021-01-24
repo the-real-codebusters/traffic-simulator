@@ -123,14 +123,21 @@ public class MenuPane extends AnchorPane {
         int yCoord = (int) isoCoord.getY();
 
         if (xCoord < 0 || yCoord < 0) {
-//            drawBlackImage(xCoord, yCoord);
             // Tu erstmal nichts
             return isoCoord;
         }
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
             String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
-            Image image = view.getResourceForImageName(imageName, view.getTileWidth(), view.getTileHeight());
-            view.drawTileImage(yCoord, xCoord, image, transparent);
+            if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
+                Field tile = model.getFieldGridOfMap()[xCoord][yCoord];
+                tile.setBuildingOrigin(true);
+                view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
+                tile.setBuildingOrigin(false);
+            }
+            else {
+                Image image = view.getResourceForImageName(imageName, view.getTileWidth(), view.getTileHeight());
+                view.drawTileImage(yCoord, xCoord, image, transparent);
+            }
             return isoCoord;
         } else return hoveredTileBefore;
     }
@@ -140,7 +147,6 @@ public class MenuPane extends AnchorPane {
             if (selectedBuilding != null) {
 
                 if (hoveredTileBefore != null) {
-//                    removeDrawedImagesBecauseOfHover();
                     view.drawMap();
                 }
 
