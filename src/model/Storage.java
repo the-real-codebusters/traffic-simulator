@@ -20,8 +20,16 @@ public class Storage {
         return cargo;
     }
 
-    public void setCargo(Map<String, Integer> cargo) {
-        this.cargo = cargo;
+    public void changeCargo(String commodity, int change){
+        int changedCargoAmount = cargo.get(commodity) + change;
+        int maximumAmount = maxima.get(commodity);
+        if(changedCargoAmount > maximumAmount) {
+            changedCargoAmount = maximumAmount;
+        }
+        else if(changedCargoAmount < 0){
+            changedCargoAmount = 0;
+        }
+        cargo.replace(commodity, changedCargoAmount);
     }
 }
 
