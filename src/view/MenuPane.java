@@ -219,7 +219,7 @@ public class MenuPane extends AnchorPane {
 
     /**
      * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
-     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob dieses mit dem
+     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
      * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
      * entsprechenden Points dem Verkehrsgraph hinzugefügt.
      * @param event MouseEvent, wodurch die Methode ausgelöst wurde
@@ -239,12 +239,10 @@ public class MenuPane extends AnchorPane {
             if (selectedBuilding instanceof Road) {
                 checkCombines(xCoord, yCoord);
             }
-
             model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
             selectedBuilding.setBuildingName(originalBuildingName);
 
             model.addRoadPointsToGraph(selectedBuilding, xCoord, yCoord);
-//            selectedBuilding = null;
             view.drawMap();
         }
     }
@@ -272,6 +270,12 @@ public class MenuPane extends AnchorPane {
                             buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
 
                     selectedBuilding.setBuildingName(newBuildingName);
+                    selectedField.setBuilding(buildingOnSelectedTile);
+                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
+                    break;
+
+                } else {
+                    selectedBuilding.setBuildingName(buildingOnSelectedTile.getBuildingName());
                     selectedField.setBuilding(buildingOnSelectedTile);
 
                 }
