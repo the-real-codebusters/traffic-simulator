@@ -10,6 +10,7 @@ public class Controller {
     public Controller(View view, BasicModel model) {
         this.view = view;
         MapModel map = model.getMap();
+        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
