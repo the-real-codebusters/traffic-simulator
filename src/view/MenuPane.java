@@ -110,46 +110,6 @@ public class MenuPane extends AnchorPane {
         return imageView;
     }
 
-//    private void removeDrawedImagesBecauseOfHover(){
-//        int xCoordBefore = (int) hoveredTileBefore.getX();
-//        int yCoordBefore = (int) hoveredTileBefore.getY();
-//        Field[][] fields = model.getFieldGridOfMap();
-//        drawHoveredImageBefore(xCoordBefore, yCoordBefore, fields);
-//        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore, fields);
-//        drawHoveredImageBefore(xCoordBefore, yCoordBefore+1, fields);
-//        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore+1, fields);
-//        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore+1, fields);
-//        drawHoveredImageBefore(xCoordBefore+1, yCoordBefore-1, fields);
-//        drawHoveredImageBefore(xCoordBefore-1, yCoordBefore, fields);
-//        drawHoveredImageBefore(xCoordBefore, yCoordBefore-1, fields);
-//
-//        // Bei Bildern, die über das Feld hinausschauen, müssen auch angrenzende Felder neu gezeichnet werden
-//    }
-
-//    private void drawHoveredImageBefore(int xCoordBefore, int yCoordBefore, Field[][] fields){
-//        if(xCoordBefore < 0 || yCoordBefore < 0){
-//            // Tu erstmal nichts
-////            drawBlackImage(xCoordBefore, yCoordBefore);
-//        }
-//        else {
-//            Field field = fields[yCoordBefore][xCoordBefore];
-//            Building building = field.getBuilding();
-//            System.out.println(building+" "+building.getBuildingName());
-//            if(building != null && (building.getDepth() > 1 || building.getWidth() > 1)) {
-//                field = fields[building.getOriginRow()][building.getOriginColumn()];
-//                view.drawBuildingOverMoreTiles(field, building, building.getOriginRow(), building.getOriginColumn());
-//            }
-//            else {
-//                drawTileImageAtCoords(xCoordBefore, yCoordBefore, fields);
-//            }
-//        }
-//    }
-
-//    private void drawTileImageAtCoords(int xCoord, int yCoord, Field[][] fields){
-//        Image hoveredImageBefore = view.getSingleFieldImage(yCoord, xCoord, fields);
-//        view.drawTileImage(yCoord, xCoord, hoveredImageBefore, false);
-//    }
-
     /**
      * @param mouseEvent
      * @param transparent
@@ -175,11 +135,6 @@ public class MenuPane extends AnchorPane {
         } else return hoveredTileBefore;
     }
 
-//    private void drawBlackImage(int xCoord, int yCoord){
-//        Image image = view.getResourceForImageName("black", view.getTileWidth(), view.getTileHeight());
-//        view.drawTileImage(yCoord, xCoord, image, false);
-//    }
-
     private void setCanvasEvents() {
         canvas.setOnMouseMoved(event -> {
             if (selectedBuilding != null) {
@@ -197,7 +152,6 @@ public class MenuPane extends AnchorPane {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                 selectedBuilding = null;
-//                        removeDrawedImagesBecauseOfHover();
                 view.drawMap();
             } else if (
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
@@ -215,7 +169,6 @@ public class MenuPane extends AnchorPane {
             }
         });
     }
-
 
     /**
      * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
