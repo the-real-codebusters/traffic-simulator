@@ -84,7 +84,8 @@ public class Building {
     @Override
     public String toString() {
         return "Building{" +
-                "width=" + width +
+                "name=" + buildingName +
+                ", width=" + width +
                 ", depth=" + depth +
                 ", dz=" + dz +
                 '}';

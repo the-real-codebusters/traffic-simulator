@@ -26,23 +26,30 @@ public class BuildingToImageMapping {
         mapping.put("silicone factory", "factories/siliconeFactory");
         mapping.put("chemical plant", "factories/chemicalPlant");
         mapping.put("submerged-arc furnace", "factories/furnace");
+        mapping.put("sand pit", "factories/sandPit");
+
         mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
         mapping.put("stone", "ground/stones");
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
-        mapping.put("road-ne-sw", "road/road-ne-sw");
-        mapping.put("road-ne-nw-se-sw", "road/cross");
-        mapping.put("road-ne-nw", "road/curve-nw-ne");
+
+
         mapping.put("road-ne", "road/road-ne");
         mapping.put("road-nw", "road/road-nw");
         mapping.put("road-se", "road/road-se");
-        mapping.put("road-nw-se", "road/road-nw-se");
         mapping.put("road-sw", "road/road-sw");
-        mapping.put("road-sw-ne", "road/road-sw-ne");
-        mapping.put("sand pit", "factories/sandPit");
-
-
+        mapping.put("road-ne-nw-se-sw", "road/road-ne-nw-se-sw");
+        mapping.put("road-ne-nw-se", "road/road-ne-nw-se");
+        mapping.put("road-ne-nw-sw", "road/road-ne-nw-sw");
+        mapping.put("road-ne-nw", "road/road-ne-nw");
+        mapping.put("road-ne-se-sw", "road/road-ne-se-sw");
+        mapping.put("road-ne-se", "road/road-ne-se");
+        mapping.put("road-ne-sw", "road/road-ne-sw");
+        mapping.put("road-nw-se-sw", "road/road-nw-se-sw");
+        mapping.put("road-nw-se", "road/road-nw-se");
+        mapping.put("road-nw-sw", "road/road-nw-sw");
+        mapping.put("road-se-sw", "road/road-se-sw");
     }
 
     public Collection<String> getImageNames(){
