@@ -28,7 +28,7 @@ public class BuildingToImageMapping {
         mapping.put("submerged-arc furnace", "factories/furnace");
         mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
-        mapping.put("stone", "ground/grass");
+        mapping.put("stone", "ground/stones");
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("road-ne-sw", "road/road-ne-sw");

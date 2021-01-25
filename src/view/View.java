@@ -23,16 +23,15 @@ import java.util.Map;
 public class View {
     private Stage stage;
 
-    private int tileWidth = 128;
+    private double tileWidth = 128;
     private double tileWidthHalf = tileWidth / 2;
-    private int tileHeight = 64;
+    private double tileHeight = 64;
     private double tileHeightHalf = tileHeight / 2;
     private int mapWidth;
     private int mapDepth;
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
     private Canvas canvas = new Canvas(1200, 600);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
@@ -81,7 +80,7 @@ public class View {
         scrollOnKeyPressed();
         scrollOnMouseDragged();
 
-//        zoom();
+        zoom();
 //        zoom2();
 
         this.stage.setScene(new Scene(root));
@@ -91,10 +90,16 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            System.out.println("Deltay: " + scrollDelta);
-            double zoomFactor = Math.exp(scrollDelta * 0.04);
-            tileWidth *= zoomFactor;
-            tileHeight *= zoomFactor;
+            double zoomFactor = Math.exp(scrollDelta * 0.01);
+            tileWidth = tileWidth * zoomFactor;
+            tileHeight = tileHeight * zoomFactor;
+            System.out.println("tileWidth: " + tileWidth);
+            System.out.println("tileHeight: " + tileHeight);
+            tileWidthHalf = tileWidthHalf * zoomFactor;
+            tileHeightHalf = tileHeightHalf * zoomFactor;
+            System.out.println("tileWidthHalf: " + tileWidthHalf);
+            System.out.println("tileHeightHalf: " + tileHeightHalf);
+            System.out.println();
             drawMap();
 
         });
@@ -142,7 +147,7 @@ public class View {
 
     public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(ke -> {
-            int delta = tileWidth;
+            double delta = tileWidth;
             if (ke.getCode() == KeyCode.DOWN) {
                 cameraOffsetY += delta / 2;
             } else if (ke.getCode() == KeyCode.UP) {
@@ -259,7 +264,7 @@ public class View {
 
         double ratio = imageNameToImageRatio.get(name);
 
-        return getResourceForImageName(name, tileWidth, tileWidth*ratio);
+        return getResourceForImageName(name, tileWidth, tileWidth * ratio);
     }
 
     public void drawTileImage(int column, int row, Image image, boolean transparent) {
