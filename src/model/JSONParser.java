@@ -367,15 +367,20 @@ public class JSONParser {
         while (keys.hasNext()) {
             String name = keys.next();
             JSONObject buildingsDetails = buildings.getJSONObject(name);
-            System.out.println("name "+name);
+//            System.out.println("name "+name);
             Building building = handleBuildMenuContent(buildingsDetails);
             if (building != null) {
                 building.setBuildingName(name);
                 model.getBuildings().add(building);
-                System.out.println("handleBuildingsContent "+name+" "+building.getBuildmenu());
+                if(building.getBuildingName().contains("road")) {
+//                    System.out.println("handleBuildingsContent " + name);
+                }
             }
             if(buildingsDetails.has("buildmenu")){
                 buildMenus.add(buildingsDetails.getString("buildmenu"));
+                if(building.getBuildingName().contains("road")) {
+//                    System.out.println("handleBuildingsContent " + name);
+                }
             }
         }
         model.setBuildmenus(buildMenus);
@@ -477,21 +482,26 @@ public class JSONParser {
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> roadList = handleBuildMenuInfrastructure(json.getJSONArray("roads"));
         if(roadList.get(0).get(0).equals("ne") && roadList.get(0).get(1).equals("c") && roadList.size() == 1) {
-            System.out.print("Derisses ne  ");
+//            System.out.print("Derisses ne  ");
         }
         Map<String, String> combinesMap = new HashMap<>();
         if (json.has("combines")) {
             combinesMap = handleBuildMenuCombines(json.getJSONObject("combines"));
         }
         if (buildmenu.length == 1) {
-            System.out.println("handleRoadContent "+buildmenu[0]);
+//            System.out.println("handleRoadContent "+buildmenu[0]);
             road.setBuildmenu(buildmenu[0]);
         }
-        System.out.println("handleRoadContent "+road.getBuildmenu());
+//        System.out.println("handleRoadContent "+road.getBuildmenu());
 
         road.setPoints(pointMap);
         road.setRoads(roadList);
         road.setCombines(combinesMap);
+//        System.out.println("handleRoadContent ");
+//        System.out.println("Name: " + road.getBuildingName());
+//        System.out.println("Roads: " + road.getRoads());
+//        System.out.println("Points: " + road.getPoints());
+//        System.out.println("Combines: " + road.getCombines());
         return road;
 
     }

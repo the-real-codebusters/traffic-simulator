@@ -36,6 +36,17 @@ public class Road extends Building {
         this.combines = combines;
     }
 
+    public Map<String, List<Double>> getPoints() {
+        return points;
+    }
+
+    public List<List<String>> getRoads() {
+        return roads;
+    }
+
+    public Map<String, String> getCombines() {
+        return combines;
+    }
 
     @Override
     public String toString() {

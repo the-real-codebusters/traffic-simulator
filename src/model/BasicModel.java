@@ -1,16 +1,14 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BasicModel {
     private Set<String> commodities;
-//    private List<Reservation> reservations;
+    //    private List<Reservation> reservations;
     private int day;
     private double speedOfDay;
     private MapModel map;
+    private TrafficGraph roadsGraph;
 
     private String gamemode;
 //    private ToolsModel tools;
@@ -19,8 +17,8 @@ public class BasicModel {
     private List<Building> buildings = new ArrayList<>();
 
 
-    public BasicModel(Set<String> commodities, int day, double speedOfDay,
-                      MapModel map, String gamemode, Set<String> buildmenus, ArrayList<Building> buildings) {
+    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
+                      Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
         this.commodities = commodities;
         this.day = day;
         this.speedOfDay = speedOfDay;
@@ -28,6 +26,7 @@ public class BasicModel {
         this.gamemode = gamemode;
         this.buildmenus = buildmenus;
         this.buildings = buildings;
+        this.roadsGraph = roadsGraph;
     }
 
     public BasicModel() {
@@ -37,6 +36,7 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
+        this.roadsGraph = new TrafficGraph();
     }
 
     public List<Building> getBuildingsForBuildmenu(String buildmenu) {
@@ -44,28 +44,96 @@ public class BasicModel {
 
         List<Building> bs = new ArrayList<>();
 
-        for(Building building: buildings){
-            if(building.getBuildingName() != null && building.getBuildingName().equals("road-ne")){
-                System.out.println("test "+building.getBuildmenu());
+        for (Building building : buildings) {
+            if (building.getBuildingName() != null && building.getBuildingName().equals("road-ne")) {
+//                System.out.println("test " + building.getBuildingName());
             }
             String menu = building.getBuildmenu();
-            if( menu != null && menu.equals(buildmenu)){
+            if (menu != null && menu.equals(buildmenu)) {
                 bs.add(building);
             }
         }
         return bs;
     }
 
+    /**
+     * Erzeugt eine Liste mit Elementen des Typs Road aus den Buildings im Model
+     *
+     * @return eine Liste mit Elementen des Typs Road
+     */
+    public List<Road> getRoadsFromBuildings() {
+
+        List<Road> roads = new ArrayList<>();
+        for (Building building : buildings) {
+            if (building.getBuildingName() != null && building.getBuildingName().contains("road")) {
+                roads.add((Road) building);
+            }
+        }
+        return roads;
+    }
+
+
     public List<Special> getBuildingsForSpecialUse(String special) {
 
         List<Special> bs = new ArrayList<>();
 
-        for(Building building: buildings){
-            if(building instanceof Special && ((Special) building).getSpecial().equals(special)){
+        for (Building building : buildings) {
+            if (building instanceof Special && ((Special) building).getSpecial().equals(special)) {
                 bs.add((Special) building);
             }
         }
         return bs;
+    }
+
+
+    /**
+     * Fügt die Points eines Straßenfelds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
+     * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
+     * zusammengeführt.
+     *
+     * @param selectedBuilding das aus der Menüleiste ausgewählte Building (ein Straßenfeld)
+     * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
+     */
+    public void addRoadPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
+        List<Road> roads = getRoadsFromBuildings();
+        for (Road road : roads) {
+            if (selectedBuilding.getBuildingName().equals(road.getBuildingName())) {
+
+                Map<String, List<Double>> points = road.getPoints();
+                for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
+
+                    // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
+                    // sonst gäbe es Duplikate, da points aus verschiedenen Felder denselben Namen haben könnten
+                    String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
+                    String vertexName = identifier + entry.getKey();
+
+                    double xCoordOfPoint = entry.getValue().get(0);
+                    double yCoordOfPoint = entry.getValue().get(1);
+
+                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
+
+                    roadsGraph.addVertex(v);
+
+                    for (Vertex v1 : roadsGraph.getMapOfVertexes().values()) {
+                        List<List<String>> edges = road.getRoads();
+                        for (int i = 0; i < edges.size(); i++) {
+                            String from = identifier + edges.get(i).get(0);
+                            String to = identifier + edges.get(i).get(1);
+//                            System.out.println("From: " + from);
+//                            System.out.println("To: " + to);
+
+                            if ((v.getName().equals(from) && v1.getName().equals(to)) ||
+                                    (v.getName().equals(to) && v1.getName().equals(from)))
+                                roadsGraph.addEdgeBidirectional(v1.getName(), v.getName());
+                        }
+                    }
+                }
+            }
+        }
+        roadsGraph.checkForDuplicatePoints();
+        roadsGraph.printGraph();
+        System.out.println();
     }
 
     public void addCommodities(List<String> commodities) {
@@ -120,6 +188,15 @@ public class BasicModel {
 //        this.tools = tools;
 //    }
 
+
+    public TrafficGraph getRoadsGraph() {
+        return roadsGraph;
+    }
+
+    public void setRoadsGraph(TrafficGraph roadsGraph) {
+        this.roadsGraph = roadsGraph;
+    }
+
     public Set<String> getBuildmenus() {
         return buildmenus;
     }
@@ -144,14 +221,14 @@ public class BasicModel {
         this.buildings = buildings;
     }
 
-    public Field[][] getFieldGridOfMap(){
+    public Field[][] getFieldGridOfMap() {
         return map.getFieldGrid();
     }
 
-    public void printModelAttributes(){
+    public void printModelAttributes() {
         System.out.println("Model attributes: ");
         System.out.print("Commodities: ");
-        for(String commodity : commodities){
+        for (String commodity : commodities) {
             System.out.print(commodity + ", ");
         }
         System.out.println();
@@ -160,7 +237,7 @@ public class BasicModel {
         System.out.println("Map with following attributes:\n    Width: " + map.getWidth() + "\n    Depth: " + map.getDepth());
         System.out.println("Gamemode: " + gamemode);
         System.out.print("Buildings: ");
-        for(String buildmenu : buildmenus){
+        for (String buildmenu : buildmenus) {
             System.out.print(buildmenu + ", ");
         }
     }
