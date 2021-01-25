@@ -15,7 +15,7 @@ public class BasicModel {
 
     private Set<String> buildmenus = new HashSet<>();
     private List<Building> buildings = new ArrayList<>();
-
+    private List<Vehicle> vehicles = new ArrayList<>();
 
     public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
                       Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
@@ -85,6 +85,13 @@ public class BasicModel {
         return bs;
     }
 
+    public List<Vehicle> getVehicles() {
+        return vehicles;
+    }
+
+    public void setVehicles(List<Vehicle> vehicles) {
+        this.vehicles = vehicles;
+    }
 
     /**
      * Fügt die Points eines Straßenfelds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
@@ -237,8 +244,18 @@ public class BasicModel {
         System.out.println("Map with following attributes:\n    Width: " + map.getWidth() + "\n    Depth: " + map.getDepth());
         System.out.println("Gamemode: " + gamemode);
         System.out.print("Buildings: ");
+<<<<<<< src/model/BasicModel.java
+        for(Building building : buildings){
+            System.out.print(building.getBuildingName() + ", ");
+        }
+        System.out.println("");
+        System.out.print("Vehicles: ");
+        for(Vehicle vehicle : vehicles){
+            System.out.print(vehicle.getGraphic() + ", ");
+=======
         for (String buildmenu : buildmenus) {
             System.out.print(buildmenu + ", ");
+>>>>>>> src/model/BasicModel.java
         }
     }
 }

@@ -141,8 +141,6 @@ public class View {
         return value;
     }
 
-
-
     public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(ke -> {
             double delta = tileWidth;

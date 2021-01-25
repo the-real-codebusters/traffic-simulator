@@ -4,22 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Railway extends Vehicle {
-    private List<Wagon> wagons = new ArrayList<Wagon>();
-//    private Engine engine;
+    private List<Vehicle> wagons = new ArrayList<>();
+    private Vehicle engine;
 
-    public List<Wagon> getWagons() {
+    public List<Vehicle> getWagons() {
         return wagons;
     }
 
-    public void setWagons(List<Wagon> wagons) {
-        this.wagons = wagons;
+//    public void setWagons(List<Wagon> wagons) {
+//        this.wagons = wagons;
+//    }
+
+    public Vehicle getEngine() {
+        return engine;
     }
 
-//    public Engine getEngine() {
-//        return engine;
-//    }
-//
-//    public void setEngine(Engine engine) {
-//        this.engine = engine;
-//    }
+    public void addWagon(Vehicle wagon){
+        if(! wagon.getKind().equals("wagon") ) throw new IllegalArgumentException("Attribute was not of kind wagon");
+
+        if(wagon.getSpeed() < this.getSpeed()) setSpeed(wagon.getSpeed());
+
+        wagons.add(wagon);
+    }
+
+    public void setEngine(Vehicle engine){
+        if(! engine.getKind().equals("engine") ) throw new IllegalArgumentException("Attribute was not of kind engine");
+
+        if(engine.getSpeed() < this.getSpeed()) setSpeed(engine.getSpeed());
+
+        this.engine = engine;
+    }
+
 }
