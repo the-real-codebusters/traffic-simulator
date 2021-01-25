@@ -66,8 +66,8 @@ public class MapGenerator {
                 if(row > 1 && col > 1) {
                     if(mapFieldGrid[row-1][col].getHeight() < 0) probWater+=345;
                     if(mapFieldGrid[row][col-1].getHeight() < 0) probWater+=500;
-                    if(mapFieldGrid[row-2][col].getHeight() < 0) probWater+=75;
-                    if(mapFieldGrid[row][col-2].getHeight() < 0) probWater+=75;
+                    if(mapFieldGrid[row-2][col].getHeight() < 0) probWater+=50;
+                    if(mapFieldGrid[row][col-2].getHeight() < 0) probWater+=50;
                 }
                 Building building = null;
                 int heightRandom =  new Random().nextInt(1000);
