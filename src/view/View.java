@@ -191,7 +191,7 @@ public class View {
         int minimumY = (int) findTileCoord(0, canvas.getHeight()).getY();
         int maximumY = (int) findTileCoord(canvas.getWidth(), 0).getY();
 
-        // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
+        // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
             for (int row = minimumX; row <= maximumX; row++) {
 
@@ -220,8 +220,15 @@ public class View {
     }
 
 
-    public void drawBuildingOverMoreTiles(Tile field, Building building, int row, int column) {
-        if (field.isBuildingOrigin()) {
+    /**
+     * Zeichnet ein building, das größer ist als 1x1, über mehrere tiles.
+     * @param tile Das entsprechende tile, von dem ausgehend das building gezeichnet werden soll
+     * @param building Das zu zeichnende building
+     * @param row Die Reihe in dem zweidimensionalen Array der tiles
+     * @param column Die Spalte in dem zweidimensionalen Array der tiles
+     */
+    public void drawBuildingOverMoreTiles(Tile tile, Building building, int row, int column) {
+        if (tile.isBuildingOrigin()) {
             String buildingName = building.getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
