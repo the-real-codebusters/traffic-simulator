@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Station {
     // Bauwerke, aus denen eine Haltestelle besteht (z.B. dürfen ein Bahnhof und eine Bushaltestelle gemeinsam eine
     // Station bilden, um Warenumstieg zu ermöglichen. Eine Station kann aber auch nur aus einem Bauwerk bestehen
-    private List<Special> components = new ArrayList<>();
+    private List<Stop> components = new ArrayList<>();
 
     private Storage storage;
 
@@ -24,8 +24,8 @@ public class Station {
         storage = new Storage(maximumCargo);
     }
 
-    public boolean addBuilding(Special building){
-        if(building instanceof Factory || building instanceof Nature) return false;
+    public boolean addBuilding(Stop building){
+        building.setStation(this);
         return components.add(building);
     }
 
@@ -43,7 +43,7 @@ public class Station {
         return Objects.hash(id);
     }
 
-    public List<Special> getComponents() {
+    public List<Stop> getComponents() {
         return components;
     }
 

@@ -8,6 +8,7 @@ import java.util.Map;
 public class Stop extends Special{
     protected Map<String, List<Double>> points = new HashMap<>();
     protected List<List<String>> transportations = new ArrayList<>();
+    private Station station;
 
     @Override
     public Stop getNewInstance(){
@@ -27,6 +28,13 @@ public class Stop extends Special{
         this.transportations = roads;
     }
 
+    public Station getStation() {
+        return station;
+    }
+
+    public void setStation(Station station) {
+        this.station = station;
+    }
 
     @Override
     public String toString() {
