@@ -31,8 +31,6 @@ public class View {
     private int mapDepth;
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
-    private Map<String, Double> imageNameToImageHeight = new HashMap<>();
-
 
     // Dies scheint die maximal einstellbare Größe eines Canvas zu sein. Bei größeren Angaben crasht das Programm
     private Canvas canvas = new Canvas(1200, 600);
@@ -217,8 +215,6 @@ public class View {
             Image r = getResourceForImageName(name);
             double ratio = r.getHeight() / r.getWidth();
             imageNameToImageRatio.put(name, ratio);
-            imageNameToImageHeight.put(name, r.getHeight());
-
         }
     }
 
@@ -229,28 +225,21 @@ public class View {
             String name = mapping.getImageNameForBuildingName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
 
-//            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
-        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
+            double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
             double heightOfFloorTiles = tileHeightHalf * (building.getDepth() + building.getWidth());
             double heightAboveFloorTiles =  imageHeight - heightOfFloorTiles;
-           // double heightRatio = (imageHeight / tileHeight) * ratio * 1.27;
-            double heightRatio = (imageHeight / tileHeight);
-//            if((heightAboveFloorTiles / heightOfFloorTiles)>1) {
-////                heightRatio -= heightAboveFloorTiles;
-//            }
-//            else if((heightAboveFloorTiles / heightOfFloorTiles)>0.1) {
-//                heightRatio *= ratio * (heightAboveFloorTiles / heightOfFloorTiles);
-//            }
-            // TODO construction yard lädt eventuell falsche Breite? (5 statt 4 ?)
-            System.out.println("name "+ name +"ratio "+ratio+" height "+ heightAboveFloorTiles +"  " +heightOfFloorTiles);
 
             Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
             double tileX = (row + column) * tileWidthHalf;
-            double tileY = (row - column) * tileHeightHalf - heightOfFloorTiles/2 + tileHeightHalf - heightAboveFloorTiles;
+            double tileY = (row - column) * tileHeightHalf
+                    + tileHeightHalf - tileHeightHalf * building.getDepth() - heightAboveFloorTiles;
             Point2D drawOrigin = moveCoordinates(tileX, tileY);
             canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
+
+            //TODO Da gebäude von ihrem Ursprungstile gezeichnet werden, überlappen sie Bäume aus reihen weiter oben,
+            // die eigentlich das Gebäude überlappen sollten
         }
     }
 
