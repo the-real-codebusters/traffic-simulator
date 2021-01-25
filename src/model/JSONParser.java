@@ -398,49 +398,26 @@ public class JSONParser {
 
 
     /**
-     * prueft alle Railstation-Attribute auf Richtigkeit liefert ein neues Railstation-Objekt zurück
+     * prueft alle Stop-Attribute auf Richtigkeit liefert ein neues Stop-Objekt zurück
      * @param json
      * @return
      * @throws JSONParserException
      */
-    private Railstation handleRailstationContent(JSONObject json) throws JSONParserException {
-        Railstation railstation = new Railstation();
-        setDefaultAttributes(railstation, json);
+    private Stop handleStopContent(JSONObject json, String kind) throws JSONParserException {
+        Stop stop = new Stop();
+        setDefaultAttributes(stop, json);
 
         String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(railstation.getBuildmenu(), buildmenu);
+        checkBuildMenu(stop.getBuildmenu(), buildmenu);
 
 
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
-        List<List<String>> railList = handleBuildMenuInfrastructure(json.getJSONArray("rails"));
+        List<List<String>> railList = handleBuildMenuInfrastructure(json.getJSONArray(kind));
 
-        railstation.setPoints(pointMap);
-        railstation.setRails(railList);
+        stop.setPoints(pointMap);
+        stop.setTransportations(railList);
 
-        return railstation;
-    }
-
-    /**
-     * prueft alle Terminal-Attribute auf Richtigkeit liefert ein neues TerminalTerminal-Objekt zurück
-     * @param json
-     * @return
-     * @throws JSONParserException
-     */
-    private Terminal handleTerminalContent(JSONObject json) throws JSONParserException {
-        Terminal terminal = new Terminal();
-        setDefaultAttributes(terminal, json);
-
-        String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(terminal.getBuildmenu(), buildmenu);
-
-
-        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
-        List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
-
-        terminal.setPoints(pointMap);
-        terminal.setPlanes(planes);
-
-        return terminal;
+        return stop;
     }
 
     /**
@@ -532,21 +509,6 @@ public class JSONParser {
         return true;
     }
 
-    private Taxiway handleTaxiwayContent(JSONObject json) throws JSONParserException {
-        Taxiway taxiway = new Taxiway();
-        setDefaultAttributes(taxiway, json);
-        String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(taxiway.getBuildmenu(), buildmenu);
-
-
-        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
-        List<List<String>> planes = handleBuildMenuInfrastructure(json.getJSONArray("planes"));
-
-        taxiway.setPoints(pointMap);
-        taxiway.setPlanes(planes);
-
-        return taxiway;
-    }
     private Runway handleRunwayContent(JSONObject json) throws JSONParserException {
         Runway runway = new Runway();
         setDefaultAttributes(runway, json);
@@ -568,26 +530,10 @@ public class JSONParser {
         }
 
         runway.setPoints(pointMap);
-        runway.setPlanes(planes);
+        runway.setTransportations(planes);
         runway.setEntry(entries);
 
         return runway;
-    }
-    private Busstop handleBusstopContent(JSONObject json) throws JSONParserException {
-        Busstop busstop = new Busstop();
-        setDefaultAttributes(busstop, json);
-
-        String buildmenu = handleContentAsString(json, "buildmenu");
-        checkBuildMenu(busstop.getBuildmenu(), buildmenu);
-
-
-        Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
-        List<List<String>> roads = handleBuildMenuInfrastructure(json.getJSONArray("roads"));
-
-        busstop.setPoints(pointMap);
-        busstop.setRoads(roads);
-
-        return busstop;
     }
 
     private Factory handleFactoryContent(JSONObject json) throws JSONParserException {
@@ -700,15 +646,15 @@ public class JSONParser {
             String special = handleContentAsString(buildingsDetails, "special");
             Special specialObject;
             switch (special) {
-                case "railstation": specialObject = handleRailstationContent(buildingsDetails); break;
+                case "railstation": specialObject = handleStopContent(buildingsDetails, "rails"); break;
                 case "tower": specialObject = handleTowerContent(buildingsDetails); break;
-                case "terminal": specialObject = handleTerminalContent(buildingsDetails); break;
-                case "taxiway": specialObject = handleTaxiwayContent(buildingsDetails); break;
+                case "terminal": specialObject = handleStopContent(buildingsDetails, "planes"); break;
+                case "taxiway": specialObject = handleStopContent(buildingsDetails, "planes"); break;
                 case "runway": specialObject = handleRunwayContent(buildingsDetails); break;
                 case "nature": specialObject = handleNatureContent(buildingsDetails); break;
                 case "justcombines": return handleJustCombinesContent(buildingsDetails);
                 case "factory": specialObject = handleFactoryContent(buildingsDetails); break;
-                case "busstop": specialObject = handleBusstopContent(buildingsDetails); break;
+                case "busstop": specialObject = handleStopContent(buildingsDetails, "roads"); break;
                 default:
                     throw new JSONParserException("special + " + special + " not defined");
             }

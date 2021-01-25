@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Stop extends Special{
-    private Map<String, List<Double>> points = new HashMap<>();
-    private List<List<String>> transportations = new ArrayList<>();
+    protected Map<String, List<Double>> points = new HashMap<>();
+    protected List<List<String>> transportations = new ArrayList<>();
 
     @Override
     public Stop getNewInstance(){
