@@ -230,17 +230,21 @@ public class View {
             String name = mapping.getImageNameForBuildingName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
 
-//            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
-        double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
+            double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
-            double heightRatio = imageHeight / tileHeight;
+            double heightOfFloorTiles = tileHeightHalf * (building.getDepth() + building.getWidth());
+            double heightAboveFloorTiles =  imageHeight - heightOfFloorTiles;
 
             Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
             double tileX = (row + column) * tileWidthHalf;
-            double tileY = (row - column) * tileHeightHalf - tileHeightHalf * heightRatio + tileHeightHalf;
+            double tileY = (row - column) * tileHeightHalf
+                    + tileHeightHalf - tileHeightHalf * building.getDepth() - heightAboveFloorTiles;
             Point2D drawOrigin = moveCoordinates(tileX, tileY);
             canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
+
+            //TODO Da gebäude von ihrem Ursprungstile gezeichnet werden, überlappen sie Bäume aus reihen weiter oben,
+            // die eigentlich das Gebäude überlappen sollten
         }
     }
 
@@ -274,6 +278,7 @@ public class View {
         double tileY = (row - column) * tileHeightHalf - heightAboveTile;
 
         Point2D drawOrigin = moveCoordinates(tileX, tileY);
+
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, drawOrigin.getX(), drawOrigin.getY());
