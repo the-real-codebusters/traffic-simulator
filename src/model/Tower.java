@@ -16,6 +16,10 @@ public class Tower extends Stop{
         this.maxplanes = maxplanes;
     }
 
+    public int getMaxplanes() {
+        return maxplanes;
+    }
+
     @Override
     public String toString() {
         return super.toString() +" Tower{" +

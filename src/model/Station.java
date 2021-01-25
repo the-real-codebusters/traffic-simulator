@@ -14,6 +14,7 @@ public class Station {
 
     private static final AtomicLong NEXT_ID = new AtomicLong(0);
     private final long id = NEXT_ID.getAndIncrement();
+    private int maxPlanes = 0;
 
     public Station(BasicModel model) {
         // Stations haben unendliche Lagerkapazität
@@ -26,6 +27,10 @@ public class Station {
 
     public boolean addBuilding(Stop building){
         building.setStation(this);
+        if(building instanceof Tower){
+            int maxplanes = ((Tower) building).getMaxplanes();
+            if(maxplanes > this.maxPlanes) this.maxPlanes = maxplanes;
+        }
         return components.add(building);
     }
 

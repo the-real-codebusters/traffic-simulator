@@ -1,6 +1,5 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,11 +12,11 @@ public class MapGenerator {
         this.mapModel = mapModel;
     }
 
-    public Field[][] generateMap(BasicModel basicModel) {
+    public Tile[][] generateMap(BasicModel basicModel) {
 
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
-        Field[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
 
         generateNature(mapWidth, mapDepth, basicModel);
         generateFactories(mapWidth, mapDepth, basicModel);
@@ -56,7 +55,7 @@ public class MapGenerator {
 
         //TODO Es gibt gar kein gras im Planverkehr JSON -> Stone statt Gras zeichnen und einbauen
 
-        Field[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
@@ -70,7 +69,7 @@ public class MapGenerator {
                 int height = 0;
                 if(heightRandom <= probWater) {
                     height = -1;
-                    mapFieldGrid[row][col] = new Field(height, null);
+                    mapFieldGrid[row][col] = new Tile(height, null);
                 }
                 else {
                     if(heightRandom > 850 && heightRandom < 950) height = 1;
@@ -80,7 +79,7 @@ public class MapGenerator {
 
                     int buildingRandom = new Random().nextInt(natureBuildings.size());
                     building = natureBuildings.get(buildingRandom).getNewInstance();
-                    mapFieldGrid[row][col] = new Field(height, building);
+                    mapFieldGrid[row][col] = new Tile(height, building);
                 }
 
             }

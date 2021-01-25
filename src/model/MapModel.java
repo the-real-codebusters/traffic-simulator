@@ -1,15 +1,11 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
 public class MapModel {
     private String mapgen;
 
     private int width;
     private int depth;
-    private Field[][] fieldGrid;
+    private Tile[][] fieldGrid;
 
     private BasicModel model;
     private Long adjacentStationId;
@@ -17,7 +13,7 @@ public class MapModel {
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
         this.depth = depth;
-        this.fieldGrid = new Field[depth][width];
+        this.fieldGrid = new Tile[depth][width];
         this.model = model;
     }
 
@@ -26,11 +22,11 @@ public class MapModel {
         Building instance = building.getNewInstance();
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Field(0, instance);
+                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(0, instance);
                 else fieldGrid[r][c].setBuilding(instance);
             }
         }
-        Field originTile = fieldGrid[row][column];
+        Tile originTile = fieldGrid[row][column];
         originTile.setBuildingOrigin(true);
         instance.setOriginColumn(column);
         instance.setOriginRow(row);
@@ -52,7 +48,7 @@ public class MapModel {
 
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
-                Field tile = fieldGrid[r][c];
+                Tile tile = fieldGrid[r][c];
                 if(tile.getHeight() < 0) return false;
                 if(tile.getBuilding() instanceof Road) return true;
                 if(! (tile.getBuilding() instanceof Nature)) return false;
@@ -117,7 +113,6 @@ public class MapModel {
 
         if(adjacentStationId== -1) {
             adjacentStationId = currentId;
-            System.out.println("adjacentStationId "+adjacentStationId.longValue()+"   currentId "+currentId);
         }
         else {
             if (adjacentStationId != currentId) return true;
@@ -139,11 +134,11 @@ public class MapModel {
         return depth;
     }
 
-    public Field[][] getFieldGrid() {
+    public Tile[][] getFieldGrid() {
         return fieldGrid;
     }
 
-    public void setFieldGrid(Field[][] fieldGrid) {
+    public void setFieldGrid(Tile[][] fieldGrid) {
         this.fieldGrid = fieldGrid;
     }
 

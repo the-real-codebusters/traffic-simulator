@@ -1,6 +1,5 @@
 package view;
 
-import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -129,7 +128,7 @@ public class MenuPane extends AnchorPane {
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
             String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
             if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
-                Field tile = model.getFieldGridOfMap()[xCoord][yCoord];
+                Tile tile = model.getFieldGridOfMap()[xCoord][yCoord];
                 tile.setBuildingOrigin(true);
                 view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
                 tile.setBuildingOrigin(false);
@@ -203,7 +202,10 @@ public class MenuPane extends AnchorPane {
             model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
             selectedBuilding.setBuildingName(originalBuildingName);
 
-            model.addRoadPointsToGraph(selectedBuilding, xCoord, yCoord);
+            if(selectedBuilding instanceof PartOfTrafficGraph){
+                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
+            }
+
             view.drawMap();
         }
     }
@@ -219,7 +221,7 @@ public class MenuPane extends AnchorPane {
      */
     public void checkCombines(int xCoord, int yCoord) {
 
-        Field selectedField = model.getMap().getFieldGrid()[xCoord][yCoord];
+        Tile selectedField = model.getMap().getFieldGrid()[xCoord][yCoord];
         Building buildingOnSelectedTile = selectedField.getBuilding();
         if (buildingOnSelectedTile instanceof Road) {
             Map<String, String> combinations = ((Road) selectedBuilding).getCombines();

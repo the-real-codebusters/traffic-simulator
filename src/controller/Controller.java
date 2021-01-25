@@ -14,7 +14,7 @@ public class Controller {
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
-        Field[][] generatedMap = generator.generateMap(model);
+        Tile[][] generatedMap = generator.generateMap(model);
         map.setFieldGrid(generatedMap);
 
         // Breite und Tiefe der Map aus dem Model werden in der View übernommen

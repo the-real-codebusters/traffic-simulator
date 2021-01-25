@@ -14,7 +14,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.BasicModel;
 import model.Building;
-import model.Field;
+import model.Tile;
 
 
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class View {
 
     private double cameraOffsetX = 0.0;
     private double cameraOffsetY = 0.0;
-    private Field[][] fields;
+    private Tile[][] fields;
 
     private double previousMouseX = -1.0;
     private double previousMouseY = -1.0;
@@ -196,7 +196,7 @@ public class View {
             for (int row = minimumX; row <= maximumX; row++) {
 
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
-                    Field field = fields[row][col];
+                    Tile field = fields[row][col];
                     Building building = field.getBuilding();
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
@@ -220,7 +220,7 @@ public class View {
     }
 
 
-    public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column) {
+    public void drawBuildingOverMoreTiles(Tile field, Building building, int row, int column) {
         if (field.isBuildingOrigin()) {
             String buildingName = building.getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
@@ -240,12 +240,12 @@ public class View {
         }
     }
 
-    public Image getSingleFieldImage(int column, int row, Field[][] fields) {
+    public Image getSingleFieldImage(int column, int row, Tile[][] fields) {
         String name;
         String buildingName;
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
-            Field field = fields[row][column];
+            Tile field = fields[row][column];
             if (field.getHeight() < 0) {
                 buildingName = "water";
             } else if (field.getBuilding() == null) {

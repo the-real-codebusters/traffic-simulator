@@ -8,7 +8,7 @@ public class BasicModel {
     private int day;
     private double speedOfDay;
     private MapModel map;
-    private TrafficGraph roadsGraph;
+    private TrafficGraph trafficGraph;
 
     private String gamemode;
 //    private ToolsModel tools;
@@ -26,7 +26,7 @@ public class BasicModel {
         this.gamemode = gamemode;
         this.buildmenus = buildmenus;
         this.buildings = buildings;
-        this.roadsGraph = roadsGraph;
+        this.trafficGraph = roadsGraph;
     }
 
     public BasicModel() {
@@ -36,7 +36,7 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
-        this.roadsGraph = new TrafficGraph();
+        this.trafficGraph = new TrafficGraph();
     }
 
     public List<Building> getBuildingsForBuildmenu(String buildmenu) {
@@ -94,20 +94,22 @@ public class BasicModel {
     }
 
     /**
-     * Fügt die Points eines Straßenfelds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
+     * Fügt die Points eines Felds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
      * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
      * zusammengeführt.
      *
-     * @param selectedBuilding das aus der Menüleiste ausgewählte Building (ein Straßenfeld)
+     * @param selectedBuilding das aus der Menüleiste ausgewählte Building
      * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
      * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
      */
-    public void addRoadPointsToGraph(Building selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
+    public void addPointsToGraph(PartOfTrafficGraph selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
         List<Road> roads = getRoadsFromBuildings();
-        for (Road road : roads) {
-            if (selectedBuilding.getBuildingName().equals(road.getBuildingName())) {
+        for (Building building : buildings) {
+            if(! (building instanceof PartOfTrafficGraph)) continue;
+            PartOfTrafficGraph trafficBuilding = (PartOfTrafficGraph) building;
+            if (selectedBuilding.getBuildingName().equals(trafficBuilding.getBuildingName())) {
 
-                Map<String, List<Double>> points = road.getPoints();
+                Map<String, List<Double>> points = trafficBuilding.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
 
                     // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
@@ -120,10 +122,10 @@ public class BasicModel {
 
                     Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
 
-                    roadsGraph.addVertex(v);
+                    trafficGraph.addVertex(v);
 
-                    for (Vertex v1 : roadsGraph.getMapOfVertexes().values()) {
-                        List<List<String>> edges = road.getRoads();
+                    for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
+                        List<List<String>> edges = trafficBuilding.getTransportations();
                         for (int i = 0; i < edges.size(); i++) {
                             String from = identifier + edges.get(i).get(0);
                             String to = identifier + edges.get(i).get(1);
@@ -132,14 +134,14 @@ public class BasicModel {
 
                             if ((v.getName().equals(from) && v1.getName().equals(to)) ||
                                     (v.getName().equals(to) && v1.getName().equals(from)))
-                                roadsGraph.addEdgeBidirectional(v1.getName(), v.getName());
+                                trafficGraph.addEdgeBidirectional(v1.getName(), v.getName());
                         }
                     }
                 }
             }
         }
-        roadsGraph.checkForDuplicatePoints();
-        roadsGraph.printGraph();
+        trafficGraph.checkForDuplicatePoints();
+        trafficGraph.printGraph();
         System.out.println();
     }
 
@@ -196,12 +198,12 @@ public class BasicModel {
 //    }
 
 
-    public TrafficGraph getRoadsGraph() {
-        return roadsGraph;
+    public TrafficGraph getTrafficGraph() {
+        return trafficGraph;
     }
 
-    public void setRoadsGraph(TrafficGraph roadsGraph) {
-        this.roadsGraph = roadsGraph;
+    public void setTrafficGraph(TrafficGraph trafficGraph) {
+        this.trafficGraph = trafficGraph;
     }
 
     public Set<String> getBuildmenus() {
@@ -228,7 +230,7 @@ public class BasicModel {
         this.buildings = buildings;
     }
 
-    public Field[][] getFieldGridOfMap() {
+    public Tile[][] getFieldGridOfMap() {
         return map.getFieldGrid();
     }
 

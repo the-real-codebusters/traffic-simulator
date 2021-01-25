@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Rail extends Building {
+public class Rail extends Building implements PartOfTrafficGraph{
 
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> rails = new ArrayList<>();
@@ -39,8 +39,20 @@ public class Rail extends Building {
         this.points = points;
     }
 
+    public Map<String, List<Double>> getPoints() {
+        return points;
+    }
+
     public void setRails(List<List<String>> rails) {
         this.rails = rails;
+    }
+
+    public List<List<String>> getRails() {
+        return rails;
+    }
+
+    public List<List<String>> getTransportations() {
+        return rails;
     }
 
     public void setSignals(List<String> signals) {

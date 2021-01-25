@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Stop extends Special{
+public class Stop extends Special implements PartOfTrafficGraph{
     protected Map<String, List<Double>> points = new HashMap<>();
     protected List<List<String>> transportations = new ArrayList<>();
     private Station station;
@@ -20,12 +20,21 @@ public class Stop extends Special{
         return instance;
     }
 
+    public Map<String, List<Double>> getPoints() {
+        return points;
+    }
+
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;
     }
 
     public void setTransportations(List<List<String>> roads) {
         this.transportations = roads;
+    }
+
+    @Override
+    public List<List<String>> getTransportations() {
+        return transportations;
     }
 
     public Station getStation() {
