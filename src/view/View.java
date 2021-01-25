@@ -407,5 +407,9 @@ public class View {
     public Stage getStage() {
         return stage;
     }
+
+    public Map<String, Double> getImageNameToImageRatio() {
+        return imageNameToImageRatio;
+    }
 }
 
