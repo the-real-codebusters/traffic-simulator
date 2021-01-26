@@ -2,13 +2,13 @@ package model;
 
 import java.util.Objects;
 
-public class Field {
+public class Tile {
 
     private int height;
     private Building building;
     boolean isBuildingOrigin;
 
-    public Field(int height, Building building) {
+    public Tile(int height, Building building) {
         this.height = height;
         this.building = building;
         if(height < 0 ) this.building = null;

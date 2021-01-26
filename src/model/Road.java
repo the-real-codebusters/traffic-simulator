@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Road extends Building {
+public class Road extends Building implements PartOfTrafficGraph{
 
 
     private Map<String, List<Double>> points = new HashMap<>();
@@ -43,6 +43,11 @@ public class Road extends Building {
     public List<List<String>> getRoads() {
         return roads;
     }
+
+    public List<List<String>> getTransportations() {
+        return roads;
+    }
+
 
     public Map<String, String> getCombines() {
         return combines;
