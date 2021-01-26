@@ -32,7 +32,6 @@ public class View {
     private int mapDepth;
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
-    private MenuPane menuPane;
 
     private Canvas canvas = new Canvas(1200, 600);
     private double canvasCenterWidth = canvas.getWidth() / 2;
@@ -73,8 +72,7 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(canvas);
-        menuPane = new MenuPane(model, this, canvas, mapping);
-        root.setTop(menuPane);
+        root.setTop(new MenuPane(model, this, canvas, mapping));
 
         storeImageRatios();
 
@@ -425,14 +423,6 @@ public class View {
 
     public Map<String, Double> getImageNameToImageRatio() {
         return imageNameToImageRatio;
-    }
-
-    public MenuPane getMenuPane() {
-        return menuPane;
-    }
-
-    public Canvas getCanvas() {
-        return canvas;
     }
 }
 
