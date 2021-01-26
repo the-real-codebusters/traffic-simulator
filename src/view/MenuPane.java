@@ -7,7 +7,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -15,7 +14,6 @@ import model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class MenuPane extends AnchorPane {
@@ -41,7 +39,7 @@ public class MenuPane extends AnchorPane {
         this.mapping = mapping;
         tabPane.setFocusTraversable(false);
 
-        setCanvasEvents();
+        drawHoveredImageOnMouseMoved();
 
         hBox = new HBox(tabPane);
         this.getChildren().add(hBox);
@@ -143,7 +141,7 @@ public class MenuPane extends AnchorPane {
         } else return hoveredTileBefore;
     }
 
-    private void setCanvasEvents() {
+    private void drawHoveredImageOnMouseMoved() {
         canvas.setOnMouseMoved(event -> {
             if (selectedBuilding != null) {
 
@@ -154,95 +152,10 @@ public class MenuPane extends AnchorPane {
                 hoveredTileBefore = drawHoveredImage(event, true);
             }
         });
-
-
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
-                selectedBuilding = null;
-                view.drawMap();
-            } else if (
-                    event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
-                            selectedBuilding != null) {
-                managePlacement(event);
-            }
-        });
-
-
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragEvent -> {
-
-            if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
-                    selectedBuilding != null) {
-                managePlacement(dragEvent);
-            }
-        });
-    }
-
-    /**
-     * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
-     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
-     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
-     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
-     * @param event MouseEvent, wodurch die Methode ausgelöst wurde
-     */
-    public void managePlacement(MouseEvent event) {
-        // TODO gehört die Methode evtl. eher in den Controller?
-        double mouseX = event.getX();
-        double mouseY = event.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-        int xCoord = (int) isoCoord.getX();
-        int yCoord = (int) isoCoord.getY();
-
-        String originalBuildingName = selectedBuilding.getBuildingName();
-
-        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
-
-            if (selectedBuilding instanceof Road) {
-                checkCombines(xCoord, yCoord);
-            }
-            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-            selectedBuilding.setBuildingName(originalBuildingName);
-
-            if(selectedBuilding instanceof PartOfTrafficGraph){
-                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
-            }
-
-            view.drawMap();
-        }
     }
 
 
-    /**
-     * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
-     * werden kann. Falls dies der Fall ist, wird das daraus entstehende Feld im Model gespeichert und in der View
-     * angezeigt
-     *
-     * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
-     * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
-     */
-    public void checkCombines(int xCoord, int yCoord) {
-
-        Tile selectedField = model.getMap().getFieldGrid()[xCoord][yCoord];
-        Building buildingOnSelectedTile = selectedField.getBuilding();
-        if (buildingOnSelectedTile instanceof Road) {
-            Map<String, String> combinations = ((Road) selectedBuilding).getCombines();
-            for (Map.Entry<String, String> entry : combinations.entrySet()) {
-                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
-                    String newBuildingName = entry.getValue();
-
-                    System.out.println(selectedBuilding.getBuildingName() + " and " +
-                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
-
-                    selectedBuilding.setBuildingName(newBuildingName);
-                    selectedField.setBuilding(buildingOnSelectedTile);
-                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
-                    break;
-
-                } else {
-                    selectedBuilding.setBuildingName(buildingOnSelectedTile.getBuildingName());
-                    selectedField.setBuilding(buildingOnSelectedTile);
-
-                }
-            }
-        }
+    public Building getSelectedBuilding() {
+        return selectedBuilding;
     }
 }
