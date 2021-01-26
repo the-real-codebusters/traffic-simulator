@@ -52,6 +52,7 @@ public class Controller {
             canvas.getGraphicsContext2D().setFill(Color.YELLOW);
             canvas.getGraphicsContext2D().fillOval(pointOnCanvas.getX()-2.5, pointOnCanvas.getY()-2.5, 5, 5);
             canvas.getGraphicsContext2D().setFill(Color.BLACK);
+//            System.out.println("drawVertexesOfGraph: " + pointOnCanvas);
         }
     }
 }

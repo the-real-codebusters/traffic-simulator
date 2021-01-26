@@ -205,7 +205,26 @@ public class MenuPane extends AnchorPane {
             }
 
             view.drawMap();
-            view.translateCar();
+
+            List<Vertex> vertexes = controller.getVertexesOfGraph();
+            if(vertexes.size() >= 2) {
+                Vertex v1 = vertexes.get(0);
+                Vertex v2 = vertexes.get(1);
+                Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+                pointOnCanvas = view.changePointByTiles(pointOnCanvas,
+                        v1.getxCoordinateRelativeToTileOrigin(),
+                        v1.getyCoordinateRelativeToTileOrigin());
+
+                Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
+                pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
+                        v2.getxCoordinateRelativeToTileOrigin(),
+                        v2.getyCoordinateRelativeToTileOrigin());
+
+                System.out.println("menuPane: " + pointOnCanvas);
+                System.out.println("menuPane: "+ pointOnCanvas2);
+
+                view.translateCar(pointOnCanvas, pointOnCanvas2);
+            }
         }
     }
 

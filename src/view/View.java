@@ -344,6 +344,7 @@ public class View {
         double startY = pixelYCoordAtTile + canvasCenterHeight - (tileOffset * tileImageHeight);
         startX -= cameraOffsetX;
         startY -= cameraOffsetY;
+//        System.out.println("moveCoordinates: " + startX + " " + startY);
         return new Point2D(startX, startY);
     }
 
@@ -430,24 +431,24 @@ public class View {
     }
 
 
-    public void translateCar(){
+    public void translateCar(Point2D start, Point2D end){
 
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-        Point2D start = new Point2D(0,0);
-        Point2D end = new Point2D(300, 300);
+//        Point2D start = new Point2D(100,50);
+//        Point2D end = new Point2D(350, 400);
         String name = mapping.getImageNameForBuildingName("car-sw");
 
 
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(0),
-                        new KeyValue(x, 0),
-                        new KeyValue(y, 0)
+                        new KeyValue(x, start.getX()),
+                        new KeyValue(y, start.getY())
                 ),
                 new KeyFrame(Duration.seconds(3),
-                        new KeyValue(x, 300),
-                        new KeyValue(y, 300)
+                        new KeyValue(x, end.getX()),
+                        new KeyValue(y, end.getY())
                 )
         );
 //        timeline.setAutoReverse(true);
@@ -458,9 +459,11 @@ public class View {
             public void handle(long now) {
                 Image carImage = getResourceForImageName(name, tileImageHeightHalf,
                         imageNameToImageRatio.get(name)*tileImageHeightHalf);
+                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawMap();
-                gc.drawImage(carImage, x.doubleValue(), y.doubleValue());
+                gc.drawImage(carImage, x.doubleValue(),
+                        y.doubleValue()-15);
             }
         };
         ParallelTransition parallelTransition = new ParallelTransition(timeline);
