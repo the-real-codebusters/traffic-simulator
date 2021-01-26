@@ -34,9 +34,9 @@ public class MenuPane extends AnchorPane {
     private Building selectedBuilding;
 
     private Point2D hoveredTileBefore;
-    BuildingToImageMapping mapping;
+    ObjectToImageMapping mapping;
 
-    public MenuPane(BasicModel model, View view, Canvas canvas, BuildingToImageMapping mapping) {
+    public MenuPane(BasicModel model, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.model = model;
         this.view = view;
         this.canvas = canvas;
@@ -209,6 +209,7 @@ public class MenuPane extends AnchorPane {
             }
 
             view.drawMap();
+            view.translateCar();
         }
     }
 

@@ -1,18 +1,25 @@
 package view;
 
 import controller.Controller;
+import javafx.animation.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.BasicModel;
 import model.Building;
 import model.Tile;
@@ -33,6 +40,7 @@ public class View {
     private int mapDepth;
 
     private Controller controller;
+    BorderPane root = new BorderPane();
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
@@ -52,17 +60,19 @@ public class View {
     private MenuPane menuPane;
 
     private Map<String, Image> imageCache = new HashMap<>();
-    BuildingToImageMapping mapping;
+    ObjectToImageMapping mapping;
 
     private double zoomFactor = 1.0;
     private static final double MAX_SCALE = 10.0d;
     private static final double MIN_SCALE = .1d;
 
+    private double tickDuration = 1;
+
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         this.model = model;
-        mapping = new BuildingToImageMapping(model.getGamemode());
+        mapping = new ObjectToImageMapping(model.getGamemode());
         fields = model.getFieldGridOfMap();
 
         Label isoCoordLabel = new Label();
@@ -71,7 +81,7 @@ public class View {
         Label mousePosLabel = new Label();
         mousePosLabel.setFont(new Font("Arial", 15));
 
-        BorderPane root = new BorderPane();
+//        BorderPane root = new BorderPane();
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
@@ -417,6 +427,47 @@ public class View {
         imageCache.put(imageName + "raw", image);
         return image;
     }
+
+
+    public void translateCar(){
+
+        DoubleProperty x  = new SimpleDoubleProperty();
+        DoubleProperty y  = new SimpleDoubleProperty();
+
+        Point2D start = new Point2D(0,0);
+        Point2D end = new Point2D(300, 300);
+        String name = mapping.getImageNameForBuildingName("car-sw");
+
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(0),
+                        new KeyValue(x, 0),
+                        new KeyValue(y, 0)
+                ),
+                new KeyFrame(Duration.seconds(3),
+                        new KeyValue(x, 300),
+                        new KeyValue(y, 300)
+                )
+        );
+//        timeline.setAutoReverse(true);
+//        timeline.setCycleCount(Timeline.INDEFINITE);
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                Image carImage = getResourceForImageName(name, tileImageHeightHalf,
+                        imageNameToImageRatio.get(name)*tileImageHeightHalf);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                drawMap();
+                gc.drawImage(carImage, x.doubleValue(), y.doubleValue());
+            }
+        };
+        ParallelTransition parallelTransition = new ParallelTransition(timeline);
+
+        timer.start();
+        parallelTransition.play();
+    }
+
 
     public void setMapWidth(int mapWidth) {
         this.mapWidth = mapWidth;
