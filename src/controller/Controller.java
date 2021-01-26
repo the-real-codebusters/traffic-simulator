@@ -8,6 +8,9 @@ import model.*;
 import view.MenuPane;
 import view.View;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 
@@ -37,6 +40,22 @@ public class Controller {
         view.drawMap();
         setCanvasEvents(view.getCanvas());
 
+    }
+
+    public List<Vertex> getVertexesOfGraph(){
+        List<Vertex> vertexes = new ArrayList<>();
+        vertexes.addAll(model.getTrafficGraph().getMapOfVertexes().values());
+        return vertexes;
+    }
+
+
+    private void drawVertexesOfGraph(){
+        Canvas canvas = view.getCanvas();
+        List<Vertex> vertexes = getVertexesOfGraph();
+        for(Vertex vertex: vertexes){
+            Point2D pointOnCanvas = vertex.coordsRelativeToMapOrigin();
+            canvas.getGraphicsContext2D().fillOval(pointOnCanvas.getX()-5, pointOnCanvas.getY()-5, 5, 5);
+        }
     }
 
 

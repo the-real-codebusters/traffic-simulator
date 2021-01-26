@@ -14,6 +14,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.BasicModel;
 import model.Building;
+import model.PartOfTrafficGraph;
 import model.Tile;
 
 
@@ -200,6 +201,11 @@ public class View {
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Tile field = fields[row][col];
                     Building building = field.getBuilding();
+//                    if(building instanceof PartOfTrafficGraph){
+//                        PartOfTrafficGraph partOfTrafficGraph = (PartOfTrafficGraph) building;
+//                        partOfTrafficGraph.getPoints()
+//                    }
+
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
                             drawBuildingOverMoreTiles(field, building, row, col);
