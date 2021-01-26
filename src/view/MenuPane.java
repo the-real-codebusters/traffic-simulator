@@ -29,11 +29,11 @@ public class MenuPane extends AnchorPane {
     private View view;
     private Canvas canvas;
     private Controller controller;
+    private MouseEvent hoveredEvent;
 
     // Wenn null, ist kein Bauwerk ausgewählt
     private Building selectedBuilding;
 
-    private Point2D hoveredTileBefore;
     ObjectToImageMapping mapping;
 
     public MenuPane(BasicModel model, View view, Canvas canvas, ObjectToImageMapping mapping) {
@@ -116,7 +116,7 @@ public class MenuPane extends AnchorPane {
      * @param transparent
      * @return Gibt die Koordinaten des Tiles zurück, auf das gezeichnet wurde
      */
-    private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
+    public Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
@@ -142,18 +142,14 @@ public class MenuPane extends AnchorPane {
                 view.drawTileImage(yCoord, xCoord, image, transparent);
             }
             return isoCoord;
-        } else return hoveredTileBefore;
+        } return null;
     }
 
     private void setCanvasEvents() {
         canvas.setOnMouseMoved(event -> {
             if (selectedBuilding != null) {
-
-                if (hoveredTileBefore != null) {
-                    view.drawMap();
-                }
-
-                hoveredTileBefore = drawHoveredImage(event, true);
+                hoveredEvent = event;
+                view.drawMap();
             }
         });
 
@@ -255,5 +251,13 @@ public class MenuPane extends AnchorPane {
 
     public void setController(Controller controller) {
         this.controller = controller;
+    }
+
+    public Building getSelectedBuilding() {
+        return selectedBuilding;
+    }
+
+    public MouseEvent getHoveredEvent() {
+        return hoveredEvent;
     }
 }

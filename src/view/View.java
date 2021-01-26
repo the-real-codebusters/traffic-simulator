@@ -223,10 +223,6 @@ public class View {
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Tile field = fields[row][col];
                     Building building = field.getBuilding();
-//                    if(building instanceof PartOfTrafficGraph){
-//                        PartOfTrafficGraph partOfTrafficGraph = (PartOfTrafficGraph) building;
-//                        partOfTrafficGraph.getPoints()
-//                    }
 
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
@@ -241,6 +237,11 @@ public class View {
         }
         if(controller!=null){
             controller.drawVertexesOfGraph();
+        }
+
+        Building selectedBuilding = menuPane.getSelectedBuilding();
+        if(selectedBuilding != null){
+            menuPane.drawHoveredImage(menuPane.getHoveredEvent(), true);
         }
     }
 
