@@ -33,6 +33,9 @@ public class BuildingToImageMapping {
         mapping.put("stone", "ground/stones");
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
+        mapping.put("rail-nw-se", "rail/rail-nw-se");
+        mapping.put("railstation-nw-se", "stations/rail/railstation");
+
 
 
         mapping.put("road-ne", "road/road-ne");

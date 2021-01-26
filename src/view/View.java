@@ -14,7 +14,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.BasicModel;
 import model.Building;
-import model.Field;
+import model.Tile;
 
 
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class View {
 
     private double cameraOffsetX = 0.0;
     private double cameraOffsetY = 0.0;
-    private Field[][] fields;
+    private Tile[][] fields;
 
     private double previousMouseX = -1.0;
     private double previousMouseY = -1.0;
@@ -191,12 +191,12 @@ public class View {
         int minimumY = (int) findTileCoord(0, canvas.getHeight()).getY();
         int maximumY = (int) findTileCoord(canvas.getWidth(), 0).getY();
 
-        // Es wird über das Array mit Breite mapWidth und Tiefe mapDepth iteriert
+        // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
             for (int row = minimumX; row <= maximumX; row++) {
 
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
-                    Field field = fields[row][col];
+                    Tile field = fields[row][col];
                     Building building = field.getBuilding();
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
@@ -220,12 +220,20 @@ public class View {
     }
 
 
-    public void drawBuildingOverMoreTiles(Field field, Building building, int row, int column) {
-        if (field.isBuildingOrigin()) {
-            String buildingName = field.getBuilding().getBuildingName();
+    /**
+     * Zeichnet ein building, das größer ist als 1x1, über mehrere tiles.
+     * @param tile Das entsprechende tile, von dem ausgehend das building gezeichnet werden soll
+     * @param building Das zu zeichnende building
+     * @param row Die Reihe in dem zweidimensionalen Array der tiles
+     * @param column Die Spalte in dem zweidimensionalen Array der tiles
+     */
+    public void drawBuildingOverMoreTiles(Tile tile, Building building, int row, int column) {
+        if (tile.isBuildingOrigin()) {
+            String buildingName = building.getBuildingName();
             String name = mapping.getImageNameForBuildingName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
 
+//            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
             double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
             double heightOfFloorTiles = tileHeightHalf * (building.getDepth() + building.getWidth());
@@ -244,12 +252,12 @@ public class View {
         }
     }
 
-    public Image getSingleFieldImage(int column, int row, Field[][] fields) {
+    public Image getSingleFieldImage(int column, int row, Tile[][] fields) {
         String name;
         String buildingName;
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
-            Field field = fields[row][column];
+            Tile field = fields[row][column];
             if (field.getHeight() < 0) {
                 buildingName = "water";
             } else if (field.getBuilding() == null) {
@@ -411,6 +419,10 @@ public class View {
 
     public Stage getStage() {
         return stage;
+    }
+
+    public Map<String, Double> getImageNameToImageRatio() {
+        return imageNameToImageRatio;
     }
 }
 

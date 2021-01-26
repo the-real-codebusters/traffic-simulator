@@ -1,8 +1,6 @@
 package model;
 
-import java.util.Map;
-
-public class Tower extends Special{
+public class Tower extends Stop{
     private int maxplanes;
 
     @Override
@@ -16,6 +14,10 @@ public class Tower extends Special{
 
     public void setMaxplanes(int maxplanes) {
         this.maxplanes = maxplanes;
+    }
+
+    public int getMaxplanes() {
+        return maxplanes;
     }
 
     @Override
