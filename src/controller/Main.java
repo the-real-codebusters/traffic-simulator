@@ -18,6 +18,7 @@ public class Main extends Application {
             stage.setTitle("Planverkehr");
             stage.show();
             Controller controller = new Controller(view, model);
+            view.setController(controller);
         }
     }
 

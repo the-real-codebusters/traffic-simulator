@@ -48,11 +48,28 @@ public class Vertex {
         return new Point2D(x, y);
     }
 
+    /**
+     * Koordinaten werden entsprechend der Werte der points umgerechnet
+     * @param pointOnMap die linke Ecke des Ursprungstiles
+     * @return ein Point2D mit den Koordinaten des Points
+     */
+    public Point2D moveCoordinatesByPointCoordinates(Point2D pointOnMap) {
+        return pointOnMap.subtract(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin);
+    }
+
     public int getxCoordinateInGameMap() {
         return xCoordinateInGameMap;
     }
 
     public int getyCoordinateInGameMap() {
         return yCoordinateInGameMap;
+    }
+
+    public double getxCoordinateRelativeToTileOrigin() {
+        return xCoordinateRelativeToTileOrigin;
+    }
+
+    public double getyCoordinateRelativeToTileOrigin() {
+        return yCoordinateRelativeToTileOrigin;
     }
 }
