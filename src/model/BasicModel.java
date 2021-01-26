@@ -246,12 +246,12 @@ public class BasicModel {
         System.out.println("Map with following attributes:\n    Width: " + map.getWidth() + "\n    Depth: " + map.getDepth());
         System.out.println("Gamemode: " + gamemode);
         System.out.print("Buildings: ");
-        for(Building building : buildings){
+        for (Building building : buildings) {
             System.out.print(building.getBuildingName() + ", ");
         }
         System.out.println("");
         System.out.print("Vehicles: ");
-        for(Vehicle vehicle : vehicles){
+        for (Vehicle vehicle : vehicles) {
             System.out.print(vehicle.getGraphic() + ", ");
         }
     }
