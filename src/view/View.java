@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -236,8 +237,9 @@ public class View {
         }
 
         Building selectedBuilding = menuPane.getSelectedBuilding();
-        if(selectedBuilding != null){
-            menuPane.drawHoveredImage(menuPane.getHoveredEvent(), true);
+        MouseEvent hoveredEvent = menuPane.getHoveredEvent();
+        if(selectedBuilding != null && hoveredEvent != null){
+            menuPane.drawHoveredImage(hoveredEvent, true);
         }
     }
 

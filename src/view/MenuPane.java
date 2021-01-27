@@ -105,8 +105,8 @@ public class MenuPane extends AnchorPane {
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(90);
         imageView.setOnMouseClicked(event -> {
-            // TODO
             selectedBuilding = building;
+            hoveredEvent = null;
         });
         return imageView;
     }
