@@ -10,6 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -430,6 +431,8 @@ public class View {
 
 
     public void translateCar(Point2D start, Point2D end){
+        System.out.println("start: " + start);
+        System.out.println("end: " + end);
 
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
@@ -456,6 +459,8 @@ public class View {
                 Image carImage = getResourceForImageName(name, tileImageHeightHalf,
                         imageNameToImageRatio.get(name)*tileImageHeightHalf);
 //                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
+//                System.out.println("x: " + x.doubleValue());
+//                System.out.println("y: " + y.doubleValue());
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawMap();
                 gc.drawImage(carImage, x.doubleValue(),
