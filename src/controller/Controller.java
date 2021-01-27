@@ -104,6 +104,30 @@ public class Controller {
         }
     }
 
+    int indexOfStart = 0;
+    int indexOfNext = indexOfStart + 1;
+    private List<Vertex> path;
+    boolean notDone = true;
+
+    public void moveCarFromPointToPoint(){
+        Vertex v1 = path.get(indexOfStart);
+        Vertex v2 = path.get(indexOfNext);
+
+        Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+        startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
+                v1.getxCoordinateRelativeToTileOrigin(),
+                v1.getyCoordinateRelativeToTileOrigin());
+
+        Point2D nextPointOnCanvas = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
+        nextPointOnCanvas = view.changePointByTiles(nextPointOnCanvas,
+                v2.getxCoordinateRelativeToTileOrigin(),
+                v2.getyCoordinateRelativeToTileOrigin());
+
+        view.translateCar(startPointOnCanvas, nextPointOnCanvas);
+        indexOfStart++;
+        indexOfNext++;
+    }
+
 
     /**
      * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
@@ -114,12 +138,9 @@ public class Controller {
         List<Vertex> vertexes = getVertexesOfGraph();
         if(vertexes.size() >= 10) {
 
-            int indexOfStart = 0;
-            int indexOfNext = indexOfStart + 1;
-
             Vertex startVertex = vertexes.get(indexOfStart);
             Vertex targetVertex = vertexes.get(vertexes.size()-1);
-            List<Vertex> path = pathfinder.findPathForRoadVehicle(startVertex, targetVertex);
+            if(notDone) path = pathfinder.findPathForRoadVehicle(startVertex, targetVertex);
 
             for(Vertex v : path){
                 System.out.print(v.getName() + " -> ");
@@ -132,28 +153,12 @@ public class Controller {
 //                    v1.getxCoordinateRelativeToTileOrigin(),
 //                    v1.getyCoordinateRelativeToTileOrigin());
 
-            while (indexOfStart < path.size()-1) {
-//                Vertex v1 = vertexes.get(indexOfStart);
-                Vertex v1 = path.get(indexOfStart);
-                Vertex v2 = path.get(indexOfNext);
-
-                Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-                startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
-                        v1.getxCoordinateRelativeToTileOrigin(),
-                        v1.getyCoordinateRelativeToTileOrigin());
-
-                Point2D nextPointOnCanvas = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-                nextPointOnCanvas = view.changePointByTiles(nextPointOnCanvas,
-                        v2.getxCoordinateRelativeToTileOrigin(),
-                        v2.getyCoordinateRelativeToTileOrigin());
-
-                view.translateCar(startPointOnCanvas, nextPointOnCanvas);
-                // TODO momentan werden zwar die korrekten points in translateCar übergeben aber die Animation folgt
-                // trotzdem nicht den punkten
-
-                indexOfStart++;
-                indexOfNext++;
+            if(path.size() >= 10 && notDone) {
+                System.out.println("path "+path.size());
+                moveCarFromPointToPoint();
+                notDone = false;
             }
         }
     }
+
 }

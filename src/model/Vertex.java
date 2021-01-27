@@ -83,4 +83,33 @@ public class Vertex {
         return actualSearchLevel;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Vertex vertex = (Vertex) o;
+
+        if (Double.compare(vertex.xCoordinateRelativeToTileOrigin, xCoordinateRelativeToTileOrigin) != 0)
+            return false;
+        if (Double.compare(vertex.yCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin) != 0)
+            return false;
+        if (xCoordinateInGameMap != vertex.xCoordinateInGameMap) return false;
+        if (yCoordinateInGameMap != vertex.yCoordinateInGameMap) return false;
+        return name.equals(vertex.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = name.hashCode();
+        temp = Double.doubleToLongBits(xCoordinateRelativeToTileOrigin);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(yCoordinateRelativeToTileOrigin);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + xCoordinateInGameMap;
+        result = 31 * result + yCoordinateInGameMap;
+        return result;
+    }
 }

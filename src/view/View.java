@@ -442,18 +442,21 @@ public class View {
         String name = mapping.getImageNameForBuildingName("car-sw");
 
 
+
+
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(0),
                         new KeyValue(x, start.getX()),
                         new KeyValue(y, start.getY())
                 ),
-                new KeyFrame(Duration.seconds(2),
+                new KeyFrame(Duration.seconds(tickDuration),
                         new KeyValue(x, end.getX()),
                         new KeyValue(y, end.getY())
                 )
         );
-        timeline.setAutoReverse(true);
-        timeline.setCycleCount(Timeline.INDEFINITE);
+//        timeline.setAutoReverse(true);
+//        timeline.setCycleCount(Timeline.INDEFINITE);
+
 
 
         AnimationTimer timer = new AnimationTimer() {
@@ -471,6 +474,13 @@ public class View {
             }
         };
         ParallelTransition parallelTransition = new ParallelTransition(timeline);
+
+        parallelTransition.setOnFinished(event -> {
+            System.out.println("finished");
+            parallelTransition.stop();
+            timer.stop();
+            controller.moveCarFromPointToPoint();
+        });
 
         timer.start();
         parallelTransition.play();
