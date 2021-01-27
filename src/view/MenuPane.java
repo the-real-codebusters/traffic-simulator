@@ -142,7 +142,7 @@ public class MenuPane extends AnchorPane {
                 view.drawTileImage(yCoord, xCoord, image, transparent);
             }
             return isoCoord;
-        } return null;
+        } else return null;
     }
 
     private void setCanvasEvents() {
@@ -161,7 +161,7 @@ public class MenuPane extends AnchorPane {
             } else if (
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding != null) {
-                managePlacement(event);
+                controller.managePlacement(event);
             }
         });
 
@@ -170,62 +170,9 @@ public class MenuPane extends AnchorPane {
 
             if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                     selectedBuilding != null) {
-                managePlacement(dragEvent);
+                controller.managePlacement(dragEvent);
             }
         });
-    }
-
-    /**
-     * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
-     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
-     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
-     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
-     * @param event MouseEvent, wodurch die Methode ausgelöst wurde
-     */
-    public void managePlacement(MouseEvent event) {
-        // TODO gehört die Methode evtl. eher in den Controller?
-        double mouseX = event.getX();
-        double mouseY = event.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-        int xCoord = (int) isoCoord.getX();
-        int yCoord = (int) isoCoord.getY();
-
-        String originalBuildingName = selectedBuilding.getBuildingName();
-
-        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
-
-            if (selectedBuilding instanceof Road) {
-                checkCombines(xCoord, yCoord);
-            }
-            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-            selectedBuilding.setBuildingName(originalBuildingName);
-
-            if(selectedBuilding instanceof PartOfTrafficGraph){
-                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
-            }
-
-            view.drawMap();
-
-            List<Vertex> vertexes = controller.getVertexesOfGraph();
-            if(vertexes.size() >= 2) {
-                Vertex v1 = vertexes.get(0);
-                Vertex v2 = vertexes.get(1);
-                Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-                pointOnCanvas = view.changePointByTiles(pointOnCanvas,
-                        v1.getxCoordinateRelativeToTileOrigin(),
-                        v1.getyCoordinateRelativeToTileOrigin());
-
-                Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-                pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
-                        v2.getxCoordinateRelativeToTileOrigin(),
-                        v2.getyCoordinateRelativeToTileOrigin());
-
-                System.out.println("menuPane: " + pointOnCanvas);
-                System.out.println("menuPane: "+ pointOnCanvas2);
-
-                view.translateCar(pointOnCanvas, pointOnCanvas2);
-            }
-        }
     }
 
 

@@ -2,8 +2,10 @@ package controller;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import model.*;
+import view.MenuPane;
 import view.View;
 
 import java.util.ArrayList;
@@ -12,10 +14,14 @@ import java.util.List;
 public class Controller {
     private View view;
     private BasicModel model;
+    Building selectedBuilding;
 
     public Controller(View view, BasicModel model) {
         this.view = view;
         this.model = model;
+
+        selectedBuilding = view.getMenuPane().getSelectedBuilding();
+
         MapModel map = model.getMap();
         model.printModelAttributes();
 
@@ -53,6 +59,63 @@ public class Controller {
             canvas.getGraphicsContext2D().fillOval(pointOnCanvas.getX()-2.5, pointOnCanvas.getY()-2.5, 5, 5);
             canvas.getGraphicsContext2D().setFill(Color.BLACK);
 //            System.out.println("drawVertexesOfGraph: " + pointOnCanvas);
+        }
+    }
+
+
+    /**
+     * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
+     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
+     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
+     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
+     * @param event MouseEvent, wodurch die Methode ausgelöst wurde
+     */
+    public void managePlacement(MouseEvent event) {
+        // TODO gehört die Methode evtl. eher in den Controller?
+        double mouseX = event.getX();
+        double mouseY = event.getY();
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
+
+        MenuPane menuPane = view.getMenuPane();
+        Building selectedBuilding = menuPane.getSelectedBuilding();
+
+        String originalBuildingName = selectedBuilding.getBuildingName();
+
+        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+
+            if (selectedBuilding instanceof Road) {
+                menuPane.checkCombines(xCoord, yCoord);
+            }
+            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            selectedBuilding.setBuildingName(originalBuildingName);
+
+            if(selectedBuilding instanceof PartOfTrafficGraph){
+                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
+            }
+
+            view.drawMap();
+
+            List<Vertex> vertexes = getVertexesOfGraph();
+            if(vertexes.size() >= 2) {
+                Vertex v1 = vertexes.get(0);
+                Vertex v2 = vertexes.get(1);
+                Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+                pointOnCanvas = view.changePointByTiles(pointOnCanvas,
+                        v1.getxCoordinateRelativeToTileOrigin(),
+                        v1.getyCoordinateRelativeToTileOrigin());
+
+                Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
+                pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
+                        v2.getxCoordinateRelativeToTileOrigin(),
+                        v2.getyCoordinateRelativeToTileOrigin());
+
+                System.out.println("menuPane: " + pointOnCanvas);
+                System.out.println("menuPane: "+ pointOnCanvas2);
+
+                view.translateCar(pointOnCanvas, pointOnCanvas2);
+            }
         }
     }
 }
