@@ -9,6 +9,7 @@ import view.MenuPane;
 import view.View;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Controller {
@@ -98,23 +99,31 @@ public class Controller {
             view.drawMap();
 
             List<Vertex> vertexes = getVertexesOfGraph();
-            if(vertexes.size() >= 2) {
-                Vertex v1 = vertexes.get(0);
-                Vertex v2 = vertexes.get(1);
-                Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-                pointOnCanvas = view.changePointByTiles(pointOnCanvas,
-                        v1.getxCoordinateRelativeToTileOrigin(),
-                        v1.getyCoordinateRelativeToTileOrigin());
+            if(vertexes.size() >= 10) {
 
-                Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-                pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
-                        v2.getxCoordinateRelativeToTileOrigin(),
-                        v2.getyCoordinateRelativeToTileOrigin());
+                int indexOfStart = 0;
+                int indexOfEnd = indexOfStart + 1;
 
-                System.out.println("menuPane: " + pointOnCanvas);
-                System.out.println("menuPane: "+ pointOnCanvas2);
+                while (indexOfEnd < vertexes.size()-1) {
 
-                view.translateCar(pointOnCanvas, pointOnCanvas2);
+                    Vertex v1 = vertexes.get(indexOfStart);
+                    Vertex v2 = vertexes.get(indexOfEnd);
+
+                    Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+                    pointOnCanvas = view.changePointByTiles(pointOnCanvas,
+                            v1.getxCoordinateRelativeToTileOrigin(),
+                            v1.getyCoordinateRelativeToTileOrigin());
+
+                    Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
+                    pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
+                            v2.getxCoordinateRelativeToTileOrigin(),
+                            v2.getyCoordinateRelativeToTileOrigin());
+
+                    view.translateCar(pointOnCanvas, pointOnCanvas2);
+
+                    indexOfStart++;
+                    indexOfEnd++;
+                }
             }
         }
     }
