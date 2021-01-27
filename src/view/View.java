@@ -5,16 +5,13 @@ import javafx.animation.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -40,7 +37,6 @@ public class View {
     private int mapDepth;
 
     private Controller controller;
-    BorderPane root = new BorderPane();
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
@@ -81,7 +77,7 @@ public class View {
         Label mousePosLabel = new Label();
         mousePosLabel.setFont(new Font("Arial", 15));
 
-//        BorderPane root = new BorderPane();
+        BorderPane root = new BorderPane();
         VBox vBox = new VBox();
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
@@ -459,7 +455,7 @@ public class View {
             public void handle(long now) {
                 Image carImage = getResourceForImageName(name, tileImageHeightHalf,
                         imageNameToImageRatio.get(name)*tileImageHeightHalf);
-                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
+//                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawMap();
                 gc.drawImage(carImage, x.doubleValue(),
@@ -520,6 +516,10 @@ public class View {
     public void setController(Controller controller) {
         this.controller = controller;
         menuPane.setController(controller);
+    }
+
+    public MenuPane getMenuPane() {
+        return menuPane;
     }
 }
 
