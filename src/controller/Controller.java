@@ -104,6 +104,12 @@ public class Controller {
         }
     }
 
+
+    /**
+     * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
+     * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
+     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden
+     */
     public void startCarMovement(){
         List<Vertex> vertexes = getVertexesOfGraph();
         if(vertexes.size() >= 10) {
@@ -120,8 +126,14 @@ public class Controller {
             }
             System.out.println();
 
+//            Vertex v1 = vertexes.get(indexOfStart);
+//            Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+//            startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
+//                    v1.getxCoordinateRelativeToTileOrigin(),
+//                    v1.getyCoordinateRelativeToTileOrigin());
 
             while (indexOfStart < path.size()-1) {
+//                Vertex v1 = vertexes.get(indexOfStart);
                 Vertex v1 = path.get(indexOfStart);
                 Vertex v2 = path.get(indexOfNext);
 
@@ -136,6 +148,8 @@ public class Controller {
                         v2.getyCoordinateRelativeToTileOrigin());
 
                 view.translateCar(startPointOnCanvas, nextPointOnCanvas);
+                // TODO momentan werden zwar die korrekten points in translateCar übergeben aber die Animation folgt
+                // trotzdem nicht den punkten
 
                 indexOfStart++;
                 indexOfNext++;

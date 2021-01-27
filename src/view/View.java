@@ -4,6 +4,7 @@ import controller.Controller;
 import javafx.animation.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -24,6 +25,7 @@ import model.Building;
 import model.Tile;
 
 
+import java.beans.EventHandler;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -445,13 +447,14 @@ public class View {
                         new KeyValue(x, start.getX()),
                         new KeyValue(y, start.getY())
                 ),
-                new KeyFrame(Duration.seconds(3),
+                new KeyFrame(Duration.seconds(2),
                         new KeyValue(x, end.getX()),
                         new KeyValue(y, end.getY())
                 )
         );
-//        timeline.setAutoReverse(true);
-//        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.setAutoReverse(true);
+        timeline.setCycleCount(Timeline.INDEFINITE);
+
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
