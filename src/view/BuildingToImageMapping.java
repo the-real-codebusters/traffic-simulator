@@ -53,6 +53,8 @@ public class BuildingToImageMapping {
         mapping.put("road-nw-se", "road/road-nw-se");
         mapping.put("road-nw-sw", "road/road-nw-sw");
         mapping.put("road-se-sw", "road/road-se-sw");
+
+        mapping.put("grass", "ground/grass");
     }
 
     public Collection<String> getImageNames(){

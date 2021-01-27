@@ -17,8 +17,7 @@ import model.Building;
 import model.Tile;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class View {
@@ -191,6 +190,10 @@ public class View {
         int minimumY = (int) findTileCoord(0, canvas.getHeight()).getY();
         int maximumY = (int) findTileCoord(canvas.getWidth(), 0).getY();
 
+        int startRow = 0;
+        int startCol = 0;
+        int endCol = 0;
+
         // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
             for (int row = minimumX; row <= maximumX; row++) {
@@ -202,9 +205,25 @@ public class View {
                         if (field.isBuildingOrigin()) {
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
+                        // obere ecke ist ein gebäude
+                        if (row == building.getStartRow() && col == building.getStartColumn()) {
+                            // Startzeile und Start/Endespalte merken
+                            startRow = row + building.getWidth();
+                            endCol = col;
+                            startCol = endCol - building.getDepth()+2;
+                        }
+
                     } else {
-                        Image image = getSingleFieldImage(col, row, fields);
-                        drawTileImage(col, row, image, false);
+                        // diese Zelle wurde vorher als Zelle neben einem Gebäude identifiziert
+                        if (row == startRow && col >= startCol && col <= endCol) {
+                            // und muss daher als Grass gezeichnet werden
+                            Image image = getGrassImage(col, row);
+                            drawTileImage(col, row, image, false);
+                        }
+                        else {
+                            Image image = getSingleFieldImage(col, row, fields);
+                            drawTileImage(col, row, image, false);
+                        }
                     }
                 }
             }
@@ -262,13 +281,37 @@ public class View {
                 buildingName = "water";
             } else if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
-            } else buildingName = field.getBuilding().getBuildingName();
+            } else {
+                buildingName = field.getBuilding().getBuildingName();
+            }
             name = mapping.getImageNameForBuildingName(buildingName);
         }
 
         double ratio = imageNameToImageRatio.get(name);
 
         return getResourceForImageName(name, tileWidth, tileWidth * ratio);
+
+    }
+
+
+    /**
+     * Malt eine Grasszelle
+     * @param column
+     * @param row
+     * @return
+     */
+    public Image getGrassImage(int column, int row) {
+        String name;
+        String buildingName = "grass";;
+        if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
+        else {
+            name = mapping.getImageNameForBuildingName(buildingName);
+        }
+
+        double ratio = imageNameToImageRatio.get(name);
+
+        return getResourceForImageName(name, tileWidth, tileWidth * ratio);
+
     }
 
     public void drawTileImage(int column, int row, Image image, boolean transparent) {
