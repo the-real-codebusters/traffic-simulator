@@ -16,6 +16,7 @@ public class Controller {
     private View view;
     private BasicModel model;
     Building selectedBuilding;
+    private Pathfinder pathfinder;
 
     public Controller(View view, BasicModel model) {
         this.view = view;
@@ -37,6 +38,8 @@ public class Controller {
 
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
+        TrafficGraph graph = model.getTrafficGraph();
+        pathfinder = new Pathfinder(graph);
     }
 
     public List<Vertex> getVertexesOfGraph(){
@@ -104,26 +107,54 @@ public class Controller {
                 int indexOfStart = 0;
                 int indexOfEnd = indexOfStart + 1;
 
-                while (indexOfEnd < vertexes.size()-1) {
+                Vertex v1 = vertexes.get(indexOfStart);
+                Vertex vLast = vertexes.get(vertexes.size()-1);
+                List<Vertex> path = pathfinder.findPathForRoadVehicle(v1, vLast);
+                for(Vertex v : path){
+                    System.out.print(v.getName() + " -> ");
+                }
+                System.out.println();
 
-                    Vertex v1 = vertexes.get(indexOfStart);
-                    Vertex v2 = vertexes.get(indexOfEnd);
-
-                    Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-                    pointOnCanvas = view.changePointByTiles(pointOnCanvas,
+                for(int i = 0; i < path.size()-1; i++){
+//                    v1 = vertexes.get(i);
+                    v1 = path.get(i);
+                    System.out.println("v1: " + v1.getName());
+                    Point2D startOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+                    startOnCanvas = view.changePointByTiles(startOnCanvas,
                             v1.getxCoordinateRelativeToTileOrigin(),
                             v1.getyCoordinateRelativeToTileOrigin());
 
-                    Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-                    pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
-                            v2.getxCoordinateRelativeToTileOrigin(),
-                            v2.getyCoordinateRelativeToTileOrigin());
+                    Vertex next = path.get(i+1);
+                    System.out.println("next: " + next.getName());
 
-                    view.translateCar(pointOnCanvas, pointOnCanvas2);
+                    Point2D nextOnCanvas = view.moveCoordinates(next.getxCoordinateInGameMap(), next.getyCoordinateInGameMap());
+                    nextOnCanvas = view.changePointByTiles(nextOnCanvas,
+                            next.getxCoordinateRelativeToTileOrigin(),
+                            next.getyCoordinateRelativeToTileOrigin());
 
-                    indexOfStart++;
-                    indexOfEnd++;
+                    view.translateCar(startOnCanvas, nextOnCanvas);
                 }
+                System.out.println();
+
+//                while (indexOfEnd < vertexes.size()-1) {
+//
+//                    Vertex v2 = vertexes.get(indexOfEnd);
+//
+//                    Point2D pointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+//                    pointOnCanvas = view.changePointByTiles(pointOnCanvas,
+//                            v1.getxCoordinateRelativeToTileOrigin(),
+//                            v1.getyCoordinateRelativeToTileOrigin());
+//
+//                    Point2D pointOnCanvas2 = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
+//                    pointOnCanvas2 = view.changePointByTiles(pointOnCanvas2,
+//                            v2.getxCoordinateRelativeToTileOrigin(),
+//                            v2.getyCoordinateRelativeToTileOrigin());
+//
+//                    view.translateCar(pointOnCanvas, pointOnCanvas2);
+//
+//                    indexOfStart++;
+//                    indexOfEnd++;
+//                }
             }
         }
     }

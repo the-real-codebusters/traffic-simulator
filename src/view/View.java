@@ -434,8 +434,6 @@ public class View {
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-//        Point2D start = new Point2D(100,50);
-//        Point2D end = new Point2D(350, 400);
         String name = mapping.getImageNameForBuildingName("car-sw");
 
 

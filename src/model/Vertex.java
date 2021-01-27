@@ -23,6 +23,9 @@ public class Vertex {
     // Wenn ein Punkt zu einer Haltestelle gehört, darf ein Fahrzeug darauf anhalten
     private List<Building> buildings;
 
+    private int actualSearchLevel;
+
+
 
     public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
         int xCoordinateInGameMap, int yCoordinateInGameMap) {
@@ -72,4 +75,12 @@ public class Vertex {
     public double getyCoordinateRelativeToTileOrigin() {
         return yCoordinateRelativeToTileOrigin;
     }
+    public void setActualSearchLevel(int temporarDistanceToStartVertexInBreathFirstSearch) {
+        this.actualSearchLevel = temporarDistanceToStartVertexInBreathFirstSearch;
+    }
+
+    public int getActualSearchLevel() {
+        return actualSearchLevel;
+    }
+
 }
