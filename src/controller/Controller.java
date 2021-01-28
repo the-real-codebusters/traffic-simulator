@@ -9,7 +9,6 @@ import view.MenuPane;
 import view.View;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Controller {
@@ -38,13 +37,13 @@ public class Controller {
 
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
-        TrafficGraph graph = model.getTrafficGraph();
+        TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
     }
 
     public List<Vertex> getVertexesOfGraph(){
         List<Vertex> vertexes = new ArrayList<>();
-        vertexes.addAll(model.getTrafficGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getRawRoadGraph().getMapOfVertexes().values());
         return vertexes;
     }
 
@@ -86,17 +85,20 @@ public class Controller {
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
         String originalBuildingName = selectedBuilding.getBuildingName();
+//        System.out.println("before "+originalBuildingName);
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
             if (selectedBuilding instanceof Road) {
                 menuPane.checkCombines(xCoord, yCoord);
             }
-            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-            selectedBuilding.setBuildingName(originalBuildingName);
+            Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+//            System.out.println("after " +selectedBuilding.getBuildingName());
 
-            if(selectedBuilding instanceof PartOfTrafficGraph){
-                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
+//            selectedBuilding.setBuildingName(originalBuildingName);
+
+            if(placedBuilding instanceof PartOfTrafficGraph){
+                model.getMap().addPointsToGraph((PartOfTrafficGraph) placedBuilding, xCoord, yCoord);
             }
 
             view.drawMap();

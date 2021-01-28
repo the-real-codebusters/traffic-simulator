@@ -1,8 +1,8 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class MapModel {
     private String mapgen;
@@ -14,6 +14,8 @@ public class MapModel {
     private BasicModel model;
     private Long adjacentStationId;
     private List<Station> stations = new ArrayList<>();
+    private TrafficGraph rawRoadGraph = new TrafficGraph();
+
 
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
@@ -22,7 +24,7 @@ public class MapModel {
         this.model = model;
     }
 
-    public void placeBuilding(int row, int column, Building building){
+    public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
         for(int r=row; r<row+instance.getWidth(); r++){
@@ -46,6 +48,7 @@ public class MapModel {
             }
             station.addBuilding((Stop) instance);
         }
+        return instance;
     }
 
 
@@ -127,6 +130,56 @@ public class MapModel {
         return false;
     }
 
+
+    /**
+     * Fügt die Points eines Felds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
+     * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
+     * zusammengeführt.
+     *
+     * @param building das Gebäude, wessen Punkte hinzugefügt werden sollen
+     * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
+     */
+    public void addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
+        TrafficGraph trafficGraph;
+        if(building instanceof Road) {
+            trafficGraph = this.rawRoadGraph;
+        }
+                Map<String, List<Double>> points = building.getPoints();
+                for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
+
+                    // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
+                    // sonst gäbe es Duplikate, da points aus verschiedenen Felder denselben Namen haben könnten
+                    String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
+                    String vertexName = identifier + entry.getKey();
+
+                    double xCoordOfPoint = entry.getValue().get(0);
+                    double yCoordOfPoint = entry.getValue().get(1);
+
+                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
+
+                    rawRoadGraph.addVertex(v);
+
+                    for (Vertex v1 : rawRoadGraph.getMapOfVertexes().values()) {
+                        List<List<String>> edges = building.getTransportations();
+                        for (int i = 0; i < edges.size(); i++) {
+                            String from = identifier + edges.get(i).get(0);
+                            String to = identifier + edges.get(i).get(1);
+//                            System.out.println("From: " + from);
+//                            System.out.println("To: " + to);
+
+                            if ((v.getName().equals(from) && v1.getName().equals(to)) ||
+                                    (v.getName().equals(to) && v1.getName().equals(from)))
+                                rawRoadGraph.addEdgeBidirectional(v1.getName(), v.getName());
+                        }
+                    }
+                }
+        rawRoadGraph.checkForDuplicatePoints();
+        rawRoadGraph.printGraph();
+        System.out.println();
+    }
+
+
     public String getMapgen() { return mapgen; }
 
     public void setMapgen(String mapgen) {
@@ -165,6 +218,13 @@ public class MapModel {
     }
 
 
+    public TrafficGraph getRawRoadGraph() {
+        return rawRoadGraph;
+    }
+
+    public void setRawRoadGraph(TrafficGraph rawRoadGraph) {
+        this.rawRoadGraph = rawRoadGraph;
+    }
 
 }
 
