@@ -441,7 +441,7 @@ public class View {
 
         String name = mapping.getImageNameForBuildingName("car-sw");
 
-
+        Point2D zeroPointAtStart = moveCoordinates(0,0);
 
 
         Timeline timeline = new Timeline(
@@ -454,9 +454,6 @@ public class View {
                         new KeyValue(y, end.getY())
                 )
         );
-//        timeline.setAutoReverse(true);
-//        timeline.setCycleCount(Timeline.INDEFINITE);
-
 
 
         AnimationTimer timer = new AnimationTimer() {
@@ -464,13 +461,17 @@ public class View {
             public void handle(long now) {
                 Image carImage = getResourceForImageName(name, tileImageHeightHalf,
                         imageNameToImageRatio.get(name)*tileImageHeightHalf);
+
+                Point2D actualZeroPoint = moveCoordinates(0,0);
+                double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
+                double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 //                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
 //                System.out.println("x: " + x.doubleValue());
 //                System.out.println("y: " + y.doubleValue());
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawMap();
-                gc.drawImage(carImage, x.doubleValue(),
-                        y.doubleValue()-15);
+                gc.drawImage(carImage, x.doubleValue()+xShift,
+                        y.doubleValue()-15+yShift);
             }
         };
         ParallelTransition parallelTransition = new ParallelTransition(timeline);
