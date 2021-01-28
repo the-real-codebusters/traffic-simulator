@@ -455,7 +455,6 @@ public class View {
                 )
         );
 
-
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -465,13 +464,13 @@ public class View {
                 Point2D actualZeroPoint = moveCoordinates(0,0);
                 double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
                 double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
-//                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
-//                System.out.println("x: " + x.doubleValue());
-//                System.out.println("y: " + y.doubleValue());
-                GraphicsContext gc = canvas.getGraphicsContext2D();
-                drawMap();
-                gc.drawImage(carImage, x.doubleValue()+xShift,
-                        y.doubleValue()-15+yShift);
+
+                if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
+                    GraphicsContext gc = canvas.getGraphicsContext2D();
+                    drawMap();
+                    gc.drawImage(carImage, x.doubleValue()+xShift,
+                            y.doubleValue()-15+yShift);
+                }
             }
         };
         ParallelTransition parallelTransition = new ParallelTransition(timeline);
