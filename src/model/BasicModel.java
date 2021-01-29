@@ -8,7 +8,6 @@ public class BasicModel {
     private int day;
     private double speedOfDay;
     private MapModel map;
-    private TrafficGraph trafficGraph;
 
     private String gamemode;
 //    private ToolsModel tools;
@@ -26,7 +25,6 @@ public class BasicModel {
         this.gamemode = gamemode;
         this.buildmenus = buildmenus;
         this.buildings = buildings;
-        this.trafficGraph = roadsGraph;
     }
 
     public BasicModel() {
@@ -36,18 +34,16 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
-        this.trafficGraph = new TrafficGraph();
     }
 
+    /**
+     * @param buildmenu
+     * @return Eine Liste von buildings, die alle das buildmenu haben
+     */
     public List<Building> getBuildingsForBuildmenu(String buildmenu) {
-        // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
-
         List<Building> bs = new ArrayList<>();
 
         for (Building building : buildings) {
-            if (building.getBuildingName() != null && building.getBuildingName().equals("road-ne")) {
-//                System.out.println("test " + building.getBuildingName());
-            }
             String menu = building.getBuildmenu();
             if (menu != null && menu.equals(buildmenu)) {
                 bs.add(building);
@@ -73,8 +69,12 @@ public class BasicModel {
     }
 
 
+    /**
+     *
+     * @param special
+     * @return Eine Liste von buildings, die alle die Specialfunktion special haben
+     */
     public List<Special> getBuildingsForSpecialUse(String special) {
-
         List<Special> bs = new ArrayList<>();
 
         for (Building building : buildings) {
@@ -85,64 +85,60 @@ public class BasicModel {
         return bs;
     }
 
+    /**
+     * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
+     * werden kann. Falls dies der Fall ist, wird ein neues building-objekt erzeugt und zurückgegeben, ansonsten wird
+     * das selbe building Objekt zurückgegeben
+     * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
+     * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
+     */
+    public Building checkCombines(int xCoord, int yCoord, Building sBuilding) {
+
+        Tile selectedTile = getMap().getTileGrid()[xCoord][yCoord];
+        Building buildingOnSelectedTile = selectedTile.getBuilding();
+        Map<String, String> combinations = null;
+        if (buildingOnSelectedTile instanceof Road) {
+            combinations = ((Road) sBuilding).getCombines();
+        }
+        else if(buildingOnSelectedTile instanceof Rail) {
+            combinations = ((Rail) sBuilding).getCombines();
+        }
+        if(combinations != null){
+            for (Map.Entry<String, String> entry : combinations.entrySet()) {
+                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
+                    String newBuildingName = entry.getValue();
+
+                    System.out.println(sBuilding.getBuildingName() + " and " +
+                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
+                    Building combinedBuilding = getBuildingByName(newBuildingName);
+                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
+                    return combinedBuilding;
+                }
+            }
+        }
+        return sBuilding;
+    }
+
+    /**
+     *
+     * @param name
+     * @return Eine Liste von buildings, die alle den Namen name haben
+     */
+    public Building getBuildingByName(String name){
+        for (Building building : buildings) {
+            if (building.getBuildingName().equals(name)) {
+                return building;
+            }
+        }
+        return null;
+    }
+
     public List<Vehicle> getVehicles() {
         return vehicles;
     }
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
-    }
-
-    /**
-     * Fügt die Points eines Felds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
-     * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
-     * zusammengeführt.
-     *
-     * @param selectedBuilding das aus der Menüleiste ausgewählte Building
-     * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
-     * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
-     */
-    public void addPointsToGraph(PartOfTrafficGraph selectedBuilding, int xCoordOfTile, int yCoordOfTile) {
-        List<Road> roads = getRoadsFromBuildings();
-        for (Building building : buildings) {
-            if(! (building instanceof PartOfTrafficGraph)) continue;
-            PartOfTrafficGraph trafficBuilding = (PartOfTrafficGraph) building;
-            if (selectedBuilding.getBuildingName().equals(trafficBuilding.getBuildingName())) {
-
-                Map<String, List<Double>> points = trafficBuilding.getPoints();
-                for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
-
-                    // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
-                    // sonst gäbe es Duplikate, da points aus verschiedenen Felder denselben Namen haben könnten
-                    String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
-                    String vertexName = identifier + entry.getKey();
-
-                    double xCoordOfPoint = entry.getValue().get(0);
-                    double yCoordOfPoint = entry.getValue().get(1);
-
-                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
-
-                    trafficGraph.addVertex(v);
-
-                    for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
-                        List<List<String>> edges = trafficBuilding.getTransportations();
-                        for (int i = 0; i < edges.size(); i++) {
-                            String from = identifier + edges.get(i).get(0);
-                            String to = identifier + edges.get(i).get(1);
-//                            System.out.println("From: " + from);
-//                            System.out.println("To: " + to);
-
-                            if ((v.getName().equals(from) && v1.getName().equals(to)) ||
-                                    (v.getName().equals(to) && v1.getName().equals(from)))
-                                trafficGraph.addEdgeBidirectional(v1.getName(), v.getName());
-                        }
-                    }
-                }
-            }
-        }
-        trafficGraph.checkForDuplicatePoints();
-        trafficGraph.printGraph();
-        System.out.println();
     }
 
     public void addCommodities(List<String> commodities) {
@@ -197,15 +193,6 @@ public class BasicModel {
 //        this.tools = tools;
 //    }
 
-
-    public TrafficGraph getTrafficGraph() {
-        return trafficGraph;
-    }
-
-    public void setTrafficGraph(TrafficGraph trafficGraph) {
-        this.trafficGraph = trafficGraph;
-    }
-
     public Set<String> getBuildmenus() {
         return buildmenus;
     }
@@ -231,7 +218,7 @@ public class BasicModel {
     }
 
     public Tile[][] getFieldGridOfMap() {
-        return map.getFieldGrid();
+        return map.getTileGrid();
     }
 
     public void printModelAttributes() {

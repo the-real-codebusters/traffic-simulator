@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Ein Teil einer Haltestelle
+ */
 public class Stop extends Special implements PartOfTrafficGraph{
     protected Map<String, List<Double>> points = new HashMap<>();
     protected List<List<String>> transportations = new ArrayList<>();

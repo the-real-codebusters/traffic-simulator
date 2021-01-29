@@ -20,9 +20,9 @@ public class Road extends Building implements PartOfTrafficGraph{
         setInstanceStandardAttributes(instance);
         instance.setPoints(Map.copyOf(points));
         instance.setCombines(Map.copyOf(combines));
+        instance.setRoads(roads);
         return instance;
     }
-
 
     public void setPoints(Map<String, List<Double>> points) {
         this.points = points;
