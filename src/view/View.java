@@ -24,6 +24,7 @@ import model.Tile;
 import model.Vertex;
 
 
+import javax.swing.border.Border;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +55,6 @@ public class View {
     private double previousMouseX = -1.0;
     private double previousMouseY = -1.0;
 
-    private BasicModel model;
     private MenuPane menuPane;
 
     private Map<String, Image> imageCache = new HashMap<>();
@@ -65,11 +65,11 @@ public class View {
     private static final double MIN_SCALE = .1d;
 
     private double tickDuration = 1;
+    BorderPane borderPane;
 
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
-        this.model = model;
         mapping = new ObjectToImageMapping(model.getGamemode());
         fields = model.getFieldGridOfMap();
 
@@ -79,15 +79,11 @@ public class View {
         Label mousePosLabel = new Label();
         mousePosLabel.setFont(new Font("Arial", 15));
 
-        BorderPane root = new BorderPane();
+        borderPane = new BorderPane();
         VBox vBox = new VBox();
-        root.setBottom(vBox);
+        borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
-        root.setCenter(canvas);
-        menuPane = new MenuPane(model, this, canvas, mapping);
-        root.setTop(menuPane);
-
-        storeImageRatios();
+        borderPane.setCenter(canvas);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
@@ -97,7 +93,12 @@ public class View {
         zoom();
 //        zoom2();
 
-        this.stage.setScene(new Scene(root));
+        this.stage.setScene(new Scene(borderPane));
+    }
+
+    public void generateMenuPane(Controller controller){
+        menuPane = new MenuPane(controller, this, canvas, mapping);
+        borderPane.setTop(menuPane);
     }
 
 
@@ -263,7 +264,7 @@ public class View {
     /**
      * Speichert die Verhältnisse von Höhe und Breite für alle Bilder in einer Map
      */
-    private void storeImageRatios(){
+    public void storeImageRatios(){
         for(String name : mapping.getImageNames()){
             Image r = getResourceForImageName(name);
             double ratio = r.getHeight() / r.getWidth();
@@ -454,7 +455,7 @@ public class View {
             return cachedImage;
         }
 
-        String gamemode = model.getGamemode();
+        String gamemode = controller.getGamemode();
         Image image = new Image(
                 "/" + gamemode + "/" + imageName + ".png",
                 widthAsInt,
@@ -477,12 +478,11 @@ public class View {
             return cachedImage;
         }
 
-        String gamemode = model.getGamemode();
+        String gamemode = controller.getGamemode();
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
         return image;
     }
-
 
     /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
@@ -590,7 +590,6 @@ public class View {
 
     public void setController(Controller controller) {
         this.controller = controller;
-        menuPane.setController(controller);
     }
 
     public MenuPane getMenuPane() {

@@ -10,18 +10,16 @@ import view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Controller {
     private View view;
     private BasicModel model;
-    Building selectedBuilding;
     private Pathfinder pathfinder;
 
     public Controller(View view, BasicModel model) {
         this.view = view;
         this.model = model;
-
-        selectedBuilding = view.getMenuPane().getSelectedBuilding();
 
         MapModel map = model.getMap();
         model.printModelAttributes();
@@ -31,6 +29,11 @@ public class Controller {
         Tile[][] generatedMap = generator.generateMap(model);
         map.setFieldGrid(generatedMap);
 
+        view.setController(this);
+        view.storeImageRatios();
+        view.generateMenuPane(this);
+
+
         // Breite und Tiefe der Map aus dem Model werden in der View übernommen
         view.setMapWidth(map.getWidth());
         view.setMapDepth(map.getDepth());
@@ -39,6 +42,7 @@ public class Controller {
         view.drawMap();
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
+
     }
 
     public List<Vertex> getVertexesOfGraph(){
@@ -155,6 +159,26 @@ public class Controller {
                 notDone = false;
             }
         }
+    }
+
+    public boolean canPlaceBuildingAtPlaceInMapGrid(int row, int column, Building building){
+        return model.getMap().canPlaceBuilding(row, column, building);
+    }
+
+    public Tile getTileOfMapTileGrid(int row, int column){
+        return model.getMap().getTileGrid()[row][column];
+    }
+
+    public String getGamemode(){
+        return model.getGamemode();
+    }
+
+    public Set<String> getBuildmenus(){
+        return model.getBuildmenus();
+    }
+
+    public List<Building> getBuildingsByBuildmenu(String buildmenu){
+        return model.getBuildingsForBuildmenu(buildmenu);
     }
 
 }

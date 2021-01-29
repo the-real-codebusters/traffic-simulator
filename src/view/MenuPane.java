@@ -25,7 +25,6 @@ public class MenuPane extends AnchorPane {
     private List<String> tabNames = new ArrayList<>();
     private HBox hBox;
     private TabPane tabPane = new TabPane();
-    private BasicModel model;
     private View view;
     private Canvas canvas;
     private Controller controller;
@@ -36,11 +35,11 @@ public class MenuPane extends AnchorPane {
 
     ObjectToImageMapping mapping;
 
-    public MenuPane(BasicModel model, View view, Canvas canvas, ObjectToImageMapping mapping) {
-        this.model = model;
+    public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
         this.canvas = canvas;
         this.mapping = mapping;
+        this.controller = controller;
         tabPane.setFocusTraversable(false);
 
         setCanvasEvents();
@@ -73,8 +72,8 @@ public class MenuPane extends AnchorPane {
      */
     private void generateTabContents() {
 
-        // Get Buildmenus from Model
-        Set<String> buildmenus = model.getBuildmenus();
+        // Get Buildmenus from Controller
+        Set<String> buildmenus = controller.getBuildmenus();
 
         tabNames.addAll(buildmenus);
         tabNames.addAll(List.of("height", "vehicles"));
@@ -86,7 +85,7 @@ public class MenuPane extends AnchorPane {
 
         for (String name : tabNames) {
             HBox container = boxWithLayout();
-            List<Building> buildings = model.getBuildingsForBuildmenu(name);
+            List<Building> buildings = controller.getBuildingsByBuildmenu(name);
             for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
@@ -146,10 +145,10 @@ public class MenuPane extends AnchorPane {
             // Tu erstmal nichts
             return isoCoord;
         }
-        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+        if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
             String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
             if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
-                Tile tile = model.getFieldGridOfMap()[xCoord][yCoord];
+                Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
                 tile.setBuildingOrigin(true);
                 view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
                 tile.setBuildingOrigin(false);
@@ -189,7 +188,6 @@ public class MenuPane extends AnchorPane {
                 controller.managePlacement(event);
             }
         });
-
 
         // Wenn die Maus mit einem Rechtsklick über mehrere Felder gezogen wird, werden mehrere Gebäude platziert
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragEvent -> {

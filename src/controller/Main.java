@@ -16,9 +16,8 @@ public class Main extends Application {
 //            model.printModelAttributes();
             View view = new View(stage, model);
             stage.setTitle("Planverkehr");
-            stage.show();
             Controller controller = new Controller(view, model);
-            view.setController(controller);
+            stage.show();
         }
     }
 
