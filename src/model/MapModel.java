@@ -167,6 +167,8 @@ public class MapModel {
 
                     for (Vertex v1 : rawRoadGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
+                        System.out.println(building.getTransportations());
+                        System.out.println(building.getBuildingName());
                         for (int i = 0; i < edges.size(); i++) {
                             String from = identifier + edges.get(i).get(0);
                             String to = identifier + edges.get(i).get(1);
