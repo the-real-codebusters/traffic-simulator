@@ -27,6 +27,7 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
+        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
                 if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(0, instance);
@@ -60,7 +61,11 @@ public class MapModel {
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = fieldGrid[r][c];
                 if(tile.getHeight() < 0) return false;
-                if(tile.getBuilding() instanceof Road) return true;
+                if(tile.getBuilding() instanceof Road) {
+                    // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
+                    boolean canCombine = model.checkCombines(row, column, building) != building;
+                    return canCombine;
+                }
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
@@ -136,7 +141,7 @@ public class MapModel {
      * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
      * zusammengeführt.
      *
-     * @param building das Gebäude, wessen Punkte hinzugefügt werden sollen
+     * @param building die Instanz des Gebäudes, wessen Punkte hinzugefügt werden sollen
      * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
      * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
      */
@@ -194,7 +199,7 @@ public class MapModel {
         return depth;
     }
 
-    public Tile[][] getFieldGrid() {
+    public Tile[][] getTileGrid() {
         return fieldGrid;
     }
 

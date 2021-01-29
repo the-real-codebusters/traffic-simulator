@@ -42,9 +42,6 @@ public class BasicModel {
         List<Building> bs = new ArrayList<>();
 
         for (Building building : buildings) {
-            if (building.getBuildingName() != null && building.getBuildingName().equals("road-ne")) {
-//                System.out.println("test " + building.getBuildingName());
-            }
             String menu = building.getBuildmenu();
             if (menu != null && menu.equals(buildmenu)) {
                 bs.add(building);
@@ -80,6 +77,49 @@ public class BasicModel {
             }
         }
         return bs;
+    }
+
+    /**
+     * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
+     * werden kann. Falls dies der Fall ist, wird ein neues building-objekt erzeugt, annsonsten wird null zurückgegeben
+     *
+     * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
+     * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
+     */
+    public Building checkCombines(int xCoord, int yCoord, Building sBuilding) {
+
+        Tile selectedTile = getMap().getTileGrid()[xCoord][yCoord];
+        Building buildingOnSelectedTile = selectedTile.getBuilding();
+        Map<String, String> combinations = null;
+        if (buildingOnSelectedTile instanceof Road) {
+            combinations = ((Road) sBuilding).getCombines();
+        }
+        else if(buildingOnSelectedTile instanceof Rail) {
+            combinations = ((Rail) sBuilding).getCombines();
+        }
+        if(combinations != null){
+            for (Map.Entry<String, String> entry : combinations.entrySet()) {
+                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
+                    String newBuildingName = entry.getValue();
+
+                    System.out.println(sBuilding.getBuildingName() + " and " +
+                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
+                    Building combinedBuilding = getBuildingByName(newBuildingName);
+                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
+                    return combinedBuilding;
+                }
+            }
+        }
+        return sBuilding;
+    }
+
+    public Building getBuildingByName(String name){
+        for (Building building : buildings) {
+            if (building.getBuildingName().equals(name)) {
+                return building;
+            }
+        }
+        return null;
     }
 
     public List<Vehicle> getVehicles() {
@@ -167,7 +207,7 @@ public class BasicModel {
     }
 
     public Tile[][] getFieldGridOfMap() {
-        return map.getFieldGrid();
+        return map.getTileGrid();
     }
 
     public void printModelAttributes() {

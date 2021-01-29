@@ -84,18 +84,12 @@ public class Controller {
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
-        String originalBuildingName = selectedBuilding.getBuildingName();
-//        System.out.println("before "+originalBuildingName);
-
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
-            if (selectedBuilding instanceof Road) {
-                menuPane.checkCombines(xCoord, yCoord);
+            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
+                selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
             Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-//            System.out.println("after " +selectedBuilding.getBuildingName());
-
-//            selectedBuilding.setBuildingName(originalBuildingName);
 
             if(placedBuilding instanceof PartOfTrafficGraph){
                 model.getMap().addPointsToGraph((PartOfTrafficGraph) placedBuilding, xCoord, yCoord);

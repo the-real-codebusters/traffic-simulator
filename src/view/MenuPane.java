@@ -176,41 +176,6 @@ public class MenuPane extends AnchorPane {
     }
 
 
-    /**
-     * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
-     * werden kann. Falls dies der Fall ist, wird das daraus entstehende Feld im Model gespeichert und in der View
-     * angezeigt
-     *
-     * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
-     * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
-     */
-    public void checkCombines(int xCoord, int yCoord) {
-
-        Tile selectedField = model.getMap().getFieldGrid()[xCoord][yCoord];
-        Building buildingOnSelectedTile = selectedField.getBuilding();
-        if (buildingOnSelectedTile instanceof Road) {
-            Map<String, String> combinations = ((Road) selectedBuilding).getCombines();
-            for (Map.Entry<String, String> entry : combinations.entrySet()) {
-                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
-                    String newBuildingName = entry.getValue();
-
-                    System.out.println(selectedBuilding.getBuildingName() + " and " +
-                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
-
-                    selectedBuilding.setBuildingName(newBuildingName);
-                    selectedField.setBuilding(buildingOnSelectedTile);
-                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
-                    break;
-
-                } else {
-                    selectedBuilding.setBuildingName(buildingOnSelectedTile.getBuildingName());
-                    selectedField.setBuilding(buildingOnSelectedTile);
-
-                }
-            }
-        }
-    }
-
     public Controller getController() {
         return controller;
     }

@@ -16,7 +16,7 @@ public class MapGenerator {
 
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
-        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         generateNature(mapWidth, mapDepth, basicModel);
         generateFactories(mapWidth, mapDepth, basicModel);
@@ -58,7 +58,7 @@ public class MapGenerator {
     private void generateNature(int mapWidth, int mapDepth, BasicModel basicModel) {
         List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
 
-        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
