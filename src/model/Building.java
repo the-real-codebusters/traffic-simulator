@@ -22,6 +22,22 @@ public class Building {
         return originRow;
     }
 
+    /**
+     * Startzeile eines Gebäudes
+     * @return
+     */
+    public int getStartRow() {
+        return getOriginRow();
+    }
+
+    /**
+     * Startspalte eines Gebäudes
+     * @return
+     */
+    public int getStartColumn() {
+        return getOriginColumn()+getDepth()-1;
+    }
+
     public void setOriginRow(int originRow) {
         this.originRow = originRow;
     }
