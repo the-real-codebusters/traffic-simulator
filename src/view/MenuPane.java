@@ -1,5 +1,6 @@
 package view;
 
+import controller.Controller;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -27,14 +28,15 @@ public class MenuPane extends AnchorPane {
     private BasicModel model;
     private View view;
     private Canvas canvas;
+    private Controller controller;
+    private MouseEvent hoveredEvent;
 
     // Wenn null, ist kein Bauwerk ausgewählt
     private Building selectedBuilding;
 
-    private Point2D hoveredTileBefore;
-    BuildingToImageMapping mapping;
+    ObjectToImageMapping mapping;
 
-    public MenuPane(BasicModel model, View view, Canvas canvas, BuildingToImageMapping mapping) {
+    public MenuPane(BasicModel model, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.model = model;
         this.view = view;
         this.canvas = canvas;
@@ -103,8 +105,8 @@ public class MenuPane extends AnchorPane {
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(90);
         imageView.setOnMouseClicked(event -> {
-            // TODO
             selectedBuilding = building;
+            hoveredEvent = null;
         });
         return imageView;
     }
@@ -114,7 +116,7 @@ public class MenuPane extends AnchorPane {
      * @param transparent
      * @return Gibt die Koordinaten des Tiles zurück, auf das gezeichnet wurde
      */
-    private Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
+    public Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
@@ -135,23 +137,19 @@ public class MenuPane extends AnchorPane {
             }
             else {
                 double ratio = view.getImageNameToImageRatio().get(imageName);
-                double tileWidth = view.getTileWidth();
+                double tileWidth = view.getTileImageWidth();
                 Image image = view.getResourceForImageName(imageName, tileWidth, tileWidth * ratio);
                 view.drawTileImage(yCoord, xCoord, image, transparent);
             }
             return isoCoord;
-        } else return hoveredTileBefore;
+        } else return null;
     }
 
     private void setCanvasEvents() {
         canvas.setOnMouseMoved(event -> {
             if (selectedBuilding != null) {
-
-                if (hoveredTileBefore != null) {
-                    view.drawMap();
-                }
-
-                hoveredTileBefore = drawHoveredImage(event, true);
+                hoveredEvent = event;
+                view.drawMap();
             }
         });
 
@@ -163,7 +161,7 @@ public class MenuPane extends AnchorPane {
             } else if (
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding != null) {
-                managePlacement(event);
+                controller.managePlacement(event);
             }
         });
 
@@ -172,42 +170,9 @@ public class MenuPane extends AnchorPane {
 
             if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                     selectedBuilding != null) {
-                managePlacement(dragEvent);
+                controller.managePlacement(dragEvent);
             }
         });
-    }
-
-    /**
-     * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
-     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
-     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
-     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
-     * @param event MouseEvent, wodurch die Methode ausgelöst wurde
-     */
-    public void managePlacement(MouseEvent event) {
-        // TODO gehört die Methode evtl. eher in den Controller?
-        double mouseX = event.getX();
-        double mouseY = event.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-        int xCoord = (int) isoCoord.getX();
-        int yCoord = (int) isoCoord.getY();
-
-        String originalBuildingName = selectedBuilding.getBuildingName();
-
-        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
-
-            if (selectedBuilding instanceof Road) {
-                checkCombines(xCoord, yCoord);
-            }
-            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-            selectedBuilding.setBuildingName(originalBuildingName);
-
-            if(selectedBuilding instanceof PartOfTrafficGraph){
-                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
-            }
-
-            view.drawMap();
-        }
     }
 
 
@@ -244,5 +209,21 @@ public class MenuPane extends AnchorPane {
                 }
             }
         }
+    }
+
+    public Controller getController() {
+        return controller;
+    }
+
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
+
+    public Building getSelectedBuilding() {
+        return selectedBuilding;
+    }
+
+    public MouseEvent getHoveredEvent() {
+        return hoveredEvent;
     }
 }

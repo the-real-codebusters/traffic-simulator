@@ -1,34 +1,45 @@
 package view;
 
+import controller.Controller;
+import javafx.animation.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.BasicModel;
 import model.Building;
 import model.Tile;
 
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class View {
     private Stage stage;
 
-    private double tileWidth = 128;
-    private double tileWidthHalf = tileWidth / 2;
-    private double tileHeight = 64;
-    private double tileHeightHalf = tileHeight / 2;
+    private double tileImageWidth = 128;
+    private double tileImageWidthHalf = tileImageWidth / 2;
+    private double tileImageHeight = 64;
+    private double tileImageHeightHalf = tileImageHeight / 2;
     private int mapWidth;
     private int mapDepth;
+
+    private Controller controller;
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
@@ -45,19 +56,22 @@ public class View {
     private double previousMouseY = -1.0;
 
     private BasicModel model;
+    private MenuPane menuPane;
 
     private Map<String, Image> imageCache = new HashMap<>();
-    BuildingToImageMapping mapping;
+    ObjectToImageMapping mapping;
 
     private double zoomFactor = 1.0;
     private static final double MAX_SCALE = 10.0d;
     private static final double MIN_SCALE = .1d;
 
+    private double tickDuration = 1;
+
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         this.model = model;
-        mapping = new BuildingToImageMapping(model.getGamemode());
+        mapping = new ObjectToImageMapping(model.getGamemode());
         fields = model.getFieldGridOfMap();
 
         Label isoCoordLabel = new Label();
@@ -71,7 +85,8 @@ public class View {
         root.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         root.setCenter(canvas);
-        root.setTop(new MenuPane(model, this, canvas, mapping));
+        menuPane = new MenuPane(model, this, canvas, mapping);
+        root.setTop(menuPane);
 
         storeImageRatios();
 
@@ -91,11 +106,11 @@ public class View {
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
             double zoomFactor = Math.exp(scrollDelta * 0.01);
-            tileWidth = tileWidth * zoomFactor;
-            tileHeight = tileHeight * zoomFactor;
+            tileImageWidth = tileImageWidth * zoomFactor;
+            tileImageHeight = tileImageHeight * zoomFactor;
 
-            tileWidthHalf = tileWidthHalf * zoomFactor;
-            tileHeightHalf = tileHeightHalf * zoomFactor;
+            tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
+            tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
 
             drawMap();
 
@@ -140,9 +155,19 @@ public class View {
         return value;
     }
 
+    public double getQuadraticTileWidthOrDepth(){
+        return Math.sqrt(Math.pow(tileImageWidth/2, 2) + Math.pow(tileImageHeight/2, 2));
+    }
+
+    public Point2D changePointByTiles(Point2D point, double changedTilesWitdh, double changedTilesDepth){
+        double changeX = tileImageWidthHalf * changedTilesWitdh + changedTilesDepth*tileImageWidthHalf;
+        double changeY = tileImageHeightHalf * changedTilesWitdh - changedTilesDepth*tileImageHeightHalf;
+        return point.add(changeX, changeY);
+    }
+
     public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(ke -> {
-            double delta = tileWidth;
+            double delta = tileImageWidth;
             if (ke.getCode() == KeyCode.DOWN) {
                 cameraOffsetY += delta / 2;
             } else if (ke.getCode() == KeyCode.UP) {
@@ -201,6 +226,7 @@ public class View {
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Tile field = fields[row][col];
                     Building building = field.getBuilding();
+
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
                             drawBuildingOverMoreTiles(field, building, row, col);
@@ -228,6 +254,15 @@ public class View {
                 }
             }
         }
+        if(controller!=null){
+            controller.drawVertexesOfGraph();
+        }
+
+        Building selectedBuilding = menuPane.getSelectedBuilding();
+        MouseEvent hoveredEvent = menuPane.getHoveredEvent();
+        if(selectedBuilding != null && hoveredEvent != null){
+            menuPane.drawHoveredImage(hoveredEvent, true);
+        }
     }
 
     private void storeImageRatios(){
@@ -238,6 +273,9 @@ public class View {
         }
     }
 
+    public Canvas getCanvas() {
+        return canvas;
+    }
 
     /**
      * Zeichnet ein building, das größer ist als 1x1, über mehrere tiles.
@@ -253,18 +291,17 @@ public class View {
             double ratio = imageNameToImageRatio.get(name);
 
 //            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
-            double imageWidth = (tileWidth * 0.5) * (building.getDepth() + building.getWidth());
+            double imageWidth = (tileImageWidth * 0.5) * (building.getDepth() + building.getWidth());
             double imageHeight = imageWidth * ratio;
-            double heightOfFloorTiles = tileHeightHalf * (building.getDepth() + building.getWidth());
+            double heightOfFloorTiles = tileImageHeightHalf * (building.getDepth() + building.getWidth());
             double heightAboveFloorTiles =  imageHeight - heightOfFloorTiles;
 
             Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
-            double tileX = (row + column) * tileWidthHalf;
-            double tileY = (row - column) * tileHeightHalf
-                    + tileHeightHalf - tileHeightHalf * building.getDepth() - heightAboveFloorTiles;
-            Point2D drawOrigin = moveCoordinates(tileX, tileY);
-            canvas.getGraphicsContext2D().drawImage(im, drawOrigin.getX(), drawOrigin.getY());
+            Point2D drawOrigin = moveCoordinates(row, column);
+            double xCoordOnCanvas = drawOrigin.getX();
+            double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf * building.getDepth() - heightAboveFloorTiles;
+            canvas.getGraphicsContext2D().drawImage(im, xCoordOnCanvas, yCoordOnCanvas);
 
             //TODO Da gebäude von ihrem Ursprungstile gezeichnet werden, überlappen sie Bäume aus reihen weiter oben,
             // die eigentlich das Gebäude überlappen sollten
@@ -289,7 +326,7 @@ public class View {
 
         double ratio = imageNameToImageRatio.get(name);
 
-        return getResourceForImageName(name, tileWidth, tileWidth * ratio);
+        return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
 
     }
 
@@ -310,8 +347,7 @@ public class View {
 
         double ratio = imageNameToImageRatio.get(name);
 
-        return getResourceForImageName(name, tileWidth, tileWidth * ratio);
-
+        return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
     }
 
     public void drawTileImage(int column, int row, Image image, boolean transparent) {
@@ -319,30 +355,39 @@ public class View {
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
         // Zeichenreihenfolge von oben rechts nach unten links
 
-        double heightAboveTile = image.getHeight() - tileHeight;
+        double heightAboveTile = image.getHeight() - tileImageHeight;
 
-        double tileX = (row + column) * tileWidthHalf;
-        double tileY = (row - column) * tileHeightHalf - heightAboveTile;
-
-        Point2D drawOrigin = moveCoordinates(tileX, tileY);
-
+        Point2D drawOrigin = moveCoordinates(row, column);
+        double xCoordOnCanvas = drawOrigin.getX();
+        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
-        canvas.getGraphicsContext2D().drawImage(image, drawOrigin.getX(), drawOrigin.getY());
+        canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
         canvas.getGraphicsContext2D().setGlobalAlpha(1);
     }
 
-    private Point2D moveCoordinates(double tileX, double tileY) {
+    /**
+     * Gibt den Punkt auf dem Canvas an der linken Ecke des Tiles zurück im Bezug auf den aktuellen Ausschnitt der Karte
+     * @param row Die Reihe des Tiles betrachtet für die gesamte Karte
+     * @param column Die Spalte des Tiles betrachtet für die gesamte Karte
+     * @return
+     */
+    public Point2D moveCoordinates(int row, int column) {
+
+        double pixelXCoordAtTile = (row + column) * tileImageWidthHalf;
+        double pixelYCoordAtTile = (row - column) * tileImageHeightHalf;
+
         // Differenz zwischen Breite und Tiefe der Map
         double differenceWidthHeigth = mapWidth - mapDepth;
 
         double tileOffset = differenceWidthHeigth * 0.25;
 
         // Zeichenreihenfolge von oben rechts nach unten links
-        double startX = tileX + canvasCenterWidth - tileWidthHalf * mapWidth + (tileOffset * tileWidth);
-        double startY = tileY + canvasCenterHeight - tileHeightHalf - (tileOffset * tileHeight);
+        double startX = pixelXCoordAtTile + canvasCenterWidth - tileImageWidthHalf * mapWidth + (tileOffset * tileImageWidth);
+        double startY = pixelYCoordAtTile + canvasCenterHeight - (tileOffset * tileImageHeight);
         startX -= cameraOffsetX;
         startY -= cameraOffsetY;
+//        System.out.println("moveCoordinates: " + startX + " " + startY);
         return new Point2D(startX, startY);
     }
 
@@ -358,16 +403,16 @@ public class View {
         double offsetX = 0;
         double offsetY = 0;
         if (mapWidth % 2 != 0) {
-            offsetX = tileWidthHalf / tileWidth;
+            offsetX = tileImageWidthHalf / tileImageWidth;
         }
         if (mapDepth % 2 != 0) {
-            offsetY = tileHeightHalf / tileHeight;
+            offsetY = tileImageHeightHalf / tileImageHeight;
         }
 
-        double x = Math.floor((mouseX / tileWidth + mouseY / tileHeight) - canvasCenterHeight / tileHeight
-                - (canvasCenterWidth / tileWidth) + (mapWidth / 2) + offsetX + cameraOffsetX / tileWidth + cameraOffsetY / tileHeight);
-        double y = Math.floor((mouseX / tileWidth - mouseY / tileHeight) + canvasCenterHeight / tileHeight
-                - (canvasCenterWidth / tileWidth) + (mapDepth / 2) + offsetY - cameraOffsetY / tileHeight + cameraOffsetX / tileWidth);
+        double x = Math.floor((mouseX / tileImageWidth + mouseY / tileImageHeight) - canvasCenterHeight / tileImageHeight
+                - (canvasCenterWidth / tileImageWidth) + (mapWidth / 2) + offsetX + cameraOffsetX / tileImageWidth + cameraOffsetY / tileImageHeight);
+        double y = Math.floor((mouseX / tileImageWidth - mouseY / tileImageHeight) + canvasCenterHeight / tileImageHeight
+                - (canvasCenterWidth / tileImageWidth) + (mapDepth / 2) + offsetY - cameraOffsetY / tileImageHeight + cameraOffsetX / tileImageWidth);
         return new Point2D(x, y);
     }
 
@@ -428,6 +473,63 @@ public class View {
         return image;
     }
 
+
+    public void translateCar(Point2D start, Point2D end){
+        System.out.println("start: " + start);
+        System.out.println("end: " + end);
+
+        DoubleProperty x  = new SimpleDoubleProperty();
+        DoubleProperty y  = new SimpleDoubleProperty();
+
+        String name = mapping.getImageNameForBuildingName("car-sw");
+
+        Point2D zeroPointAtStart = moveCoordinates(0,0);
+
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.seconds(0),
+                        new KeyValue(x, start.getX()),
+                        new KeyValue(y, start.getY())
+                ),
+                new KeyFrame(Duration.seconds(tickDuration),
+                        new KeyValue(x, end.getX()),
+                        new KeyValue(y, end.getY())
+                )
+        );
+
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                Image carImage = getResourceForImageName(name, tileImageHeightHalf,
+                        imageNameToImageRatio.get(name)*tileImageHeightHalf);
+
+                Point2D actualZeroPoint = moveCoordinates(0,0);
+                double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
+                double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
+//                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
+//                System.out.println("x: " + x.doubleValue());
+//                System.out.println("y: " + y.doubleValue());
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                drawMap();
+                gc.drawImage(carImage, x.doubleValue()+xShift,
+                        y.doubleValue()-15+yShift);
+            }
+        };
+        ParallelTransition parallelTransition = new ParallelTransition(timeline);
+
+        parallelTransition.setOnFinished(event -> {
+            System.out.println("finished");
+            parallelTransition.stop();
+            timer.stop();
+            controller.moveCarFromPointToPoint();
+        });
+
+        timer.start();
+        parallelTransition.play();
+    }
+
+
     public void setMapWidth(int mapWidth) {
         this.mapWidth = mapWidth;
     }
@@ -444,12 +546,12 @@ public class View {
         return canvasCenterHeight;
     }
 
-    public double getTileWidth() {
-        return tileWidth;
+    public double getTileImageWidth() {
+        return tileImageWidth;
     }
 
-    public double getTileHeight() {
-        return tileHeight;
+    public double getTileImageHeight() {
+        return tileImageHeight;
     }
 
     public double getPreviousMouseX() {
@@ -466,6 +568,19 @@ public class View {
 
     public Map<String, Double> getImageNameToImageRatio() {
         return imageNameToImageRatio;
+    }
+
+    public Controller getController() {
+        return controller;
+    }
+
+    public void setController(Controller controller) {
+        this.controller = controller;
+        menuPane.setController(controller);
+    }
+
+    public MenuPane getMenuPane() {
+        return menuPane;
     }
 }
 
