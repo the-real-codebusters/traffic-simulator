@@ -42,7 +42,7 @@ public class Controller {
         TrafficGraph graph = model.getTrafficGraph();
         pathfinder = new Pathfinder(graph);
 
-
+        // Ist momentan nur zum Testen da
         view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
                 generator.generateTileHeight();

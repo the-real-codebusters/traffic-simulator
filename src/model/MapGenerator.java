@@ -105,8 +105,8 @@ public class MapGenerator {
         int thirdDigit = genrateNextNumber(secondDigit);
         int fourthDigit = genrateNextNumber(thirdDigit);
 
-        if(Math.abs(firstDigit - fourthDigit) > 2){
-            int digit = new Random().nextInt(2) + 1;
+        if(Math.abs(firstDigit - fourthDigit) > 1){
+            int digit = new Random().nextInt(1) + 1;
             if(firstDigit > fourthDigit) {
                 fourthDigit = fourthDigit + digit;
             } else {
