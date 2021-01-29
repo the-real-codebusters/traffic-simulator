@@ -1,5 +1,9 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class MapModel {
     private String mapgen;
 
@@ -9,6 +13,7 @@ public class MapModel {
 
     private BasicModel model;
     private Long adjacentStationId;
+    private List<Station> stations = new ArrayList<>();
 
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
@@ -36,6 +41,8 @@ public class MapModel {
             Station station = new Station(model);
             if(nextStation != null) {
                 station = nextStation;
+            } else {
+                stations.add(station);
             }
             station.addBuilding((Stop) instance);
         }

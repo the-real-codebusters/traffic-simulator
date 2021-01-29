@@ -2,11 +2,11 @@ package view;
 
 import java.util.*;
 
-public class BuildingToImageMapping {
+public class ObjectToImageMapping {
 
     private Map<String, String> mapping = new HashMap<>();
 
-    public BuildingToImageMapping(String gamemode){
+    public ObjectToImageMapping(String gamemode){
         if(gamemode.equals("planverkehr")){
             createPlanverkehrMapping();
         }
@@ -54,6 +54,7 @@ public class BuildingToImageMapping {
         mapping.put("road-nw-sw", "road/road-nw-sw");
         mapping.put("road-se-sw", "road/road-se-sw");
 
+        mapping.put("car-sw", "road/car-sw");
         mapping.put("grass", "ground/grass");
     }
 
