@@ -47,6 +47,10 @@ public class Controller {
         return vertexes;
     }
 
+    /**
+     * Zeichnet die Knoten des Straßengraphen als gelbe Punkte in der View ein. Dies soll vor allem zum Testen der
+     * Animationen dienen.
+     */
     public void drawVertexesOfGraph(){
         Canvas canvas = view.getCanvas();
         List<Vertex> vertexes = getVertexesOfGraph();
@@ -68,9 +72,9 @@ public class Controller {
 
     /**
      * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
-     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
-     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
-     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
+     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße oder ien Gleis handelt und ob
+     * diese mit dem ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert
+     * und die entsprechenden Points dem Verkehrsgraph hinzugefügt.
      * @param event MouseEvent, wodurch die Methode ausgelöst wurde
      */
     public void managePlacement(MouseEvent event) {
@@ -100,14 +104,17 @@ public class Controller {
         }
     }
 
-    int indexOfStart = 0;
-    int indexOfNext = indexOfStart + 1;
-    private List<Vertex> path;
-    boolean notDone = true;
+    // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
+    // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
+    public int indexOfStart = 0;
+    public int indexOfNext = indexOfStart + 1;
+    public List<Vertex> path;
+    public boolean notDone = true;
 
-    public void moveCarFromPointToPoint(){
-        Vertex v1 = path.get(indexOfStart);
-        Vertex v2 = path.get(indexOfNext);
+    /**
+     * Bewegt ein Bild des Autos von Knoten v1 zu Knoten v2
+     */
+    public void moveCarFromPointToPoint(Vertex v1, Vertex v2){
 
         Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
         startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
@@ -120,15 +127,14 @@ public class Controller {
                 v2.getyCoordinateRelativeToTileOrigin());
 
         view.translateCar(startPointOnCanvas, nextPointOnCanvas);
-        indexOfStart++;
-        indexOfNext++;
     }
 
 
     /**
      * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
      * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
-     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden
+     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden.
+     * Die Animation beginnt bei 10 platzierten verbundenen Knoten.
      */
     public void startCarMovement(){
         List<Vertex> vertexes = getVertexesOfGraph();
@@ -143,15 +149,9 @@ public class Controller {
             }
             System.out.println();
 
-//            Vertex v1 = vertexes.get(indexOfStart);
-//            Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-//            startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
-//                    v1.getxCoordinateRelativeToTileOrigin(),
-//                    v1.getyCoordinateRelativeToTileOrigin());
-
             if(path.size() >= 10 && notDone) {
                 System.out.println("path "+path.size());
-                moveCarFromPointToPoint();
+                moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
                 notDone = false;
             }
         }

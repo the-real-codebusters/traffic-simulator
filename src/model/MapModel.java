@@ -150,6 +150,10 @@ public class MapModel {
         if(building instanceof Road) {
             trafficGraph = this.rawRoadGraph;
         }
+        else {
+            return;
+            //TODO rails
+        };
                 Map<String, List<Double>> points = building.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
 
@@ -163,9 +167,9 @@ public class MapModel {
 
                     Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
 
-                    rawRoadGraph.addVertex(v);
+                    trafficGraph.addVertex(v);
 
-                    for (Vertex v1 : rawRoadGraph.getMapOfVertexes().values()) {
+                    for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
                         System.out.println(building.getTransportations());
                         System.out.println(building.getBuildingName());
@@ -177,7 +181,7 @@ public class MapModel {
 
                             if ((v.getName().equals(from) && v1.getName().equals(to)) ||
                                     (v.getName().equals(to) && v1.getName().equals(from)))
-                                rawRoadGraph.addEdgeBidirectional(v1.getName(), v.getName());
+                                trafficGraph.addEdgeBidirectional(v1.getName(), v.getName());
                         }
                     }
                 }

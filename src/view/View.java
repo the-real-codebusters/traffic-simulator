@@ -4,14 +4,12 @@ import controller.Controller;
 import javafx.animation.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -23,9 +21,9 @@ import javafx.util.Duration;
 import model.BasicModel;
 import model.Building;
 import model.Tile;
+import model.Vertex;
 
 
-import java.beans.EventHandler;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -160,12 +158,22 @@ public class View {
         return Math.sqrt(Math.pow(tileImageWidth/2, 2) + Math.pow(tileImageHeight/2, 2));
     }
 
+    /**
+     * Verschiebt den zweidimensionalen Punkt point um die angegebenen Tiles in X- bze Y-Richtung
+     * @param point
+     * @param changedTilesWitdh
+     * @param changedTilesDepth
+     * @return Einen dementsprechend verschobenen Punkt
+     */
     public Point2D changePointByTiles(Point2D point, double changedTilesWitdh, double changedTilesDepth){
         double changeX = tileImageWidthHalf * changedTilesWitdh + changedTilesDepth*tileImageWidthHalf;
         double changeY = tileImageHeightHalf * changedTilesWitdh - changedTilesDepth*tileImageHeightHalf;
         return point.add(changeX, changeY);
     }
 
+    /**
+     * Ermögliche Verschieben der Karte mit den Pfeiltasten
+     */
     public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(ke -> {
             double delta = tileImageWidth;
@@ -182,6 +190,9 @@ public class View {
         });
     }
 
+    /**
+     * Fügt dem Canvas die Reaktion hinzu: Wenn mit der Maus rechtsgeklickt ist, kann die Karte verschoben werden
+     */
     public void scrollOnMouseDragged() {
         canvas.setOnMouseDragged(me -> {
             if (me.getButton().compareTo(MouseButton.SECONDARY) == 0) {
@@ -235,10 +246,13 @@ public class View {
                 }
             }
         }
+
+        // Zeichnet die Knoten des Graphen als gelbe Punkte ein
         if(controller!=null){
             controller.drawVertexesOfGraph();
         }
 
+        // Zeichnet eine Vorschau, falls nötig
         Building selectedBuilding = menuPane.getSelectedBuilding();
         MouseEvent hoveredEvent = menuPane.getHoveredEvent();
         if(selectedBuilding != null && hoveredEvent != null){
@@ -246,6 +260,9 @@ public class View {
         }
     }
 
+    /**
+     * Speichert die Verhältnisse von Höhe und Breite für alle Bilder in einer Map
+     */
     private void storeImageRatios(){
         for(String name : mapping.getImageNames()){
             Image r = getResourceForImageName(name);
@@ -289,6 +306,13 @@ public class View {
         }
     }
 
+    /**
+     * Gibt ein Image für die geforderte Stelle in der Tile-Map zurück in der Breite eines Tiles
+     * @param column
+     * @param row
+     * @param fields
+     * @return
+     */
     public Image getSingleFieldImage(int column, int row, Tile[][] fields) {
         String name;
         String buildingName;
@@ -308,6 +332,13 @@ public class View {
         return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
     }
 
+    /**
+     * Zeichnet das Bild in ein Feld an der angegebenen Stelle
+     * @param column
+     * @param row
+     * @param image
+     * @param transparent
+     */
     public void drawTileImage(int column, int row, Image image, boolean transparent) {
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
@@ -398,12 +429,27 @@ public class View {
         });
     }
 
+
+
+    /**
+     * Gibt das Bild für den entsprechenden Namen eines Bildes in der gewünschten Höhe und Breite zurück.
+     * Dabei wird Caching verwendet.
+     * @param imageName
+     * @param width
+     * @param height
+     * @return
+     */
     public Image getResourceForImageName(String imageName, double width, double height) {
 
+        // Breite und Höhe wird auf Integer gerundet
         int widthAsInt = (int) Math.round(width);
         int heightAsInt = (int) Math.round(height);
 
+        // Map cachedImage: Das ist eine Zuordnung von Namen zu Image-Objekten
         Image cachedImage = imageCache.get(imageName + widthAsInt + heightAsInt);
+        // Es wird mit dem Namen namebreitehöhe nachgeschaut, ob es schon ein Image-Objekt des Bildes in der
+        // passenden Breite und Höhe gibt. Das wär dann zum Beispiel "road-sw6432". Wenn das geladene Objekt
+        // nicht null ist, ist das gesucht Image Objekt gefunden und wird zurückgegeben
         if (cachedImage != null) {
             return cachedImage;
         }
@@ -419,6 +465,12 @@ public class View {
         return image;
     }
 
+    /**
+     * Gibt das Bild zu dem angegebenen Namen in ursprünglicher Größe wie in resources zurück.
+     * Dabei wird caching verwendet.
+     * @param imageName
+     * @return
+     */
     public Image getResourceForImageName(String imageName) {
         Image cachedImage = imageCache.get(imageName + "raw");
         if (cachedImage != null) {
@@ -432,10 +484,12 @@ public class View {
     }
 
 
+    /**
+     * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
+     * @param start
+     * @param end
+     */
     public void translateCar(Point2D start, Point2D end){
-        System.out.println("start: " + start);
-        System.out.println("end: " + end);
-
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
@@ -476,10 +530,13 @@ public class View {
         ParallelTransition parallelTransition = new ParallelTransition(timeline);
 
         parallelTransition.setOnFinished(event -> {
-            System.out.println("finished");
             parallelTransition.stop();
             timer.stop();
-            controller.moveCarFromPointToPoint();
+
+            // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
+            Vertex v1 = controller.path.get(++controller.indexOfStart);
+            Vertex v2 = controller.path.get(++controller.indexOfNext);
+            controller.moveCarFromPointToPoint(v1,v2);
         });
 
         timer.start();

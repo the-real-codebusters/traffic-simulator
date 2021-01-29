@@ -2,6 +2,9 @@ package view;
 
 import java.util.*;
 
+/**
+ * Stellt eine Zuordnung von Objek-Namen aus der JSON-Datei zu den Namen im jeweiligen Resources Ordner dar
+ */
 public class ObjectToImageMapping {
 
     private Map<String, String> mapping = new HashMap<>();

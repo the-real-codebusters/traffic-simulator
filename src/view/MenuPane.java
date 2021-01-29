@@ -55,6 +55,11 @@ public class MenuPane extends AnchorPane {
         }
     }
 
+    /**
+     * Fügt einen Tab zu der tabPane hinzu
+     * @param name
+     * @param content
+     */
     private void addTab(String name, Node content) {
         Tab tab = new Tab();
         tab.setText(name);
@@ -62,6 +67,10 @@ public class MenuPane extends AnchorPane {
         tabPane.getTabs().add(tab);
     }
 
+    /**
+     * Erstellt die Inhalte der Tabs in der tabPane nach den buildmenus in der JSONDatei und zusätzlich height und
+     * vehicles
+     */
     private void generateTabContents() {
 
         // Get Buildmenus from Model
@@ -91,6 +100,10 @@ public class MenuPane extends AnchorPane {
         }
     }
 
+    /**
+     * Erstellt eine HBox mit bestimmtem Layout
+     * @return
+     */
     private HBox boxWithLayout() {
         HBox box = new HBox(10);
         box.setPrefHeight(100);
@@ -98,6 +111,11 @@ public class MenuPane extends AnchorPane {
         return box;
     }
 
+    /**
+     * Gibt eine ImageView für das building zurück mit einem bestimmten Layout
+     * @param building
+     * @return
+     */
     private ImageView imageViewWithLayout(Building building) {
         String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
@@ -112,6 +130,7 @@ public class MenuPane extends AnchorPane {
     }
 
     /**
+     * Zeichnet ein transparentes Bild als Vorschau für ein zu platzierendes Gebäude
      * @param mouseEvent
      * @param transparent
      * @return Gibt die Koordinaten des Tiles zurück, auf das gezeichnet wurde
@@ -145,7 +164,12 @@ public class MenuPane extends AnchorPane {
         } else return null;
     }
 
+    /**
+     * Setzt einige Reaktionen auf Events auf dem canvas der View
+     */
     private void setCanvasEvents() {
+
+        // Zeichnet eine Vorschau eines Gebäudes wenn sich der Mauszeiger über einem Tile befindet
         canvas.setOnMouseMoved(event -> {
             if (selectedBuilding != null) {
                 hoveredEvent = event;
@@ -153,7 +177,8 @@ public class MenuPane extends AnchorPane {
             }
         });
 
-
+        // Bei einem Linksklick wird das ausgewählt Gebäude nicht mehr ausgewählt
+        // Bei einem Rechtsklick wird das ausgewählte Gebäude platziert, sollte eines ausgewählt sein.
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                 selectedBuilding = null;
@@ -166,6 +191,7 @@ public class MenuPane extends AnchorPane {
         });
 
 
+        // Wenn die Maus mit einem Rechtsklick über mehrere Felder gezogen wird, werden mehrere Gebäude platziert
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragEvent -> {
 
             if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
