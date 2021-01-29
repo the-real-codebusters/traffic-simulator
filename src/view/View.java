@@ -203,6 +203,12 @@ public class View {
                     Building building = field.getBuilding();
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
+
+                            for(int i = col; i <= col + building.getDepth()-1; i++) {
+                                // Obere Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(i, row);
+                                drawTileImage(i, row, image, false);
+                            }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
                         // obere ecke ist ein gebäude
@@ -211,6 +217,12 @@ public class View {
                             startRow = row + building.getWidth();
                             endCol = col;
                             startCol = endCol - building.getDepth()+2;
+                            for(int i = row; i <= startRow; i++) {
+                                // Rechte Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(col, i);
+                                drawTileImage(col, i, image, false);
+                            }
+
                         }
 
                     } else {
