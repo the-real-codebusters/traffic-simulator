@@ -62,13 +62,18 @@ public class MapGenerator {
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
-                int probWater = 1                                                 ;
+                //propability für Wasser
+                int probWater = 1;
                 if(row > 1 && col > 1) {
+                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
                     if(mapFieldGrid[row-1][col].getHeight() < 0) probWater+=345;
                     if(mapFieldGrid[row][col-1].getHeight() < 0) probWater+=500;
-                    if(mapFieldGrid[row-2][col].getHeight() < 0) probWater+=50;
+                    if(mapFieldGrid[row-2][col].getHeight() < 0) probWater+=90;
                     if(mapFieldGrid[row][col-2].getHeight() < 0) probWater+=50;
                 }
+
+
+
                 Building building = null;
                 int heightRandom =  new Random().nextInt(1000);
                 int height = 0;
@@ -76,6 +81,8 @@ public class MapGenerator {
                     height = -1;
                     mapFieldGrid[row][col] = new Tile(height, null);
                 }
+
+                //Wenn kein Wasser gesetzt ist, andere Höhen setzen
                 else {
                     if(heightRandom > 850 && heightRandom < 950) height = 1;
                     else if(heightRandom > 950 && heightRandom <= 970) height = 2;
@@ -89,5 +96,48 @@ public class MapGenerator {
 
             }
         }
+    }
+    public int generateTileHeight(){
+        int heightRandom =  0;
+        int firstDigit = new Random().nextInt(10);
+
+        int secondDigit = genrateNextNumber(firstDigit);
+        int thirdDigit = genrateNextNumber(secondDigit);
+        int fourthDigit = genrateNextNumber(thirdDigit);
+
+        if(Math.abs(firstDigit - fourthDigit) > 2){
+            int digit = new Random().nextInt(2) + 1;
+            if(firstDigit > fourthDigit) {
+                fourthDigit = fourthDigit + digit;
+            } else {
+                fourthDigit = fourthDigit - digit;
+            }
+        }
+
+        System.out.println(firstDigit + "" + secondDigit + "" + thirdDigit + "" + fourthDigit);
+
+        return heightRandom;
+    }
+
+    public int genrateNextNumber(int digitBefore){
+        Random r = new Random();
+
+        int low;
+        int high;
+        if(digitBefore != 0){
+            low = digitBefore-1;
+        } else {
+            low = digitBefore;
+        }
+
+        if(digitBefore == 9){
+            high = digitBefore;
+        } else {
+            high = digitBefore +1;
+        }
+
+        int digit = r.nextInt(high-low +1) + low;
+
+        return digit;
     }
 }

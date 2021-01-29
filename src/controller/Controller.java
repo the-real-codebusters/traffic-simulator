@@ -2,6 +2,7 @@ package controller;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import model.*;
@@ -40,6 +41,13 @@ public class Controller {
         view.drawMap();
         TrafficGraph graph = model.getTrafficGraph();
         pathfinder = new Pathfinder(graph);
+
+
+        view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
+                generator.generateTileHeight();
+            }
+        });
     }
 
     public List<Vertex> getVertexesOfGraph(){
