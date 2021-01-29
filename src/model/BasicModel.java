@@ -36,9 +36,11 @@ public class BasicModel {
         this.buildmenus = null;
     }
 
+    /**
+     * @param buildmenu
+     * @return Eine Liste von buildings, die alle das buildmenu haben
+     */
     public List<Building> getBuildingsForBuildmenu(String buildmenu) {
-        // TODO Benutze Buildings aus aus Model, wie von JSONParser eingelesen
-
         List<Building> bs = new ArrayList<>();
 
         for (Building building : buildings) {
@@ -67,8 +69,12 @@ public class BasicModel {
     }
 
 
+    /**
+     *
+     * @param special
+     * @return Eine Liste von buildings, die alle die Specialfunktion special haben
+     */
     public List<Special> getBuildingsForSpecialUse(String special) {
-
         List<Special> bs = new ArrayList<>();
 
         for (Building building : buildings) {
@@ -81,8 +87,8 @@ public class BasicModel {
 
     /**
      * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
-     * werden kann. Falls dies der Fall ist, wird ein neues building-objekt erzeugt, annsonsten wird null zurückgegeben
-     *
+     * werden kann. Falls dies der Fall ist, wird ein neues building-objekt erzeugt und zurückgegeben, ansonsten wird
+     * das selbe building Objekt zurückgegeben
      * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
      * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
      */
@@ -113,6 +119,11 @@ public class BasicModel {
         return sBuilding;
     }
 
+    /**
+     *
+     * @param name
+     * @return Eine Liste von buildings, die alle den Namen name haben
+     */
     public Building getBuildingByName(String name){
         for (Building building : buildings) {
             if (building.getBuildingName().equals(name)) {

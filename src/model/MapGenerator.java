@@ -24,6 +24,12 @@ public class MapGenerator {
         return mapFieldGrid;
     }
 
+    /**
+     * Generiert einige Fabriken auf die Map. Mindestens eine Fabrik jeden Typs
+     * @param mapWidth
+     * @param mapDepth
+     * @param basicModel
+     */
     private void generateFactories(int mapWidth, int mapDepth, BasicModel basicModel){
         List<Special> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
         Random randomGenerator = new Random();

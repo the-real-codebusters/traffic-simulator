@@ -67,12 +67,20 @@ public class Building {
     }
 
 
+    /**
+     * Gibt eine neue Instanz des Gebäudes zurück
+     * @return
+     */
     protected Building getNewInstance(){
         Building instance = new Building();
         setInstanceStandardAttributes(instance);
         return instance;
     }
 
+    /**
+     * Setzt die Standardattribute der Instanz auf die Werte dieses Gebäudes
+     * @param instance
+     */
     protected void setInstanceStandardAttributes(Building instance){
         instance.setBuildmenu(this.getBuildmenu());
         instance.setBuildingName(this.getBuildingName());

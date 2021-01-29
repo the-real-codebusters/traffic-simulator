@@ -24,6 +24,13 @@ public class MapModel {
         this.model = model;
     }
 
+    /**
+     * Platziert das Gebäude building an der angegebenen Stelle
+     * @param row
+     * @param column
+     * @param building
+     * @return
+     */
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
@@ -53,6 +60,13 @@ public class MapModel {
     }
 
 
+    /**
+     * Gibt zurück, ob das Gebäude an der angegebenen Stelle platziert werden darf
+     * @param row
+     * @param column
+     * @param building
+     * @return
+     */
     public boolean canPlaceBuilding(int row, int column, Building building){
         if((row+building.getWidth()) >= depth) return  false;
         if((column+building.getDepth()) >= width) return  false;
@@ -185,8 +199,8 @@ public class MapModel {
                         }
                     }
                 }
-        rawRoadGraph.checkForDuplicatePoints();
-        rawRoadGraph.printGraph();
+        trafficGraph.checkForDuplicatePoints();
+        trafficGraph.printGraph();
         System.out.println();
     }
 
