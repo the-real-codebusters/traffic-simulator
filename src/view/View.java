@@ -43,7 +43,7 @@ public class View {
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private Canvas canvas = new Canvas(1200, 600);
+    private Canvas canvas = new Canvas(600, 400);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -66,6 +66,7 @@ public class View {
 
     private double tickDuration = 1;
     BorderPane borderPane;
+    private ParallelTransition parallelTransition;
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -570,8 +571,8 @@ public class View {
                 }
             }
         };
-        ParallelTransition parallelTransition = new ParallelTransition(timeline);
-
+        parallelTransition = new ParallelTransition(timeline);
+        getMenuPane().getAnimationButton().setDisable(false);
         parallelTransition.setOnFinished(event -> {
             parallelTransition.stop();
             timer.stop();
@@ -637,6 +638,18 @@ public class View {
 
     public MenuPane getMenuPane() {
         return menuPane;
+    }
+
+    public ParallelTransition getParallelTransition() {
+        return parallelTransition;
+    }
+
+    public double getTickDuration() {
+        return tickDuration;
+    }
+
+    public void setTickDuration(double tickDuration) {
+        this.tickDuration = tickDuration;
     }
 }
 

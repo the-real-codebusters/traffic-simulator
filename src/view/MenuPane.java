@@ -1,6 +1,10 @@
 package view;
 
 import controller.Controller;
+import javafx.animation.ParallelTransition;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -12,6 +16,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 import model.*;
 
 import java.util.ArrayList;
@@ -35,6 +42,9 @@ public class MenuPane extends AnchorPane {
 
     ObjectToImageMapping mapping;
 
+    private boolean run = true;
+    private Button animationButton;
+
     public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
         this.canvas = canvas;
@@ -42,16 +52,42 @@ public class MenuPane extends AnchorPane {
         this.controller = controller;
         tabPane.setFocusTraversable(false);
 
+
         setCanvasEvents();
 
-        hBox = new HBox(tabPane);
-        this.getChildren().add(hBox);
+        animationButton = new Button("||");
+        animationButton.setDisable(view.getParallelTransition() == null);
+        animationButton.setOnAction(e -> {
 
+            ParallelTransition pt = view.getParallelTransition();
+
+            if (pt != null) {
+                if (run) {
+                    animationButton.setText(">");
+                    run = false;
+                    pt.stop();
+                }
+                else {
+                    animationButton.setText("||");
+                    run = true;
+                    //pt.play();
+                    pt.playFrom(Duration.seconds(1));
+                }
+            }
+        });
+        hBox = new HBox(tabPane);
+        HBox buttonBox = new HBox(animationButton);
+        buttonBox.setLayoutX(400);
+        this.getChildren().add(hBox);
         generateTabContents();
+
+        createTickSlider();
 
         for (int i = 0; i < tabNames.size(); i++) {
             addTab(tabNames.get(i), tabContents.get(i));
         }
+        this.getChildren().add(buttonBox);
+        //this.getChildren().add(slider);
     }
 
     /**
@@ -64,6 +100,43 @@ public class MenuPane extends AnchorPane {
         tab.setText(name);
         tab.setContent(content);
         tabPane.getTabs().add(tab);
+    }
+
+    /**
+     * Erstellt einen Slider zum Steuern von Tick-Duration
+     */
+    private void createTickSlider() {
+        Slider slider = new Slider();
+        slider.setLayoutX(450);
+        slider.setMin(0.01);
+        slider.setMax(5);
+        slider.setValue(view.getTickDuration());
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+        slider.setMajorTickUnit(50); //?
+        slider.setMinorTickCount(5); //?
+        slider.setBlockIncrement(1); //?
+        slider.valueProperty().addListener((observableValue, oldValue,newValue ) -> {
+            view.setTickDuration(newValue.doubleValue());
+        });
+        slider.setLabelFormatter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double n) {
+                if (n == 0.01) return "faster";
+                return "slower";
+            }
+
+            @Override
+            public Double fromString(String s) {
+                switch (s) {
+                    case "faster":
+                        return 0.01;
+                    default:
+                        return 5.0;
+                }
+            }
+        });
+        this.getChildren().add(slider);
     }
 
     /**
@@ -92,9 +165,11 @@ public class MenuPane extends AnchorPane {
                 String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
                 if (imageName == null) continue;
                 ImageView imageView = imageViewWithLayout(building);
+
                 container.getChildren().add(imageView);
                 //TODO
             }
+
             tabContents.set(tabNames.indexOf(name), container);
         }
     }
@@ -214,5 +289,9 @@ public class MenuPane extends AnchorPane {
 
     public MouseEvent getHoveredEvent() {
         return hoveredEvent;
+    }
+
+    public Button getAnimationButton() {
+        return animationButton;
     }
 }
