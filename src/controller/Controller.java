@@ -50,11 +50,7 @@ public class Controller {
                 double mouseY = event.getY();
                 Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
                 Tile selectedTile = model.getFieldGridOfMap()[(int)isoCoord.getX()][(int)isoCoord.getY()];
-                Map<String, Integer> cornerHeightsOfSelectedTile = selectedTile.getCornerHeights();
-                for (Map.Entry<String, Integer> entry : cornerHeightsOfSelectedTile.entrySet()) {
-                    System.out.print(entry.getKey() + ": " + entry.getValue() + "  ");
-                }
-                System.out.println();
+                generator.generateHeightMap();
             }
         });
     }
