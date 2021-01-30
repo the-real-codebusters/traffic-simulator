@@ -48,7 +48,8 @@ public class MapModel {
 
         if(instance instanceof Stop) {
             Station nextStation = getStationNextToStop(row, column, (Stop) instance);
-            Station station = new Station(model);
+//            ((Stop) instance).getSpecial().equals("busstop");
+            Station station = new Station(model, null, null, null);
             if(nextStation != null) {
                 station = nextStation;
             } else {
@@ -58,6 +59,7 @@ public class MapModel {
         }
         return instance;
     }
+
 
 
     /**
@@ -158,16 +160,24 @@ public class MapModel {
      * @param building die Instanz des Gebäudes, wessen Punkte hinzugefügt werden sollen
      * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
      * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @return Eine Liste der Vertices, die zum Graph hinzugefügt wurden
      */
-    public void addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
+    public List<Vertex> addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
         TrafficGraph trafficGraph;
-        if(building instanceof Road) {
+        if(building instanceof PartOfTrafficGraph) {
             trafficGraph = this.rawRoadGraph;
         }
         else {
-            return;
+            return new ArrayList<>();
             //TODO rails
         };
+
+        // TODO Vertex zusammenführen überprüfen
+
+        boolean isPointPartOfStation = false;
+        if(building instanceof Stop) isPointPartOfStation = true;
+        List<Vertex> addedVertices = new ArrayList<>();
+
                 Map<String, List<Double>> points = building.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
 
@@ -180,8 +190,12 @@ public class MapModel {
                     double yCoordOfPoint = entry.getValue().get(1);
 
                     Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
-
+                    v.setPointOfStation(isPointPartOfStation);
+                    if(isPointPartOfStation) {
+                        v.setStation(((Stop) building).getStation());
+                    }
                     trafficGraph.addVertex(v);
+                    addedVertices.add(v);
 
                     for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
@@ -202,6 +216,7 @@ public class MapModel {
         trafficGraph.checkForDuplicatePoints();
         trafficGraph.printGraph();
         System.out.println();
+        return addedVertices;
     }
 
 

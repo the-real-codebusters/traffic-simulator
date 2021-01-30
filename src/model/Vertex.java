@@ -17,7 +17,9 @@ public class Vertex {
     private int yCoordinateInGameMap;
 
     // Gibt an, ob ein Verkehrsmittel auf diesem Knoten halten darf. Ist true, wenn der Knoten zu einer Station gehört
-    private boolean isPointOfStation;
+    private boolean isPointOfStation = false;
+
+    private Station station = null;
 
     // Liste von Bauwerken, zu denen der Punkt gehört
     // Wenn ein Punkt zu einer Haltestelle gehört, darf ein Fahrzeug darauf anhalten
@@ -81,6 +83,22 @@ public class Vertex {
 
     public int getActualSearchLevel() {
         return actualSearchLevel;
+    }
+
+    public boolean isPointOfStation() {
+        return isPointOfStation;
+    }
+
+    public void setPointOfStation(boolean pointOfStation) {
+        isPointOfStation = pointOfStation;
+    }
+
+    public Station getStation() {
+        return station;
+    }
+
+    public void setStation(Station station) {
+        this.station = station;
     }
 
     @Override

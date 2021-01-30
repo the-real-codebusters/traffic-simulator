@@ -100,8 +100,52 @@ public class Controller {
             Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
 
             if(placedBuilding instanceof PartOfTrafficGraph){
-                model.getMap().addPointsToGraph((PartOfTrafficGraph) placedBuilding, xCoord, yCoord);
+                PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) placedBuilding;
+                List<Vertex> addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
+                if(placedBuilding instanceof Stop){
+                    Station actualStation = ((Stop) placedBuilding).getStation();
+                    List<Vertex> pathToStation = pathfinder.findPathToNextStation(addedVertices.get(0), actualStation);
+                    // TODO Was wenn die Liste addedVertices leer ist?
+
+                    boolean anotherStationFindable = false;
+                    if(pathToStation.size() > 0) anotherStationFindable = true;
+
+                    TrafficType trafficType = placedBuilding.getTrafficType();
+
+                    if(anotherStationFindable) {
+                        Vertex lastVertex = pathToStation.get(pathToStation.size()-1);
+                        Station nextStation = lastVertex.getStation();
+                        if(trafficType.equals(TrafficType.ROAD)){
+                            System.out.println("nextStation "+nextStation.getId());
+                            System.out.println("roadTrafficLine "+nextStation.getRoadTrafficLine());
+                            nextStation.getRoadTrafficLine().getStations().add(actualStation);
+                        }
+                        else ; //TODO
+                    }
+                    else {
+                        TrafficLine trafficLine = null;
+                        switch (trafficType) {
+                            case AIR: break;
+                            case RAIL: break;
+                            case ROAD:  trafficLine = new RoadTrafficLine(3);
+                                        actualStation.setRoadTrafficLine(trafficLine);
+                                        break;
+                            default: break;
+                        }
+                        // TODO AIR, RAIL, desiredNumber
+
+                        placedBuilding.setTrafficLine(trafficLine);
+                }
+
+                }
+
             }
+
+
+
+            // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
+            // Wenn nein, dann neu erstellen
 
             view.drawMap();
             startCarMovement();

@@ -176,8 +176,8 @@ public class MenuPane extends AnchorPane {
             }
         });
 
-        // Bei einem Linksklick wird das ausgewählt Gebäude nicht mehr ausgewählt
-        // Bei einem Rechtsklick wird das ausgewählte Gebäude platziert, sollte eines ausgewählt sein.
+        // Bei einem Rechtsklick wird das ausgewählt Gebäude nicht mehr ausgewählt
+        // Bei einem Linksklick wird das ausgewählte Gebäude platziert, sollte eines ausgewählt sein.
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                 selectedBuilding = null;

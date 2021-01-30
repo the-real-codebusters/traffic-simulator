@@ -18,6 +18,7 @@ public class Factory extends Special {
         instance.setConsume(Map.copyOf(consume));
         instance.setProduce(Map.copyOf(produce));
         instance.setSpecial(getSpecial());
+        setTrafficType(TrafficType.NONE);
         return instance;
     }
 

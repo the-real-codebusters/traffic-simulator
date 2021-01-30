@@ -9,6 +9,8 @@ public class Building {
 
     protected int originColumn;
     protected int originRow;
+    private TrafficType trafficType;
+    private TrafficLine trafficLine;
 
     public int getOriginColumn() {
         return originColumn;
@@ -82,6 +84,21 @@ public class Building {
         return dz;
     }
 
+    public TrafficLine getTrafficLine() {
+        return trafficLine;
+    }
+
+    public void setTrafficLine(TrafficLine trafficLine) {
+        this.trafficLine = trafficLine;
+    }
+
+    public TrafficType getTrafficType() {
+        return trafficType;
+    }
+
+    public void setTrafficType(TrafficType trafficType) {
+        this.trafficType = trafficType;
+    }
 
     /**
      * Gibt eine neue Instanz des Gebäudes zurück

@@ -9,6 +9,7 @@ public class Tower extends Stop{
         setInstanceStandardAttributes(instance);
         instance.setSpecial(getSpecial());
         instance.setMaxplanes(maxplanes);
+        setTrafficType(TrafficType.AIR);
         return instance;
     }
 

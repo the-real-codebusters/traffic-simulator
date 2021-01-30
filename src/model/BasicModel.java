@@ -5,6 +5,8 @@ import java.util.*;
 public class BasicModel {
     private Set<String> commodities;
     //    private List<Reservation> reservations;
+
+    // ein day = ein tick
     private int day;
     private double speedOfDay;
     private MapModel map;
@@ -34,6 +36,11 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
+    }
+
+    public void simulateOneDay(){
+
+        day++;
     }
 
     /**
@@ -97,10 +104,10 @@ public class BasicModel {
         Tile selectedTile = getMap().getTileGrid()[xCoord][yCoord];
         Building buildingOnSelectedTile = selectedTile.getBuilding();
         Map<String, String> combinations = null;
-        if (buildingOnSelectedTile instanceof Road) {
+        if (sBuilding instanceof Road) {
             combinations = ((Road) sBuilding).getCombines();
         }
-        else if(buildingOnSelectedTile instanceof Rail) {
+        else if(sBuilding instanceof Rail) {
             combinations = ((Rail) sBuilding).getCombines();
         }
         if(combinations != null){

@@ -15,14 +15,22 @@ public class Station {
     private static final AtomicLong NEXT_ID = new AtomicLong(0);
     private final long id = NEXT_ID.getAndIncrement();
     private int maxPlanes = 0;
+    private TrafficLine roadTrafficLine;
+    private TrafficLine railTrafficLine;
+    private TrafficLine airTrafficLine;
 
-    public Station(BasicModel model) {
+
+    public Station(BasicModel model, TrafficLine roadTrafficLine,  TrafficLine railTrafficLine, TrafficLine airTrafficLine) {
         // Stations haben unendliche Lagerkapazität
         Map<String, Integer> maximumCargo = new HashMap<>();
         for(String commodity: model.getCommodities()) {
             maximumCargo.put(commodity, Integer.MAX_VALUE);
         }
         storage = new Storage(maximumCargo);
+
+        this.roadTrafficLine = roadTrafficLine;
+        this.railTrafficLine = railTrafficLine;
+        this.airTrafficLine = airTrafficLine;
     }
 
     public boolean addBuilding(Stop building){
@@ -58,5 +66,29 @@ public class Station {
 
     public long getId() {
         return id;
+    }
+
+    public TrafficLine getRoadTrafficLine() {
+        return roadTrafficLine;
+    }
+
+    public void setRoadTrafficLine(TrafficLine roadTrafficLine) {
+        this.roadTrafficLine = roadTrafficLine;
+    }
+
+    public TrafficLine getRailTrafficLine() {
+        return railTrafficLine;
+    }
+
+    public void setRailTrafficLine(TrafficLine railTrafficLine) {
+        this.railTrafficLine = railTrafficLine;
+    }
+
+    public TrafficLine getAirTrafficLine() {
+        return airTrafficLine;
+    }
+
+    public void setAirTrafficLine(TrafficLine airTrafficLine) {
+        this.airTrafficLine = airTrafficLine;
     }
 }
