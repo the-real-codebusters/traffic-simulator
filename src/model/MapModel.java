@@ -27,7 +27,7 @@ public class MapModel {
         Building instance = building.getNewInstance();
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(0, instance);
+                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(instance, fieldGrid[r][c].getCornerHeights(), false);
                 else fieldGrid[r][c].setBuilding(instance);
             }
         }
@@ -56,7 +56,7 @@ public class MapModel {
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = fieldGrid[r][c];
-                if(tile.getHeight() < 0) return false;
+//                if(tile.getHeight() < 0) return false;
                 if(tile.getBuilding() instanceof Road) return true;
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
@@ -154,11 +154,11 @@ public class MapModel {
     public void printFieldsArray() {
         for (int row = 0; row < depth; row++) {
             for (int column = 0; column < width; column++) {
-                if (fieldGrid[row][column].getHeight() < 0) {
-                    System.out.print("[" + row + ", " + column + "]water" + " ");
-                } else {
-                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
-                }
+//                if (fieldGrid[row][column].getHeight() < 0) {
+//                    System.out.print("[" + row + ", " + column + "]water" + " ");
+//                } else {
+//                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
+//                }
             }
             System.out.println();
         }

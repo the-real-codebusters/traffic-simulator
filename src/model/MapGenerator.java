@@ -1,7 +1,6 @@
 package model;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class MapGenerator {
     private String generatorName;
@@ -66,78 +65,101 @@ public class MapGenerator {
                 int probWater = 1;
                 if(row > 1 && col > 1) {
                     //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
-                    if(mapFieldGrid[row-1][col].getHeight() < 0) probWater+=345;
-                    if(mapFieldGrid[row][col-1].getHeight() < 0) probWater+=500;
-                    if(mapFieldGrid[row-2][col].getHeight() < 0) probWater+=90;
-                    if(mapFieldGrid[row][col-2].getHeight() < 0) probWater+=50;
+                    if(mapFieldGrid[row-1][col].isWater()) probWater+=345;
+                    if(mapFieldGrid[row][col-1].isWater()) probWater+=500;
+                    if(mapFieldGrid[row-2][col].isWater()) probWater+=90;
+                    if(mapFieldGrid[row][col-2].isWater()) probWater+=50;
                 }
-
 
 
                 Building building = null;
                 int heightRandom =  new Random().nextInt(1000);
-                int height = 0;
                 if(heightRandom <= probWater) {
-                    height = -1;
-                    mapFieldGrid[row][col] = new Tile(height, null);
+                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
+                    cornerHeights.put("cornerN", -1);
+                    cornerHeights.put("cornerE", -1);
+                    cornerHeights.put("cornerS", -1);
+                    cornerHeights.put("cornerW", -1);
+
+                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
                 }
 
                 //Wenn kein Wasser gesetzt ist, andere Höhen setzen
                 else {
-                    if(heightRandom > 850 && heightRandom < 950) height = 1;
-                    else if(heightRandom > 950 && heightRandom <= 970) height = 2;
-                    else if(heightRandom > 970 && heightRandom <= 985) height = 3;
-                    else if(heightRandom > 985) height = 4;
-
                     int buildingRandom = new Random().nextInt(natureBuildings.size());
                     building = natureBuildings.get(buildingRandom).getNewInstance();
-                    mapFieldGrid[row][col] = new Tile(height, building);
+                    mapFieldGrid[row][col] = new Tile(building, generateTileHeight(), false);
                 }
 
             }
         }
     }
-    public int generateTileHeight(){
-        int heightRandom =  0;
-        int firstDigit = new Random().nextInt(10);
 
-        int secondDigit = genrateNextNumber(firstDigit);
-        int thirdDigit = genrateNextNumber(secondDigit);
-        int fourthDigit = genrateNextNumber(thirdDigit);
+    /**
+     * Generiert Höhen für die vier Ecken eines Tiles unter Berücksichtigung der Einschränkungen (benachbarte Ecken
+     * dürfen einen Höhenunterschied von max. 1 haben und diagonal gegenüberliegende Ecken max. 2
+     * @return eine Map, die die Ecken eines Tiles auf die zugehörige Höhe abbildet
+     */
+    public Map<String, Integer> generateTileHeight(){
+        Map<String, Integer> cornerHeights = new LinkedHashMap<>();
 
-        if(Math.abs(firstDigit - fourthDigit) > 1){
+        int cornerN = new Random().nextInt(5);
+        int cornerE = generateHeightForCorner(cornerN);
+        int cornerS = generateHeightForCorner(cornerE);
+        int cornerW = generateHeightForCorner(cornerS);
+
+        // prüfe ob max. Höhenunterschied zwischen gegenüberliegenden Ecken eingehalten wird
+        // falls nicht, ändere den Wert
+        if(Math.abs(cornerN - cornerW) > 1){
             int digit = new Random().nextInt(1) + 1;
-            if(firstDigit > fourthDigit) {
-                fourthDigit = fourthDigit + digit;
-            } else {
-                fourthDigit = fourthDigit - digit;
+            if (Math.abs(cornerN - cornerW) > 2) {
+                digit = 2;
             }
+            if(cornerN > cornerW) cornerW = cornerW + digit;
+            else cornerW = cornerW - digit;
         }
 
-        System.out.println(firstDigit + "" + secondDigit + "" + thirdDigit + "" + fourthDigit);
+        // Füge gefundene Höhen der Map hinzu
+        cornerHeights.put("cornerN", cornerN);
+        cornerHeights.put("cornerE", cornerE);
+        cornerHeights.put("cornerS", cornerS);
+        cornerHeights.put("cornerW", cornerW);
 
-        return heightRandom;
+        System.out.println(cornerN + "" + cornerE + "" + cornerS + "" + cornerW);
+
+        for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()) {
+            System.out.print(entry.getKey() + ": " + entry.getValue() + "  ");
+        }
+        System.out.println();
+
+        return cornerHeights;
     }
 
-    public int genrateNextNumber(int digitBefore){
+
+    /**
+     * Generiert eine Zahl für die Ecke eines Tiles unter berücksichtigung der Höhe der vorherigen Ecke
+     * @param digitBefore von dieser Ecke ausgehend wird die Höhe der nächsten benachbarten Kante generiert
+     * @return Höhe einer Ecke
+     */
+    public int generateHeightForCorner(int digitBefore){
         Random r = new Random();
 
-        int low;
-        int high;
+        int minHeight;
+        int maxHeight;
         if(digitBefore != 0){
-            low = digitBefore-1;
+            minHeight = digitBefore-1;
         } else {
-            low = digitBefore;
+            minHeight = digitBefore;
         }
 
         if(digitBefore == 9){
-            high = digitBefore;
+            maxHeight = digitBefore;
         } else {
-            high = digitBefore +1;
+            maxHeight = digitBefore +1;
         }
 
-        int digit = r.nextInt(high-low +1) + low;
+        int heightOfNextCorner = r.nextInt(maxHeight-minHeight +1) + minHeight;
 
-        return digit;
+        return heightOfNextCorner;
     }
 }
