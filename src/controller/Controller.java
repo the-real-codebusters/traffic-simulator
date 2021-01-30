@@ -12,6 +12,7 @@ import view.View;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Controller {
     private View view;
@@ -26,7 +27,7 @@ public class Controller {
         selectedBuilding = view.getMenuPane().getSelectedBuilding();
 
         MapModel map = model.getMap();
-        model.printModelAttributes();
+//        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
@@ -45,7 +46,15 @@ public class Controller {
         // Ist momentan nur zum Testen da
         view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
-                generator.generateTileHeight();
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+                Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+                Tile selectedTile = model.getFieldGridOfMap()[(int)isoCoord.getX()][(int)isoCoord.getY()];
+                Map<String, Integer> cornerHeightsOfSelectedTile = selectedTile.getCornerHeights();
+                for (Map.Entry<String, Integer> entry : cornerHeightsOfSelectedTile.entrySet()) {
+                    System.out.print(entry.getKey() + ": " + entry.getValue() + "  ");
+                }
+                System.out.println();
             }
         });
     }

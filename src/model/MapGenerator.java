@@ -125,12 +125,12 @@ public class MapGenerator {
         cornerHeights.put("cornerS", cornerS);
         cornerHeights.put("cornerW", cornerW);
 
-        System.out.println(cornerN + "" + cornerE + "" + cornerS + "" + cornerW);
+//        System.out.println(cornerN + "" + cornerE + "" + cornerS + "" + cornerW);
 
-        for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()) {
-            System.out.print(entry.getKey() + ": " + entry.getValue() + "  ");
-        }
-        System.out.println();
+//        for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()) {
+//            System.out.print(entry.getKey() + ": " + entry.getValue() + "  ");
+//        }
+//        System.out.println();
 
         return cornerHeights;
     }
