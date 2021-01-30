@@ -9,7 +9,7 @@ public class MapModel {
 
     private int width;
     private int depth;
-    private Tile[][] fieldGrid;
+    private Tile[][] tileGrid;
 
     private BasicModel model;
     private Long adjacentStationId;
@@ -20,7 +20,7 @@ public class MapModel {
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
         this.depth = depth;
-        this.fieldGrid = new Tile[depth][width];
+        this.tileGrid = new Tile[depth][width];
         this.model = model;
     }
 
@@ -37,11 +37,11 @@ public class MapModel {
         if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(0, instance);
-                else fieldGrid[r][c].setBuilding(instance);
+                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(0, instance);
+                else tileGrid[r][c].setBuilding(instance);
             }
         }
-        Tile originTile = fieldGrid[row][column];
+        Tile originTile = tileGrid[row][column];
         originTile.setBuildingOrigin(true);
         instance.setOriginColumn(column);
         instance.setOriginRow(row);
@@ -75,7 +75,7 @@ public class MapModel {
 
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
-                Tile tile = fieldGrid[r][c];
+                Tile tile = tileGrid[r][c];
                 if(tile.getHeight() < 0) return false;
                 if(tile.getBuilding() instanceof Road) {
                     // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
@@ -89,22 +89,22 @@ public class MapModel {
         if(building instanceof Stop){
             adjacentStationId = -1L;
             for(int r=row; r<row+building.getWidth(); r++){
-                Building adjacentBuilding = fieldGrid[r][column -1].getBuilding();
+                Building adjacentBuilding = tileGrid[r][column -1].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
-                adjacentBuilding = fieldGrid[r][column+ building.getDepth()].getBuilding();
+                adjacentBuilding = tileGrid[r][column+ building.getDepth()].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
             }
 
             for(int c=column; c<column+building.getDepth(); c++){
-                Building adjacentBuilding = fieldGrid[row-1][c].getBuilding();
+                Building adjacentBuilding = tileGrid[row-1][c].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
-                adjacentBuilding = fieldGrid[row+building.getWidth()][c].getBuilding();
+                adjacentBuilding = tileGrid[row+building.getWidth()][c].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
@@ -116,22 +116,22 @@ public class MapModel {
     private Station getStationNextToStop(int row, int column, Stop building){
         Station station;
         for(int r=row; r<row+building.getWidth(); r++){
-            Building adjacentBuilding = fieldGrid[r][column -1].getBuilding();
+            Building adjacentBuilding = tileGrid[r][column -1].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
-            adjacentBuilding = fieldGrid[r][column+ building.getDepth()].getBuilding();
+            adjacentBuilding = tileGrid[r][column+ building.getDepth()].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
         }
 
         for(int c=column; c<column+building.getDepth(); c++){
-            Building adjacentBuilding = fieldGrid[row-1][c].getBuilding();
+            Building adjacentBuilding = tileGrid[row-1][c].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
-            adjacentBuilding = fieldGrid[row+building.getWidth()][c].getBuilding();
+            adjacentBuilding = tileGrid[row+building.getWidth()][c].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
@@ -235,11 +235,11 @@ public class MapModel {
     }
 
     public Tile[][] getTileGrid() {
-        return fieldGrid;
+        return tileGrid;
     }
 
-    public void setFieldGrid(Tile[][] fieldGrid) {
-        this.fieldGrid = fieldGrid;
+    public void setTileGrid(Tile[][] tileGrid) {
+        this.tileGrid = tileGrid;
     }
 
 
@@ -247,10 +247,10 @@ public class MapModel {
     public void printFieldsArray() {
         for (int row = 0; row < depth; row++) {
             for (int column = 0; column < width; column++) {
-                if (fieldGrid[row][column].getHeight() < 0) {
+                if (tileGrid[row][column].getHeight() < 0) {
                     System.out.print("[" + row + ", " + column + "]water" + " ");
                 } else {
-                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
+                    System.out.print("[" + row + ", " + column + "]" + tileGrid[row][column].getBuilding().getBuildingName() + " ");
                 }
             }
             System.out.println();

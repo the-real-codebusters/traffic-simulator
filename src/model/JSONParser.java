@@ -204,14 +204,25 @@ public class JSONParser {
                 vehicle.setSpeed(handleContentAsDouble(vehicles, children[i], 0.0, null));
             }  else if ("kind".equals(children[i])) {
                 kind = handleContentAsString(vehicles, children[i]);
-                vehicle.setKind(kind);
+                if(kind.equals("Road Vehicle")){
+                    vehicle.setKind(TrafficType.ROAD);
+                }
+                else if(kind.equals("Wagon")){
+                    vehicle.setKind(TrafficType.RAIL);
+                }
+                else if(kind.equals("Engine")){
+                    vehicle.setKind(TrafficType.RAIL);
+                }
+                else if(kind.equals("Plane")){
+                    vehicle.setKind(TrafficType.AIR);
+                }
             } else if ("graphic".equals(children[i])) {
                 vehicle.setGraphic(handleContentAsString(vehicles, children[i]));
             } else if( "cargo".equals(children[i])) {
                 handleCargoContent(vehicles, children[i], vehicle);
             }
         }
-        model.getVehicles().add(vehicle);
+        model.getVehiclesTypes().add(vehicle);
         return kind;
     }
 

@@ -2,18 +2,20 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 
 public class TrafficLine {
 
-    private List<Station> stations = new ArrayList<>();
-    private int desiredNumberOfVehicles;
-    private List<Vehicle> vehicles = new ArrayList<>();
+    protected List<Station> stations = new ArrayList<>();
+    protected int desiredNumberOfVehicles;
+    protected List<Vehicle> vehicles = new ArrayList<>();
+    protected BasicModel model;
 
     public TrafficLine(int desiredNumberOfVehicles) {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
     }
 
-    private boolean checkIfMoreThanOneStation(){
+    public boolean checkIfMoreThanOneStation(){
         return stations.size() >= 2;
     }
 
@@ -31,6 +33,14 @@ public class TrafficLine {
 
     public void setDesiredNumberOfVehicles(int desiredNumberOfVehicles) {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
+    }
+
+    public BasicModel getModel() {
+        return model;
+    }
+
+    public void setModel(BasicModel model) {
+        this.model = model;
     }
 
     public List<Vehicle> getVehicles() {

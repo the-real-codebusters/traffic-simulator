@@ -16,7 +16,9 @@ public class BasicModel {
 
     private Set<String> buildmenus = new HashSet<>();
     private List<Building> buildings = new ArrayList<>();
-    private List<Vehicle> vehicles = new ArrayList<>();
+    private List<Vehicle> vehiclesTypes = new ArrayList<>();
+
+    private Queue<TrafficLine> newCreatedTrafficLines = new ArrayDeque<>();
 
     public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
                       Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
@@ -39,8 +41,27 @@ public class BasicModel {
     }
 
     public void simulateOneDay(){
+        while(!newCreatedTrafficLines.isEmpty()){
+            TrafficLine newTrafficLine = newCreatedTrafficLines.remove();
+            if(newTrafficLine.checkIfMoreThanOneStation()){
+                if(newTrafficLine instanceof RoadTrafficLine){
+                    ((RoadTrafficLine) newTrafficLine).addNewVehicle();
+                }
+            }
+            else ;//TODO
+        }
 
         day++;
+    }
+
+    public List<Vehicle> getVehiclesForType(TrafficType type){
+        List<Vehicle> desiredVehicles = new ArrayList<>();
+        for(Vehicle v: vehiclesTypes){
+            if(v.getKind().equals(type)){
+                desiredVehicles.add(v);
+            }
+        }
+        return desiredVehicles;
     }
 
     /**
@@ -140,12 +161,12 @@ public class BasicModel {
         return null;
     }
 
-    public List<Vehicle> getVehicles() {
-        return vehicles;
+    public List<Vehicle> getVehiclesTypes() {
+        return vehiclesTypes;
     }
 
-    public void setVehicles(List<Vehicle> vehicles) {
-        this.vehicles = vehicles;
+    public void setVehiclesTypes(List<Vehicle> vehiclesTypes) {
+        this.vehiclesTypes = vehiclesTypes;
     }
 
     public void addCommodities(List<String> commodities) {
@@ -192,7 +213,16 @@ public class BasicModel {
         this.map = map;
     }
 
-//    public ToolsModel getTools() {
+    public Queue<TrafficLine> getNewCreatedTrafficLines() {
+        return newCreatedTrafficLines;
+    }
+
+    public void setNewCreatedTrafficLines(Queue<TrafficLine> newCreatedTrafficLines) {
+        this.newCreatedTrafficLines = newCreatedTrafficLines;
+    }
+
+
+    //    public ToolsModel getTools() {
 //        return tools;
 //    }
 //
@@ -245,7 +275,7 @@ public class BasicModel {
         }
         System.out.println("");
         System.out.print("Vehicles: ");
-        for (Vehicle vehicle : vehicles) {
+        for (Vehicle vehicle : vehiclesTypes) {
             System.out.print(vehicle.getGraphic() + ", ");
         }
     }

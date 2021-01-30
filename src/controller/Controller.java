@@ -27,7 +27,7 @@ public class Controller {
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
         Tile[][] generatedMap = generator.generateMap(model);
-        map.setFieldGrid(generatedMap);
+        map.setTileGrid(generatedMap);
 
         view.setController(this);
         view.storeImageRatios();
@@ -136,6 +136,7 @@ public class Controller {
                         // TODO AIR, RAIL, desiredNumber
 
                         placedBuilding.setTrafficLine(trafficLine);
+                        model.getNewCreatedTrafficLines().add(trafficLine);
                 }
 
                 }
