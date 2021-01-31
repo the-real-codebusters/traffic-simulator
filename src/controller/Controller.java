@@ -42,6 +42,11 @@ public class Controller {
         view.drawMap();
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
+        model.setPathfinder(pathfinder);
+    }
+
+    public void simulateOneDay(){
+        List<Vehicle> activeVehicles = model.simulateOneDay();
 
     }
 
@@ -119,7 +124,7 @@ public class Controller {
                         if(trafficType.equals(TrafficType.ROAD)){
                             System.out.println("nextStation "+nextStation.getId());
                             System.out.println("roadTrafficLine "+nextStation.getRoadTrafficLine());
-                            nextStation.getRoadTrafficLine().getStations().add(actualStation);
+                            nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(actualStation);
                         }
                         else ; //TODO
                     }
@@ -128,7 +133,7 @@ public class Controller {
                         switch (trafficType) {
                             case AIR: break;
                             case RAIL: break;
-                            case ROAD:  trafficLine = new RoadTrafficLine(3);
+                            case ROAD:  trafficLine = new RoadTrafficLine(3, model);
                                         actualStation.setRoadTrafficLine(trafficLine);
                                         break;
                             default: break;

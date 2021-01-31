@@ -18,7 +18,13 @@ public class BasicModel {
     private List<Building> buildings = new ArrayList<>();
     private List<Vehicle> vehiclesTypes = new ArrayList<>();
 
+    // Die Verkehrslinien, die seit dem letzten Tag neu erstellt wurden oder nur eine Station haben und damit unfertig sind.
     private Queue<TrafficLine> newCreatedTrafficLines = new ArrayDeque<>();
+
+    // Alle Verkehrslinien mit mehr als einer Station, die schon Verkehrsmittel auf sich fahren haben sollten
+    private List<TrafficLine> activeTrafficLIne = new ArrayList<>();
+
+    private Pathfinder pathfinder;
 
     public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
                       Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
@@ -40,7 +46,9 @@ public class BasicModel {
         this.buildmenus = null;
     }
 
-    public void simulateOneDay(){
+    /// Gibt eine Liste von aktiven Fahrzeugen zurück
+    public List<Vehicle> simulateOneDay(){
+        List<TrafficLine> incompleteTrafficLines = new ArrayList<>();
         while(!newCreatedTrafficLines.isEmpty()){
             TrafficLine newTrafficLine = newCreatedTrafficLines.remove();
             if(newTrafficLine.checkIfMoreThanOneStation()){
@@ -48,10 +56,20 @@ public class BasicModel {
                     ((RoadTrafficLine) newTrafficLine).addNewVehicle();
                 }
             }
-            else ;//TODO
+            else {
+                incompleteTrafficLines.add(newTrafficLine);
+            }
+        }
+        newCreatedTrafficLines.addAll(incompleteTrafficLines);
+
+        List<Vehicle> activeVehicles = new ArrayList<>();
+        for(TrafficLine activeLine: activeTrafficLIne){
+            activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
 
+
         day++;
+        return activeVehicles;
     }
 
     public List<Vehicle> getVehiclesForType(TrafficType type){
@@ -195,6 +213,14 @@ public class BasicModel {
 
     public void setDay(int day) {
         this.day = day;
+    }
+
+    public Pathfinder getPathfinder() {
+        return pathfinder;
+    }
+
+    public void setPathfinder(Pathfinder pathfinder) {
+        this.pathfinder = pathfinder;
     }
 
     public double getSpeedOfDay() {

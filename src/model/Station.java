@@ -19,6 +19,9 @@ public class Station {
     private TrafficLine railTrafficLine;
     private TrafficLine airTrafficLine;
 
+    private List<Station> directlyConnectedStations = new ArrayList<>();
+
+
 
     public Station(BasicModel model, TrafficLine roadTrafficLine,  TrafficLine railTrafficLine, TrafficLine airTrafficLine) {
         // Stations haben unendliche Lagerkapazität
@@ -90,5 +93,13 @@ public class Station {
 
     public void setAirTrafficLine(TrafficLine airTrafficLine) {
         this.airTrafficLine = airTrafficLine;
+    }
+
+    public List<Station> getDirectlyConnectedStations() {
+        return directlyConnectedStations;
+    }
+
+    public void setDirectlyConnectedStations(List<Station> directlyConnectedStations) {
+        this.directlyConnectedStations = directlyConnectedStations;
     }
 }

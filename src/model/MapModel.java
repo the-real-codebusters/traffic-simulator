@@ -193,15 +193,14 @@ public class MapModel {
                     v.setPointOfStation(isPointPartOfStation);
                     if(isPointPartOfStation) {
                         v.setStation(((Stop) building).getStation());
+                        ((Stop) building).getVertices().add(v);
                     }
                     trafficGraph.addVertex(v);
                     addedVertices.add(v);
 
                     for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
-                        System.out.println(building.getTransportations());
-                        System.out.println(building.getBuildingName());
-                        for (int i = 0; i < edges.size(); i++) {
+                            for (int i = 0; i < edges.size(); i++) {
                             String from = identifier + edges.get(i).get(0);
                             String to = identifier + edges.get(i).get(1);
 //                            System.out.println("From: " + from);

@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class RoadTrafficLine extends TrafficLine{
 
-    public RoadTrafficLine(int desiredNumberOfVehicles) {
-        super(desiredNumberOfVehicles);
+    public RoadTrafficLine(int desiredNumberOfVehicles, BasicModel model) {
+        super(desiredNumberOfVehicles, model, TrafficType.ROAD);
     }
 
     public void addNewVehicle(){
@@ -17,6 +17,7 @@ public class RoadTrafficLine extends TrafficLine{
         int randomInt = randomGenerator.nextInt(vehicleTypes.size()) -1;
         Vehicle vehicle = vehicleTypes.get(randomInt).getNewInstance();
         System.out.println(vehicle.getKind());
+        System.out.println("Speed "+vehicle.getSpeed());
     }
 
 }

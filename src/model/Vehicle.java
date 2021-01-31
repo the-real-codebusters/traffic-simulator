@@ -27,6 +27,12 @@ public class Vehicle {
         return instance;
     }
 
+    // Wo startet das Fahrzeug?
+    // Wo will es hin?
+    public void searchForPath(){
+
+    }
+
     /**
      * Lädt eine Ware commodity mit der Menge amount ein. Wenn mehr Waren eingeladen werden sollen als Platz vorhanden
      * ist, wird der Rest der Ware vernichtet.
