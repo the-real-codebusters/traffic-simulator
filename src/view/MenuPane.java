@@ -52,9 +52,46 @@ public class MenuPane extends AnchorPane {
         this.controller = controller;
         tabPane.setFocusTraversable(false);
 
-
         setCanvasEvents();
 
+        createAnimationButton();
+
+        // HBox mit Reitern
+        hBox = new HBox(tabPane);
+        // Abstand zwischen einzelnen HBox-Elementen
+        hBox.setSpacing(10);
+        // X-Startwert der H-Box
+        hBox.setLayoutX(10);
+        // Button in einer H-Box
+        HBox buttonBox = new HBox(animationButton);
+        // Button an erste Stelle hinzufügen
+        hBox.getChildren().add(0, buttonBox);
+        this.getChildren().add(hBox);
+        generateTabContents();
+        // erzeuge SLider und füge in an 2.Stelle der H-Box hinzu
+        createTickSlider();
+
+        for (int i = 0; i < tabNames.size(); i++) {
+            addTab(tabNames.get(i), tabContents.get(i));
+        }
+    }
+
+    /**
+     * Fügt einen Tab zu der tabPane hinzu
+     * @param name
+     * @param content
+     */
+    private void addTab(String name, Node content) {
+        Tab tab = new Tab();
+        tab.setText(name);
+        tab.setContent(content);
+        tabPane.getTabs().add(tab);
+    }
+
+    /**
+     * Erzeugt einen Button zum Starten/Pausieren von Simulation
+     */
+    private void createAnimationButton() {
         animationButton = new Button("||");
         animationButton.setDisable(view.getParallelTransition() == null);
         animationButton.setOnAction(e -> {
@@ -75,31 +112,6 @@ public class MenuPane extends AnchorPane {
                 }
             }
         });
-        hBox = new HBox(tabPane);
-        HBox buttonBox = new HBox(animationButton);
-        buttonBox.setLayoutX(400);
-        this.getChildren().add(hBox);
-        generateTabContents();
-
-        createTickSlider();
-
-        for (int i = 0; i < tabNames.size(); i++) {
-            addTab(tabNames.get(i), tabContents.get(i));
-        }
-        this.getChildren().add(buttonBox);
-        //this.getChildren().add(slider);
-    }
-
-    /**
-     * Fügt einen Tab zu der tabPane hinzu
-     * @param name
-     * @param content
-     */
-    private void addTab(String name, Node content) {
-        Tab tab = new Tab();
-        tab.setText(name);
-        tab.setContent(content);
-        tabPane.getTabs().add(tab);
     }
 
     /**
@@ -107,15 +119,16 @@ public class MenuPane extends AnchorPane {
      */
     private void createTickSlider() {
         Slider slider = new Slider();
-        slider.setLayoutX(450);
+        slider.setLayoutX(view.getCanvas().getWidth()-10);
         slider.setMin(0.01);
         slider.setMax(5);
         slider.setValue(view.getTickDuration());
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(50); //?
-        slider.setMinorTickCount(5); //?
-        slider.setBlockIncrement(1); //?
+       // slider.setMajorTickUnit(50); //?
+       // slider.setMinorTickCount(5); //?
+        slider.setBlockIncrement(1);
+
         slider.valueProperty().addListener((observableValue, oldValue,newValue ) -> {
             view.setTickDuration(newValue.doubleValue());
         });
@@ -136,7 +149,7 @@ public class MenuPane extends AnchorPane {
                 }
             }
         });
-        this.getChildren().add(slider);
+        hBox.getChildren().add(1, slider);
     }
 
     /**
