@@ -5,6 +5,8 @@ import java.util.*;
 public class BasicModel {
     private Set<String> commodities;
     //    private List<Reservation> reservations;
+
+    // ein day = ein tick
     private int day;
     private double speedOfDay;
     private MapModel map;
@@ -14,7 +16,15 @@ public class BasicModel {
 
     private Set<String> buildmenus = new HashSet<>();
     private List<Building> buildings = new ArrayList<>();
-    private List<Vehicle> vehicles = new ArrayList<>();
+    private List<Vehicle> vehiclesTypes = new ArrayList<>();
+
+    // Die Verkehrslinien, die seit dem letzten Tag neu erstellt wurden oder nur eine Station haben und damit unfertig sind.
+    private Queue<TrafficLine> newCreatedTrafficLines = new ArrayDeque<>();
+
+    // Alle Verkehrslinien mit mehr als einer Station, die schon Verkehrsmittel auf sich fahren haben sollten
+    private List<TrafficLine> activeTrafficLIne = new ArrayList<>();
+
+    private Pathfinder pathfinder;
 
     public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
                       Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
@@ -34,6 +44,42 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
+    }
+
+    /// Gibt eine Liste von aktiven Fahrzeugen zurück
+    public List<Vehicle> simulateOneDay(){
+        List<TrafficLine> incompleteTrafficLines = new ArrayList<>();
+        while(!newCreatedTrafficLines.isEmpty()){
+            TrafficLine newTrafficLine = newCreatedTrafficLines.remove();
+            if(newTrafficLine.checkIfMoreThanOneStation()){
+                if(newTrafficLine instanceof RoadTrafficLine){
+                    ((RoadTrafficLine) newTrafficLine).addNewVehicle();
+                }
+            }
+            else {
+                incompleteTrafficLines.add(newTrafficLine);
+            }
+        }
+        newCreatedTrafficLines.addAll(incompleteTrafficLines);
+
+        List<Vehicle> activeVehicles = new ArrayList<>();
+        for(TrafficLine activeLine: activeTrafficLIne){
+            activeVehicles.addAll(activeLine.getVehicles()); //TODO
+        }
+
+
+        day++;
+        return activeVehicles;
+    }
+
+    public List<Vehicle> getVehiclesForType(TrafficType type){
+        List<Vehicle> desiredVehicles = new ArrayList<>();
+        for(Vehicle v: vehiclesTypes){
+            if(v.getKind().equals(type)){
+                desiredVehicles.add(v);
+            }
+        }
+        return desiredVehicles;
     }
 
     /**
@@ -97,10 +143,10 @@ public class BasicModel {
         Tile selectedTile = getMap().getTileGrid()[xCoord][yCoord];
         Building buildingOnSelectedTile = selectedTile.getBuilding();
         Map<String, String> combinations = null;
-        if (buildingOnSelectedTile instanceof Road) {
+        if (sBuilding instanceof Road) {
             combinations = ((Road) sBuilding).getCombines();
         }
-        else if(buildingOnSelectedTile instanceof Rail) {
+        else if(sBuilding instanceof Rail) {
             combinations = ((Rail) sBuilding).getCombines();
         }
         if(combinations != null){
@@ -133,12 +179,12 @@ public class BasicModel {
         return null;
     }
 
-    public List<Vehicle> getVehicles() {
-        return vehicles;
+    public List<Vehicle> getVehiclesTypes() {
+        return vehiclesTypes;
     }
 
-    public void setVehicles(List<Vehicle> vehicles) {
-        this.vehicles = vehicles;
+    public void setVehiclesTypes(List<Vehicle> vehiclesTypes) {
+        this.vehiclesTypes = vehiclesTypes;
     }
 
     public void addCommodities(List<String> commodities) {
@@ -169,6 +215,14 @@ public class BasicModel {
         this.day = day;
     }
 
+    public Pathfinder getPathfinder() {
+        return pathfinder;
+    }
+
+    public void setPathfinder(Pathfinder pathfinder) {
+        this.pathfinder = pathfinder;
+    }
+
     public double getSpeedOfDay() {
         return speedOfDay;
     }
@@ -185,7 +239,16 @@ public class BasicModel {
         this.map = map;
     }
 
-//    public ToolsModel getTools() {
+    public Queue<TrafficLine> getNewCreatedTrafficLines() {
+        return newCreatedTrafficLines;
+    }
+
+    public void setNewCreatedTrafficLines(Queue<TrafficLine> newCreatedTrafficLines) {
+        this.newCreatedTrafficLines = newCreatedTrafficLines;
+    }
+
+
+    //    public ToolsModel getTools() {
 //        return tools;
 //    }
 //
@@ -238,7 +301,7 @@ public class BasicModel {
         }
         System.out.println("");
         System.out.print("Vehicles: ");
-        for (Vehicle vehicle : vehicles) {
+        for (Vehicle vehicle : vehiclesTypes) {
             System.out.print(vehicle.getGraphic() + ", ");
         }
     }

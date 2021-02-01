@@ -9,7 +9,7 @@ public class MapModel {
 
     private int width;
     private int depth;
-    private Tile[][] fieldGrid;
+    private Tile[][] tileGrid;
 
     private BasicModel model;
     private Long adjacentStationId;
@@ -20,7 +20,7 @@ public class MapModel {
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
         this.depth = depth;
-        this.fieldGrid = new Tile[depth][width];
+        this.tileGrid = new Tile[depth][width];
         this.model = model;
     }
 
@@ -41,14 +41,15 @@ public class MapModel {
                 else fieldGrid[r][c].setBuilding(instance);
             }
         }
-        Tile originTile = fieldGrid[row][column];
+        Tile originTile = tileGrid[row][column];
         originTile.setBuildingOrigin(true);
         instance.setOriginColumn(column);
         instance.setOriginRow(row);
 
         if(instance instanceof Stop) {
             Station nextStation = getStationNextToStop(row, column, (Stop) instance);
-            Station station = new Station(model);
+//            ((Stop) instance).getSpecial().equals("busstop");
+            Station station = new Station(model, null, null, null);
             if(nextStation != null) {
                 station = nextStation;
             } else {
@@ -58,6 +59,7 @@ public class MapModel {
         }
         return instance;
     }
+
 
 
     /**
@@ -89,22 +91,22 @@ public class MapModel {
         if(building instanceof Stop){
             adjacentStationId = -1L;
             for(int r=row; r<row+building.getWidth(); r++){
-                Building adjacentBuilding = fieldGrid[r][column -1].getBuilding();
+                Building adjacentBuilding = tileGrid[r][column -1].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
-                adjacentBuilding = fieldGrid[r][column+ building.getDepth()].getBuilding();
+                adjacentBuilding = tileGrid[r][column+ building.getDepth()].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
             }
 
             for(int c=column; c<column+building.getDepth(); c++){
-                Building adjacentBuilding = fieldGrid[row-1][c].getBuilding();
+                Building adjacentBuilding = tileGrid[row-1][c].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
-                adjacentBuilding = fieldGrid[row+building.getWidth()][c].getBuilding();
+                adjacentBuilding = tileGrid[row+building.getWidth()][c].getBuilding();
                 if(adjacentBuilding instanceof Stop) {
                     if(checkForSecondStation(adjacentBuilding)) return false;
                 }
@@ -116,22 +118,22 @@ public class MapModel {
     private Station getStationNextToStop(int row, int column, Stop building){
         Station station;
         for(int r=row; r<row+building.getWidth(); r++){
-            Building adjacentBuilding = fieldGrid[r][column -1].getBuilding();
+            Building adjacentBuilding = tileGrid[r][column -1].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
-            adjacentBuilding = fieldGrid[r][column+ building.getDepth()].getBuilding();
+            adjacentBuilding = tileGrid[r][column+ building.getDepth()].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
         }
 
         for(int c=column; c<column+building.getDepth(); c++){
-            Building adjacentBuilding = fieldGrid[row-1][c].getBuilding();
+            Building adjacentBuilding = tileGrid[row-1][c].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
-            adjacentBuilding = fieldGrid[row+building.getWidth()][c].getBuilding();
+            adjacentBuilding = tileGrid[row+building.getWidth()][c].getBuilding();
             if(adjacentBuilding instanceof Stop) {
                 return ((Stop) adjacentBuilding).getStation();
             }
@@ -160,16 +162,24 @@ public class MapModel {
      * @param building die Instanz des Gebäudes, wessen Punkte hinzugefügt werden sollen
      * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
      * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @return Eine Liste der Vertices, die zum Graph hinzugefügt wurden
      */
-    public void addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
+    public List<Vertex> addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
         TrafficGraph trafficGraph;
-        if(building instanceof Road) {
+        if(building instanceof PartOfTrafficGraph) {
             trafficGraph = this.rawRoadGraph;
         }
         else {
-            return;
+            return new ArrayList<>();
             //TODO rails
         };
+
+        // TODO Vertex zusammenführen überprüfen
+
+        boolean isPointPartOfStation = false;
+        if(building instanceof Stop) isPointPartOfStation = true;
+        List<Vertex> addedVertices = new ArrayList<>();
+
                 Map<String, List<Double>> points = building.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
 
@@ -182,14 +192,17 @@ public class MapModel {
                     double yCoordOfPoint = entry.getValue().get(1);
 
                     Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
-
+                    v.setPointOfStation(isPointPartOfStation);
+                    if(isPointPartOfStation) {
+                        v.setStation(((Stop) building).getStation());
+                        ((Stop) building).getVertices().add(v);
+                    }
                     trafficGraph.addVertex(v);
+                    addedVertices.add(v);
 
                     for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
-                        System.out.println(building.getTransportations());
-                        System.out.println(building.getBuildingName());
-                        for (int i = 0; i < edges.size(); i++) {
+                            for (int i = 0; i < edges.size(); i++) {
                             String from = identifier + edges.get(i).get(0);
                             String to = identifier + edges.get(i).get(1);
 //                            System.out.println("From: " + from);
@@ -204,6 +217,7 @@ public class MapModel {
         trafficGraph.checkForDuplicatePoints();
         trafficGraph.printGraph();
         System.out.println();
+        return addedVertices;
     }
 
 
@@ -222,11 +236,11 @@ public class MapModel {
     }
 
     public Tile[][] getTileGrid() {
-        return fieldGrid;
+        return tileGrid;
     }
 
-    public void setFieldGrid(Tile[][] fieldGrid) {
-        this.fieldGrid = fieldGrid;
+    public void setTileGrid(Tile[][] tileGrid) {
+        this.tileGrid = tileGrid;
     }
 
 

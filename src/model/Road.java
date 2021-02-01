@@ -21,6 +21,7 @@ public class Road extends Building implements PartOfTrafficGraph{
         instance.setPoints(Map.copyOf(points));
         instance.setCombines(Map.copyOf(combines));
         instance.setRoads(roads);
+        setTrafficType(TrafficType.ROAD);
         return instance;
     }
 

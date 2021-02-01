@@ -125,6 +125,10 @@ public class TrafficGraph {
         }
         // vertex2 wird aus Graph zusammen mit seinen Kanten entfernt
         removeVertex(vertex2.getName());
+
+        this.getMapOfVertexes().put(vertex2.getName(), vertex1);
+        List<Vertex> connectionsFromVertex1 = this.adjacencyMap.get(vertex1.getName());
+        adjacencyMap.put(vertex2.getName(), connectionsFromVertex1);
     }
 
     /**
