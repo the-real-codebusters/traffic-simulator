@@ -2,6 +2,7 @@ package controller;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import model.*;
@@ -10,6 +11,7 @@ import view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Controller {
@@ -22,7 +24,7 @@ public class Controller {
         this.model = model;
 
         MapModel map = model.getMap();
-        model.printModelAttributes();
+//        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
@@ -42,6 +44,17 @@ public class Controller {
         view.drawMap();
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
+
+        // Ist momentan nur zum Testen da
+        view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+                Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+                Tile selectedTile = model.getFieldGridOfMap()[(int)isoCoord.getX()][(int)isoCoord.getY()];
+                generator.generateHeightMap();
+            }
+        });
 
     }
 

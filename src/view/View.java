@@ -352,7 +352,7 @@ public class View {
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             Tile field = fields[row][column];
-            if (field.getHeight() < 0) {
+            if (field.isWater()) {
                 buildingName = "water";
             } else if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
