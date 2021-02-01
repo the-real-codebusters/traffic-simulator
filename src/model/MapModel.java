@@ -37,8 +37,8 @@ public class MapModel {
         if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(instance, fieldGrid[r][c].getCornerHeights(), false);
-                else fieldGrid[r][c].setBuilding(instance);
+                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
+                else tileGrid[r][c].setBuilding(instance);
             }
         }
         Tile originTile = tileGrid[row][column];
@@ -75,7 +75,7 @@ public class MapModel {
 
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
-                Tile tile = fieldGrid[r][c];
+                Tile tile = tileGrid[r][c];
 //                if(tile.getHeight() < 0) return false;
                 // TODO Wenn Höhe nicht passt, return false
 
