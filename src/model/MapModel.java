@@ -74,7 +74,9 @@ public class MapModel {
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = fieldGrid[r][c];
-                if(tile.getHeight() < 0) return false;
+//                if(tile.getHeight() < 0) return false;
+                // TODO Wenn Höhe nicht passt, return false
+
                 if(tile.getBuilding() instanceof Road) {
                     // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;

@@ -110,7 +110,7 @@ public class MapGenerator {
     public void generateHeightMap() {
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
-        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
