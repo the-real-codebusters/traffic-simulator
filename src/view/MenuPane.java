@@ -25,7 +25,6 @@ public class MenuPane extends AnchorPane {
     private List<String> tabNames = new ArrayList<>();
     private HBox hBox;
     private TabPane tabPane = new TabPane();
-    private BasicModel model;
     private View view;
     private Canvas canvas;
     private Controller controller;
@@ -36,11 +35,11 @@ public class MenuPane extends AnchorPane {
 
     ObjectToImageMapping mapping;
 
-    public MenuPane(BasicModel model, View view, Canvas canvas, ObjectToImageMapping mapping) {
-        this.model = model;
+    public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
         this.canvas = canvas;
         this.mapping = mapping;
+        this.controller = controller;
         tabPane.setFocusTraversable(false);
 
         setCanvasEvents();
@@ -55,6 +54,11 @@ public class MenuPane extends AnchorPane {
         }
     }
 
+    /**
+     * Fügt einen Tab zu der tabPane hinzu
+     * @param name
+     * @param content
+     */
     private void addTab(String name, Node content) {
         Tab tab = new Tab();
         tab.setText(name);
@@ -62,10 +66,14 @@ public class MenuPane extends AnchorPane {
         tabPane.getTabs().add(tab);
     }
 
+    /**
+     * Erstellt die Inhalte der Tabs in der tabPane nach den buildmenus in der JSONDatei und zusätzlich height und
+     * vehicles
+     */
     private void generateTabContents() {
 
-        // Get Buildmenus from Model
-        Set<String> buildmenus = model.getBuildmenus();
+        // Get Buildmenus from Controller
+        Set<String> buildmenus = controller.getBuildmenus();
 
         tabNames.addAll(buildmenus);
         tabNames.addAll(List.of("height", "vehicles"));
@@ -77,7 +85,7 @@ public class MenuPane extends AnchorPane {
 
         for (String name : tabNames) {
             HBox container = boxWithLayout();
-            List<Building> buildings = model.getBuildingsForBuildmenu(name);
+            List<Building> buildings = controller.getBuildingsByBuildmenu(name);
             for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
@@ -91,6 +99,10 @@ public class MenuPane extends AnchorPane {
         }
     }
 
+    /**
+     * Erstellt eine HBox mit bestimmtem Layout
+     * @return
+     */
     private HBox boxWithLayout() {
         HBox box = new HBox(10);
         box.setPrefHeight(100);
@@ -98,6 +110,11 @@ public class MenuPane extends AnchorPane {
         return box;
     }
 
+    /**
+     * Gibt eine ImageView für das building zurück mit einem bestimmten Layout
+     * @param building
+     * @return
+     */
     private ImageView imageViewWithLayout(Building building) {
         String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
@@ -112,6 +129,7 @@ public class MenuPane extends AnchorPane {
     }
 
     /**
+     * Zeichnet ein transparentes Bild als Vorschau für ein zu platzierendes Gebäude
      * @param mouseEvent
      * @param transparent
      * @return Gibt die Koordinaten des Tiles zurück, auf das gezeichnet wurde
@@ -127,10 +145,10 @@ public class MenuPane extends AnchorPane {
             // Tu erstmal nichts
             return isoCoord;
         }
-        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+        if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
             String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
             if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
-                Tile tile = model.getFieldGridOfMap()[xCoord][yCoord];
+                Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
                 tile.setBuildingOrigin(true);
                 view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
                 tile.setBuildingOrigin(false);
@@ -145,7 +163,12 @@ public class MenuPane extends AnchorPane {
         } else return null;
     }
 
+    /**
+     * Setzt einige Reaktionen auf Events auf dem canvas der View
+     */
     private void setCanvasEvents() {
+
+        // Zeichnet eine Vorschau eines Gebäudes wenn sich der Mauszeiger über einem Tile befindet
         canvas.setOnMouseMoved(event -> {
             if (selectedBuilding != null) {
                 hoveredEvent = event;
@@ -153,7 +176,8 @@ public class MenuPane extends AnchorPane {
             }
         });
 
-
+        // Bei einem Linksklick wird das ausgewählt Gebäude nicht mehr ausgewählt
+        // Bei einem Rechtsklick wird das ausgewählte Gebäude platziert, sollte eines ausgewählt sein.
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                 selectedBuilding = null;
@@ -165,7 +189,7 @@ public class MenuPane extends AnchorPane {
             }
         });
 
-
+        // Wenn die Maus mit einem Rechtsklick über mehrere Felder gezogen wird, werden mehrere Gebäude platziert
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragEvent -> {
 
             if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
@@ -175,41 +199,6 @@ public class MenuPane extends AnchorPane {
         });
     }
 
-
-    /**
-     * Überprüft, ob das zu platzierende Straßenfeld mit dem ausgewählten Straßenfeld auf der Map Feld kombiniert
-     * werden kann. Falls dies der Fall ist, wird das daraus entstehende Feld im Model gespeichert und in der View
-     * angezeigt
-     *
-     * @param xCoord x-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
-     * @param yCoord y-Koordinate des angeklickten Feldes, auf das die Straße gebaut werden soll
-     */
-    public void checkCombines(int xCoord, int yCoord) {
-
-        Tile selectedField = model.getMap().getFieldGrid()[xCoord][yCoord];
-        Building buildingOnSelectedTile = selectedField.getBuilding();
-        if (buildingOnSelectedTile instanceof Road) {
-            Map<String, String> combinations = ((Road) selectedBuilding).getCombines();
-            for (Map.Entry<String, String> entry : combinations.entrySet()) {
-                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
-                    String newBuildingName = entry.getValue();
-
-                    System.out.println(selectedBuilding.getBuildingName() + " and " +
-                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
-
-                    selectedBuilding.setBuildingName(newBuildingName);
-                    selectedField.setBuilding(buildingOnSelectedTile);
-                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
-                    break;
-
-                } else {
-                    selectedBuilding.setBuildingName(buildingOnSelectedTile.getBuildingName());
-                    selectedField.setBuilding(buildingOnSelectedTile);
-
-                }
-            }
-        }
-    }
 
     public Controller getController() {
         return controller;

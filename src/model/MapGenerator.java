@@ -15,7 +15,7 @@ public class MapGenerator {
 
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
-        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         generateNature(mapWidth, mapDepth, basicModel);
         generateFactories(mapWidth, mapDepth, basicModel);
@@ -23,7 +23,13 @@ public class MapGenerator {
         return mapFieldGrid;
     }
 
-    private void generateFactories(int mapWidth, int mapDepth, BasicModel basicModel) {
+    /**
+     * Generiert einige Fabriken auf die Map. Mindestens eine Fabrik jeden Typs
+     * @param mapWidth
+     * @param mapDepth
+     * @param basicModel
+     */
+    private void generateFactories(int mapWidth, int mapDepth, BasicModel basicModel){
         List<Special> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
         Random randomGenerator = new Random();
         for (Building factory : factoryBuildings) {
@@ -58,7 +64,7 @@ public class MapGenerator {
     private void generateNature(int mapWidth, int mapDepth, BasicModel basicModel) {
         List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
 
-        Tile[][] mapFieldGrid = mapModel.getFieldGrid();
+        Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {

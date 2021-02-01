@@ -10,21 +10,18 @@ import view.MenuPane;
 import view.View;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Controller {
     private View view;
     private BasicModel model;
-    Building selectedBuilding;
     private Pathfinder pathfinder;
 
     public Controller(View view, BasicModel model) {
         this.view = view;
         this.model = model;
-
-        selectedBuilding = view.getMenuPane().getSelectedBuilding();
 
         MapModel map = model.getMap();
 //        model.printModelAttributes();
@@ -34,13 +31,18 @@ public class Controller {
         Tile[][] generatedMap = generator.generateMap(model);
         map.setFieldGrid(generatedMap);
 
+        view.setController(this);
+        view.storeImageRatios();
+        view.generateMenuPane(this);
+
+
         // Breite und Tiefe der Map aus dem Model werden in der View übernommen
         view.setMapWidth(map.getWidth());
         view.setMapDepth(map.getDepth());
 
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
-        TrafficGraph graph = model.getTrafficGraph();
+        TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
 
         // Ist momentan nur zum Testen da
@@ -53,14 +55,19 @@ public class Controller {
                 generator.generateHeightMap();
             }
         });
+
     }
 
     public List<Vertex> getVertexesOfGraph(){
         List<Vertex> vertexes = new ArrayList<>();
-        vertexes.addAll(model.getTrafficGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getRawRoadGraph().getMapOfVertexes().values());
         return vertexes;
     }
 
+    /**
+     * Zeichnet die Knoten des Straßengraphen als gelbe Punkte in der View ein. Dies soll vor allem zum Testen der
+     * Animationen dienen.
+     */
     public void drawVertexesOfGraph(){
         Canvas canvas = view.getCanvas();
         List<Vertex> vertexes = getVertexesOfGraph();
@@ -82,9 +89,9 @@ public class Controller {
 
     /**
      * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
-     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße handelt und ob diese mit dem
-     * ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert und die
-     * entsprechenden Points dem Verkehrsgraph hinzugefügt.
+     * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße oder ien Gleis handelt und ob
+     * diese mit dem ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert
+     * und die entsprechenden Points dem Verkehrsgraph hinzugefügt.
      * @param event MouseEvent, wodurch die Methode ausgelöst wurde
      */
     public void managePlacement(MouseEvent event) {
@@ -98,18 +105,15 @@ public class Controller {
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
-        String originalBuildingName = selectedBuilding.getBuildingName();
-
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
-            if (selectedBuilding instanceof Road) {
-                menuPane.checkCombines(xCoord, yCoord);
+            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
+                selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
-            model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-            selectedBuilding.setBuildingName(originalBuildingName);
+            Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
 
-            if(selectedBuilding instanceof PartOfTrafficGraph){
-                model.addPointsToGraph((PartOfTrafficGraph) selectedBuilding, xCoord, yCoord);
+            if(placedBuilding instanceof PartOfTrafficGraph){
+                model.getMap().addPointsToGraph((PartOfTrafficGraph) placedBuilding, xCoord, yCoord);
             }
 
             view.drawMap();
@@ -117,14 +121,17 @@ public class Controller {
         }
     }
 
-    int indexOfStart = 0;
-    int indexOfNext = indexOfStart + 1;
-    private List<Vertex> path;
-    boolean notDone = true;
+    // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
+    // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
+    public int indexOfStart = 0;
+    public int indexOfNext = indexOfStart + 1;
+    public List<Vertex> path;
+    public boolean notDone = true;
 
-    public void moveCarFromPointToPoint(){
-        Vertex v1 = path.get(indexOfStart);
-        Vertex v2 = path.get(indexOfNext);
+    /**
+     * Bewegt ein Bild des Autos von Knoten v1 zu Knoten v2
+     */
+    public void moveCarFromPointToPoint(Vertex v1, Vertex v2){
 
         Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
         startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
@@ -137,15 +144,14 @@ public class Controller {
                 v2.getyCoordinateRelativeToTileOrigin());
 
         view.translateCar(startPointOnCanvas, nextPointOnCanvas);
-        indexOfStart++;
-        indexOfNext++;
     }
 
 
     /**
      * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
      * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
-     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden
+     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden.
+     * Die Animation beginnt bei 10 platzierten verbundenen Knoten.
      */
     public void startCarMovement(){
         List<Vertex> vertexes = getVertexesOfGraph();
@@ -160,18 +166,32 @@ public class Controller {
             }
             System.out.println();
 
-//            Vertex v1 = vertexes.get(indexOfStart);
-//            Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-//            startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
-//                    v1.getxCoordinateRelativeToTileOrigin(),
-//                    v1.getyCoordinateRelativeToTileOrigin());
-
             if(path.size() >= 10 && notDone) {
                 System.out.println("path "+path.size());
-                moveCarFromPointToPoint();
+                moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
                 notDone = false;
             }
         }
+    }
+
+    public boolean canPlaceBuildingAtPlaceInMapGrid(int row, int column, Building building){
+        return model.getMap().canPlaceBuilding(row, column, building);
+    }
+
+    public Tile getTileOfMapTileGrid(int row, int column){
+        return model.getMap().getTileGrid()[row][column];
+    }
+
+    public String getGamemode(){
+        return model.getGamemode();
+    }
+
+    public Set<String> getBuildmenus(){
+        return model.getBuildmenus();
+    }
+
+    public List<Building> getBuildingsByBuildmenu(String buildmenu){
+        return model.getBuildingsForBuildmenu(buildmenu);
     }
 
 }

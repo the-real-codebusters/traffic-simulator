@@ -4,14 +4,12 @@ import controller.Controller;
 import javafx.animation.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -23,8 +21,10 @@ import javafx.util.Duration;
 import model.BasicModel;
 import model.Building;
 import model.Tile;
+import model.Vertex;
 
 
+import javax.swing.border.Border;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +55,6 @@ public class View {
     private double previousMouseX = -1.0;
     private double previousMouseY = -1.0;
 
-    private BasicModel model;
     private MenuPane menuPane;
 
     private Map<String, Image> imageCache = new HashMap<>();
@@ -66,11 +65,11 @@ public class View {
     private static final double MIN_SCALE = .1d;
 
     private double tickDuration = 1;
+    BorderPane borderPane;
 
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
-        this.model = model;
         mapping = new ObjectToImageMapping(model.getGamemode());
         fields = model.getFieldGridOfMap();
 
@@ -80,15 +79,11 @@ public class View {
         Label mousePosLabel = new Label();
         mousePosLabel.setFont(new Font("Arial", 15));
 
-        BorderPane root = new BorderPane();
+        borderPane = new BorderPane();
         VBox vBox = new VBox();
-        root.setBottom(vBox);
+        borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
-        root.setCenter(canvas);
-        menuPane = new MenuPane(model, this, canvas, mapping);
-        root.setTop(menuPane);
-
-        storeImageRatios();
+        borderPane.setCenter(canvas);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
@@ -98,7 +93,12 @@ public class View {
         zoom();
 //        zoom2();
 
-        this.stage.setScene(new Scene(root));
+        this.stage.setScene(new Scene(borderPane));
+    }
+
+    public void generateMenuPane(Controller controller){
+        menuPane = new MenuPane(controller, this, canvas, mapping);
+        borderPane.setTop(menuPane);
     }
 
 
@@ -159,12 +159,22 @@ public class View {
         return Math.sqrt(Math.pow(tileImageWidth/2, 2) + Math.pow(tileImageHeight/2, 2));
     }
 
+    /**
+     * Verschiebt den zweidimensionalen Punkt point um die angegebenen Tiles in X- bze Y-Richtung
+     * @param point
+     * @param changedTilesWitdh
+     * @param changedTilesDepth
+     * @return Einen dementsprechend verschobenen Punkt
+     */
     public Point2D changePointByTiles(Point2D point, double changedTilesWitdh, double changedTilesDepth){
         double changeX = tileImageWidthHalf * changedTilesWitdh + changedTilesDepth*tileImageWidthHalf;
         double changeY = tileImageHeightHalf * changedTilesWitdh - changedTilesDepth*tileImageHeightHalf;
         return point.add(changeX, changeY);
     }
 
+    /**
+     * Ermögliche Verschieben der Karte mit den Pfeiltasten
+     */
     public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(ke -> {
             double delta = tileImageWidth;
@@ -181,6 +191,9 @@ public class View {
         });
     }
 
+    /**
+     * Fügt dem Canvas die Reaktion hinzu: Wenn mit der Maus rechtsgeklickt ist, kann die Karte verschoben werden
+     */
     public void scrollOnMouseDragged() {
         canvas.setOnMouseDragged(me -> {
             if (me.getButton().compareTo(MouseButton.SECONDARY) == 0) {
@@ -229,6 +242,12 @@ public class View {
 
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
+
+                            for(int i = col; i <= col + building.getDepth()-1; i++) {
+                                // Obere Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(i, row);
+                                drawTileImage(i, row, image, false);
+                            }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
                         // obere ecke ist ein gebäude
@@ -237,6 +256,12 @@ public class View {
                             startRow = row + building.getWidth();
                             endCol = col;
                             startCol = endCol - building.getDepth()+2;
+                            for(int i = row; i <= startRow; i++) {
+                                // Rechte Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(col, i);
+                                drawTileImage(col, i, image, false);
+                            }
+
                         }
 
                     } else {
@@ -254,10 +279,13 @@ public class View {
                 }
             }
         }
+
+        // Zeichnet die Knoten des Graphen als gelbe Punkte ein
         if(controller!=null){
             controller.drawVertexesOfGraph();
         }
 
+        // Zeichnet eine Vorschau, falls nötig
         Building selectedBuilding = menuPane.getSelectedBuilding();
         MouseEvent hoveredEvent = menuPane.getHoveredEvent();
         if(selectedBuilding != null && hoveredEvent != null){
@@ -265,7 +293,10 @@ public class View {
         }
     }
 
-    private void storeImageRatios(){
+    /**
+     * Speichert die Verhältnisse von Höhe und Breite für alle Bilder in einer Map
+     */
+    public void storeImageRatios(){
         for(String name : mapping.getImageNames()){
             Image r = getResourceForImageName(name);
             double ratio = r.getHeight() / r.getWidth();
@@ -308,6 +339,13 @@ public class View {
         }
     }
 
+    /**
+     * Gibt ein Image für die geforderte Stelle in der Tile-Map zurück in der Breite eines Tiles
+     * @param column
+     * @param row
+     * @param fields
+     * @return
+     */
     public Image getSingleFieldImage(int column, int row, Tile[][] fields) {
         String name;
         String buildingName;
@@ -350,6 +388,13 @@ public class View {
         return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
     }
 
+    /**
+     * Zeichnet das Bild in ein Feld an der angegebenen Stelle
+     * @param column
+     * @param row
+     * @param image
+     * @param transparent
+     */
     public void drawTileImage(int column, int row, Image image, boolean transparent) {
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
@@ -440,17 +485,32 @@ public class View {
         });
     }
 
+
+
+    /**
+     * Gibt das Bild für den entsprechenden Namen eines Bildes in der gewünschten Höhe und Breite zurück.
+     * Dabei wird Caching verwendet.
+     * @param imageName
+     * @param width
+     * @param height
+     * @return
+     */
     public Image getResourceForImageName(String imageName, double width, double height) {
 
+        // Breite und Höhe wird auf Integer gerundet
         int widthAsInt = (int) Math.round(width);
         int heightAsInt = (int) Math.round(height);
 
+        // Map cachedImage: Das ist eine Zuordnung von Namen zu Image-Objekten
         Image cachedImage = imageCache.get(imageName + widthAsInt + heightAsInt);
+        // Es wird mit dem Namen namebreitehöhe nachgeschaut, ob es schon ein Image-Objekt des Bildes in der
+        // passenden Breite und Höhe gibt. Das wär dann zum Beispiel "road-sw6432". Wenn das geladene Objekt
+        // nicht null ist, ist das gesucht Image Objekt gefunden und wird zurückgegeben
         if (cachedImage != null) {
             return cachedImage;
         }
 
-        String gamemode = model.getGamemode();
+        String gamemode = controller.getGamemode();
         Image image = new Image(
                 "/" + gamemode + "/" + imageName + ".png",
                 widthAsInt,
@@ -461,23 +521,30 @@ public class View {
         return image;
     }
 
+    /**
+     * Gibt das Bild zu dem angegebenen Namen in ursprünglicher Größe wie in resources zurück.
+     * Dabei wird caching verwendet.
+     * @param imageName
+     * @return
+     */
     public Image getResourceForImageName(String imageName) {
         Image cachedImage = imageCache.get(imageName + "raw");
         if (cachedImage != null) {
             return cachedImage;
         }
 
-        String gamemode = model.getGamemode();
+        String gamemode = controller.getGamemode();
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
         return image;
     }
 
-
+    /**
+     * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
+     * @param start
+     * @param end
+     */
     public void translateCar(Point2D start, Point2D end){
-        System.out.println("start: " + start);
-        System.out.println("end: " + end);
-
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
@@ -497,7 +564,6 @@ public class View {
                 )
         );
 
-
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -507,22 +573,25 @@ public class View {
                 Point2D actualZeroPoint = moveCoordinates(0,0);
                 double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
                 double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
-//                System.out.println(imageNameToImageRatio.get(name)*tileImageHeightHalf);
-//                System.out.println("x: " + x.doubleValue());
-//                System.out.println("y: " + y.doubleValue());
-                GraphicsContext gc = canvas.getGraphicsContext2D();
-                drawMap();
-                gc.drawImage(carImage, x.doubleValue()+xShift,
-                        y.doubleValue()-15+yShift);
+
+                if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
+                    GraphicsContext gc = canvas.getGraphicsContext2D();
+                    drawMap();
+                    gc.drawImage(carImage, x.doubleValue()+xShift,
+                            y.doubleValue()-15+yShift);
+                }
             }
         };
         ParallelTransition parallelTransition = new ParallelTransition(timeline);
 
         parallelTransition.setOnFinished(event -> {
-            System.out.println("finished");
             parallelTransition.stop();
             timer.stop();
-            controller.moveCarFromPointToPoint();
+
+            // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
+            Vertex v1 = controller.path.get(++controller.indexOfStart);
+            Vertex v2 = controller.path.get(++controller.indexOfNext);
+            controller.moveCarFromPointToPoint(v1,v2);
         });
 
         timer.start();
@@ -576,7 +645,6 @@ public class View {
 
     public void setController(Controller controller) {
         this.controller = controller;
-        menuPane.setController(controller);
     }
 
     public MenuPane getMenuPane() {

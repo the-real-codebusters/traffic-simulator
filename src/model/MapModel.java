@@ -1,8 +1,8 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class MapModel {
     private String mapgen;
@@ -14,6 +14,8 @@ public class MapModel {
     private BasicModel model;
     private Long adjacentStationId;
     private List<Station> stations = new ArrayList<>();
+    private TrafficGraph rawRoadGraph = new TrafficGraph();
+
 
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
@@ -22,9 +24,17 @@ public class MapModel {
         this.model = model;
     }
 
-    public void placeBuilding(int row, int column, Building building){
+    /**
+     * Platziert das Gebäude building an der angegebenen Stelle
+     * @param row
+     * @param column
+     * @param building
+     * @return
+     */
+    public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
+        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
                 if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(instance, fieldGrid[r][c].getCornerHeights(), false);
@@ -46,9 +56,17 @@ public class MapModel {
             }
             station.addBuilding((Stop) instance);
         }
+        return instance;
     }
 
 
+    /**
+     * Gibt zurück, ob das Gebäude an der angegebenen Stelle platziert werden darf
+     * @param row
+     * @param column
+     * @param building
+     * @return
+     */
     public boolean canPlaceBuilding(int row, int column, Building building){
         if((row+building.getWidth()) >= depth) return  false;
         if((column+building.getDepth()) >= width) return  false;
@@ -56,8 +74,12 @@ public class MapModel {
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = fieldGrid[r][c];
-//                if(tile.getHeight() < 0) return false;
-                if(tile.getBuilding() instanceof Road) return true;
+                if(tile.getHeight() < 0) return false;
+                if(tile.getBuilding() instanceof Road) {
+                    // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
+                    boolean canCombine = model.checkCombines(row, column, building) != building;
+                    return canCombine;
+                }
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
@@ -127,6 +149,62 @@ public class MapModel {
         return false;
     }
 
+
+    /**
+     * Fügt die Points eines Felds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
+     * durch eine ungerichtete Kante verbunden. Wenn sich Punkte "an derselben Stelle" befinden, werden diese
+     * zusammengeführt.
+     *
+     * @param building die Instanz des Gebäudes, wessen Punkte hinzugefügt werden sollen
+     * @param xCoordOfTile     x-Koordinate des Tiles, auf das die Straße platziert wurde
+     * @param yCoordOfTile     y-Koordinate des Tiles, auf das die Straße platziert wurde
+     */
+    public void addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
+        TrafficGraph trafficGraph;
+        if(building instanceof Road) {
+            trafficGraph = this.rawRoadGraph;
+        }
+        else {
+            return;
+            //TODO rails
+        };
+                Map<String, List<Double>> points = building.getPoints();
+                for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
+
+                    // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
+                    // sonst gäbe es Duplikate, da points aus verschiedenen Felder denselben Namen haben könnten
+                    String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
+                    String vertexName = identifier + entry.getKey();
+
+                    double xCoordOfPoint = entry.getValue().get(0);
+                    double yCoordOfPoint = entry.getValue().get(1);
+
+                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
+
+                    trafficGraph.addVertex(v);
+
+                    for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
+                        List<List<String>> edges = building.getTransportations();
+                        System.out.println(building.getTransportations());
+                        System.out.println(building.getBuildingName());
+                        for (int i = 0; i < edges.size(); i++) {
+                            String from = identifier + edges.get(i).get(0);
+                            String to = identifier + edges.get(i).get(1);
+//                            System.out.println("From: " + from);
+//                            System.out.println("To: " + to);
+
+                            if ((v.getName().equals(from) && v1.getName().equals(to)) ||
+                                    (v.getName().equals(to) && v1.getName().equals(from)))
+                                trafficGraph.addEdgeBidirectional(v1.getName(), v.getName());
+                        }
+                    }
+                }
+        trafficGraph.checkForDuplicatePoints();
+        trafficGraph.printGraph();
+        System.out.println();
+    }
+
+
     public String getMapgen() { return mapgen; }
 
     public void setMapgen(String mapgen) {
@@ -141,7 +219,7 @@ public class MapModel {
         return depth;
     }
 
-    public Tile[][] getFieldGrid() {
+    public Tile[][] getTileGrid() {
         return fieldGrid;
     }
 
@@ -165,6 +243,13 @@ public class MapModel {
     }
 
 
+    public TrafficGraph getRawRoadGraph() {
+        return rawRoadGraph;
+    }
+
+    public void setRawRoadGraph(TrafficGraph rawRoadGraph) {
+        this.rawRoadGraph = rawRoadGraph;
+    }
 
 }
 

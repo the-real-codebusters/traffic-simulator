@@ -11,6 +11,10 @@ public class Vehicle {
     private String graphic;
     private Storage storage;
 
+    /**
+     * Gibt eine neue Instanz des Fahrzeugs zurück
+     * @return
+     */
     public Vehicle getNewInstance(){
         Vehicle instance = new Vehicle();
         instance.setKind(kind);
