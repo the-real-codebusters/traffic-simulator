@@ -1,20 +1,22 @@
 package model;
 
-import java.util.Objects;
+import java.util.Map;
 
 public class Tile {
 
-    private int height;
+    private Map<String, Integer> cornerHeights;
+    private boolean isWater;
     private Building building;
     boolean isBuildingOrigin;
 
-    public Tile(int height, Building building) {
-        this.height = height;
+
+    public Tile(Building building, Map<String, Integer> cornerHeights, boolean isWater) {
         this.building = building;
-        if(height < 0 ) this.building = null;
+        this.cornerHeights = cornerHeights;
+        this.isWater = isWater;
+        if(isWater) this.building = null;
     }
 
-    // TODO: Braucht diese Klasse eventuell eine equals() Methode? ich denke eigentlich nicht, deshalb gelöscht
 
     public Building getBuilding() {
         return building;
@@ -24,12 +26,12 @@ public class Tile {
         this.building = building;
     }
 
-    public int getHeight() {
-        return height;
+    public Map<String, Integer> getCornerHeights() {
+        return cornerHeights;
     }
 
-    public void setHeight(int height) {
-        this.height = height;
+    public void setCornerHeights(Map<String, Integer> cornerHeights) {
+        this.cornerHeights = cornerHeights;
     }
 
     public boolean isBuildingOrigin() {
@@ -38,5 +40,9 @@ public class Tile {
 
     public void setBuildingOrigin(boolean buildingOrigin) {
         isBuildingOrigin = buildingOrigin;
+    }
+
+    public boolean isWater() {
+        return isWater;
     }
 }

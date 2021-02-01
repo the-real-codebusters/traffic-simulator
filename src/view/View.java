@@ -242,6 +242,12 @@ public class View {
 
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
+
+                            for(int i = col; i <= col + building.getDepth()-1; i++) {
+                                // Obere Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(i, row);
+                                drawTileImage(i, row, image, false);
+                            }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
                         // obere ecke ist ein gebäude
@@ -250,6 +256,12 @@ public class View {
                             startRow = row + building.getWidth();
                             endCol = col;
                             startCol = endCol - building.getDepth()+2;
+                            for(int i = row; i <= startRow; i++) {
+                                // Rechte Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(col, i);
+                                drawTileImage(col, i, image, false);
+                            }
+
                         }
 
                     } else {
@@ -340,7 +352,7 @@ public class View {
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             Tile field = fields[row][column];
-            if (field.getHeight() < 0) {
+            if (field.isWater()) {
                 buildingName = "water";
             } else if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");

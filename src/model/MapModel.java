@@ -37,8 +37,8 @@ public class MapModel {
         if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(0, instance);
-                else tileGrid[r][c].setBuilding(instance);
+                if(fieldGrid[r][c] == null) fieldGrid[r][c] = new Tile(instance, fieldGrid[r][c].getCornerHeights(), false);
+                else fieldGrid[r][c].setBuilding(instance);
             }
         }
         Tile originTile = tileGrid[row][column];
@@ -75,8 +75,10 @@ public class MapModel {
 
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
-                Tile tile = tileGrid[r][c];
-                if(tile.getHeight() < 0) return false;
+                Tile tile = fieldGrid[r][c];
+//                if(tile.getHeight() < 0) return false;
+                // TODO Wenn Höhe nicht passt, return false
+
                 if(tile.getBuilding() instanceof Road) {
                     // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;
@@ -246,11 +248,11 @@ public class MapModel {
     public void printFieldsArray() {
         for (int row = 0; row < depth; row++) {
             for (int column = 0; column < width; column++) {
-                if (tileGrid[row][column].getHeight() < 0) {
-                    System.out.print("[" + row + ", " + column + "]water" + " ");
-                } else {
-                    System.out.print("[" + row + ", " + column + "]" + tileGrid[row][column].getBuilding().getBuildingName() + " ");
-                }
+//                if (fieldGrid[row][column].getHeight() < 0) {
+//                    System.out.print("[" + row + ", " + column + "]water" + " ");
+//                } else {
+//                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
+//                }
             }
             System.out.println();
         }
