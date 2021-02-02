@@ -15,6 +15,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -236,10 +237,14 @@ public class View {
         for (int col = maximumY; col >= minimumY; col--) {
             for (int row = minimumX; row <= maximumX; row++) {
 
+                //TODO fields von Controller holen, da mvc-model
+
+                // Row und Column müssen innerhalb des 2d-Arrays liegen
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Tile field = fields[row][col];
                     Building building = field.getBuilding();
 
+                    // Wenn das building größer als ein Tile ist, zeichne über mehrere Tiles
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
 
@@ -266,19 +271,68 @@ public class View {
 
                     } else {
                         // diese Zelle wurde vorher als Zelle neben einem Gebäude identifiziert
+                        // zeichnet neben Gebäude, um Problem der Überlappung zu lösen
                         if (row == startRow && col >= startCol && col <= endCol) {
                             // und muss daher als Grass gezeichnet werden
                             Image image = getGrassImage(col, row);
                             drawTileImage(col, row, image, false);
                         }
                         else {
-                            Image image = getSingleFieldImage(col, row, fields);
-                            drawTileImage(col, row, image, false);
+
+//                            Image image = getSingleFieldImage(col, row, fields);
+//                            drawTileImage(col, row, image, false);
+                            //TODO Polygone mit Wasser oder Gras Tiles zu zeichnen, je nach Höhe
+                            Tile tile = fields[row][col];
+                            int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
+                            int cornerHeightWest = tile.getCornerHeights().get("cornerW");
+                            int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
+                            int cornerHeightEast = tile.getCornerHeights().get("cornerE");
+
+//                            int minHeight = Integer.MAX_VALUE;
+//                            int maxHeight = Integer.MIN_VALUE;
+//
+//                            if(cornerHeightWest < minHeight) {
+//                                minHeight = cornerHeightWest;
+//                            }
+//                            if(cornerHeightSouth < minHeight) {
+//                                minHeight = cornerHeightSouth;
+//                            }
+//                            if(cornerHeightNorth < minHeight) {
+//                                minHeight = cornerHeightNorth;
+//                            }
+//                            if(cornerHeightEast < minHeight) {
+//                                minHeight = cornerHeightEast;
+//                            }
+//
+//                            if(cornerHeightWest > maxHeight) {
+//                                maxHeight = cornerHeightWest;
+//                            }
+//                            if(cornerHeightSouth > maxHeight) {
+//                                maxHeight = cornerHeightSouth;
+//                            }
+//                            if(cornerHeightNorth > maxHeight) {
+//                                maxHeight = cornerHeightNorth;
+//                            }
+//                            if(cornerHeightEast > maxHeight) {
+//                                maxHeight = cornerHeightEast;
+//                            }
+//
+//                            if(maxHeight - minHeight > 2 || maxHeight < minHeight){
+//                                throw new RuntimeException("Height difference in one tile is "+(maxHeight-minHeight));
+//                            }
+//
+//                            cornerHeightSouth -= minHeight;
+//                            cornerHeightEast -= minHeight;
+//                            cornerHeightNorth -= minHeight;
+//                            cornerHeightWest -= minHeight;
+
+                            drawPolygon(null, col, row, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
                         }
                     }
                 }
             }
         }
+
 
         // Zeichnet die Knoten des Graphen als gelbe Punkte ein
         if(controller!=null){
@@ -291,6 +345,39 @@ public class View {
         if(selectedBuilding != null && hoveredEvent != null){
             menuPane.drawHoveredImage(hoveredEvent, true);
         }
+    }
+
+    private void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest){
+        // Was kann es eigentlich für Höhen bei einem Tile geben?
+        // Ein Punkt kann entweder die (relative) Höhe -1, 0 oder 1 haben
+
+        // X und Y Koordinaten der linken Ecke des Tiles
+        Point2D drawOrigin = moveCoordinates(row, col);
+        double xCoordOnCanvas = drawOrigin.getX();
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
+
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        int numberOfPoints = 4;
+        double heightShift = tileImageHeight/10;
+        double xCoordWest = xCoordOnCanvas;
+        double yCoordWest = yCoordOnCanvas + heightShift*heightWest;
+
+        double xCoordNorth = xCoordOnCanvas + tileImageWidthHalf;
+        double yCoordNorth = yCoordOnCanvas + tileImageHeightHalf;
+
+        double xCoordEast = xCoordOnCanvas + tileImageWidth;
+        double yCoordEast = yCoordOnCanvas;
+
+        double xCoordSouth = xCoordOnCanvas + tileImageWidthHalf;
+        double yCoordSouth = yCoordOnCanvas - tileImageHeightHalf;
+
+        double[] xCoords = {xCoordWest, xCoordNorth, xCoordEast, xCoordSouth};
+        double[] yCoords = {yCoordWest, yCoordNorth, yCoordEast, yCoordSouth};
+
+        gc.setFill(Color.CHOCOLATE);
+        gc.fillPolygon(xCoords, yCoords, numberOfPoints);
+        gc.strokePolygon(xCoords, yCoords, numberOfPoints);
+        gc.setFill(Color.BLACK);
     }
 
     /**
