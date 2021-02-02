@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TrafficLine {
 
@@ -16,16 +17,35 @@ public class TrafficLine {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
         this.model = model;
         this.trafficType = trafficType;
+        setStartVertexForNewVehicles();
     }
+
+    /**
+     * Soll eine neues Fahrzeug zu der Liste der Fahzeuge hinzufügen
+     */
+    public void addNewVehicle(){
+
+        // TODO Es wird bisher einfach zufällig ein Fahrzeugtyp ausgewählt, eventuell sollte das mal kompklexer werden
+        List<Vehicle> vehicleTypes = model.getVehicleTypesForTrafficType(trafficType);
+        Random randomGenerator = new Random();
+        int randomInt = randomGenerator.nextInt(vehicleTypes.size()) -1;
+        Vehicle vehicle = vehicleTypes.get(randomInt).getNewInstance();
+        //TODO Position des fahrzeugs setzen
+        vehicles.add(vehicle);
+        System.out.println(vehicle.getKind());
+        System.out.println("Speed "+vehicle.getSpeed());
+    }
+
 
     public boolean checkIfMoreThanOneStation(){
         return stations.size() >= 2;
     }
 
-    public List<Station> getStations() {
-        return stations;
-    }
-
+    /**
+     * Fügt eine Station hinzu und setzt alle direkt verbundenen Stationen.
+     * Updatet außerdem den Anfangsknoten für neue Fahrzeuge, falls nötig
+     * @param station
+     */
     public void addStationAndUpdateConnectedStations(Station station){
         stations.add(station);
 
@@ -34,16 +54,21 @@ public class TrafficLine {
         System.out.println("Connected Stations for Station "+station.getId());
         for(Station n: nextStations){
             System.out.println("Next Station "+n.getId());
+            n.getDirectlyConnectedStations().add(station);
         }
         station.setDirectlyConnectedStations(nextStations);
+        setStartVertexForNewVehicles();
     }
 
+    /**
+     * Setzt den Anfangsknoten aus dem Graph für neu hinzugefügte Fahrzeuge
+     */
     private void setStartVertexForNewVehicles(){
 
         // Finde Station an der das Auto platziert werden soll
         Station startStation = null;
         // Die Zahl ist so groß, damit die erste Station sicher temporär zu der Station mit den minimalen Verbindungen wird
-        int minimalNumberOfConnectedStations = 100000;
+        int minimalNumberOfConnectedStations = Integer.MAX_VALUE;
         // Finde die Station, die am wenigsten Verbindungen hat
         for(Station station: stations){
             int numberOfConnectedStations = station.getDirectlyConnectedStations().size();
@@ -65,7 +90,7 @@ public class TrafficLine {
             }
         }
 
-        //TODO unfertig
+        //TODO eventuell unfertig?
     }
 
     public void setStations(List<Station> stations) {
@@ -78,6 +103,10 @@ public class TrafficLine {
 
     public void setDesiredNumberOfVehicles(int desiredNumberOfVehicles) {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
+    }
+
+    public List<Station> getStations() {
+        return stations;
     }
 
     public BasicModel getModel() {
@@ -94,5 +123,13 @@ public class TrafficLine {
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
+    }
+
+    public TrafficType getTrafficType() {
+        return trafficType;
+    }
+
+    public void setTrafficType(TrafficType trafficType) {
+        this.trafficType = trafficType;
     }
 }

@@ -93,7 +93,9 @@ public class Controller {
      * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
      * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße oder ien Gleis handelt und ob
      * diese mit dem ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert
-     * und die entsprechenden Points dem Verkehrsgraph hinzugefügt.
+     * und die entsprechenden Points dem Verkehrsgraph hinzugefügt. Wenn es sich um eine Haltestelle handelt, wird
+     * außerdem entweder eine neue Station erstellt oder die Haltestelle der passenden Station hinzugefügt. Außerdem wird
+     * entweder eine neue Verkehrslinie erstellt oder die Station der vorhandenen Verkehrslinie hinzugefügt.
      * @param event MouseEvent, wodurch die Methode ausgelöst wurde
      */
     public void managePlacement(MouseEvent event) {
@@ -143,7 +145,7 @@ public class Controller {
                         switch (trafficType) {
                             case AIR: break;
                             case RAIL: break;
-                            case ROAD:  trafficLine = new RoadTrafficLine(3, model);
+                            case ROAD:  trafficLine = new TrafficLine(3, model, TrafficType.ROAD);
                                         actualStation.setRoadTrafficLine(trafficLine);
                                         break;
                             default: break;

@@ -128,6 +128,8 @@ public class TrafficGraph {
 
         this.getMapOfVertexes().put(vertex2.getName(), vertex1);
         List<Vertex> connectionsFromVertex1 = this.adjacencyMap.get(vertex1.getName());
+
+        // Fügt den Namen des vertex2 zusätzlich als Key zu der Map hinzu
         adjacencyMap.put(vertex2.getName(), connectionsFromVertex1);
     }
 
