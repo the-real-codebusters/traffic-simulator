@@ -154,8 +154,8 @@ public class BasicModel {
                 if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
                     String newBuildingName = entry.getValue();
 
-                    System.out.println(sBuilding.getBuildingName() + " and " +
-                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
+//                    System.out.println(sBuilding.getBuildingName() + " and " +
+//                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
                     Building combinedBuilding = getBuildingByName(newBuildingName);
                     // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
                     return combinedBuilding;

@@ -42,9 +42,12 @@ public class Controller {
 
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
+
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
+
+        // Momentan nur zu Testzwecken da
         view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
                 double mouseX = event.getX();
@@ -134,7 +137,6 @@ public class Controller {
                         Station nextStation = lastVertex.getStation();
                         if(trafficType.equals(TrafficType.ROAD)){
                             System.out.println("nextStation "+nextStation.getId());
-                            System.out.println("roadTrafficLine "+nextStation.getRoadTrafficLine());
                             nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(actualStation);
                         }
                         else ; //TODO

@@ -34,7 +34,7 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
-        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
+//        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
                 if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
@@ -215,8 +215,8 @@ public class MapModel {
                     }
                 }
         trafficGraph.checkForDuplicatePoints();
-        trafficGraph.printGraph();
-        System.out.println();
+//        trafficGraph.printGraph();
+//        System.out.println();
         return addedVertices;
     }
 
@@ -254,7 +254,7 @@ public class MapModel {
 //                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
 //                }
             }
-            System.out.println();
+//            System.out.println();
         }
     }
 

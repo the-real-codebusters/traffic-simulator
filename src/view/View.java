@@ -25,6 +25,7 @@ import model.Vertex;
 
 
 import javax.swing.border.Border;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -589,8 +590,19 @@ public class View {
             timer.stop();
 
             // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
-            Vertex v1 = controller.path.get(++controller.indexOfStart);
-            Vertex v2 = controller.path.get(++controller.indexOfNext);
+            Vertex v1;
+            Vertex v2;
+            if (controller.indexOfNext < controller.path.size()-1) {
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            } else {
+                Collections.reverse(controller.path);
+                controller.indexOfStart = 0;
+                controller.indexOfNext = controller.indexOfStart + 1;
+                // Wenn letzter point aus path erreicht ist, dann bleibe da statt exception auszulösen
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            }
             controller.moveCarFromPointToPoint(v1,v2);
         });
 
