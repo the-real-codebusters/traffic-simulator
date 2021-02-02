@@ -19,7 +19,7 @@ public class BasicModel {
     private List<Vehicle> vehiclesTypes = new ArrayList<>();
 
     // Die Verkehrslinien, die seit dem letzten Tag neu erstellt wurden oder nur eine Station haben und damit unfertig sind.
-    private Queue<TrafficLine> newCreatedTrafficLines = new ArrayDeque<>();
+    private Queue<TrafficLine> newCreatedOrIncompleteTrafficLines = new ArrayDeque<>();
 
     // Alle Verkehrslinien mit mehr als einer Station, die schon Verkehrsmittel auf sich fahren haben sollten
     private List<TrafficLine> activeTrafficLIne = new ArrayList<>();
@@ -49,8 +49,8 @@ public class BasicModel {
     /// Gibt eine Liste von aktiven Fahrzeugen zurück
     public List<Vehicle> simulateOneDay(){
         List<TrafficLine> incompleteTrafficLines = new ArrayList<>();
-        while(!newCreatedTrafficLines.isEmpty()){
-            TrafficLine newTrafficLine = newCreatedTrafficLines.remove();
+        while(!newCreatedOrIncompleteTrafficLines.isEmpty()){
+            TrafficLine newTrafficLine = newCreatedOrIncompleteTrafficLines.remove();
             if(newTrafficLine.checkIfMoreThanOneStation()){
                 if(newTrafficLine instanceof RoadTrafficLine){
                     ((RoadTrafficLine) newTrafficLine).addNewVehicle();
@@ -60,7 +60,7 @@ public class BasicModel {
                 incompleteTrafficLines.add(newTrafficLine);
             }
         }
-        newCreatedTrafficLines.addAll(incompleteTrafficLines);
+        newCreatedOrIncompleteTrafficLines.addAll(incompleteTrafficLines);
 
         List<Vehicle> activeVehicles = new ArrayList<>();
         for(TrafficLine activeLine: activeTrafficLIne){
@@ -239,12 +239,12 @@ public class BasicModel {
         this.map = map;
     }
 
-    public Queue<TrafficLine> getNewCreatedTrafficLines() {
-        return newCreatedTrafficLines;
+    public Queue<TrafficLine> getNewCreatedOrIncompleteTrafficLines() {
+        return newCreatedOrIncompleteTrafficLines;
     }
 
-    public void setNewCreatedTrafficLines(Queue<TrafficLine> newCreatedTrafficLines) {
-        this.newCreatedTrafficLines = newCreatedTrafficLines;
+    public void setNewCreatedOrIncompleteTrafficLines(Queue<TrafficLine> newCreatedOrIncompleteTrafficLines) {
+        this.newCreatedOrIncompleteTrafficLines = newCreatedOrIncompleteTrafficLines;
     }
 
 

@@ -11,7 +11,6 @@ import view.View;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Controller {
@@ -150,9 +149,10 @@ public class Controller {
                             default: break;
                         }
                         // TODO AIR, RAIL, desiredNumber
+                        // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
 
                         placedBuilding.setTrafficLine(trafficLine);
-                        model.getNewCreatedTrafficLines().add(trafficLine);
+                        model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
                 }
 
                 }

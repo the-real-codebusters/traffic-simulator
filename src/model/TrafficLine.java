@@ -39,11 +39,15 @@ public class TrafficLine {
     }
 
     private void setStartVertexForNewVehicles(){
+
+        // Finde Station an der das Auto platziert werden soll
         Station startStation = null;
+        // Die Zahl ist so groß, damit die erste Station sicher temporär zu der Station mit den minimalen Verbindungen wird
         int minimalNumberOfConnectedStations = 100000;
+        // Finde die Station, die am wenigsten Verbindungen hat
         for(Station station: stations){
             int numberOfConnectedStations = station.getDirectlyConnectedStations().size();
-            // Wenn die Station nur eine direkt verbundene Station hat, dann kann sie als Start taugen
+            // Wenn die Station nur eine direkt verbundene Station hat bzw diese Zahl minimal ist, dann kann sie als Start taugen
             if( numberOfConnectedStations < minimalNumberOfConnectedStations){
                 startStation = station;
                 minimalNumberOfConnectedStations = numberOfConnectedStations;
@@ -53,12 +57,15 @@ public class TrafficLine {
             throw new RuntimeException("No startStation found in setStartVertexForNewVehicles() in Class TrafficLine");
         }
 
+        // Finde den Knoten um das Auto zu platzieren
         for(Stop stop: startStation.getComponents()){
             if(stop.getTrafficType().equals(trafficType)){
                 startVertexForNewVehicles = stop.getVertices().get(0);
                 break;
             }
         }
+
+        //TODO unfertig
     }
 
     public void setStations(List<Station> stations) {
