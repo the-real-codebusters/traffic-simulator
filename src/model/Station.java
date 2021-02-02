@@ -22,7 +22,6 @@ public class Station {
     private List<Station> directlyConnectedStations = new ArrayList<>();
 
 
-
     public Station(BasicModel model, TrafficLine roadTrafficLine,  TrafficLine railTrafficLine, TrafficLine airTrafficLine) {
         // Stations haben unendliche Lagerkapazität
         Map<String, Integer> maximumCargo = new HashMap<>();
