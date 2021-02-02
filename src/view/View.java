@@ -67,6 +67,7 @@ public class View {
     private double tickDuration = 1;
     BorderPane borderPane;
     private ParallelTransition parallelTransition;
+    private AnimationTimer timer;
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -553,7 +554,7 @@ public class View {
                 )
         );
 
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 Image carImage = getResourceForImageName(name, tileImageHeightHalf,
@@ -650,6 +651,10 @@ public class View {
 
     public void setTickDuration(double tickDuration) {
         this.tickDuration = tickDuration;
+    }
+
+    public AnimationTimer getTimer() {
+        return timer;
     }
 }
 

@@ -2,9 +2,6 @@ package view;
 
 import controller.Controller;
 import javafx.animation.ParallelTransition;
-import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -16,14 +13,11 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class MenuPane extends AnchorPane {
@@ -44,6 +38,7 @@ public class MenuPane extends AnchorPane {
 
     private boolean run = true;
     private Button animationButton;
+    private Slider slider;
 
     public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
@@ -54,22 +49,11 @@ public class MenuPane extends AnchorPane {
 
         setCanvasEvents();
 
-        createAnimationButton();
-
         // HBox mit Reitern
         hBox = new HBox(tabPane);
-        // Abstand zwischen einzelnen HBox-Elementen
-        hBox.setSpacing(10);
-        // X-Startwert der H-Box
-        hBox.setLayoutX(10);
-        // Button in einer H-Box
-        HBox buttonBox = new HBox(animationButton);
-        // Button an erste Stelle hinzufügen
-        hBox.getChildren().add(0, buttonBox);
         this.getChildren().add(hBox);
         generateTabContents();
-        // erzeuge SLider und füge in an 2.Stelle der H-Box hinzu
-        createTickSlider();
+
 
         for (int i = 0; i < tabNames.size(); i++) {
             addTab(tabNames.get(i), tabContents.get(i));
@@ -92,7 +76,7 @@ public class MenuPane extends AnchorPane {
      * Erzeugt einen Button zum Starten/Pausieren von Simulation
      */
     private void createAnimationButton() {
-        animationButton = new Button("||");
+        animationButton = new Button("PAUSE");
         animationButton.setDisable(view.getParallelTransition() == null);
         animationButton.setOnAction(e -> {
 
@@ -100,14 +84,16 @@ public class MenuPane extends AnchorPane {
 
             if (pt != null) {
                 if (run) {
-                    animationButton.setText(">");
+                    animationButton.setText("START");
                     run = false;
                     pt.stop();
+                    view.getTimer().stop();
                 }
                 else {
-                    animationButton.setText("||");
+                    animationButton.setText("PAUSE");
                     run = true;
                     //pt.play();
+                    view.getTimer().start();
                     pt.playFrom(Duration.seconds(1));
                 }
             }
@@ -118,15 +104,13 @@ public class MenuPane extends AnchorPane {
      * Erstellt einen Slider zum Steuern von Tick-Duration
      */
     private void createTickSlider() {
-        Slider slider = new Slider();
+        slider = new Slider();
         slider.setLayoutX(view.getCanvas().getWidth()-10);
         slider.setMin(0.01);
         slider.setMax(5);
         slider.setValue(view.getTickDuration());
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
-       // slider.setMajorTickUnit(50); //?
-       // slider.setMinorTickCount(5); //?
         slider.setBlockIncrement(1);
 
         slider.valueProperty().addListener((observableValue, oldValue,newValue ) -> {
@@ -149,7 +133,6 @@ public class MenuPane extends AnchorPane {
                 }
             }
         });
-        hBox.getChildren().add(1, slider);
     }
 
     /**
@@ -161,6 +144,7 @@ public class MenuPane extends AnchorPane {
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
 
+        tabNames.addAll(List.of("speed"));
         tabNames.addAll(buildmenus);
         tabNames.addAll(List.of("height", "vehicles"));
 
@@ -181,6 +165,14 @@ public class MenuPane extends AnchorPane {
 
                 container.getChildren().add(imageView);
                 //TODO
+            }
+            if (name.equals("speed")) {
+                // erzeuge einen Button zum Starten/Pausieren von Simulation
+                createAnimationButton();
+                // erzeuge SLider
+                createTickSlider();
+                container.getChildren().add(0, animationButton);
+                container.getChildren().add(1, slider);
             }
 
             tabContents.set(tabNames.indexOf(name), container);
