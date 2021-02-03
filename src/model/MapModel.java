@@ -95,6 +95,10 @@ public class MapModel {
                     }
                 }
 
+                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")){
+                    return true;
+                }
+
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
