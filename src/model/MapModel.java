@@ -95,6 +95,7 @@ public class MapModel {
                     }
                 }
 
+                // Auf Graßfelder soll wieder gebaut werden dürfen
                 if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")){
                     return true;
                 }
@@ -230,8 +231,8 @@ public class MapModel {
                     }
                 }
         trafficGraph.checkForDuplicatePoints();
-//        trafficGraph.printGraph();
-//        System.out.println();
+        trafficGraph.printGraph();
+        System.out.println();
         return addedVertices;
     }
 

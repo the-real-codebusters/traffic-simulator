@@ -108,6 +108,7 @@ public class Controller {
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
+        List<Vertex> addedVertices;
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
@@ -122,6 +123,19 @@ public class Controller {
                 selectedBuilding.setWidth(1);
                 selectedBuilding.setDepth(1);
 
+                //TODO points aus Graph entfernen, wenn road/rail abgerissen wird
+                Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
+                Building buildingOnSelectedTile = selectedTile.getBuilding();
+
+                if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
+                    System.out.println("Trying to remove road points");
+                    PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
+                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+                    for(Vertex v : addedVertices){
+                        model.getMap().getRawRoadGraph().removeVertex(v.getName());
+                    }
+                    model.getMap().getRawRoadGraph().printGraph();
+                }
             }
 
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
@@ -131,7 +145,8 @@ public class Controller {
 
             if(placedBuilding instanceof PartOfTrafficGraph){
                 PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) placedBuilding;
-                List<Vertex> addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+                addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
 
                 if(placedBuilding instanceof Stop){
                     Station actualStation = ((Stop) placedBuilding).getStation();
