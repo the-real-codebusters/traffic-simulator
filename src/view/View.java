@@ -289,9 +289,9 @@ public class View {
                             int cornerHeightEast = tile.getCornerHeights().get("cornerE");
 
                             if(row-1 >= 0){
-                                cornerHeightSouth = fields[row][col+1].getCornerHeights().get("cornerW");
-                                cornerHeightEast = fields[row-1][col+1].getCornerHeights().get("cornerW");
-                                cornerHeightNorth = fields[row-1][col].getCornerHeights().get("cornerW");
+                                cornerHeightSouth = fields[row+1][col].getCornerHeights().get("cornerW");
+                                cornerHeightEast = fields[row+1][col+1].getCornerHeights().get("cornerW");
+                                cornerHeightNorth = fields[row][col+1].getCornerHeights().get("cornerW");
                             }
 
 //                            int minHeight = Integer.MAX_VALUE;
@@ -366,16 +366,16 @@ public class View {
         int numberOfPoints = 4;
         double heightShift = tileImageHeight/10;
         double xCoordWest = xCoordOnCanvas;
-        double yCoordWest = yCoordOnCanvas;
+        double yCoordWest = yCoordOnCanvas - heightWest*heightShift;
 
         double xCoordNorth = xCoordOnCanvas + tileImageWidthHalf;
-        double yCoordNorth = yCoordOnCanvas - tileImageHeightHalf;
+        double yCoordNorth = yCoordOnCanvas - tileImageHeightHalf - heightNorth*heightShift;
 
         double xCoordEast = xCoordOnCanvas + tileImageWidth;
-        double yCoordEast = yCoordOnCanvas;
+        double yCoordEast = yCoordOnCanvas - heightEast*heightShift;
 
         double xCoordSouth = xCoordOnCanvas + tileImageWidthHalf;
-        double yCoordSouth = yCoordOnCanvas + tileImageHeightHalf;
+        double yCoordSouth = yCoordOnCanvas + tileImageHeightHalf - heightSouth*heightShift;
 
         double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
         double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
