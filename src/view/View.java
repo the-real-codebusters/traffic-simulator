@@ -559,7 +559,7 @@ public class View {
                         new KeyValue(x, start.getX()),
                         new KeyValue(y, start.getY())
                 ),
-                new KeyFrame(Duration.seconds(tickDuration),
+                new KeyFrame(Duration.seconds(0.5),
                         new KeyValue(x, end.getX()),
                         new KeyValue(y, end.getY())
                 )
@@ -596,10 +596,11 @@ public class View {
                 v1 = controller.path.get(++controller.indexOfStart);
                 v2 = controller.path.get(++controller.indexOfNext);
             } else {
+                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
                 Collections.reverse(controller.path);
                 controller.indexOfStart = 0;
                 controller.indexOfNext = controller.indexOfStart + 1;
-                // Wenn letzter point aus path erreicht ist, dann bleibe da statt exception auszulösen
+
                 v1 = controller.path.get(++controller.indexOfStart);
                 v2 = controller.path.get(++controller.indexOfNext);
             }

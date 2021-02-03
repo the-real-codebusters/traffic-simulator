@@ -169,7 +169,10 @@ public class Controller {
             // Wenn nein, dann neu erstellen
 
             view.drawMap();
-            startCarMovement();
+            if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
+                System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
+                startCarMovement();
+            }
         }
     }
 
@@ -207,6 +210,11 @@ public class Controller {
      */
     public void startCarMovement(){
         List<Vertex> vertexes = getVertexesOfGraph();
+//        if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0){
+//            System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
+//        if(model.getActiveTrafficLine().size() > 1){
+//            System.out.println(model.getActiveTrafficLine().size());
+//            model.simulateOneDay();
         if(vertexes.size() >= 10) {
 
             Vertex startVertex = vertexes.get(indexOfStart);

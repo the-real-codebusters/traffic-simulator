@@ -82,7 +82,7 @@ public class BasicModel {
         for(TrafficLine activeLine: activeTrafficLine){
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
-
+        System.out.println(activeTrafficLine);
 
         day++;
         return activeVehicles;
@@ -97,6 +97,7 @@ public class BasicModel {
     public List<Vehicle> getVehicleTypesForTrafficType(TrafficType type){
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
+            //TODO hier wird manchmal eine exception geworfen. Warum?
             if(v.getKind().equals(type)){
                 desiredVehicles.add(v);
             }
@@ -304,6 +305,10 @@ public class BasicModel {
 
     public Tile[][] getFieldGridOfMap() {
         return map.getTileGrid();
+    }
+
+    public List<TrafficLine> getActiveTrafficLine() {
+        return activeTrafficLine;
     }
 
     public void printModelAttributes() {
