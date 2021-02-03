@@ -76,7 +76,7 @@ public class MenuPane extends AnchorPane {
         Set<String> buildmenus = controller.getBuildmenus();
 
         tabNames.addAll(buildmenus);
-        tabNames.addAll(List.of("height", "vehicles"));
+        tabNames.addAll(List.of("height", "vehicles", "remove"));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
@@ -94,6 +94,10 @@ public class MenuPane extends AnchorPane {
                 ImageView imageView = imageViewWithLayout(building);
                 container.getChildren().add(imageView);
                 //TODO
+            }
+                if(name.equals("remove")){
+                    ImageView imageView = imageViewWithLayout(null);
+                    container.getChildren().add(imageView);
             }
             tabContents.set(tabNames.indexOf(name), container);
         }
@@ -116,7 +120,12 @@ public class MenuPane extends AnchorPane {
      * @return
      */
     private ImageView imageViewWithLayout(Building building) {
-        String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+        String imageName;
+        if (building == null){
+            imageName = mapping.getImageNameForBuildingName("grass");
+        } else {
+            imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+        }
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
