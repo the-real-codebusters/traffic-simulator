@@ -84,6 +84,10 @@ public class MapModel {
                     boolean canCombine = model.checkCombines(row, column, building) != building;
                     return canCombine;
                 }
+                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("remove")){
+                    System.out.println("remove");
+                    return true;
+                }
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }

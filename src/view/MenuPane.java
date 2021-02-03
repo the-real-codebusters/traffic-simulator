@@ -95,9 +95,13 @@ public class MenuPane extends AnchorPane {
                 container.getChildren().add(imageView);
                 //TODO
             }
-                if(name.equals("remove")){
-                    ImageView imageView = imageViewWithLayout(null);
-                    container.getChildren().add(imageView);
+            if(name.equals("remove")){
+                Building remove = new Building();
+                remove.setBuildingName("remove");
+                remove.setWidth(1);
+                remove.setDepth(1);
+                ImageView imageView = imageViewWithLayout(remove);
+                container.getChildren().add(imageView);
             }
             tabContents.set(tabNames.indexOf(name), container);
         }
@@ -121,11 +125,7 @@ public class MenuPane extends AnchorPane {
      */
     private ImageView imageViewWithLayout(Building building) {
         String imageName;
-        if (building == null){
-            imageName = mapping.getImageNameForBuildingName("remove");
-        } else {
-            imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
-        }
+        imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
@@ -133,7 +133,6 @@ public class MenuPane extends AnchorPane {
         imageView.setOnMouseClicked(event -> {
             selectedBuilding = building;
             hoveredEvent = null;
-            System.out.println("Clicked");
         });
         return imageView;
     }

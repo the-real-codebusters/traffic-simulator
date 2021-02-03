@@ -114,6 +114,16 @@ public class Controller {
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
+            // Wenn ein Gebäude entfernt werden soll
+            if(selectedBuilding.getBuildingName().equals("remove")){
+                System.out.println("Trying to remove something");
+                selectedBuilding = new Building();
+                selectedBuilding.setBuildingName("grass");
+                selectedBuilding.setWidth(1);
+                selectedBuilding.setDepth(1);
+
+            }
+
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
