@@ -122,7 +122,7 @@ public class MenuPane extends AnchorPane {
     private ImageView imageViewWithLayout(Building building) {
         String imageName;
         if (building == null){
-            imageName = mapping.getImageNameForBuildingName("grass");
+            imageName = mapping.getImageNameForBuildingName("remove");
         } else {
             imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         }
@@ -133,6 +133,7 @@ public class MenuPane extends AnchorPane {
         imageView.setOnMouseClicked(event -> {
             selectedBuilding = building;
             hoveredEvent = null;
+            System.out.println("Clicked");
         });
         return imageView;
     }
