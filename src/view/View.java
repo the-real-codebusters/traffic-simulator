@@ -16,6 +16,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -220,6 +222,8 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
     public void drawMap() {
+        final String grass1 = "file:grass.png";
+        Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -288,11 +292,12 @@ public class View {
                             int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
                             int cornerHeightEast = tile.getCornerHeights().get("cornerE");
 
-                            if(row-1 >= 0){
+
+                            /*if(row-1 >= 0){
                                 cornerHeightSouth = fields[row+1][col].getCornerHeights().get("cornerW");
                                 cornerHeightEast = fields[row+1][col+1].getCornerHeights().get("cornerW");
                                 cornerHeightNorth = fields[row][col+1].getCornerHeights().get("cornerW");
-                            }
+                            }*/
 
 //                            int minHeight = Integer.MAX_VALUE;
 //                            int maxHeight = Integer.MIN_VALUE;
@@ -354,6 +359,9 @@ public class View {
     }
 
     private void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest){
+
+        //Image grass = new Image("/view/resources/ground/grass.png", 200, 200, true, true);
+        // Image grass = new Image("/ground/grass.png", 200, 200, true, true);
         // Was kann es eigentlich für Höhen bei einem Tile geben?
         // Ein Punkt kann entweder die (relative) Höhe -1, 0 oder 1 haben
 
@@ -383,6 +391,8 @@ public class View {
         gc.setFill(Color.CHOCOLATE);
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
         gc.strokePolygon(xCoords, yCoords, numberOfPoints);
+
+
 //        gc.setStroke(Color.BLUE);
 
         gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);

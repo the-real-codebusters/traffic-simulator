@@ -44,7 +44,7 @@ public class Controller {
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
-        view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+        /*view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
                 double mouseX = event.getX();
                 double mouseY = event.getY();
@@ -52,7 +52,7 @@ public class Controller {
                 Tile selectedTile = model.getFieldGridOfMap()[(int)isoCoord.getX()][(int)isoCoord.getY()];
                 generator.generateHeightMap();// Ist momentan nur zum Testen da
             }
-        });
+        });*/
     }
 
     public void simulateOneDay(){

@@ -19,6 +19,7 @@ public class MapGenerator {
 
         generateNature(mapWidth, mapDepth, basicModel);
         generateFactories(mapWidth, mapDepth, basicModel);
+        generateHeightMap();
 
         return mapFieldGrid;
     }
@@ -87,7 +88,7 @@ public class MapGenerator {
                     cornerHeights.put("cornerE", 0);
                     cornerHeights.put("cornerS", 0);
                     cornerHeights.put("cornerW", 0);
-                    // && false löschen
+                    //TODO && false löschen
 
                     mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
                 }
@@ -96,7 +97,12 @@ public class MapGenerator {
                 else {
                     int buildingRandom = new Random().nextInt(natureBuildings.size());
                     building = natureBuildings.get(buildingRandom).getNewInstance();
-                    mapFieldGrid[row][col] = new Tile(building, generateTileHeight(), false);
+                    Map <String, Integer> heightMap = new HashMap<>();
+                    heightMap.put("cornerN", 0);
+                    heightMap.put("cornerE", 0);
+                    heightMap.put("cornerS", 0);
+                    heightMap.put("cornerW", 0);
+                   mapFieldGrid[row][col] = new Tile(building, heightMap, false);
                 }
 
             }
@@ -157,9 +163,9 @@ public class MapGenerator {
             }
         }
 
-//        System.out.println("links: " + mapFieldGrid[16][21].getCornerHeights());
-//        System.out.println("unten: " + mapFieldGrid[17][20].getCornerHeights());
-//        System.out.println("zu prüfen: " + mapFieldGrid[17][21].getCornerHeights());
+        System.out.println("links: " + mapFieldGrid[16][21].getCornerHeights());
+        System.out.println("unten: " + mapFieldGrid[17][20].getCornerHeights());
+        System.out.println("zu prüfen: " + mapFieldGrid[17][21].getCornerHeights());
     }
 
 
@@ -180,7 +186,10 @@ public class MapGenerator {
 
         // Stelle sicher, dass Höhenunterschied zwischen Süd und Ost immer noch innerhalb der erlaubten Toleranz liegt
         if (Math.abs(cornerS - cornerE) > 1) {
-            int digit = new Random().nextInt(1) + 1;
+            //TODO Warum funktioniert es?
+            //Corners werden neu gesetzt, warum passt es mit den vorherigen Tiles zusammen?
+            //throw new RuntimeException("S und W passen nicht zusammen in Methode generateTileHeightMiddle");
+            int digit = new Random().nextInt(1) + 1; // immer 1??
             if (Math.abs(cornerS - cornerE) > 2) {
                 digit = 2;
             }
@@ -329,6 +338,7 @@ public class MapGenerator {
             maxHeight = heightOfEdgeBefore + 1;
         }
 
+        //
         int heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
 
         return heightOfNextCorner;
