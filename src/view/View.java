@@ -299,44 +299,6 @@ public class View {
                                 cornerHeightNorth = fields[row][col+1].getCornerHeights().get("cornerW");
                             }*/
 
-//                            int minHeight = Integer.MAX_VALUE;
-//                            int maxHeight = Integer.MIN_VALUE;
-//
-//                            if(cornerHeightWest < minHeight) {
-//                                minHeight = cornerHeightWest;
-//                            }
-//                            if(cornerHeightSouth < minHeight) {
-//                                minHeight = cornerHeightSouth;
-//                            }
-//                            if(cornerHeightNorth < minHeight) {
-//                                minHeight = cornerHeightNorth;
-//                            }
-//                            if(cornerHeightEast < minHeight) {
-//                                minHeight = cornerHeightEast;
-//                            }
-//
-//                            if(cornerHeightWest > maxHeight) {
-//                                maxHeight = cornerHeightWest;
-//                            }
-//                            if(cornerHeightSouth > maxHeight) {
-//                                maxHeight = cornerHeightSouth;
-//                            }
-//                            if(cornerHeightNorth > maxHeight) {
-//                                maxHeight = cornerHeightNorth;
-//                            }
-//                            if(cornerHeightEast > maxHeight) {
-//                                maxHeight = cornerHeightEast;
-//                            }
-//
-//                            if(maxHeight - minHeight > 2 || maxHeight < minHeight){
-//                                throw new RuntimeException("Height difference in one tile is "+(maxHeight-minHeight));
-//                            }
-//
-//                            cornerHeightSouth -= minHeight;
-//                            cornerHeightEast -= minHeight;
-//                            cornerHeightNorth -= minHeight;
-//                            cornerHeightWest -= minHeight;
-
                             drawPolygon(null, col, row, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
                         }
                     }
@@ -359,11 +321,6 @@ public class View {
     }
 
     private void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest){
-
-        //Image grass = new Image("/view/resources/ground/grass.png", 200, 200, true, true);
-        // Image grass = new Image("/ground/grass.png", 200, 200, true, true);
-        // Was kann es eigentlich für Höhen bei einem Tile geben?
-        // Ein Punkt kann entweder die (relative) Höhe -1, 0 oder 1 haben
 
         // X und Y Koordinaten der linken Ecke des Tiles
         Point2D drawOrigin = moveCoordinates(row, col);
@@ -388,14 +345,19 @@ public class View {
         double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
         double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
 
-        gc.setFill(Color.CHOCOLATE);
+        Image groundImage;
+        if(heightWest < 0){
+            groundImage = getResourceForImageName(mapping.getImageNameForBuildingName("water"), tileImageWidth, tileImageHeight);
+        }
+        else {
+            groundImage = getResourceForImageName(mapping.getImageNameForBuildingName("grass"), tileImageWidth, tileImageHeight);
+        }
+        ImagePattern imagePattern = new ImagePattern(groundImage);
+        gc.setFill(imagePattern);
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
         gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
-
-//        gc.setStroke(Color.BLUE);
-
-        gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);
+//        gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);
         gc.setFill(Color.BLACK);
 //        gc.setStroke(Color.BLACK);
 
