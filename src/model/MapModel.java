@@ -82,11 +82,10 @@ public class MapModel {
                 if(tile.getBuilding() instanceof Road) {
                     // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;
-                    return canCombine;
-                }
-                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("remove")){
-                    System.out.println("remove");
-                    return true;
+                    // Wenn eine strasse abgerissen werden soll, soll ebenfalls true zurückgegeben werden
+                    if(canCombine || building.getBuildingName().equals("remove")){
+                        return true;
+                    }
                 }
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
