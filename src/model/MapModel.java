@@ -100,6 +100,8 @@ public class MapModel {
                     return true;
                 }
 
+                if(tile.getBuilding() instanceof Stop && building.getBuildingName().equals("remove")) return true;
+
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }

@@ -9,9 +9,7 @@ import model.*;
 import view.MenuPane;
 import view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Controller {
     private View view;
@@ -117,22 +115,36 @@ public class Controller {
 
             // Wenn ein Gebäude entfernt werden soll
             if(selectedBuilding.getBuildingName().equals("remove")){
-                System.out.println("Trying to remove something");
                 selectedBuilding = new Building();
                 selectedBuilding.setBuildingName("grass");
                 selectedBuilding.setWidth(1);
                 selectedBuilding.setDepth(1);
 
-                //TODO points aus Graph entfernen, wenn road/rail abgerissen wird
                 Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
                 Building buildingOnSelectedTile = selectedTile.getBuilding();
 
+                // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
-                    System.out.println("Trying to remove road points");
+
                     PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
                     addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
                     for(Vertex v : addedVertices){
-                        model.getMap().getRawRoadGraph().removeVertex(v.getName());
+                        if(v.getName().contains("c")) {
+                            model.getMap().getRawRoadGraph().removeVertex(v.getName());
+                        }
+                    }
+                    // TODO so anpassen, dass es auch für rails funktioniert
+
+                    Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
+                    Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry<String, Vertex> vertex = iterator.next();
+                        List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
+                        if(connections.size()== 0) {
+                            iterator.remove();
+                            continue;
+                        }
                     }
                     model.getMap().getRawRoadGraph().printGraph();
                 }
@@ -188,7 +200,7 @@ public class Controller {
 
             }
 
-
+            placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
 
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
@@ -235,11 +247,6 @@ public class Controller {
      */
     public void startCarMovement(){
         List<Vertex> vertexes = getVertexesOfGraph();
-//        if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0){
-//            System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
-//        if(model.getActiveTrafficLine().size() > 1){
-//            System.out.println(model.getActiveTrafficLine().size());
-//            model.simulateOneDay();
         if(vertexes.size() >= 10) {
 
             Vertex startVertex = vertexes.get(indexOfStart);
