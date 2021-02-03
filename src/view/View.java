@@ -17,7 +17,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -27,7 +26,6 @@ import model.Tile;
 import model.Vertex;
 
 
-import javax.swing.border.Border;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +59,8 @@ public class View {
     private MenuPane menuPane;
 
     private Map<String, Image> imageCache = new HashMap<>();
-    ObjectToImageMapping mapping;
+    private ObjectToImageMapping objectToImageMapping;
+    private Map<String, ImagePattern> imagePatternCache = new HashMap<>();
 
     private double zoomFactor = 1.0;
     private static final double MAX_SCALE = 10.0d;
@@ -73,7 +72,7 @@ public class View {
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
-        mapping = new ObjectToImageMapping(model.getGamemode());
+        objectToImageMapping = new ObjectToImageMapping(model.getGamemode());
         fields = model.getFieldGridOfMap();
 
         Label isoCoordLabel = new Label();
@@ -100,7 +99,7 @@ public class View {
     }
 
     public void generateMenuPane(Controller controller){
-        menuPane = new MenuPane(controller, this, canvas, mapping);
+        menuPane = new MenuPane(controller, this, canvas, objectToImageMapping);
         borderPane.setTop(menuPane);
     }
 
@@ -205,6 +204,7 @@ public class View {
                 double deltaX = previousMouseX - mousePosX;
                 double deltaY = previousMouseY - mousePosY;
 
+                //TODO Mit scrollOnMouseDraggedReleased umsetzen bzw Maxi dazu fragen
                 if (Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30 && previousMouseX != -1.0 && previousMouseY != -1.0) {
                     cameraOffsetX += deltaX;
                     cameraOffsetY += deltaY;
@@ -345,21 +345,22 @@ public class View {
         double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
         double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
 
-        Image groundImage;
+        ImagePattern imagePattern;
         if(heightWest < 0){
-            groundImage = getResourceForImageName(mapping.getImageNameForBuildingName("water"), tileImageWidth, tileImageHeight);
+            imagePattern = getImagePatternForGroundName("water");
         }
         else {
-            groundImage = getResourceForImageName(mapping.getImageNameForBuildingName("grass"), tileImageWidth, tileImageHeight);
+            imagePattern = getImagePatternForGroundName("grass");
         }
-        ImagePattern imagePattern = new ImagePattern(groundImage);
         gc.setFill(imagePattern);
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
         gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
-//        gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);
+        gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);
         gc.setFill(Color.BLACK);
 //        gc.setStroke(Color.BLACK);
+
+        //TODO Das Tile 0,0 ganz links wird manchmal je nach Position komisch angezeigt
 
     }
 
@@ -367,7 +368,7 @@ public class View {
      * Speichert die Verhältnisse von Höhe und Breite für alle Bilder in einer Map
      */
     public void storeImageRatios(){
-        for(String name : mapping.getImageNames()){
+        for(String name : objectToImageMapping.getImageNames()){
             Image r = getResourceForImageName(name);
             double ratio = r.getHeight() / r.getWidth();
             imageNameToImageRatio.put(name, ratio);
@@ -388,7 +389,7 @@ public class View {
     public void drawBuildingOverMoreTiles(Tile tile, Building building, int row, int column) {
         if (tile.isBuildingOrigin()) {
             String buildingName = building.getBuildingName();
-            String name = mapping.getImageNameForBuildingName(buildingName);
+            String name = objectToImageMapping.getImageNameForObjectName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
 
 //            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
@@ -406,6 +407,27 @@ public class View {
 
             //TODO Da gebäude von ihrem Ursprungstile gezeichnet werden, überlappen sie Bäume aus reihen weiter oben,
             // die eigentlich das Gebäude überlappen sollten
+        }
+    }
+
+    /**
+     * Gibt ein ImagePattern für den Namen des Untergrunds zurück, z.B. grass
+     * Um Performance-Probleme zu lösen, werden die imagePatterns in einem Cache gespeichert und wenn möglich
+     * wiederverwendet. Der Cache ist mit einer Map umgesetzt.
+     * @param groundName
+     * @return
+     */
+    private ImagePattern getImagePatternForGroundName(String groundName){
+        ImagePattern cachedPattern = imagePatternCache.get(groundName);
+        if(cachedPattern != null){
+            return cachedPattern;
+        }
+        else{
+            String imageName = objectToImageMapping.getImageNameForObjectName(groundName);
+            Image image = getResourceForImageName(imageName);
+            ImagePattern newPattern = new ImagePattern(image);
+            imagePatternCache.put(groundName, newPattern);
+            return newPattern;
         }
     }
 
@@ -429,7 +451,7 @@ public class View {
             } else {
                 buildingName = field.getBuilding().getBuildingName();
             }
-            name = mapping.getImageNameForBuildingName(buildingName);
+            name = objectToImageMapping.getImageNameForObjectName(buildingName);
         }
 
         double ratio = imageNameToImageRatio.get(name);
@@ -450,7 +472,7 @@ public class View {
         String buildingName = "grass";;
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
-            name = mapping.getImageNameForBuildingName(buildingName);
+            name = objectToImageMapping.getImageNameForObjectName(buildingName);
         }
 
         double ratio = imageNameToImageRatio.get(name);
@@ -618,7 +640,7 @@ public class View {
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-        String name = mapping.getImageNameForBuildingName("car-sw");
+        String name = objectToImageMapping.getImageNameForObjectName("car-sw");
 
         Point2D zeroPointAtStart = moveCoordinates(0,0);
 

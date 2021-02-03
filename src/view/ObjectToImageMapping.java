@@ -18,7 +18,7 @@ public class ObjectToImageMapping {
         }
     }
 
-    public String getImageNameForBuildingName(String buildingName){
+    public String getImageNameForObjectName(String buildingName){
         return mapping.get(buildingName);
     }
 

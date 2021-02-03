@@ -333,25 +333,28 @@ public class MapGenerator {
             maxHeight = heightOfEdgeBefore + 1;
         }
 
+        //TODO Wenn man die Wahrscheinlichkeiten probabilityMinHeight und probabilityMaxHeight verkleinert, treten sehr
+        //komische Probleme auf. Was ist da los?
+
         int heightOfNextCorner;
         if(heightOfEdgeBefore > 0){
-            int probabilityMinHeight = 50;
+            int probabilityMinHeight = 40;
             int randomNumber = r.nextInt(100)+1;
             if(randomNumber < probabilityMinHeight){
                 heightOfNextCorner = minHeight;
             }
             else {
-                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 2) + minHeight;
             }
         }
         else if (heightOfEdgeBefore < 0) {
-            int probabilityMaxHeight = 50;
+            int probabilityMaxHeight = 40;
             int randomNumber = r.nextInt(100)+1;
             if(randomNumber < probabilityMaxHeight){
                 heightOfNextCorner = maxHeight;
             }
             else {
-                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight) + minHeight;
             }
         }
         else {
