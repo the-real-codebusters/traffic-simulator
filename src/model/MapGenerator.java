@@ -81,12 +81,13 @@ public class MapGenerator {
 
                 Building building = null;
                 int heightRandom = new Random().nextInt(1000);
-                if (heightRandom <= probWater) {
+                if (heightRandom <= probWater && false) {
                     Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-                    cornerHeights.put("cornerN", -1);
-                    cornerHeights.put("cornerE", -1);
-                    cornerHeights.put("cornerS", -1);
-                    cornerHeights.put("cornerW", -1);
+                    cornerHeights.put("cornerN", 0);
+                    cornerHeights.put("cornerE", 0);
+                    cornerHeights.put("cornerS", 0);
+                    cornerHeights.put("cornerW", 0);
+                    // && false löschen
 
                     mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
                 }

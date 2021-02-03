@@ -288,6 +288,12 @@ public class View {
                             int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
                             int cornerHeightEast = tile.getCornerHeights().get("cornerE");
 
+                            if(row-1 >= 0){
+                                cornerHeightSouth = fields[row][col+1].getCornerHeights().get("cornerW");
+                                cornerHeightEast = fields[row-1][col+1].getCornerHeights().get("cornerW");
+                                cornerHeightNorth = fields[row-1][col].getCornerHeights().get("cornerW");
+                            }
+
 //                            int minHeight = Integer.MAX_VALUE;
 //                            int maxHeight = Integer.MIN_VALUE;
 //
@@ -360,24 +366,29 @@ public class View {
         int numberOfPoints = 4;
         double heightShift = tileImageHeight/10;
         double xCoordWest = xCoordOnCanvas;
-        double yCoordWest = yCoordOnCanvas + heightShift*heightWest;
+        double yCoordWest = yCoordOnCanvas;
 
         double xCoordNorth = xCoordOnCanvas + tileImageWidthHalf;
-        double yCoordNorth = yCoordOnCanvas + tileImageHeightHalf;
+        double yCoordNorth = yCoordOnCanvas - tileImageHeightHalf;
 
         double xCoordEast = xCoordOnCanvas + tileImageWidth;
         double yCoordEast = yCoordOnCanvas;
 
         double xCoordSouth = xCoordOnCanvas + tileImageWidthHalf;
-        double yCoordSouth = yCoordOnCanvas - tileImageHeightHalf;
+        double yCoordSouth = yCoordOnCanvas + tileImageHeightHalf;
 
-        double[] xCoords = {xCoordWest, xCoordNorth, xCoordEast, xCoordSouth};
-        double[] yCoords = {yCoordWest, yCoordNorth, yCoordEast, yCoordSouth};
+        double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
+        double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
 
         gc.setFill(Color.CHOCOLATE);
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
         gc.strokePolygon(xCoords, yCoords, numberOfPoints);
+//        gc.setStroke(Color.BLUE);
+
+        gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);
         gc.setFill(Color.BLACK);
+//        gc.setStroke(Color.BLACK);
+
     }
 
     /**
