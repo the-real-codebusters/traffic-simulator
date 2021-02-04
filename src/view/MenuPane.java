@@ -146,7 +146,7 @@ public class MenuPane extends AnchorPane {
 
         tabNames.addAll(List.of("speed"));
         tabNames.addAll(buildmenus);
-        tabNames.addAll(List.of("height", "vehicles"));
+        tabNames.addAll(List.of("height", "vehicles", "remove"));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
@@ -166,6 +166,7 @@ public class MenuPane extends AnchorPane {
                 container.getChildren().add(imageView);
                 //TODO
             }
+
             if (name.equals("speed")) {
                 // erzeuge einen Button zum Starten/Pausieren von Simulation
                 createAnimationButton();
@@ -173,6 +174,16 @@ public class MenuPane extends AnchorPane {
                 createTickSlider();
                 container.getChildren().add(0, animationButton);
                 container.getChildren().add(1, slider);
+            }
+
+
+            if(name.equals("remove")){
+                Building remove = new Building();
+                remove.setBuildingName("remove");
+                remove.setWidth(1);
+                remove.setDepth(1);
+                ImageView imageView = imageViewWithLayout(remove);
+                container.getChildren().add(imageView);
             }
 
             tabContents.set(tabNames.indexOf(name), container);
@@ -196,7 +207,8 @@ public class MenuPane extends AnchorPane {
      * @return
      */
     private ImageView imageViewWithLayout(Building building) {
-        String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+        String imageName;
+        imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
@@ -256,8 +268,8 @@ public class MenuPane extends AnchorPane {
             }
         });
 
-        // Bei einem Linksklick wird das ausgewählt Gebäude nicht mehr ausgewählt
-        // Bei einem Rechtsklick wird das ausgewählte Gebäude platziert, sollte eines ausgewählt sein.
+        // Bei einem Rechtsklick wird das ausgewählt Gebäude nicht mehr ausgewählt
+        // Bei einem Linksklick wird das ausgewählte Gebäude platziert, sollte eines ausgewählt sein.
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getButton().compareTo(MouseButton.SECONDARY) == 0) {
                 selectedBuilding = null;

@@ -38,6 +38,8 @@ public class ObjectToImageMapping {
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
         mapping.put("railstation-nw-se", "stations/rail/railstation");
+        mapping.put("busstop-nw-se", "stations/road/busstop");
+
 
 
 
@@ -59,6 +61,7 @@ public class ObjectToImageMapping {
 
         mapping.put("car-sw", "road/car-sw");
         mapping.put("grass", "ground/grass");
+        mapping.put("remove", "remove");
     }
 
     public Collection<String> getImageNames(){

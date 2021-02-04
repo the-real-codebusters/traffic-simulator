@@ -12,6 +12,7 @@ public class Stop extends Special implements PartOfTrafficGraph{
     protected Map<String, List<Double>> points = new HashMap<>();
     protected List<List<String>> transportations = new ArrayList<>();
     private Station station;
+    private List<Vertex> vertices = new ArrayList<>();
 
     @Override
     public Stop getNewInstance(){
@@ -20,6 +21,7 @@ public class Stop extends Special implements PartOfTrafficGraph{
         instance.setPoints(Map.copyOf(points));
         instance.setTransportations(List.copyOf(transportations));
         instance.setSpecial(getSpecial());
+        setTrafficType(getTrafficType());
         return instance;
     }
 
@@ -33,6 +35,10 @@ public class Stop extends Special implements PartOfTrafficGraph{
 
     public void setTransportations(List<List<String>> roads) {
         this.transportations = roads;
+    }
+
+    public List<Vertex> getVertices() {
+        return vertices;
     }
 
     @Override

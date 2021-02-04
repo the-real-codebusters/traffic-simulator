@@ -5,11 +5,13 @@ import javafx.util.Pair;
 import java.util.Map;
 
 public class Vehicle {
-    private String kind; // TODO: sollten wir eventuell einen Enum statt einen String verwenden?
+    private TrafficType kind;
     private boolean canTransportCargo;
     private double speed;
     private String graphic;
     private Storage storage;
+
+    private VehiclePosition position;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -23,6 +25,12 @@ public class Vehicle {
         instance.setGraphic(graphic);
         instance.setStorage(storage.getNewInstance());
         return instance;
+    }
+
+    // Wo startet das Fahrzeug?
+    // Wo will es hin?
+    public void searchForPath(){
+
     }
 
     /**
@@ -74,11 +82,11 @@ public class Vehicle {
         }
     }
 
-    public String getKind() {
+    public TrafficType getKind() {
         return kind;
     }
 
-    public void setKind(String kind) {
+    public void setKind(TrafficType kind) {
         this.kind = kind;
     }
 
@@ -112,5 +120,13 @@ public class Vehicle {
 
     public void setStorage(Storage storage) {
         this.storage = storage;
+    }
+
+    public VehiclePosition getPosition() {
+        return position;
+    }
+
+    public void setPosition(VehiclePosition position) {
+        this.position = position;
     }
 }

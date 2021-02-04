@@ -10,9 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -25,6 +23,7 @@ import model.Vertex;
 
 
 import javax.swing.border.Border;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -244,6 +243,12 @@ public class View {
 
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
+
+                            for(int i = col; i <= col + building.getDepth()-1; i++) {
+                                // Obere Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(i, row);
+                                drawTileImage(i, row, image, false);
+                            }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
                         // obere ecke ist ein gebäude
@@ -252,6 +257,12 @@ public class View {
                             startRow = row + building.getWidth();
                             endCol = col;
                             startCol = endCol - building.getDepth()+2;
+                            for(int i = row; i <= startRow; i++) {
+                                // Rechte Kante vom Gebäude mit Grassfläche übermalen
+                                Image image = getGrassImage(col, i);
+                                drawTileImage(col, i, image, false);
+                            }
+
                         }
 
                     } else {
@@ -342,7 +353,7 @@ public class View {
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             Tile field = fields[row][column];
-            if (field.getHeight() < 0) {
+            if (field.isWater()) {
                 buildingName = "water";
             } else if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
@@ -548,7 +559,7 @@ public class View {
                         new KeyValue(x, start.getX()),
                         new KeyValue(y, start.getY())
                 ),
-                new KeyFrame(Duration.seconds(tickDuration),
+                new KeyFrame(Duration.seconds(0.5),
                         new KeyValue(x, end.getX()),
                         new KeyValue(y, end.getY())
                 )
@@ -579,8 +590,20 @@ public class View {
             timer.stop();
 
             // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
-            Vertex v1 = controller.path.get(++controller.indexOfStart);
-            Vertex v2 = controller.path.get(++controller.indexOfNext);
+            Vertex v1;
+            Vertex v2;
+            if (controller.indexOfNext < controller.path.size()-1) {
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            } else {
+                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
+                Collections.reverse(controller.path);
+                controller.indexOfStart = 0;
+                controller.indexOfNext = controller.indexOfStart + 1;
+
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            }
             controller.moveCarFromPointToPoint(v1,v2);
         });
 

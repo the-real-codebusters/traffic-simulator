@@ -2,15 +2,14 @@ package controller;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import model.*;
 import view.MenuPane;
 import view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Controller {
     private View view;
@@ -22,12 +21,12 @@ public class Controller {
         this.model = model;
 
         MapModel map = model.getMap();
-        model.printModelAttributes();
+//        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
         MapGenerator generator = new MapGenerator(map.getMapgen(), map);
         Tile[][] generatedMap = generator.generateMap(model);
-        map.setFieldGrid(generatedMap);
+        map.setTileGrid(generatedMap);
 
         view.setController(this);
         view.storeImageRatios();
@@ -40,8 +39,25 @@ public class Controller {
 
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
+
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
+        model.setPathfinder(pathfinder);
+
+        // Momentan nur zu Testzwecken da
+        view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+                Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+                Tile selectedTile = model.getFieldGridOfMap()[(int)isoCoord.getX()][(int)isoCoord.getY()];
+                generator.generateHeightMap();// Ist momentan nur zum Testen da
+            }
+        });
+    }
+
+    public void simulateOneDay(){
+        List<Vehicle> activeVehicles = model.simulateOneDay();
 
     }
 
@@ -78,7 +94,9 @@ public class Controller {
      * Die Methode bekommt ein event übergeben und prüft, ob ein Gebäude platziert werden darf. Ist dies der Fall, so
      * wird außerdem geprüft, ob es sich beim zu platzierenden Gebäude um eine Straße oder ien Gleis handelt und ob
      * diese mit dem ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert
-     * und die entsprechenden Points dem Verkehrsgraph hinzugefügt.
+     * und die entsprechenden Points dem Verkehrsgraph hinzugefügt. Wenn es sich um eine Haltestelle handelt, wird
+     * außerdem entweder eine neue Station erstellt oder die Haltestelle der passenden Station hinzugefügt. Außerdem wird
+     * entweder eine neue Verkehrslinie erstellt oder die Station der vorhandenen Verkehrslinie hinzugefügt.
      * @param event MouseEvent, wodurch die Methode ausgelöst wurde
      */
     public void managePlacement(MouseEvent event) {
@@ -88,11 +106,49 @@ public class Controller {
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
+        List<Vertex> addedVertices;
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+
+            // Wenn ein Gebäude entfernt werden soll
+            if(selectedBuilding.getBuildingName().equals("remove")){
+                selectedBuilding = new Building();
+                selectedBuilding.setBuildingName("grass");
+                selectedBuilding.setWidth(1);
+                selectedBuilding.setDepth(1);
+
+                Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
+                Building buildingOnSelectedTile = selectedTile.getBuilding();
+
+                // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
+                if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
+
+                    PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
+                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
+                    for(Vertex v : addedVertices){
+                        if(v.getName().contains("c")) {
+                            model.getMap().getRawRoadGraph().removeVertex(v.getName());
+                        }
+                    }
+                    // TODO so anpassen, dass es auch für rails funktioniert
+
+                    Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
+                    Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry<String, Vertex> vertex = iterator.next();
+                        List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
+                        if(connections.size()== 0) {
+                            iterator.remove();
+                            continue;
+                        }
+                    }
+                    model.getMap().getRawRoadGraph().printGraph();
+                }
+            }
 
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
@@ -100,11 +156,60 @@ public class Controller {
             Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
 
             if(placedBuilding instanceof PartOfTrafficGraph){
-                model.getMap().addPointsToGraph((PartOfTrafficGraph) placedBuilding, xCoord, yCoord);
+                PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) placedBuilding;
+                addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
+
+                if(placedBuilding instanceof Stop){
+                    Station actualStation = ((Stop) placedBuilding).getStation();
+                    List<Vertex> pathToStation = pathfinder.findPathToNextStation(addedVertices.get(0), actualStation);
+                    // TODO Was wenn die Liste addedVertices leer ist?
+
+                    boolean anotherStationFindable = false;
+                    if(pathToStation.size() > 0) anotherStationFindable = true;
+
+                    TrafficType trafficType = placedBuilding.getTrafficType();
+
+                    if(anotherStationFindable) {
+                        Vertex lastVertex = pathToStation.get(pathToStation.size()-1);
+                        Station nextStation = lastVertex.getStation();
+                        if(trafficType.equals(TrafficType.ROAD)){
+                            System.out.println("nextStation "+nextStation.getId());
+                            nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(actualStation);
+                        }
+                        else ; //TODO
+                    }
+                    else {
+                        TrafficLine trafficLine = null;
+                        switch (trafficType) {
+                            case AIR: break;
+                            case RAIL: break;
+                            case ROAD:  trafficLine = new TrafficLine(3, model, TrafficType.ROAD);
+                                        actualStation.setRoadTrafficLine(trafficLine);
+                                        break;
+                            default: break;
+                        }
+                        // TODO AIR, RAIL, desiredNumber
+                        // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
+
+                        placedBuilding.setTrafficLine(trafficLine);
+                        model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
+                }
+
+                }
+
             }
 
+            placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+
+            // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
+            // Wenn nein, dann neu erstellen
+
             view.drawMap();
-            startCarMovement();
+            if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
+                System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
+                startCarMovement();
+            }
         }
     }
 
