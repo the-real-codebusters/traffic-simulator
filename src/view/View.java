@@ -10,9 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -25,6 +23,7 @@ import model.Vertex;
 
 
 import javax.swing.border.Border;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -558,7 +557,7 @@ public class View {
                         new KeyValue(x, start.getX()),
                         new KeyValue(y, start.getY())
                 ),
-                new KeyFrame(Duration.seconds(tickDuration),
+                new KeyFrame(Duration.seconds(0.5),
                         new KeyValue(x, end.getX()),
                         new KeyValue(y, end.getY())
                 )
@@ -589,8 +588,20 @@ public class View {
             timer.stop();
 
             // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
-            Vertex v1 = controller.path.get(++controller.indexOfStart);
-            Vertex v2 = controller.path.get(++controller.indexOfNext);
+            Vertex v1;
+            Vertex v2;
+            if (controller.indexOfNext < controller.path.size()-1) {
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            } else {
+                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
+                Collections.reverse(controller.path);
+                controller.indexOfStart = 0;
+                controller.indexOfNext = controller.indexOfStart + 1;
+
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            }
             controller.moveCarFromPointToPoint(v1,v2);
         });
 

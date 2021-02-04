@@ -17,7 +17,7 @@ public class TrafficLine {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
         this.model = model;
         this.trafficType = trafficType;
-        setStartVertexForNewVehicles();
+//        setStartVertexForNewVehicles();
     }
 
     /**
@@ -63,7 +63,7 @@ public class TrafficLine {
     /**
      * Setzt den Anfangsknoten aus dem Graph für neu hinzugefügte Fahrzeuge
      */
-    private void setStartVertexForNewVehicles(){
+    public void setStartVertexForNewVehicles(){
 
         // Finde Station an der das Auto platziert werden soll
         Station startStation = null;

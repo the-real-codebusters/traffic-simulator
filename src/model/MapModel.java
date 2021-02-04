@@ -34,7 +34,7 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
-        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
+//        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
                 if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
@@ -82,8 +82,26 @@ public class MapModel {
                 if(tile.getBuilding() instanceof Road) {
                     // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;
-                    return canCombine;
+                    // Wenn eine strasse abgerissen werden soll, soll ebenfalls true zurückgegeben werden
+                    if(canCombine || building.getBuildingName().equals("remove")){
+                        return true;
+                    }
                 }
+
+                if(tile.getBuilding() instanceof Rail) {
+                    boolean canCombine = model.checkCombines(row, column, building) != building;
+                    if(canCombine || building.getBuildingName().equals("remove")){
+                        return true;
+                    }
+                }
+
+                // Auf Graßfelder soll wieder gebaut werden dürfen
+                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")){
+                    return true;
+                }
+
+                if(tile.getBuilding() instanceof Stop && building.getBuildingName().equals("remove")) return true;
+
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
@@ -254,7 +272,7 @@ public class MapModel {
 //                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
 //                }
             }
-            System.out.println();
+//            System.out.println();
         }
     }
 
