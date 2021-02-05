@@ -22,7 +22,7 @@ public class BasicModel {
     private Queue<TrafficLine> newCreatedOrIncompleteTrafficLines = new ArrayDeque<>();
 
     // Alle Verkehrslinien mit mehr als einer Station, die schon Verkehrsmittel auf sich fahren haben sollten
-    private List<TrafficLine> activeTrafficLine = new ArrayList<>();
+    private List<TrafficLine> activeTrafficLines = new ArrayList<>();
 
     private Pathfinder pathfinder;
 
@@ -63,7 +63,7 @@ public class BasicModel {
             if(newOrIncompleteTrafficLine.checkIfMoreThanOneStation()){
                 if(newOrIncompleteTrafficLine.getTrafficType().equals(TrafficType.ROAD)){
                     newOrIncompleteTrafficLine.addNewVehicle();
-                    activeTrafficLine.add(newOrIncompleteTrafficLine);
+                    activeTrafficLines.add(newOrIncompleteTrafficLine);
 
                     //TODO Andere TrafficTypes fehlen noch
                 }
@@ -79,10 +79,10 @@ public class BasicModel {
         // wenn zwei Stationen erst im Nachhinein mit Straßen verbunden werden
 
         List<Vehicle> activeVehicles = new ArrayList<>();
-        for(TrafficLine activeLine: activeTrafficLine){
+        for(TrafficLine activeLine: activeTrafficLines){
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
-        System.out.println(activeTrafficLine);
+        System.out.println("activeTrafficLines "+activeTrafficLines);
 
         day++;
         return activeVehicles;
@@ -307,8 +307,8 @@ public class BasicModel {
         return map.getTileGrid();
     }
 
-    public List<TrafficLine> getActiveTrafficLine() {
-        return activeTrafficLine;
+    public List<TrafficLine> getActiveTrafficLines() {
+        return activeTrafficLines;
     }
 
     public void printModelAttributes() {

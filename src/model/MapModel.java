@@ -46,17 +46,34 @@ public class MapModel {
         instance.setOriginColumn(column);
         instance.setOriginRow(row);
 
+        boolean createdNewStation = false;
+        Station station = null;
+
         if(instance instanceof Stop) {
             Station nextStation = getStationNextToStop(row, column, (Stop) instance);
 //            ((Stop) instance).getSpecial().equals("busstop");
-            Station station = new Station(model, null, null, null);
             if(nextStation != null) {
                 station = nextStation;
+                System.out.println("Nachbar für Stop gefunden");
             } else {
+                station = new Station(model, null, null, null);
                 stations.add(station);
+                System.out.println("Station neu erzeugt");
+                createdNewStation = true;
             }
-            station.addBuilding((Stop) instance);
+            station.addBuildingAndSetStationInBuilding((Stop) instance);
+            System.out.println("StationID in placeBuilding "+((Stop) instance).getStation().getId());
+
         }
+        if(instance instanceof PartOfTrafficGraph){
+            model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
+        }
+
+        if(createdNewStation){
+            TrafficLine trafficLine = addNewStationToTrafficLine(station, instance.getTrafficType());
+            instance.setTrafficLine(trafficLine);
+        }
+
         return instance;
     }
 
@@ -188,15 +205,15 @@ public class MapModel {
             trafficGraph = this.rawRoadGraph;
         }
         else {
-            return new ArrayList<>();
             //TODO rails
+            throw new RuntimeException("Unfertiger Code");
         };
 
         // TODO Vertex zusammenführen überprüfen
 
         boolean isPointPartOfStation = false;
         if(building instanceof Stop) isPointPartOfStation = true;
-        List<Vertex> addedVertices = new ArrayList<>();
+        List<Vertex> verticesBefore = new ArrayList<>();
 
                 Map<String, List<Double>> points = building.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
@@ -213,10 +230,8 @@ public class MapModel {
                     v.setPointOfStation(isPointPartOfStation);
                     if(isPointPartOfStation) {
                         v.setStation(((Stop) building).getStation());
-                        ((Stop) building).getVertices().add(v);
                     }
                     trafficGraph.addVertex(v);
-                    addedVertices.add(v);
 
                     for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
@@ -235,7 +250,50 @@ public class MapModel {
         trafficGraph.checkForDuplicatePoints();
         trafficGraph.printGraph();
         System.out.println();
+        List<Vertex> verticesAfter = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
+        verticesAfter.removeAll(verticesBefore);
+        List<Vertex> addedVertices = verticesAfter;
+        if(isPointPartOfStation){
+            ((Stop) building).getVertices().addAll(addedVertices);
+        }
         return addedVertices;
+    }
+
+    private TrafficLine addNewStationToTrafficLine(Station newStation, TrafficType trafficType) {
+        List<Vertex> pathToStation = model.getPathfinder().findPathToNextStation(newStation);
+
+        boolean anotherStationFindable = false;
+        if (pathToStation.size() > 0) anotherStationFindable = true;
+
+        if (anotherStationFindable) {
+            Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
+            Station nextStation = lastVertex.getStation();
+            if (trafficType.equals(TrafficType.ROAD)) {
+                System.out.println("nextStation " + nextStation.getId());
+                nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
+                return nextStation.getRoadTrafficLine();
+            } else ; //TODO Andere Verkehrstypen
+        } else {
+            TrafficLine trafficLine = null;
+            switch (trafficType) {
+                case AIR:
+                    break;
+                case RAIL:
+                    break;
+                case ROAD:
+                    trafficLine = new TrafficLine(3, model, TrafficType.ROAD);
+                    newStation.setRoadTrafficLine(trafficLine);
+                    break;
+                default:
+                    break;
+            }
+            // TODO AIR, RAIL, desiredNumber
+            // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
+
+            model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
+            return trafficLine;
+        }
+        throw new RuntimeException("Unfertiger Code");
     }
 
 

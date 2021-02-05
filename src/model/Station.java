@@ -35,7 +35,16 @@ public class Station {
         this.airTrafficLine = airTrafficLine;
     }
 
-    public boolean addBuilding(Stop building){
+    /**
+     * Gibt zurück, ob die Station mit der angegebenen Station direkt durch Straßen/Schienen/Luft verbunden ist
+     * @param station
+     * @return
+     */
+    public boolean isDirectlyConnectedTo(Station station){
+        return directlyConnectedStations.contains(station);
+    }
+
+    public boolean addBuildingAndSetStationInBuilding(Stop building){
         building.setStation(this);
         if(building instanceof Tower){
             int maxplanes = ((Tower) building).getMaxplanes();

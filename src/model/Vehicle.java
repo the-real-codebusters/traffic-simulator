@@ -2,6 +2,8 @@ package model;
 
 import javafx.util.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Vehicle {
@@ -12,6 +14,7 @@ public class Vehicle {
     private Storage storage;
 
     private VehiclePosition position;
+    private List<Vertex> pathToNextStation = new ArrayList<>();
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück

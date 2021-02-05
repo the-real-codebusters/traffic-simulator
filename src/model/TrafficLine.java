@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -12,12 +13,12 @@ public class TrafficLine {
     protected BasicModel model;
     private Vertex startVertexForNewVehicles;
     private TrafficType trafficType;
+    private Station startStation;
 
     public TrafficLine(int desiredNumberOfVehicles, BasicModel model, TrafficType trafficType) {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
         this.model = model;
         this.trafficType = trafficType;
-//        setStartVertexForNewVehicles();
     }
 
     /**
@@ -30,10 +31,38 @@ public class TrafficLine {
         Random randomGenerator = new Random();
         int randomInt = randomGenerator.nextInt(vehicleTypes.size()) -1;
         Vehicle vehicle = vehicleTypes.get(randomInt).getNewInstance();
-        //TODO Position des fahrzeugs setzen
+
+        if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
+        int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
+        int columnInTileGrid = startVertexForNewVehicles.getyCoordinateInGameMap();
+
+        Tile startTile = model.getMap().getTileGrid()[rowInTileGrid][columnInTileGrid];
+        double shiftToDepthInOneTile = startVertexForNewVehicles.getxCoordinateRelativeToTileOrigin();
+        double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
+        VehiclePosition position = new VehiclePosition(startTile, shiftToWidthInOneTile, shiftToDepthInOneTile);
+        vehicle.setPosition(position);
+
+
         vehicles.add(vehicle);
         System.out.println(vehicle.getKind());
         System.out.println("Speed "+vehicle.getSpeed());
+    }
+
+    private void sortStationsAsPathFromStartStationToLastStation(){
+        List<Station> sortedStations = new ArrayList<>();
+        sortedStations.add(startStation);
+
+        for(int i=0; i<sortedStations.size(); i++){
+            for(Station unsorted : stations){
+                if(sortedStations.get(i).isDirectlyConnectedTo(unsorted)){
+                    if(! sortedStations.contains(unsorted)){
+                        sortedStations.add(unsorted);
+                    }
+                }
+            }
+        }
+        stations = sortedStations;
+
     }
 
 
@@ -43,7 +72,8 @@ public class TrafficLine {
 
     /**
      * Fügt eine Station hinzu und setzt alle direkt verbundenen Stationen.
-     * Updatet außerdem den Anfangsknoten für neue Fahrzeuge, falls nötig
+     * Updatet außerdem den Anfangsknoten für neue Fahrzeuge, falls nötig.
+     * Sortiert die Stationen in stations außerdem.
      * @param station
      */
     public void addStationAndUpdateConnectedStations(Station station){
@@ -57,13 +87,14 @@ public class TrafficLine {
             n.getDirectlyConnectedStations().add(station);
         }
         station.setDirectlyConnectedStations(nextStations);
-        setStartVertexForNewVehicles();
+        setStartVertexAndStartStationForNewVehicles();
+        sortStationsAsPathFromStartStationToLastStation();
     }
 
     /**
      * Setzt den Anfangsknoten aus dem Graph für neu hinzugefügte Fahrzeuge
      */
-    public void setStartVertexForNewVehicles(){
+    public void setStartVertexAndStartStationForNewVehicles(){
 
         // Finde Station an der das Auto platziert werden soll
         Station startStation = null;
@@ -89,6 +120,7 @@ public class TrafficLine {
                 break;
             }
         }
+        this.startStation = startStation;
 
         //TODO eventuell unfertig?
     }

@@ -54,6 +54,8 @@ public class Controller {
                 generator.generateHeightMap();// Ist momentan nur zum Testen da
             }
         });
+
+        simulateOneDay();
     }
 
     public void simulateOneDay(){
@@ -153,61 +155,15 @@ public class Controller {
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
+
             Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-
-            if(placedBuilding instanceof PartOfTrafficGraph){
-                PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) placedBuilding;
-                addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
-
-
-                if(placedBuilding instanceof Stop){
-                    Station actualStation = ((Stop) placedBuilding).getStation();
-                    List<Vertex> pathToStation = pathfinder.findPathToNextStation(addedVertices.get(0), actualStation);
-                    // TODO Was wenn die Liste addedVertices leer ist?
-
-                    boolean anotherStationFindable = false;
-                    if(pathToStation.size() > 0) anotherStationFindable = true;
-
-                    TrafficType trafficType = placedBuilding.getTrafficType();
-
-                    if(anotherStationFindable) {
-                        Vertex lastVertex = pathToStation.get(pathToStation.size()-1);
-                        Station nextStation = lastVertex.getStation();
-                        if(trafficType.equals(TrafficType.ROAD)){
-                            System.out.println("nextStation "+nextStation.getId());
-                            nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(actualStation);
-                        }
-                        else ; //TODO
-                    }
-                    else {
-                        TrafficLine trafficLine = null;
-                        switch (trafficType) {
-                            case AIR: break;
-                            case RAIL: break;
-                            case ROAD:  trafficLine = new TrafficLine(3, model, TrafficType.ROAD);
-                                        actualStation.setRoadTrafficLine(trafficLine);
-                                        break;
-                            default: break;
-                        }
-                        // TODO AIR, RAIL, desiredNumber
-                        // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
-
-                        placedBuilding.setTrafficLine(trafficLine);
-                        model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
-                }
-
-                }
-
-            }
-
-            placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
 
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
 
             view.drawMap();
             if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
-                System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
+                System.out.println("Size of incompleteTrafficLines "+model.getNewCreatedOrIncompleteTrafficLines().size());
                 startCarMovement();
             }
         }

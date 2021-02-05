@@ -4,11 +4,17 @@ public class VehiclePosition {
 
     private Tile tilePosition;
 
-    // Wert zwischen 0 und 1 ?
-    private double shiftToWidth;
+    // Wert zwischen 0 und 1, Änderung innerhalb des Tiles, ausgehend von der "linken" Ecke auf der Graphik
+    private double shiftToWidthInTheTile;
 
-    // Wert zwischen 0 und 1 ?
-    private double shiftToDepth;
+    // Wert zwischen 0 und 1, Änderung innerhalb des Tiles, ausgehend von der "linken" Ecke auf der Graphik
+    private double shiftToDepthInTheTile;
+
+    public VehiclePosition(Tile tilePosition, double shiftToWidthInTheTile, double shiftToDepthInTheTile) {
+        this.tilePosition = tilePosition;
+        this.shiftToWidthInTheTile = shiftToWidthInTheTile;
+        this.shiftToDepthInTheTile = shiftToDepthInTheTile;
+    }
 
     public Tile getTilePosition() {
         return tilePosition;
@@ -18,19 +24,19 @@ public class VehiclePosition {
         this.tilePosition = tilePosition;
     }
 
-    public double getShiftToWidth() {
-        return shiftToWidth;
+    public double getShiftToWidthInTheTile() {
+        return shiftToWidthInTheTile;
     }
 
-    public void setShiftToWidth(double shiftToWidth) {
-        this.shiftToWidth = shiftToWidth;
+    public void setShiftToWidthInTheTile(double shiftToWidthInTheTile) {
+        this.shiftToWidthInTheTile = shiftToWidthInTheTile;
     }
 
-    public double getShiftToDepth() {
-        return shiftToDepth;
+    public double getShiftToDepthInTheTile() {
+        return shiftToDepthInTheTile;
     }
 
-    public void setShiftToDepth(double shiftToDepth) {
-        this.shiftToDepth = shiftToDepth;
+    public void setShiftToDepthInTheTile(double shiftToDepthInTheTile) {
+        this.shiftToDepthInTheTile = shiftToDepthInTheTile;
     }
 }

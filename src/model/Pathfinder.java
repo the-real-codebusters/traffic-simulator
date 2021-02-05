@@ -104,12 +104,14 @@ public class Pathfinder {
 
     /**
      * Sucht sich einen Weg vom Startknoten zu einem Gebäude vom Typ des angegebenen Gebäudes
-     * @param startVertex           Anfangsknoten der Suche
      * @param actualStation Die aktuelle Station, die nicht gefunden werden soll, da sie ja Ausgangspunkt der Suche ist
      * @return Liste des Wegs vom Startknoten zum Zielknoten, inklusive des Startknotens
      */
 
-    public List<Vertex> findPathToNextStation(Vertex startVertex, Station actualStation){
+    public List<Vertex> findPathToNextStation(Station actualStation){
+
+        Vertex startVertex = actualStation.getComponents().get(0).getVertices().get(0);
+        System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
         List<Vertex> path = new ArrayList<Vertex>();
@@ -138,6 +140,9 @@ public class Pathfinder {
 
             //Wenn if-Bedingung erfüllt ist, dann haben wir das Ziel gefunden
             if (currentNode != null && currentNode.isPointOfStation() && currentNode.getStation() != actualStation) {
+                System.out.println("ID current "+currentNode.getStation().getId());
+                System.out.println("ID actual "+actualStation.getId());
+
 
                 // Füge Zielknoten zu Weg hinzu
                 path.add(currentNode);
@@ -159,7 +164,13 @@ public class Pathfinder {
                 // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
                 List<Vertex> childs = new ArrayList<>();
                 System.out.println("current Node in pathfinder "+currentNode.getName());
+
+                if(trafficGraph.getAdjacencyMap().get(currentNode.getName())==null) throw new NullPointerException("" +
+                        "ein Name eines Vertexes in der Adjazenzliste war nicht auffindbar. Das kann doch nicht sein");
+
                 childs.addAll(trafficGraph.getAdjacencyMap().get(currentNode.getName()));
+                System.out.println("childs in pathfinder "+childs);
+
 
                 // Entferne alle bereits gesuchten Knoten aus den childs
                 childs.removeAll(alreadyVisited);
@@ -198,6 +209,7 @@ public class Pathfinder {
     public List<Station> findAllDirectlyConnectedStations(Station actualStation){
 
         Vertex startVertex = actualStation.getComponents().get(0).getVertices().get(0);
+        System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         List<Station> foundStations = new ArrayList<>();
 
@@ -235,6 +247,7 @@ public class Pathfinder {
             else {
                 // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
                 List<Vertex> childs = new ArrayList<>();
+                System.out.println("current Node : "+currentNode.getName());
                 childs.addAll(trafficGraph.getAdjacencyMap().get(currentNode.getName()));
 
                 // Entferne alle bereits gesuchten Knoten aus den childs
