@@ -320,12 +320,16 @@ public class View {
         }
     }
 
-    private void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest){
+    public void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest){
 
         // X und Y Koordinaten der linken Ecke des Tiles
         Point2D drawOrigin = moveCoordinates(row, col);
         double xCoordOnCanvas = drawOrigin.getX();
-        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
+//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
+        double yCoordOnCanvas = drawOrigin.getY();
+
+//        System.out.println("xCoordOnCanvas: " + xCoordOnCanvas);
+//        System.out.println("yCoordOnCanvas: " + yCoordOnCanvas);
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         int numberOfPoints = 4;
@@ -356,7 +360,9 @@ public class View {
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
         gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
-        gc.strokeText("N: "+heightNorth+" E "+heightEast+" S "+heightSouth+" W "+heightWest, xCoordOnCanvas, yCoordOnCanvas);
+        if(col == 0) {
+            gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
+        }
         gc.setFill(Color.BLACK);
 //        gc.setStroke(Color.BLACK);
 
