@@ -68,6 +68,8 @@ public class View {
     private double tickDuration = 1;
     BorderPane borderPane;
 
+    private Map <List<Point2D>, Point2D>  rowColToCanvasCoordinates = new LinkedHashMap<>();
+
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
@@ -232,9 +234,16 @@ public class View {
         int minimumY = (int) findTileCoord(0, canvas.getHeight()).getY();
         int maximumY = (int) findTileCoord(canvas.getWidth(), 0).getY();
 
+//        int minimumX = (int) findTileCoordNew(0, 0).getX();
+//        int maximumX = (int) findTileCoordNew(canvas.getWidth(), canvas.getHeight()).getX();
+//        int minimumY = (int) findTileCoordNew(0, canvas.getHeight()).getY();
+//        int maximumY = (int) findTileCoordNew(canvas.getWidth(), 0).getY();
+
         int startRow = 0;
         int startCol = 0;
         int endCol = 0;
+
+        rowColToCanvasCoordinates.clear();
 
         // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
@@ -297,11 +306,7 @@ public class View {
                                 cornerHeightEast = fields[row+1][col+1].getCornerHeights().get("cornerW");
                                 cornerHeightNorth = fields[row][col+1].getCornerHeights().get("cornerW");
                             }*/
-
                             drawPolygon(null, col, row, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
-//                            drawPolygon(null, col, row, 1,0,0,0);
-//                            drawPolygon(null, col, row, 0,1,0,0);
-//                            drawPolygon(null, col, row, 0,0,1,0);
                         }
                     }
                 }
@@ -322,8 +327,6 @@ public class View {
         }
     }
 
-    List<Point2D>  firstTile = new ArrayList<>();
-    Map <List<Point2D>, Point2D>  rowColToCanvasCoordinates = new LinkedHashMap<>();
 
     public void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest) {
 
@@ -365,9 +368,6 @@ public class View {
         coordsOnCanvas.add(east);
         coordsOnCanvas.add(south);
 
-        List<Double> xCoordsList = Arrays.asList(xCoordWest, xCoordNorth, xCoordEast, xCoordSouth);
-        List<Double> yCoordsList = Arrays.asList(yCoordWest, yCoordNorth, yCoordEast, yCoordSouth);
-
         ImagePattern imagePattern;
         if (heightWest < 0) {
             imagePattern = getImagePatternForGroundName("water");
@@ -378,36 +378,24 @@ public class View {
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
         gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
-
-
 //        gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
 
         gc.setFill(Color.BLACK);
 //        gc.setStroke(Color.BLACK);
 
-        firstTile = coordsOnCanvas;
-
-//        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
-//        if(!(entry.getValue().getX() == row && entry.getValue().getY() == col)) {
-//            System.out.println("TEST if condition");
-////            System.out.println(entry.getValue().getX() + " " + row);
-////            System.out.println(entry.getValue().getY() + " " + col);
-////        System.out.println(coordsOnCanvas);
-//        rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
-//        }
-//    }
 
         if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
             rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
+            System.out.println(rowColToCanvasCoordinates.size());
         }
         //TODO Das Tile 0,0 ganz links wird manchmal je nach Position komisch angezeigt
 
     }
 
-    public boolean isPointInsidePolygon(Point2D point, List<Point2D> coordsOnCanvas) {
+    public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
 
-        double x = point.getX();
-        double y = point.getY();
+        double x = mouseX;
+        double y = mouseY;
 
         boolean inside = false;
         for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
@@ -418,8 +406,7 @@ public class View {
             double xj = coordsOnCanvas.get(j).getX();
             double yj = coordsOnCanvas.get(j).getY();
 
-            boolean intersect = ((yi > y) != (yj > y))
-                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
             if (intersect) inside = !inside;
         }
 
@@ -429,7 +416,19 @@ public class View {
 
         return inside;
 
-    };
+    }
+
+
+    public Point2D findTileCoordNew(double mouseX, double mouseY) {
+        Point2D newIsoCoord = new Point2D(0,0);
+        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
+            if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
+                System.out.println("Clicked on coordinates : " + entry.getValue());
+                newIsoCoord = entry.getValue();
+            }
+        }
+        return newIsoCoord;
+    }
 
     /**
      * Soll die Koordinaten der Mausposition von Pixel zu isometrischen Koordinaten umrechnen
@@ -656,14 +655,8 @@ public class View {
             // Findet isometrische Koordinaten der Mouseposition
             Point2D isoCoord = findTileCoord(mouseX, mouseY);
 
-            Point2D newIsoCoord = new Point2D(0,0);
+            Point2D newIsoCoord = findTileCoordNew(mouseX, mouseY);
 
-            for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
-                if(isPointInsidePolygon(mouse, entry.getKey())){
-                    System.out.println("Clicked on coordinates : " + entry.getValue());
-                    newIsoCoord = entry.getValue();
-                }
-            }
 //            System.out.println(rowColToCanvasCoordinates);
 //            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
             String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
@@ -835,6 +828,10 @@ public class View {
 
     public MenuPane getMenuPane() {
         return menuPane;
+    }
+
+    public Map<List<Point2D>, Point2D> getRowColToCanvasCoordinates() {
+        return rowColToCanvasCoordinates;
     }
 }
 

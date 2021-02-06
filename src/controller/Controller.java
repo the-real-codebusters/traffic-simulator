@@ -12,6 +12,7 @@ import view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Controller {
@@ -162,7 +163,8 @@ public class Controller {
 
             Image road = view.getSingleFieldImage(yCoord, xCoord, model.getFieldGridOfMap());
 //            Image road = view.getResourceForImageName("water");
-//            view.drawPolygon(road, yCoord, xCoord, 0,0,0,0);
+            view.drawPolygon(null, yCoord, xCoord, 0,0,0,0);
+            Map<List<Point2D>, Point2D> polygonCoordsToHoveredTile = view.getRowColToCanvasCoordinates();
             startCarMovement();
         }
     }
