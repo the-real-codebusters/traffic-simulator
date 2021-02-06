@@ -376,12 +376,12 @@ public class View {
         }
         gc.setFill(imagePattern);
         gc.fillPolygon(xCoords, yCoords, numberOfPoints);
-        gc.strokePolygon(xCoords, yCoords, numberOfPoints);
+//        gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
 //        gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
 
         gc.setFill(Color.BLACK);
-//        gc.setStroke(Color.BLACK);
+//        gc.setStroke(Color.WHITE);
 
 
         if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
