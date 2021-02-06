@@ -5,6 +5,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import model.*;
 import view.MenuPane;
 import view.View;
@@ -106,6 +107,16 @@ public class Controller {
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 
+
+        Anzeige anzeige = new Anzeige();
+
+        try {
+            anzeige.start(new Stage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
@@ -145,7 +156,9 @@ public class Controller {
                         switch (trafficType) {
                             case AIR: break;
                             case RAIL: break;
-                            case ROAD:  trafficLine = new TrafficLine(3, model, TrafficType.ROAD);
+                            case ROAD:
+
+                                trafficLine = new TrafficLine(anzeige.getResult(), model, TrafficType.ROAD);
                                         actualStation.setRoadTrafficLine(trafficLine);
                                         break;
                             default: break;

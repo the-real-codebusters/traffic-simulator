@@ -91,7 +91,8 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-//        zoom2();
+       //zoom2();
+        // zoom1();
 
         this.stage.setScene(new Scene(borderPane));
     }
@@ -100,6 +101,7 @@ public class View {
         menuPane = new MenuPane(controller, this, canvas, mapping);
         borderPane.setTop(menuPane);
     }
+
 
 
     public void zoom (){
@@ -112,6 +114,29 @@ public class View {
             tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
             tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
 
+            drawMap();
+
+        });
+    }
+    //public void zoom1 (){
+        canvas.setOnScroll(scrollEvent -> {
+            double scrollDelta = scrollEvent.getDeltaY();
+            System.out.println(scrollDelta);
+            double zoomFactor = Math.exp(scrollDelta * 0.01);
+           tileImageWidth = tileImageWidth * zoomFactor;
+            tileImageHeight = tileImageHeight * zoomFactor;
+
+            tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
+             tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+             if (scrollDelta > 0) {
+
+
+                 int halfX = (int) (canvas.getBoundsInParent().getWidth() / 2);
+                 int halfY = (int) (canvas.getBoundsInParent().getHeight() / 2);
+
+
+                 setPivot(scrollEvent.getX() - halfX, scrollEvent.getY() - halfY);
+             }
             drawMap();
 
         });
@@ -377,7 +402,7 @@ public class View {
      */
     public Image getGrassImage(int column, int row) {
         String name;
-        String buildingName = "grass";;
+        String buildingName = "grass";
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             name = mapping.getImageNameForBuildingName(buildingName);

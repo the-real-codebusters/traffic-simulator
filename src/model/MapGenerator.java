@@ -63,6 +63,7 @@ public class MapGenerator {
      */
     private void generateNature(int mapWidth, int mapDepth, BasicModel basicModel) {
         List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
+        natureBuildings.get(1).buildingName="grass";
 
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
@@ -93,7 +94,7 @@ public class MapGenerator {
 
                 //Wenn kein Wasser gesetzt ist, andere Höhen setzen
                 else {
-                    int buildingRandom = new Random().nextInt(natureBuildings.size());
+                    int buildingRandom = new Random().nextInt(7)==0?0:1;
                     building = natureBuildings.get(buildingRandom).getNewInstance();
                     mapFieldGrid[row][col] = new Tile(building, generateTileHeight(), false);
                 }
