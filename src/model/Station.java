@@ -44,6 +44,13 @@ public class Station {
         return directlyConnectedStations.contains(station);
     }
 
+    public TrafficLine getTrafficLineForTrafficType(TrafficType trafficType){
+        if(trafficType.equals(TrafficType.ROAD)) return roadTrafficLine;
+        if(trafficType.equals(TrafficType.RAIL)) return railTrafficLine;
+        if(trafficType.equals(TrafficType.AIR)) return airTrafficLine;
+        throw new RuntimeException("Unklarer Verkehrstyp in getTrafficLineForTrafficType");
+    }
+
     public boolean addBuildingAndSetStationInBuilding(Stop building){
         building.setStation(this);
         if(building instanceof Tower){

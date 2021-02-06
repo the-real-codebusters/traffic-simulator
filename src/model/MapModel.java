@@ -213,7 +213,7 @@ public class MapModel {
 
         boolean isPointPartOfStation = false;
         if(building instanceof Stop) isPointPartOfStation = true;
-        List<Vertex> verticesBefore = new ArrayList<>();
+        List<Vertex> verticesBefore = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
 
                 Map<String, List<Double>> points = building.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
@@ -251,7 +251,10 @@ public class MapModel {
         trafficGraph.printGraph();
         System.out.println();
         List<Vertex> verticesAfter = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
+        System.out.println(verticesAfter);
         verticesAfter.removeAll(verticesBefore);
+        System.out.println(verticesAfter);
+
         List<Vertex> addedVertices = verticesAfter;
         if(isPointPartOfStation){
             ((Stop) building).getVertices().addAll(addedVertices);
@@ -271,6 +274,7 @@ public class MapModel {
             if (trafficType.equals(TrafficType.ROAD)) {
                 System.out.println("nextStation " + nextStation.getId());
                 nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
+                newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
                 return nextStation.getRoadTrafficLine();
             } else ; //TODO Andere Verkehrstypen
         } else {
@@ -281,7 +285,7 @@ public class MapModel {
                 case RAIL:
                     break;
                 case ROAD:
-                    trafficLine = new TrafficLine(3, model, TrafficType.ROAD);
+                    trafficLine = new TrafficLine(3, model, TrafficType.ROAD, newStation);
                     newStation.setRoadTrafficLine(trafficLine);
                     break;
                 default:

@@ -15,10 +15,11 @@ public class TrafficLine {
     private TrafficType trafficType;
     private Station startStation;
 
-    public TrafficLine(int desiredNumberOfVehicles, BasicModel model, TrafficType trafficType) {
+    public TrafficLine(int desiredNumberOfVehicles, BasicModel model, TrafficType trafficType, Station firstStation) {
         this.desiredNumberOfVehicles = desiredNumberOfVehicles;
         this.model = model;
         this.trafficType = trafficType;
+        stations.add(firstStation);
     }
 
     /**
@@ -63,6 +64,9 @@ public class TrafficLine {
         }
         stations = sortedStations;
 
+        System.out.println("sorted Stations");
+        stations.forEach(x -> System.out.println("station "+x.getId()));
+
     }
 
 
@@ -77,6 +81,7 @@ public class TrafficLine {
      * @param station
      */
     public void addStationAndUpdateConnectedStations(Station station){
+        System.out.println("addStation called");
         stations.add(station);
 
         // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
