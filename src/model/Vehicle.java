@@ -48,6 +48,10 @@ public class Vehicle {
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
 
+    /**
+     * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Inklusive der Startposition
+     * @return
+     */
     public List<PositionOnTilemap> getPositionsForNextDay(){
         double wayToGo = speed;
         List<PositionOnTilemap> positionsAtOneDay = new ArrayList<>();

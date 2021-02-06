@@ -80,6 +80,9 @@ public class BasicModel {
 
         List<Vehicle> activeVehicles = new ArrayList<>();
         for(TrafficLine activeLine: activeTrafficLines){
+            if(activeLine.getDesiredNumberOfVehicles() > activeLine.getVehicles().size()){
+                activeLine.addNewVehicle();
+            }
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
         System.out.println("activeTrafficLines "+activeTrafficLines);
