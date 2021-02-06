@@ -206,9 +206,13 @@ public class Controller {
             // Wenn nein, dann neu erstellen
 
             view.drawMap();
-            if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
+           // if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
+            if (true) {
                 System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
                 startCarMovement();
+                //Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
+                //Building buildingOnSelectedTile = selectedTile.getBuilding();
+                //System.out.println("--------------------------------->"+xCoord +" "+  yCoord + " " + buildingOnSelectedTile);
             }
         }
     }
@@ -247,7 +251,7 @@ public class Controller {
      */
     public void startCarMovement(){
         List<Vertex> vertexes = getVertexesOfGraph();
-        if(vertexes.size() >= 10) {
+        if(vertexes.size() >= 5) {
 
             Vertex startVertex = vertexes.get(indexOfStart);
             Vertex targetVertex = vertexes.get(vertexes.size()-1);
@@ -258,7 +262,7 @@ public class Controller {
             }
             System.out.println();
 
-            if(path.size() >= 10 && notDone) {
+            if(path.size() >= 5 && notDone) {
                 System.out.println("path "+path.size());
                 moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
                 notDone = false;
@@ -286,4 +290,7 @@ public class Controller {
         return model.getBuildingsForBuildmenu(buildmenu);
     }
 
+    public BasicModel getModel() {
+        return model;
+    }
 }

@@ -42,7 +42,7 @@ public class View {
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private Canvas canvas = new Canvas(1200, 600);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -541,15 +541,69 @@ public class View {
     }
 
     /**
+     * Ermittelt Autonamen anhand Startposition des Tile(Road)
+     * @param point2D
+     * @return
+     */
+    private String getCarImageName(Point2D point2D) {
+        String carimagename = getCarImageReverseName();
+        if (carimagename != null) {
+            return carimagename;
+        }
+        Point2D isoCoord = findTileCoord(point2D.getX(), point2D.getY());
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
+        Tile selectedTile = controller.getModel().getMap().getTileGrid()[xCoord][yCoord];
+        Building buildingOnSelectedTile = selectedTile.getBuilding();
+        System.out.println("--------------------------------->"+xCoord +" "+  yCoord + " " + buildingOnSelectedTile);
+        switch (buildingOnSelectedTile.getBuildingName()) {
+            case "road-sw":
+            case "road-ne":
+            case "road-ne-sw": return "car-sw"; //sw -> ne
+            case "road-nw":
+            case "road-se":
+            case "road-nw-se": return "car_se";
+            default:
+                System.out.println("Ungültige Strassenbezeichnung: " + buildingOnSelectedTile);
+        }
+        return null;
+    }
+
+    /**
+     * Bekommt einen Pfad zu einem Autobild übergeben und ermittelt einen Pfad in Gegenrichtung
+     * @return
+     */
+    private String getCarImageReverseName() {
+        if (reverseSwNe == Boolean.TRUE) {
+            return "car_ne";
+        }
+        if (reverseSwNe == Boolean.FALSE) {
+            return "car-sw";
+        }
+        if (reverseSeNw == Boolean.TRUE) {
+            return "car_nw";
+        }
+        if (reverseSeNw == Boolean.FALSE) {
+            return "car-se";
+        }
+        return null;
+    }
+
+    private Boolean reverseSwNe;
+    private Boolean reverseSeNw;
+    private String carName = null;
+
+    /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
      * @param start
      * @param end
      */
     public void translateCar(Point2D start, Point2D end){
+
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-        String name = mapping.getImageNameForBuildingName("car-sw");
+        carName = mapping.getImageNameForBuildingName(getCarImageName(start));
 
         Point2D zeroPointAtStart = moveCoordinates(0,0);
 
@@ -568,18 +622,21 @@ public class View {
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                Image carImage = getResourceForImageName(name, tileImageHeightHalf,
-                        imageNameToImageRatio.get(name)*tileImageHeightHalf);
+                if (carName != null) {
+                    System.out.println("NAME:"+carName);
+                    Image carImage = getResourceForImageName(carName, tileImageHeightHalf,
+                            imageNameToImageRatio.get(carName)*tileImageHeightHalf);
 
-                Point2D actualZeroPoint = moveCoordinates(0,0);
-                double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
-                double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
+                    Point2D actualZeroPoint = moveCoordinates(0,0);
+                    double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
+                    double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 
-                if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
-                    GraphicsContext gc = canvas.getGraphicsContext2D();
-                    drawMap();
-                    gc.drawImage(carImage, x.doubleValue()+xShift,
-                            y.doubleValue()-15+yShift);
+                    if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
+                        GraphicsContext gc = canvas.getGraphicsContext2D();
+                        drawMap();
+                        gc.drawImage(carImage, x.doubleValue()+xShift,
+                                y.doubleValue()-15+yShift);
+                    }
                 }
             }
         };
@@ -603,6 +660,21 @@ public class View {
 
                 v1 = controller.path.get(++controller.indexOfStart);
                 v2 = controller.path.get(++controller.indexOfNext);
+                System.out.println("UMKEHREN!!!!!!!!!!!!!!!!!!!!!!!");
+
+                if (carName.equals("road/car-sw")) {
+                    reverseSwNe = true;
+                }
+                if (carName.equals("road/car_ne")) {
+                    reverseSwNe = false;
+                }
+                if (carName.equals("road/car_se")) {
+                    reverseSeNw = true;
+                }
+                if (carName.equals("road/car_nw")) {
+                    reverseSeNw = false;
+                }
+                System.out.println("UMKEHREN!!!!!!!!!!!!!!!!!!!!!!!--->"+carName);
             }
             controller.moveCarFromPointToPoint(v1,v2);
         });
