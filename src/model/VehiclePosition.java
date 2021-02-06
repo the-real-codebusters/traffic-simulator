@@ -1,42 +1,24 @@
 package model;
 
-public class VehiclePosition {
+import javafx.geometry.Point2D;
 
-    private Tile tilePosition;
+public class VehiclePosition extends PositionOnTilemap {
 
-    // Wert zwischen 0 und 1, Änderung innerhalb des Tiles, ausgehend von der "linken" Ecke auf der Graphik
-    private double shiftToWidthInTheTile;
 
-    // Wert zwischen 0 und 1, Änderung innerhalb des Tiles, ausgehend von der "linken" Ecke auf der Graphik
-    private double shiftToDepthInTheTile;
+    public VehiclePosition(double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
+                           int xCoordinateInGameMap, int yCoordinateInGameMap) {
 
-    public VehiclePosition(Tile tilePosition, double shiftToWidthInTheTile, double shiftToDepthInTheTile) {
-        this.tilePosition = tilePosition;
-        this.shiftToWidthInTheTile = shiftToWidthInTheTile;
-        this.shiftToDepthInTheTile = shiftToDepthInTheTile;
+        super(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin, xCoordinateInGameMap,
+                yCoordinateInGameMap);
     }
 
-    public Tile getTilePosition() {
-        return tilePosition;
+    public VehiclePosition(Point2D point2D) {
+        super(0,0,0,0);
+        xCoordinateInGameMap = (int) point2D.getX();
+        yCoordinateInGameMap = (int) point2D.getY();
+
+        xCoordinateRelativeToTileOrigin = point2D.getX() - xCoordinateInGameMap;
+        yCoordinateRelativeToTileOrigin = point2D.getY() - yCoordinateInGameMap;
     }
 
-    public void setTilePosition(Tile tilePosition) {
-        this.tilePosition = tilePosition;
-    }
-
-    public double getShiftToWidthInTheTile() {
-        return shiftToWidthInTheTile;
-    }
-
-    public void setShiftToWidthInTheTile(double shiftToWidthInTheTile) {
-        this.shiftToWidthInTheTile = shiftToWidthInTheTile;
-    }
-
-    public double getShiftToDepthInTheTile() {
-        return shiftToDepthInTheTile;
-    }
-
-    public void setShiftToDepthInTheTile(double shiftToDepthInTheTile) {
-        this.shiftToDepthInTheTile = shiftToDepthInTheTile;
-    }
 }

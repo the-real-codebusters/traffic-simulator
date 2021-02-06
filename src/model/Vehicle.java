@@ -1,5 +1,6 @@
 package model;
 
+import javafx.geometry.Point2D;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -15,6 +16,12 @@ public class Vehicle {
 
     private VehiclePosition position;
     private List<Vertex> pathToNextStation = new ArrayList<>();
+
+    // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
+    boolean movementInTrafficLineGoesForward = true;
+
+    private Station nextStation;
+    private Pathfinder pathfinder;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -32,8 +39,39 @@ public class Vehicle {
 
     // Wo startet das Fahrzeug?
     // Wo will es hin?
-    public void searchForPath(){
+    public void savePathToNextStation(Vertex startVertex){
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex);
+    }
 
+    public void updateNextStation() {
+        TrafficLine line = nextStation.getTrafficLineForTrafficType(kind);
+        nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+    }
+
+    public List<PositionOnTilemap> getPositionsForNextDay(){
+        double wayToGo = speed;
+        List<PositionOnTilemap> positionsAtOneDay = new ArrayList<>();
+        PositionOnTilemap currentPosition = position;
+        positionsAtOneDay.add(position);
+        double distanceToNextVertex = 0;
+        while(wayToGo >= 0){
+            Vertex nextVertex = pathToNextStation.remove(0);
+            distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
+            positionsAtOneDay.add(nextVertex);
+            currentPosition = nextVertex;
+            wayToGo -= distanceToNextVertex;
+        }
+        wayToGo+=distanceToNextVertex;
+        pathToNextStation.add(0, (Vertex) positionsAtOneDay.remove(positionsAtOneDay.size()-1));
+
+
+        VehiclePosition lastPosition = positionsAtOneDay.get(positionsAtOneDay.size()-1).
+                getnewPositionShiftedTowardsGivenPointByGivenDistance(
+                        currentPosition.coordsRelativeToMapOrigin(), wayToGo);
+        //TODO Was wenn es genau am Ziel landet?
+
+        positionsAtOneDay.add(lastPosition);
+        return positionsAtOneDay;
     }
 
     /**
@@ -131,5 +169,21 @@ public class Vehicle {
 
     public void setPosition(VehiclePosition position) {
         this.position = position;
+    }
+
+    public boolean isMovementInTrafficLineGoesForward() {
+        return movementInTrafficLineGoesForward;
+    }
+
+    public void setMovementInTrafficLineGoesForward(boolean movementInTrafficLineGoesForward) {
+        this.movementInTrafficLineGoesForward = movementInTrafficLineGoesForward;
+    }
+
+    public Station getNextStation() {
+        return nextStation;
+    }
+
+    public void setNextStation(Station nextStation) {
+        this.nextStation = nextStation;
     }
 }

@@ -37,12 +37,12 @@ public class TrafficLine {
         int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
         int columnInTileGrid = startVertexForNewVehicles.getyCoordinateInGameMap();
 
-        Tile startTile = model.getMap().getTileGrid()[rowInTileGrid][columnInTileGrid];
         double shiftToDepthInOneTile = startVertexForNewVehicles.getxCoordinateRelativeToTileOrigin();
         double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
-        VehiclePosition position = new VehiclePosition(startTile, shiftToWidthInOneTile, shiftToDepthInOneTile);
+        VehiclePosition position = new VehiclePosition(shiftToWidthInOneTile, shiftToDepthInOneTile,
+                                                        rowInTileGrid, columnInTileGrid);
         vehicle.setPosition(position);
-
+        vehicle.setNextStation(stations.get(0));
 
         vehicles.add(vehicle);
         System.out.println(vehicle.getKind());
@@ -67,6 +67,27 @@ public class TrafficLine {
         System.out.println("sorted Stations");
         stations.forEach(x -> System.out.println("station "+x.getId()));
 
+    }
+
+    public Station getNextStation(Station previousStation, boolean forwardMovement, Vehicle vehicle){
+        int indexOfPreviousStation = stations.indexOf(previousStation);
+        int indexOfNextStation;
+        if(indexOfPreviousStation == 0){
+            // Set forward movement
+            indexOfNextStation = 1;
+            vehicle.setMovementInTrafficLineGoesForward(true);
+        }
+        else if(indexOfPreviousStation == stations.size()-1){
+            indexOfNextStation = stations.size()-2;
+            vehicle.setMovementInTrafficLineGoesForward(false);
+        }
+        else {
+            if(forwardMovement){
+                indexOfNextStation = indexOfPreviousStation+1;
+            }
+            else indexOfNextStation = indexOfPreviousStation-1;
+        }
+        return stations.get(indexOfNextStation);
     }
 
 
