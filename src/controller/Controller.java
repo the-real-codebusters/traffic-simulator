@@ -2,6 +2,7 @@ package controller;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -157,7 +158,11 @@ public class Controller {
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
 
-            view.drawMap();
+//            view.drawMap();
+
+            Image road = view.getSingleFieldImage(yCoord, xCoord, model.getFieldGridOfMap());
+//            Image road = view.getResourceForImageName("water");
+//            view.drawPolygon(road, yCoord, xCoord, 0,0,0,0);
             startCarMovement();
         }
     }

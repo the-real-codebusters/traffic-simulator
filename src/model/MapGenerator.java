@@ -333,42 +333,42 @@ public class MapGenerator {
             maxHeight = heightOfEdgeBefore + 1;
         }
 
-        int heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+//        int heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
 
         //TODO Wenn man die Wahrscheinlichkeiten probabilityMinHeight und probabilityMaxHeight verkleinert, treten sehr
         //komische Probleme auf. Was ist da los?
 
-//        int heightOfNextCorner;
-//        if(heightOfEdgeBefore > 0){
-//            int probabilityMinHeight = 40;
-//            int randomNumber = r.nextInt(100)+1;
-//            if(randomNumber < probabilityMinHeight){
-//                heightOfNextCorner = minHeight;
-//            }
-//            else {
-//                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 2) + minHeight;
-//            }
-//        }
-//        else if (heightOfEdgeBefore < 0) {
-//            int probabilityMaxHeight = 40;
-//            int randomNumber = r.nextInt(100)+1;
-//            if(randomNumber < probabilityMaxHeight){
-//                heightOfNextCorner = maxHeight;
-//            }
-//            else {
-//                heightOfNextCorner = r.nextInt(maxHeight - minHeight) + minHeight;
-//            }
-//        }
-//        else {
-//            int probabilityNullHeight = 90;
-//            int randomNumber = r.nextInt(100)+1;
-//            if(randomNumber < probabilityNullHeight){
-//                heightOfNextCorner = 0;
-//            }
-//            else {
-//                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
-//            }
-//        }
+        int heightOfNextCorner;
+        if(heightOfEdgeBefore > 0){
+            int probabilityMinHeight = 40;
+            int randomNumber = r.nextInt(100)+1;
+            if(randomNumber < probabilityMinHeight){
+                heightOfNextCorner = minHeight;
+            }
+            else {
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 2) + minHeight;
+            }
+        }
+        else if (heightOfEdgeBefore < 0) {
+            int probabilityMaxHeight = 40;
+            int randomNumber = r.nextInt(100)+1;
+            if(randomNumber < probabilityMaxHeight){
+                heightOfNextCorner = maxHeight;
+            }
+            else {
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight) + minHeight;
+            }
+        }
+        else {
+            int probabilityNullHeight = 90;
+            int randomNumber = r.nextInt(100)+1;
+            if(randomNumber < probabilityNullHeight){
+                heightOfNextCorner = 0;
+            }
+            else {
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+            }
+        }
 
 
         return heightOfNextCorner;
