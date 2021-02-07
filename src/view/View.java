@@ -16,13 +16,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import model.BasicModel;
-import model.Building;
-import model.Tile;
-import model.Vertex;
+import javafx.util.Pair;
+import model.*;
 
 
-import javax.swing.border.Border;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -330,7 +327,7 @@ public class View {
 
             Image im = getResourceForImageName(name, imageWidth, imageHeight);
 
-            Point2D drawOrigin = moveCoordinates(row, column);
+            Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
             double xCoordOnCanvas = drawOrigin.getX();
             double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf * building.getDepth() - heightAboveFloorTiles;
             canvas.getGraphicsContext2D().drawImage(im, xCoordOnCanvas, yCoordOnCanvas);
@@ -403,7 +400,7 @@ public class View {
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
 
-        Point2D drawOrigin = moveCoordinates(row, column);
+        Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
         double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
 
@@ -418,7 +415,7 @@ public class View {
      * @param column Die Spalte des Tiles betrachtet für die gesamte Karte
      * @return
      */
-    public Point2D moveCoordinates(int row, int column) {
+    public Point2D translateTileCoordsToCanvasCoords(double row, double column) {
 
         double pixelXCoordAtTile = (row + column) * tileImageWidthHalf;
         double pixelYCoordAtTile = (row - column) * tileImageHeightHalf;
@@ -435,6 +432,15 @@ public class View {
         startY -= cameraOffsetY;
 //        System.out.println("moveCoordinates: " + startX + " " + startY);
         return new Point2D(startX, startY);
+    }
+
+    /**
+     * Gibt den Punkt auf dem Canvas an der linken Ecke des Tiles zurück im Bezug auf den aktuellen Ausschnitt der Karte
+     * @param pointOnTileMap Der Punkt in den Koordinaten der TileMap
+     * @return
+     */
+    public Point2D translateTileCoordsToCanvasCoords(Point2D pointOnTileMap) {
+        return translateTileCoordsToCanvasCoords(pointOnTileMap.getX(), pointOnTileMap.getY());
     }
 
     /**
@@ -542,28 +548,28 @@ public class View {
 
     /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
-     * @param start
-     * @param end
      */
-    public void translateCar(Point2D start, Point2D end){
+    public void translateVehicle(VehicleMovement movement){
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
         String name = mapping.getImageNameForBuildingName("car-sw");
 
-        Point2D zeroPointAtStart = moveCoordinates(0,0);
+        Point2D zeroPointAtStart = translateTileCoordsToCanvasCoords(0,0);
 
+        Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
+        KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()));
+        Timeline timeline = new Timeline(start);
+        double wholeDistance = movement.getWholeDistance();
 
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(0),
-                        new KeyValue(x, start.getX()),
-                        new KeyValue(y, start.getY())
-                ),
-                new KeyFrame(Duration.seconds(0.5),
-                        new KeyValue(x, end.getX()),
-                        new KeyValue(y, end.getY())
-                )
-        );
+        double time = 0.0;
+        for(int i=0; i<movement.getNumberOfPoints(); i++){
+            Pair<PositionOnTilemap, Double> pair = movement.getPairOFPositionAndDistance(i);
+            time += (pair.getValue() / wholeDistance) * tickDuration;
+            Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
+            KeyFrame frame = new KeyFrame(Duration.seconds(time), new KeyValue(x, point.getX()), new KeyValue(y, point.getY()));
+            timeline.getKeyFrames().add(frame);
+        }
 
         timer = new AnimationTimer() {
             @Override
@@ -571,7 +577,7 @@ public class View {
                 Image carImage = getResourceForImageName(name, tileImageHeightHalf,
                         imageNameToImageRatio.get(name)*tileImageHeightHalf);
 
-                Point2D actualZeroPoint = moveCoordinates(0,0);
+                Point2D actualZeroPoint = translateTileCoordsToCanvasCoords(0,0);
                 double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
                 double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 
@@ -589,22 +595,25 @@ public class View {
             parallelTransition.stop();
             timer.stop();
 
-            // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
-            Vertex v1;
-            Vertex v2;
-            if (controller.indexOfNext < controller.path.size()-1) {
-                v1 = controller.path.get(++controller.indexOfStart);
-                v2 = controller.path.get(++controller.indexOfNext);
-            } else {
-                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
-                Collections.reverse(controller.path);
-                controller.indexOfStart = 0;
-                controller.indexOfNext = controller.indexOfStart + 1;
+            //Rufe simulateOneDay auf
 
-                v1 = controller.path.get(++controller.indexOfStart);
-                v2 = controller.path.get(++controller.indexOfNext);
-            }
-            controller.moveCarFromPointToPoint(v1,v2);
+//            // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
+//            Vertex v1;
+//            Vertex v2;
+//            if (controller.indexOfNext < controller.path.size()-1) {
+//                v1 = controller.path.get(++controller.indexOfStart);
+//                v2 = controller.path.get(++controller.indexOfNext);
+//            } else {
+//                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
+//                Collections.reverse(controller.path);
+//                controller.indexOfStart = 0;
+//                controller.indexOfNext = controller.indexOfStart + 1;
+//
+//                v1 = controller.path.get(++controller.indexOfStart);
+//                v2 = controller.path.get(++controller.indexOfNext);
+//            }
+//            controller.moveCarFromPointToPoint(v1,v2);
+            controller.simulateOneDay();
         });
 
         timer.start();

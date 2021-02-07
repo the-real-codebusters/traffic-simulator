@@ -30,7 +30,7 @@ public class TrafficLine {
         // TODO Es wird bisher einfach zufällig ein Fahrzeugtyp ausgewählt, eventuell sollte das mal kompklexer werden
         List<Vehicle> vehicleTypes = model.getVehicleTypesForTrafficType(trafficType);
         Random randomGenerator = new Random();
-        int randomInt = randomGenerator.nextInt(vehicleTypes.size()) -1;
+        int randomInt = randomGenerator.nextInt(vehicleTypes.size());
         Vehicle vehicle = vehicleTypes.get(randomInt).getNewInstance();
 
         if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
@@ -41,8 +41,11 @@ public class TrafficLine {
         double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
         VehiclePosition position = new VehiclePosition(shiftToWidthInOneTile, shiftToDepthInOneTile,
                                                         rowInTileGrid, columnInTileGrid);
+        vehicle.setPathfinder(model.getPathfinder());
         vehicle.setPosition(position);
         vehicle.setNextStation(stations.get(0));
+        vehicle.updateNextStation();
+        vehicle.savePathToNextStation(startVertexForNewVehicles);
 
         vehicles.add(vehicle);
         System.out.println(vehicle.getKind());

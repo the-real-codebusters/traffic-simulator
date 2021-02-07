@@ -1,10 +1,14 @@
 package controller;
 
+import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
 import view.View;
@@ -59,7 +63,16 @@ public class Controller {
     }
 
     public void simulateOneDay(){
-        List<Vehicle> activeVehicles = model.simulateOneDay();
+        List<VehicleMovement> movements = model.simulateOneDay();
+        if(movements.size() > 0){
+            view.translateVehicle(movements.get(0));
+        }
+        else {
+            Timeline timeline = new Timeline(new KeyFrame(
+                    Duration.seconds(view.getTickDuration()),
+                    ae -> simulateOneDay()));
+            timeline.play();
+        }
 
     }
 
@@ -77,7 +90,7 @@ public class Controller {
         Canvas canvas = view.getCanvas();
         List<Vertex> vertexes = getVertexesOfGraph();
         for(Vertex vertex: vertexes){
-            Point2D pointOnCanvas = view.moveCoordinates(vertex.getxCoordinateInGameMap(), vertex.getyCoordinateInGameMap());
+            Point2D pointOnCanvas = view.translateTileCoordsToCanvasCoords(vertex.getxCoordinateInGameMap(), vertex.getyCoordinateInGameMap());
             // pointOnCanvas ist an der Stelle der linken Ecke des Tiles
 
             pointOnCanvas = view.changePointByTiles(pointOnCanvas,
@@ -164,63 +177,62 @@ public class Controller {
             view.drawMap();
             if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
                 System.out.println("Size of incompleteTrafficLines "+model.getNewCreatedOrIncompleteTrafficLines().size());
-                startCarMovement();
             }
         }
     }
 
     // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
     // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
-    public int indexOfStart = 0;
-    public int indexOfNext = indexOfStart + 1;
-    public List<Vertex> path;
-    public boolean notDone = true;
+//    public int indexOfStart = 0;
+//    public int indexOfNext = indexOfStart + 1;
+//    public List<Vertex> path;
+//    public boolean notDone = true;
 
-    /**
-     * Bewegt ein Bild des Autos von Knoten v1 zu Knoten v2
-     */
-    public void moveCarFromPointToPoint(Vertex v1, Vertex v2){
+//    /**
+//     * Bewegt ein Bild des Autos von Knoten v1 zu Knoten v2
+//     */
+//    public void moveCarFromPointToPoint(Vertex v1, Vertex v2){
+//
+//        Point2D startPointOnCanvas = view.translateTileCoordsToCanvasCoords(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
+//        startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
+//                v1.getxCoordinateRelativeToTileOrigin(),
+//                v1.getyCoordinateRelativeToTileOrigin());
+//
+//        Point2D nextPointOnCanvas = view.translateTileCoordsToCanvasCoords(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
+//        nextPointOnCanvas = view.changePointByTiles(nextPointOnCanvas,
+//                v2.getxCoordinateRelativeToTileOrigin(),
+//                v2.getyCoordinateRelativeToTileOrigin());
+//
+//        view.translateVehicle(startPointOnCanvas, nextPointOnCanvas);
+//    }
 
-        Point2D startPointOnCanvas = view.moveCoordinates(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-        startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
-                v1.getxCoordinateRelativeToTileOrigin(),
-                v1.getyCoordinateRelativeToTileOrigin());
 
-        Point2D nextPointOnCanvas = view.moveCoordinates(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-        nextPointOnCanvas = view.changePointByTiles(nextPointOnCanvas,
-                v2.getxCoordinateRelativeToTileOrigin(),
-                v2.getyCoordinateRelativeToTileOrigin());
-
-        view.translateCar(startPointOnCanvas, nextPointOnCanvas);
-    }
-
-
-    /**
-     * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
-     * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
-     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden.
-     * Die Animation beginnt bei 10 platzierten verbundenen Knoten.
-     */
-    public void startCarMovement(){
-        List<Vertex> vertexes = getVertexesOfGraph();
-        if(vertexes.size() >= 10) {
-
-            Vertex startVertex = vertexes.get(indexOfStart);
-            Vertex targetVertex = vertexes.get(vertexes.size()-1);
-            if(notDone) path = pathfinder.findPathForRoadVehicle(startVertex, targetVertex);
-
-            for(Vertex v : path){
-                System.out.print(v.getName() + " -> ");
-            }
-            System.out.println();
-
-            if(path.size() >= 10 && notDone) {
-                System.out.println("path "+path.size());
-                moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
-                notDone = false;
-            }
-        }
-    }
+//    /**
+//     * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
+//     * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
+//     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden.
+//     * Die Animation beginnt bei 10 platzierten verbundenen Knoten.
+//     */
+//    public void startCarMovement(){
+//        List<Vertex> vertexes = getVertexesOfGraph();
+//        if(vertexes.size() >= 10) {
+//
+//            Vertex startVertex = vertexes.get(indexOfStart);
+//            Vertex targetVertex = vertexes.get(vertexes.size()-1);
+//            if(notDone) path = pathfinder.findPathForRoadVehicle(startVertex, targetVertex);
+//
+//            for(Vertex v : path){
+//                System.out.print(v.getName() + " -> ");
+//            }
+//            System.out.println();
+//
+//            if(path.size() >= 10 && notDone) {
+//                System.out.println("path "+path.size());
+//                moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
+//                notDone = false;
+//            }
+//        }
+//    }
 
     public boolean canPlaceBuildingAtPlaceInMapGrid(int row, int column, Building building){
         return model.getMap().canPlaceBuilding(row, column, building);

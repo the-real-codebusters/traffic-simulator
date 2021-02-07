@@ -51,7 +51,7 @@ public class BasicModel {
      * Soll einen Tag, also eine Runde, simulieren
      * @return eine Liste von aktiven Fahrzeugen zurück
      */
-    public List<Vehicle> simulateOneDay(){
+    public List<VehicleMovement> simulateOneDay(){
 
         // In der Zeit einer Runde, also seit dem letzten Aufruf dieser Methode, können Haltestellen platziert worden
         // sein, die zu neuen, unverbundenen Stationen führen. Eine unverbundene Station stellt erstmal eine neue
@@ -87,8 +87,15 @@ public class BasicModel {
         }
         System.out.println("activeTrafficLines "+activeTrafficLines);
 
+        List<VehicleMovement> movements = new ArrayList<>();
+        for(Vehicle vehicle :activeVehicles){
+            VehicleMovement movement = vehicle.getMovementForNextDay();
+            movements.add(movement);
+            vehicle.setPosition(movement.getLastPair().getKey());
+        }
+
         day++;
-        return activeVehicles;
+        return movements;
     }
 
     /**
@@ -101,6 +108,7 @@ public class BasicModel {
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
             //TODO hier wird manchmal eine exception geworfen. Warum?
+            System.out.println("Typ eines Vehicles : "+v.getKind());
             if(v.getKind().equals(type)){
                 desiredVehicles.add(v);
             }

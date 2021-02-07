@@ -14,7 +14,7 @@ public class Vehicle {
     private String graphic;
     private Storage storage;
 
-    private VehiclePosition position;
+    private PositionOnTilemap position;
     private List<Vertex> pathToNextStation = new ArrayList<>();
 
     // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
@@ -49,33 +49,35 @@ public class Vehicle {
     }
 
     /**
-     * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Inklusive der Startposition
+     * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Entfernt die abgefahrenen Knoten aus
+     * pathToNextStation
      * @return
      */
-    public List<PositionOnTilemap> getPositionsForNextDay(){
+    public VehicleMovement getMovementForNextDay(){
         double wayToGo = speed;
-        List<PositionOnTilemap> positionsAtOneDay = new ArrayList<>();
+//        List<PositionOnTilemap> positionsAtOneDay = new ArrayList<>();
         PositionOnTilemap currentPosition = position;
-        positionsAtOneDay.add(position);
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition);
         double distanceToNextVertex = 0;
         while(wayToGo >= 0){
             Vertex nextVertex = pathToNextStation.remove(0);
+            //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
             distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
-            positionsAtOneDay.add(nextVertex);
+            vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
         }
         wayToGo+=distanceToNextVertex;
-        pathToNextStation.add(0, (Vertex) positionsAtOneDay.remove(positionsAtOneDay.size()-1));
+        pathToNextStation.add(0, (Vertex) currentPosition);
+        vehicleMovement.removeLastPair();
 
-
-        VehiclePosition lastPosition = positionsAtOneDay.get(positionsAtOneDay.size()-1).
+        VehiclePosition lastPosition = vehicleMovement.getLastPair().getKey().
                 getnewPositionShiftedTowardsGivenPointByGivenDistance(
                         currentPosition.coordsRelativeToMapOrigin(), wayToGo);
         //TODO Was wenn es genau am Ziel landet?
 
-        positionsAtOneDay.add(lastPosition);
-        return positionsAtOneDay;
+        vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
+        return vehicleMovement;
     }
 
     /**
@@ -167,12 +169,16 @@ public class Vehicle {
         this.storage = storage;
     }
 
-    public VehiclePosition getPosition() {
+    public PositionOnTilemap getPosition() {
         return position;
     }
 
-    public void setPosition(VehiclePosition position) {
+    public void setPosition(PositionOnTilemap position) {
         this.position = position;
+    }
+
+    public void setPathfinder(Pathfinder pathfinder) {
+        this.pathfinder = pathfinder;
     }
 
     public boolean isMovementInTrafficLineGoesForward() {

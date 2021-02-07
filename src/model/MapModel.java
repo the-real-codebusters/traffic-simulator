@@ -285,7 +285,7 @@ public class MapModel {
                 case RAIL:
                     break;
                 case ROAD:
-                    trafficLine = new TrafficLine(3, model, TrafficType.ROAD, newStation);
+                    trafficLine = new TrafficLine(1, model, TrafficType.ROAD, newStation);
                     newStation.setRoadTrafficLine(trafficLine);
                     break;
                 default:

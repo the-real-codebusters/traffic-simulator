@@ -204,18 +204,19 @@ public class JSONParser {
                 vehicle.setSpeed(handleContentAsDouble(vehicles, children[i], 0.0, null));
             }  else if ("kind".equals(children[i])) {
                 kind = handleContentAsString(vehicles, children[i]);
-                if(kind.equals("Road Vehicle")){
+                if(kind.equals("road vehicle")){
                     vehicle.setKind(TrafficType.ROAD);
                 }
-                else if(kind.equals("Wagon")){
+                else if(kind.equals("wagon")){
                     vehicle.setKind(TrafficType.RAIL);
                 }
-                else if(kind.equals("Engine")){
+                else if(kind.equals("engine")){
                     vehicle.setKind(TrafficType.RAIL);
                 }
-                else if(kind.equals("Plane")){
+                else if(kind.equals("plane")){
                     vehicle.setKind(TrafficType.AIR);
                 }
+                else throw new JSONParserException("Ein Fahrzeug in der JSON-Datei hat einen anderen Typ als road vehicle, wagon, engine oder plane");
             } else if ("graphic".equals(children[i])) {
                 vehicle.setGraphic(handleContentAsString(vehicles, children[i]));
             } else if( "cargo".equals(children[i])) {
