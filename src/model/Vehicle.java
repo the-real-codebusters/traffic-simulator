@@ -59,13 +59,19 @@ public class Vehicle {
         PositionOnTilemap currentPosition = position;
         VehicleMovement vehicleMovement = new VehicleMovement(currentPosition);
         double distanceToNextVertex = 0;
-        while(wayToGo >= 0){
+        while(wayToGo >= 0 && pathToNextStation.size() > 0){
             Vertex nextVertex = pathToNextStation.remove(0);
             //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
             distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
+        }
+        if(pathToNextStation.size() == 0){
+            // Station erreicht
+            updateNextStation();
+            savePathToNextStation((Vertex) currentPosition);
+            return vehicleMovement;
         }
         wayToGo+=distanceToNextVertex;
         pathToNextStation.add(0, (Vertex) currentPosition);
