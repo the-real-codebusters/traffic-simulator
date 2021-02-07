@@ -62,7 +62,6 @@ public class BasicModel {
 
             if(newOrIncompleteTrafficLine.checkIfMoreThanOneStation()){
                 if(newOrIncompleteTrafficLine.getTrafficType().equals(TrafficType.ROAD)){
-                    newOrIncompleteTrafficLine.addNewVehicle();
                     activeTrafficLines.add(newOrIncompleteTrafficLine);
 
                     //TODO Andere TrafficTypes fehlen noch

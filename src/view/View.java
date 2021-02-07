@@ -20,9 +20,7 @@ import javafx.util.Pair;
 import model.*;
 
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class View {
@@ -549,27 +547,16 @@ public class View {
     /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
      */
-    public void translateVehicle(VehicleMovement movement){
-        DoubleProperty x  = new SimpleDoubleProperty();
-        DoubleProperty y  = new SimpleDoubleProperty();
+    public void translateVehicle(List<VehicleMovement> movements){
+
+        List<Map<String, Object>> maps = new ArrayList<>();
+        for(VehicleMovement movement : movements){
+            maps.add(getTimelineAndPropertiesForMovement(movement));
+        }
 
         String name = mapping.getImageNameForBuildingName("car-sw");
 
         Point2D zeroPointAtStart = translateTileCoordsToCanvasCoords(0,0);
-
-        Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
-        KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()));
-        Timeline timeline = new Timeline(start);
-        double wholeDistance = movement.getWholeDistance();
-
-        double time = 0.0;
-        for(int i=0; i<movement.getNumberOfPoints(); i++){
-            Pair<PositionOnTilemap, Double> pair = movement.getPairOFPositionAndDistance(i);
-            time += (pair.getValue() / wholeDistance) * tickDuration;
-            Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
-            KeyFrame frame = new KeyFrame(Duration.seconds(time), new KeyValue(x, point.getX()), new KeyValue(y, point.getY()));
-            timeline.getKeyFrames().add(frame);
-        }
 
         timer = new AnimationTimer() {
             @Override
@@ -584,12 +571,18 @@ public class View {
                 if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
                     GraphicsContext gc = canvas.getGraphicsContext2D();
                     drawMap();
-                    gc.drawImage(carImage, x.doubleValue()+xShift,
-                            y.doubleValue()-15+yShift);
+                    for(Map map: maps){
+                        gc.drawImage(carImage, ((DoubleProperty)map.get("x")).doubleValue()+xShift,
+                                ((DoubleProperty)map.get("y")).doubleValue()-15+yShift);
+                    }
+
                 }
             }
         };
-        parallelTransition = new ParallelTransition(timeline);
+        parallelTransition = new ParallelTransition();
+        for(Map map: maps){
+            parallelTransition.getChildren().add((Animation) map.get("timeline"));
+        }
         getMenuPane().getAnimationButton().setDisable(false);
         parallelTransition.setOnFinished(event -> {
             parallelTransition.stop();
@@ -618,6 +611,31 @@ public class View {
 
         timer.start();
         parallelTransition.play();
+    }
+
+    private Map<String, Object> getTimelineAndPropertiesForMovement(VehicleMovement movement){
+        DoubleProperty x  = new SimpleDoubleProperty();
+        DoubleProperty y  = new SimpleDoubleProperty();
+
+        Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
+        KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()));
+        Timeline timeline = new Timeline(start);
+        double wholeDistance = movement.getWholeDistance();
+
+        double time = 0.0;
+        for(int i=0; i<movement.getNumberOfPoints(); i++){
+            Pair<PositionOnTilemap, Double> pair = movement.getPairOFPositionAndDistance(i);
+            time += (pair.getValue() / wholeDistance) * tickDuration;
+            Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
+            KeyFrame frame = new KeyFrame(Duration.seconds(time), new KeyValue(x, point.getX()), new KeyValue(y, point.getY()));
+            timeline.getKeyFrames().add(frame);
+        }
+        Map<String, Object> movementMap = new HashMap<>();
+        movementMap.put("timeline", timeline);
+        movementMap.put("x", x);
+        movementMap.put("y", y);
+
+        return movementMap;
     }
 
 

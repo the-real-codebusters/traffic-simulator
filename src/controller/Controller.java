@@ -62,10 +62,12 @@ public class Controller {
         simulateOneDay();
     }
 
+    //TODO Was wenn zwei TrafficLines zu einer verbunden werden?
+
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
         if(movements.size() > 0){
-            view.translateVehicle(movements.get(0));
+            view.translateVehicle(movements);
         }
         else {
             Timeline timeline = new Timeline(new KeyFrame(
