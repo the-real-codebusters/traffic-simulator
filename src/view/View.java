@@ -296,6 +296,11 @@ public class View {
                             int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
                             int cornerHeightEast = tile.getCornerHeights().get("cornerE");
 
+//                            int cornerHeightSouth = 0;
+//                            int cornerHeightWest = 0;
+//                            int cornerHeightNorth = 0;
+//                            int cornerHeightEast = 0;
+
 
                             /*if(row-1 >= 0){
                                 cornerHeightSouth = fields[row+1][col].getCornerHeights().get("cornerW");
@@ -379,11 +384,11 @@ public class View {
                 gc.setFill(imagePattern);
 //                gc.setFill(Color.BLUEVIOLET);
                 gc.fillPolygon(xCoords, yCoords, numberOfPoints);
-//                gc.strokePolygon(xCoords, yCoords, numberOfPoints);
+                gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
 //              gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
 
-                gc.setFill(Color.BLACK);
+//                gc.setFill(Color.BLACK);
 //              gc.setStroke(Color.WHITE);
 
 

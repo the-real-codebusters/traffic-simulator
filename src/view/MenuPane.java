@@ -94,8 +94,21 @@ public class MenuPane extends AnchorPane {
                 container.getChildren().add(imageView);
                 //TODO
             }
+
+
+            if(name.equals("height")){
+                Building height_up = new Building();
+                height_up.setBuildingName("height_up");
+                height_up.setWidth(1);
+                height_up.setDepth(1);
+                ImageView imageView = imageViewWithLayout(height_up);
+                container.getChildren().add(imageView);
+            }
+
             tabContents.set(tabNames.indexOf(name), container);
         }
+
+
     }
 
     /**
@@ -136,8 +149,8 @@ public class MenuPane extends AnchorPane {
     public Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
-//        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+//        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 

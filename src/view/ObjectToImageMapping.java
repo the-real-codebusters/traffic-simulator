@@ -62,6 +62,7 @@ public class ObjectToImageMapping {
         mapping.put("car-sw", "road/car-sw");
 //        mapping.put("grass", "ground/grass");
         mapping.put("grass", "ground/grass_small");
+        mapping.put("height_up" , "height_up");
     }
 
     public Collection<String> getImageNames(){
