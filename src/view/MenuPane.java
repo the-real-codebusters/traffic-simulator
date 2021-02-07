@@ -101,8 +101,13 @@ public class MenuPane extends AnchorPane {
                 height_up.setBuildingName("height_up");
                 height_up.setWidth(1);
                 height_up.setDepth(1);
-                ImageView imageView = imageViewWithLayout(height_up);
-                container.getChildren().add(imageView);
+                ImageView imageViewUp = imageViewWithLayout(height_up);
+                Building height_down = new Building();
+                height_down.setBuildingName("height_down");
+                height_down.setWidth(1);
+                height_down.setDepth(1);
+                ImageView imageViewDown = imageViewWithLayout(height_down);
+                container.getChildren().addAll(imageViewUp, imageViewDown);
             }
 
             tabContents.set(tabNames.indexOf(name), container);
