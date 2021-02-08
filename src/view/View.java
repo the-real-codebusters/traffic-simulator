@@ -295,8 +295,8 @@ public class View {
                         }
                         else {
 
-//                            Image image = getSingleFieldImage(col, row, fields);
-//                            drawTileImage(drawOrigin, image, false);
+                            Image image = getSingleFieldImage(col, row, fields);
+                            drawTileImage(drawOrigin, image, false);
                             //TODO Polygone mit Wasser oder Gras Tiles zu zeichnen, je nach Höhe
                             Tile tile = fields[row][col];
                             int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
@@ -315,7 +315,7 @@ public class View {
                                 cornerHeightEast = fields[row+1][col+1].getCornerHeights().get("cornerW");
                                 cornerHeightNorth = fields[row][col+1].getCornerHeights().get("cornerW");
                             }*/
-                            drawPolygon(drawOrigin, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
+//                            drawPolygon(drawOrigin, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
                         }
                     }
                 }
@@ -519,6 +519,19 @@ public class View {
         double heightAboveTile = image.getHeight() - tileImageHeight;
 
 //        Point2D drawOrigin = moveCoordinates(row, column);
+        double xCoordOnCanvas = drawOrigin.getX();
+        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
+
+        if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
+        canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
+        canvas.getGraphicsContext2D().setGlobalAlpha(1);
+    }
+
+    public void drawTileImage(int row, int column, Image image, boolean transparent) {
+
+        double heightAboveTile = image.getHeight() - tileImageHeight;
+
+        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
         double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
 

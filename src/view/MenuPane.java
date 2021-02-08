@@ -175,7 +175,7 @@ public class MenuPane extends AnchorPane {
                 double ratio = view.getImageNameToImageRatio().get(imageName);
                 double tileWidth = view.getTileImageWidth();
                 Image image = view.getResourceForImageName(imageName, tileWidth, tileWidth * ratio);
-                view.drawTileImage(isoCoord, image, transparent);
+                view.drawTileImage(xCoord, yCoord, image, transparent);
             }
             return isoCoord;
         } else return null;
