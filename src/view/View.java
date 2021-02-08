@@ -42,7 +42,7 @@ public class View {
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private Canvas canvas = new Canvas(1200, 600);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -67,6 +67,8 @@ public class View {
     BorderPane borderPane;
     private ParallelTransition parallelTransition;
     private AnimationTimer timer;
+
+    private String carName = null;
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -541,15 +543,52 @@ public class View {
     }
 
     /**
+     * Ermittelt das richtige Bild für fahrendes Auto
+     * @param start
+     * @param end
+     */
+    private void setImageForCar(Point2D start, Point2D end) {
+
+        if (start.getX() < end.getX()) {
+            //nach rechts oben fahren
+            //System.out.print("nach rechts");
+            if (start.getY() > end.getY()) {
+                //System.out.println(" oben");
+                carName = "car_ne";
+            }
+            else {
+                //System.out.println(" unten");
+                carName = "car_se";
+            }
+        }
+        else  if (start.getX() > end.getX()){
+            // nach link oben fahren
+            //System.out.print("nach links");
+            if (start.getY() < end.getY()) {
+                //System.out.println(" unten");
+                carName = "car_sw";
+            }
+            else {
+                //System.out.println(" oben");
+                carName = "car_nw";
+            }
+        }
+    }
+
+    /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
      * @param start
      * @param end
      */
     public void translateCar(Point2D start, Point2D end){
+
+        setImageForCar(start, end);
+
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-        String name = mapping.getImageNameForBuildingName("car-sw");
+        carName = mapping.getImageNameForBuildingName(carName);
+
 
         Point2D zeroPointAtStart = moveCoordinates(0,0);
 
@@ -568,18 +607,20 @@ public class View {
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                Image carImage = getResourceForImageName(name, tileImageHeightHalf,
-                        imageNameToImageRatio.get(name)*tileImageHeightHalf);
+                if (carName != null) {
+                    Image carImage = getResourceForImageName(carName, tileImageHeightHalf,
+                            imageNameToImageRatio.get(carName)*tileImageHeightHalf);
 
-                Point2D actualZeroPoint = moveCoordinates(0,0);
-                double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
-                double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
+                    Point2D actualZeroPoint = moveCoordinates(0,0);
+                    double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
+                    double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 
-                if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
-                    GraphicsContext gc = canvas.getGraphicsContext2D();
-                    drawMap();
-                    gc.drawImage(carImage, x.doubleValue()+xShift,
-                            y.doubleValue()-15+yShift);
+                    if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
+                        GraphicsContext gc = canvas.getGraphicsContext2D();
+                        drawMap();
+                        gc.drawImage(carImage, x.doubleValue()+xShift,
+                                y.doubleValue()-15+yShift);
+                    }
                 }
             }
         };

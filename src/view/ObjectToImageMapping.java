@@ -59,7 +59,10 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-sw", "road/road-nw-sw");
         mapping.put("road-se-sw", "road/road-se-sw");
 
-        mapping.put("car-sw", "road/car-sw");
+        mapping.put("car_ne", "road/car_ne");
+        mapping.put("car_nw", "road/car_nw");
+        mapping.put("car_se", "road/car_se");
+        mapping.put("car_sw", "road/car_sw");
         mapping.put("grass", "ground/grass");
         mapping.put("remove", "remove");
     }
