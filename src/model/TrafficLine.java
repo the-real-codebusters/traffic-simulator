@@ -108,16 +108,26 @@ public class TrafficLine {
         System.out.println("addStation called");
         stations.add(station);
 
-        // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
-        List<Station> nextStations = model.getPathfinder().findAllDirectlyConnectedStations(station);
-        System.out.println("Connected Stations for Station "+station.getId());
-        for(Station n: nextStations){
-            System.out.println("Next Station "+n.getId());
-            n.getDirectlyConnectedStations().add(station);
-        }
-        station.setDirectlyConnectedStations(nextStations);
+        station.updateDirectlyConnectedStations();
         setStartVertexAndStartStationForNewVehicles();
         sortStationsAsPathFromStartStationToLastStation();
+    }
+
+    public void mergeWithTrafficLine(TrafficLine otherLine){
+        if(!otherLine.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge lines " +
+                "of different trafficTypes");
+        System.out.println("Stations "+stations);
+        for(Station otherStation: otherLine.getStations()){
+            otherStation.setRoadTrafficLine(this);
+            otherStation.updateDirectlyConnectedStations();
+            stations.add(otherStation);
+        }
+        System.out.println("Stations "+stations);
+        desiredNumberOfVehicles += otherLine.getDesiredNumberOfVehicles();
+        vehicles.addAll(otherLine.getVehicles());
+        setStartVertexAndStartStationForNewVehicles();
+        sortStationsAsPathFromStartStationToLastStation();
+        System.out.println("Stations "+stations);
     }
 
     /**

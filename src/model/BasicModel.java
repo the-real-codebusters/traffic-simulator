@@ -85,6 +85,8 @@ public class BasicModel {
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
         System.out.println("activeTrafficLines "+activeTrafficLines);
+        System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
+
 
         List<VehicleMovement> movements = new ArrayList<>();
         for(Vehicle vehicle :activeVehicles){
@@ -189,7 +191,7 @@ public class BasicModel {
 
 //                    System.out.println(sBuilding.getBuildingName() + " and " +
 //                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
-                    Building combinedBuilding = getBuildingByName(newBuildingName);
+                    Building combinedBuilding = getBuildingByName(newBuildingName).getNewInstance();
                     // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
                     return combinedBuilding;
                 }
@@ -201,7 +203,7 @@ public class BasicModel {
     /**
      *
      * @param name
-     * @return Eine Liste von buildings, die alle den Namen name haben
+     * @return Einen Building-Typ, von dem noch eine Instanz erzeugt werden muss
      */
     public Building getBuildingByName(String name){
         for (Building building : buildings) {

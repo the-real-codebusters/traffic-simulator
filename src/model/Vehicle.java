@@ -76,6 +76,7 @@ public class Vehicle {
         wayToGo+=distanceToNextVertex;
         pathToNextStation.add(0, (Vertex) currentPosition);
         vehicleMovement.removeLastPair();
+        //TODO manchmal ist VehicleMovement leer und es kommt ein Fehler
 
         VehiclePosition lastPosition = vehicleMovement.getLastPair().getKey().
                 getnewPositionShiftedTowardsGivenPointByGivenDistance(

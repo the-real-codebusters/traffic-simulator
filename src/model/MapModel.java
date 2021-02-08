@@ -1,8 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MapModel {
     private String mapgen;
@@ -56,7 +54,7 @@ public class MapModel {
                 station = nextStation;
                 System.out.println("Nachbar für Stop gefunden");
             } else {
-                station = new Station(model, null, null, null);
+                station = new Station(model, null, null, null, model.getPathfinder());
                 stations.add(station);
                 System.out.println("Station neu erzeugt");
                 createdNewStation = true;
@@ -66,8 +64,13 @@ public class MapModel {
 
         }
         if(instance instanceof PartOfTrafficGraph){
-            model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
+            List<Vertex> addedPoints = model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
+            if(instance instanceof Road){
+                //checke, ob man zwei TrafficLines mergen sollte
+                mergeTrafficLinesIfNeccessary(addedPoints.get(0));
+            }
         }
+
 
         if(createdNewStation){
             TrafficLine trafficLine = addNewStationToTrafficLine(station, instance.getTrafficType());
@@ -148,6 +151,35 @@ public class MapModel {
             }
         }
         return true;
+    }
+
+    //TODO Funktioniert momentan nur für ROAD
+    private void mergeTrafficLinesIfNeccessary(Vertex newAddedVertex){
+        System.out.println("mergeTrafficLinesIfNeccessary called");
+
+        List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex);
+        Set<TrafficLine> differentLines = new HashSet<>();
+        for(Station station: nearStations){
+            differentLines.add(station.getRoadTrafficLine());
+        }
+        int numberOfNearTrafficLines = differentLines.size();
+        System.out.println(numberOfNearTrafficLines);
+        if(numberOfNearTrafficLines > 1){
+            System.out.println("tried to merge trafficLines");
+            System.out.println("found lines "+numberOfNearTrafficLines);
+            mergeTrafficLines(new ArrayList<>(differentLines));
+        }
+    }
+
+    private void mergeTrafficLines(List<TrafficLine> lines){
+        TrafficLine firstLine = lines.get(0);
+        System.out.println("firstLine "+firstLine.getStations().size());
+        for(int i=1; i<lines.size(); i++){
+            firstLine.mergeWithTrafficLine(lines.get(i));
+            model.getActiveTrafficLines().remove(lines.get(i));
+            model.getNewCreatedOrIncompleteTrafficLines().remove(lines.get(i));
+        }
+        System.out.println("firstLine after merge "+firstLine.getStations().size());
     }
 
     private Station getStationNextToStop(int row, int column, Stop building){
@@ -247,7 +279,7 @@ public class MapModel {
                         }
                     }
                 }
-        trafficGraph.checkForDuplicatePoints();
+        List<Vertex> joinedVertices = trafficGraph.checkForDuplicatePoints();
         trafficGraph.printGraph();
         System.out.println();
         List<Vertex> verticesAfter = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
@@ -256,6 +288,11 @@ public class MapModel {
         System.out.println(verticesAfter);
 
         List<Vertex> addedVertices = verticesAfter;
+        for(Vertex j:joinedVertices){
+            if(!addedVertices.contains(j)){
+                addedVertices.add(j);
+            }
+        }
         if(isPointPartOfStation){
             ((Stop) building).getVertices().addAll(addedVertices);
         }
