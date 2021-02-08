@@ -68,7 +68,7 @@ public class View {
     private double tickDuration = 1;
     BorderPane borderPane;
 
-    private Map <List<Point2D>, Point2D>  rowColToCanvasCoordinates = new LinkedHashMap<>();
+//    private Map <List<Point2D>, Point2D>  rowColToCanvasCoordinates = new LinkedHashMap<>();
 
 
     public View(Stage primaryStage, BasicModel model) {
@@ -239,7 +239,7 @@ public class View {
         int startCol = 0;
         int endCol = 0;
 
-        rowColToCanvasCoordinates.clear();
+//        rowColToCanvasCoordinates.clear();
 
         // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
@@ -358,22 +358,22 @@ public class View {
         double[] xCoords = {xCoordWest, xCoordNorth, xCoordEast, xCoordSouth};
         double[] yCoords = {yCoordWest, yCoordNorth, yCoordEast, yCoordSouth};
 
-        Point2D west = new Point2D(xCoordWest, yCoordWest);
-        Point2D north = new Point2D(xCoordNorth, yCoordNorth);
-        Point2D east = new Point2D(xCoordEast, yCoordEast);
-        Point2D south = new Point2D(xCoordSouth, yCoordSouth);
+//        Point2D west = new Point2D(xCoordWest, yCoordWest);
+//        Point2D north = new Point2D(xCoordNorth, yCoordNorth);
+//        Point2D east = new Point2D(xCoordEast, yCoordEast);
+//        Point2D south = new Point2D(xCoordSouth, yCoordSouth);
+//
+//        List<Point2D> coordsOnCanvas = new ArrayList<>();
+//        coordsOnCanvas.add(west);
+//        coordsOnCanvas.add(north);
+//        coordsOnCanvas.add(east);
+//        coordsOnCanvas.add(south);
 
-        List<Point2D> coordsOnCanvas = new ArrayList<>();
-        coordsOnCanvas.add(west);
-        coordsOnCanvas.add(north);
-        coordsOnCanvas.add(east);
-        coordsOnCanvas.add(south);
 
-
-        for(Point2D coord : coordsOnCanvas){
+//        for(Point2D coord : coordsOnCanvas){
             // Zeichne nur Tiles, die tatsächlich auf dem Canvas sichtbar sind
-            if (!(coord.getX() < 0 - tileImageHeightHalf || coord.getX() > canvas.getWidth() + tileImageHeightHalf ||
-                    coord.getY() < 0 || coord.getY() > canvas.getHeight())){
+//            if (!(coord.getX() < 0 - tileImageHeightHalf || coord.getX() > canvas.getWidth() + tileImageHeightHalf ||
+//                    coord.getY() < 0 || coord.getY() > canvas.getHeight())){
 
                 ImagePattern imagePattern;
                 if (heightWest < 0) {
@@ -392,55 +392,55 @@ public class View {
 //              gc.setStroke(Color.WHITE);
 
 
-                if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
-                    rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
+//                if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
+//                    rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
 //                    System.out.println(rowColToCanvasCoordinates.size());
-                }
-            }
-        }
+//                }
+//            }
+//        }
 
 
         //TODO Das Tile 0,0 ganz links wird manchmal je nach Position komisch angezeigt
 
     }
 
-    public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
+//    public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
+//
+//        double x = mouseX;
+//        double y = mouseY;
+//
+//        boolean inside = false;
+//        for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
+//
+//            double xi = coordsOnCanvas.get(i).getX();
+//            double yi = coordsOnCanvas.get(i).getY();
+//
+//            double xj = coordsOnCanvas.get(j).getX();
+//            double yj = coordsOnCanvas.get(j).getY();
+//
+//            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+//            if (intersect) inside = !inside;
+//        }
+//
+//        if(inside){
+//            System.out.println(rowColToCanvasCoordinates.get(coordsOnCanvas));
+//        }
+//
+//        return inside;
+//
+//    }
 
-        double x = mouseX;
-        double y = mouseY;
 
-        boolean inside = false;
-        for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
-
-            double xi = coordsOnCanvas.get(i).getX();
-            double yi = coordsOnCanvas.get(i).getY();
-
-            double xj = coordsOnCanvas.get(j).getX();
-            double yj = coordsOnCanvas.get(j).getY();
-
-            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-            if (intersect) inside = !inside;
-        }
-
-        if(inside){
-            System.out.println(rowColToCanvasCoordinates.get(coordsOnCanvas));
-        }
-
-        return inside;
-
-    }
-
-
-    public Point2D findTileCoordNew(double mouseX, double mouseY) {
-        Point2D newIsoCoord = new Point2D(0,0);
-        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
-            if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
-                System.out.println("Clicked on coordinates : " + entry.getValue());
-                newIsoCoord = entry.getValue();
-            }
-        }
-        return newIsoCoord;
-    }
+//    public Point2D findTileCoordNew(double mouseX, double mouseY) {
+//        Point2D newIsoCoord = new Point2D(0,0);
+//        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
+//            if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
+//                System.out.println("Clicked on coordinates : " + entry.getValue());
+//                newIsoCoord = entry.getValue();
+//            }
+//        }
+//        return newIsoCoord;
+//    }
 
     /**
      * Soll die Koordinaten der Mausposition von Pixel zu isometrischen Koordinaten umrechnen
@@ -667,12 +667,12 @@ public class View {
             // Findet isometrische Koordinaten der Mouseposition
             Point2D isoCoord = findTileCoord(mouseX, mouseY);
 
-            Point2D newIsoCoord = findTileCoordNew(mouseX, mouseY);
+//            Point2D newIsoCoord = findTileCoordNew(mouseX, mouseY);
 
 //            System.out.println(rowColToCanvasCoordinates);
 //            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
-            String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
-            isoCoordLabel.setText(tileCoords);
+//            String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
+//            isoCoordLabel.setText(tileCoords);
         });
     }
 
@@ -842,8 +842,8 @@ public class View {
         return menuPane;
     }
 
-    public Map<List<Point2D>, Point2D> getRowColToCanvasCoordinates() {
-        return rowColToCanvasCoordinates;
-    }
+//    public Map<List<Point2D>, Point2D> getRowColToCanvasCoordinates() {
+//        return rowColToCanvasCoordinates;
+//    }
 }
 

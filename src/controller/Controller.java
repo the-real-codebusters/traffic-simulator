@@ -163,8 +163,8 @@ public class Controller {
 
             Image road = view.getSingleFieldImage(yCoord, xCoord, model.getFieldGridOfMap());
 //            Image road = view.getResourceForImageName("water");
-            view.drawPolygon(null, yCoord, xCoord, 0,0,0,0);
-            Map<List<Point2D>, Point2D> polygonCoordsToHoveredTile = view.getRowColToCanvasCoordinates();
+//            view.drawPolygon(null, yCoord, xCoord, 0,0,0,0);
+//            Map<List<Point2D>, Point2D> polygonCoordsToHoveredTile = view.getRowColToCanvasCoordinates();
             startCarMovement();
         }
     }
