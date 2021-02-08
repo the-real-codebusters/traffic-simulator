@@ -223,6 +223,8 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
     public void drawMap() {
+        System.out.println("draw Map Called");
+        numberOfDrawPol = 0;
         final String grass1 = "file:grass.png";
         Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
@@ -312,6 +314,7 @@ public class View {
                     }
                 }
             }
+            System.out.println("calls of polygon "+numberOfDrawPol);
         }
 
 
@@ -329,14 +332,16 @@ public class View {
     }
 
 
+    int numberOfDrawPol = 0;
     public void drawPolygon(Image image, int col, int row, int heightNorth, int heightEast, int heightSouth, int heightWest) {
 
+        numberOfDrawPol++;
         // X und Y Koordinaten der linken Ecke des Tiles
         Point2D drawOrigin = moveCoordinates(row, col);
         double xCoordOnCanvas = drawOrigin.getX();
 //        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
         double yCoordOnCanvas = drawOrigin.getY();
-
+//
         GraphicsContext gc = canvas.getGraphicsContext2D();
         int numberOfPoints = 4;
         double heightShift = tileImageHeight / 10;
@@ -352,52 +357,58 @@ public class View {
         double xCoordSouth = xCoordOnCanvas + tileImageWidthHalf;
         double yCoordSouth = yCoordOnCanvas + tileImageHeightHalf - heightSouth * heightShift;
 
-//        double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
-//        double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
-
-        double[] xCoords = {xCoordWest, xCoordNorth, xCoordEast, xCoordSouth};
-        double[] yCoords = {yCoordWest, yCoordNorth, yCoordEast, yCoordSouth};
-
-//        Point2D west = new Point2D(xCoordWest, yCoordWest);
-//        Point2D north = new Point2D(xCoordNorth, yCoordNorth);
-//        Point2D east = new Point2D(xCoordEast, yCoordEast);
-//        Point2D south = new Point2D(xCoordSouth, yCoordSouth);
+        double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
+        double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
 //
-//        List<Point2D> coordsOnCanvas = new ArrayList<>();
-//        coordsOnCanvas.add(west);
-//        coordsOnCanvas.add(north);
-//        coordsOnCanvas.add(east);
-//        coordsOnCanvas.add(south);
+//        double[] xCoords = {100, 200, 100, 200};
+//        double[] yCoords = {100, 200, 200, 100};
+
+        Point2D west = new Point2D(xCoordWest, yCoordWest);
+        Point2D north = new Point2D(xCoordNorth, yCoordNorth);
+        Point2D east = new Point2D(xCoordEast, yCoordEast);
+        Point2D south = new Point2D(xCoordSouth, yCoordSouth);
+//
+        List<Point2D> coordsOnCanvas = new ArrayList<>();
+        coordsOnCanvas.add(west);
+        coordsOnCanvas.add(north);
+        coordsOnCanvas.add(east);
+        coordsOnCanvas.add(south);
 
 
-//        for(Point2D coord : coordsOnCanvas){
+        boolean shouldBeDrawed = true;
+        for(Point2D coord : coordsOnCanvas){
             // Zeichne nur Tiles, die tatsächlich auf dem Canvas sichtbar sind
-//            if (!(coord.getX() < 0 - tileImageHeightHalf || coord.getX() > canvas.getWidth() + tileImageHeightHalf ||
-//                    coord.getY() < 0 || coord.getY() > canvas.getHeight())){
+            if ((coord.getX() < 0 - tileImageHeightHalf || coord.getX() > canvas.getWidth() + tileImageHeightHalf ||
+                    coord.getY() < 0 || coord.getY() > canvas.getHeight())){
 
-                ImagePattern imagePattern;
-                if (heightWest < 0) {
-                    imagePattern = getImagePatternForGroundName("water");
-                } else {
-                    imagePattern = getImagePatternForGroundName("grass");
-                }
-                gc.setFill(imagePattern);
-//                gc.setFill(Color.BLUEVIOLET);
-                gc.fillPolygon(xCoords, yCoords, numberOfPoints);
-                gc.strokePolygon(xCoords, yCoords, numberOfPoints);
 
-//              gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
-
-//                gc.setFill(Color.BLACK);
 //              gc.setStroke(Color.WHITE);
+                shouldBeDrawed = false;
 
 
 //                if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
 //                    rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
 //                    System.out.println(rowColToCanvasCoordinates.size());
 //                }
-//            }
-//        }
+            }
+        }
+        if(shouldBeDrawed){
+                            ImagePattern imagePattern;
+                if (heightWest < 0) {
+                    imagePattern = getImagePatternForGroundName("water");
+                } else {
+                    imagePattern = getImagePatternForGroundName("grass");
+                }
+                gc.setFill(imagePattern);
+//            gc.setFill(Color.BLUEVIOLET);
+            gc.fillPolygon(xCoords, yCoords, numberOfPoints);
+//                gc.strokePolygon(xCoords, yCoords, 4);
+
+//              gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
+
+            gc.setFill(Color.BLACK);
+        }
+
 
 
         //TODO Das Tile 0,0 ganz links wird manchmal je nach Position komisch angezeigt
@@ -565,7 +576,7 @@ public class View {
         }
         else{
             String imageName = objectToImageMapping.getImageNameForObjectName(groundName);
-            Image image = getResourceForImageName(imageName);
+            Image image = getResourceForImageName(imageName, tileImageWidth, tileImageHeight);
             ImagePattern newPattern = new ImagePattern(image);
             imagePatternCache.put(groundName, newPattern);
             return newPattern;
