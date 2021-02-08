@@ -60,8 +60,7 @@ public class ObjectToImageMapping {
         mapping.put("road-se-sw", "road/road-se-sw");
 
         mapping.put("car-sw", "road/car-sw");
-//        mapping.put("grass", "ground/grass");
-        mapping.put("grass", "ground/grass_small");
+        mapping.put("grass", "ground/grass");
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
     }
