@@ -118,7 +118,7 @@ public class View {
 
         });
     }
-    //public void zoom1 (){
+        public void zoom1 (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
             System.out.println(scrollDelta);
