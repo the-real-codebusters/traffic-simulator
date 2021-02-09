@@ -227,7 +227,6 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
      */
     public void drawMap() {
-        System.out.println("draw Map Called");
         numberOfDrawPol = 0;
         final String grass1 = "file:grass.png";
         Image grass = new Image(grass1);
@@ -323,7 +322,7 @@ public class View {
                         }
                     }
                 }
-                    System.out.println("calls of polygon "+numberOfDrawPol);
+//                    System.out.println("calls of polygon "+numberOfDrawPol);
             }
             }
         }
