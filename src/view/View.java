@@ -2,8 +2,7 @@ package view;
 
 import controller.Controller;
 import javafx.animation.*;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -603,7 +602,7 @@ public class View {
                     GraphicsContext gc = canvas.getGraphicsContext2D();
                     drawMap();
                     for(VehicleAnimation animation: animations){
-                        String imageName = animation.getImageName();
+                        String imageName = animation.getImageName().getValue();
                         if(imageName==null) throw new RuntimeException("imageName was null");
                         Image carImage = getResourceForImageName(imageName, tileImageHeightHalf,
                                 imageNameToImageRatio.get(imageName)*tileImageHeightHalf);
@@ -652,11 +651,13 @@ public class View {
     private VehicleAnimation getAnimationForMovement(VehicleMovement movement){
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
+        StringProperty imageName  = new SimpleStringProperty();
 
-        String imageName = getImageNameForCar(movement.getPairOFPositionAndDistance(0).getKey().coordsRelativeToMapOrigin(), movement.getLastPair().getKey().coordsRelativeToMapOrigin());
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
-        KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()));
+        Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOFPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
+        String startImageName = getImageNameForCar(startPoint, secondPoint);
+        KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()), new KeyValue(imageName, startImageName));
         Timeline timeline = new Timeline(start);
         double wholeDistance = movement.getWholeDistance();
 
@@ -665,7 +666,21 @@ public class View {
             Pair<PositionOnTilemap, Double> pair = movement.getPairOFPositionAndDistance(i);
             time += (pair.getValue() / wholeDistance) * tickDuration;
             Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
-            KeyFrame frame = new KeyFrame(Duration.seconds(time), new KeyValue(x, point.getX()), new KeyValue(y, point.getY()));
+            String actualImageName;
+            if(i!=movement.getNumberOfPoints()-1){
+                Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOFPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
+                actualImageName = getImageNameForCar(point, nextPoint);
+            }
+            else {
+                Point2D lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOFPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
+                actualImageName = getImageNameForCar(lastPoint, point);
+            }
+            KeyFrame frame = new KeyFrame(
+                    Duration.seconds(time),
+                    new KeyValue(x, point.getX()),
+                    new KeyValue(y, point.getY()),
+                    new KeyValue(imageName, actualImageName)
+                    );
             timeline.getKeyFrames().add(frame);
         }
 //        Map<String, Object> movementMap = new HashMap<>();

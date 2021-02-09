@@ -309,7 +309,6 @@ public class MapModel {
             Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
             Station nextStation = lastVertex.getStation();
             if (trafficType.equals(TrafficType.ROAD)) {
-                System.out.println("nextStation " + nextStation.getId());
                 nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
                 newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
                 return nextStation.getRoadTrafficLine();
@@ -322,7 +321,7 @@ public class MapModel {
                 case RAIL:
                     break;
                 case ROAD:
-                    trafficLine = new TrafficLine(3, model, TrafficType.ROAD, newStation);
+                    trafficLine = new TrafficLine(2, model, TrafficType.ROAD, newStation);
                     newStation.setRoadTrafficLine(trafficLine);
                     break;
                 default:
