@@ -32,6 +32,7 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
+        System.out.println("place building "+instance.getBuildingName()+" with TrafficType "+instance.getTrafficType());
 //        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
@@ -73,7 +74,7 @@ public class MapModel {
 
 
         if(createdNewStation){
-            TrafficLine trafficLine = addNewStationToTrafficLine(station, instance.getTrafficType());
+            TrafficLine trafficLine = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
             instance.setTrafficLine(trafficLine);
         }
 
@@ -154,6 +155,12 @@ public class MapModel {
     }
 
     //TODO Funktioniert momentan nur für ROAD
+
+    /**
+     * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrslinien verbunden wurden. Wenn das der Fall ist,
+     * fügt es die beiden Verkehrlinien zu einer zusammen.
+     * @param newAddedVertex
+     */
     private void mergeTrafficLinesIfNeccessary(Vertex newAddedVertex){
         System.out.println("mergeTrafficLinesIfNeccessary called");
 
@@ -171,6 +178,10 @@ public class MapModel {
         }
     }
 
+    /**
+     * Fügt die angegebenen Verkehrslinien zu einer zusammen
+     * @param lines
+     */
     private void mergeTrafficLines(List<TrafficLine> lines){
         TrafficLine firstLine = lines.get(0);
         System.out.println("firstLine "+firstLine.getStations().size());
@@ -182,6 +193,14 @@ public class MapModel {
         System.out.println("firstLine after merge "+firstLine.getStations().size());
     }
 
+    /**
+     * Gibt die Station zurück, die direkt neben der Haltestelle in x- oder y-Richtung steht. Wenn keine Station angrenzt,
+     * wird null zurückgegeben
+     * @param row
+     * @param column
+     * @param building
+     * @return
+     */
     private Station getStationNextToStop(int row, int column, Stop building){
         Station station;
         for(int r=row; r<row+building.getWidth(); r++){
@@ -208,6 +227,7 @@ public class MapModel {
         return null;
     }
 
+    //TODO refactoring
     private boolean checkForSecondStation(Building building) {
         Long currentId = ((Stop) building).getStation().getId();
 
@@ -233,11 +253,18 @@ public class MapModel {
      */
     public List<Vertex> addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
         TrafficGraph trafficGraph;
-        if(building instanceof PartOfTrafficGraph) {
+        if(building == null) throw new IllegalArgumentException("building was null");
+        if(building.getTrafficType().equals(TrafficType.ROAD)) {
             trafficGraph = this.rawRoadGraph;
         }
         else {
             //TODO rails
+            //TODO Air ?
+
+            //Vielleicht sollte man für Flugzeuge eine eigene globale Variable von TrafficGraph erstellen, der die Punkte der
+            // Flugverbindungen abspeichert. Dann müssten auch im Pathfinder unterschiedliche Graphen benutzt werden,
+            // je nach TrafficType, und die Methode addNewStationToTrafficLineOrCreateNewTrafficLine() mit Sicherheit auch
+
             throw new RuntimeException("Unfertiger Code");
         };
 
@@ -299,7 +326,14 @@ public class MapModel {
         return addedVertices;
     }
 
-    private TrafficLine addNewStationToTrafficLine(Station newStation, TrafficType trafficType) {
+    /**
+     * Wenn keine andere Station im Straßengraphen findbar, fügt es dem Straßengraph eine neue Verkehrslinie hinzu. Wenn eine andere Station
+     * findbar, wird der verkehrslinie der gefundenen Station die angegebene Station hinzugefügt
+     * @param newStation
+     * @param trafficType
+     * @return
+     */
+    private TrafficLine addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
         List<Vertex> pathToStation = model.getPathfinder().findPathToNextStation(newStation);
 
         boolean anotherStationFindable = false;
@@ -373,7 +407,6 @@ public class MapModel {
 //            System.out.println();
         }
     }
-
 
     public TrafficGraph getRawRoadGraph() {
         return rawRoadGraph;

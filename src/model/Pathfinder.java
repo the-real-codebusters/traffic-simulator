@@ -8,13 +8,15 @@ public class Pathfinder {
 
     //TODO Klasse eventuell static machen?
 
+    //TODO Eigene Graphen für AIR und RAIL; dann müssen die Methoden je nach Parameter TrafficType unterschiedliche
+    // Graphen benutzen
+
 
     public Pathfinder(TrafficGraph trafficGraph) {
         this.trafficGraph = trafficGraph;
     }
 
-    // Je nach Verkehrsmittel ändert sich die Art der Wegfindung, dazu soll Pathfinder verschiedene Methoden anbieten
-
+    // Je nach Verkehrsmittel soll sich die Art der Wegfindung ändern, dazu soll Pathfinder verschiedene Methoden anbieten
 
 
     /**
@@ -23,7 +25,6 @@ public class Pathfinder {
      * @param destinationVertex     Zielknoten der Suche
      * @return Liste des Wegs vom Startknoten zum Zielknoten, inklusive des Startknotens
      */
-
     public List<Vertex> findPathForRoadVehicle(Vertex startVertex, Vertex destinationVertex){
 
             // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
@@ -105,7 +106,7 @@ public class Pathfinder {
         }
 
     /**
-     * Sucht sich einen Weg vom Startknoten zu einem Gebäude vom Typ des angegebenen Gebäudes
+     * Sucht sich einen Weg von einem Knoten der angegebenen Station zu der nächsten Station
      * @param actualStation Die aktuelle Station, die nicht gefunden werden soll, da sie ja Ausgangspunkt der Suche ist
      * @return Liste des Wegs vom Startknoten zum Zielknoten, inklusive des Startknotens
      */
@@ -213,9 +214,6 @@ public class Pathfinder {
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         List<Station> foundStations = new ArrayList<>();
-
-        // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
-        List<Vertex> path = new ArrayList<Vertex>();
 
         // Ebene der Breitensuche in dem Graph. Dies sollte auch der Entfernung zum Startknoten entsprechen
         int searchLevel = 0;

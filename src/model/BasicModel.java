@@ -49,7 +49,7 @@ public class BasicModel {
 
     /**
      * Soll einen Tag, also eine Runde, simulieren
-     * @return eine Liste von aktiven Fahrzeugen zurück
+     * @return eine Liste von Fahrzeugbewegungen des aktuellen Tags
      */
     public List<VehicleMovement> simulateOneDay(){
 
@@ -75,23 +75,27 @@ public class BasicModel {
         newCreatedOrIncompleteTrafficLines.addAll(incompleteTrafficLines);
 
         //TODO Es funktioniert, wenn eine Station direkt an eine Verkehrslinie gebaut wird. Es funkltioniert noch nicht,
-        // wenn zwei Stationen erst im Nachhinein mit Straßen verbunden werden
+        // wenn eine existierende Station so erweitert wird, dass sie an eine existierende TrafficLine anschließt
 
         List<Vehicle> activeVehicles = new ArrayList<>();
         for(TrafficLine activeLine: activeTrafficLines){
+            // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
+            // Anzahl
             if(activeLine.getDesiredNumberOfVehicles() > activeLine.getVehicles().size()){
                 activeLine.addNewVehicle();
             }
+            // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
         System.out.println("activeTrafficLines "+activeTrafficLines);
         System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
 
-
         List<VehicleMovement> movements = new ArrayList<>();
-        for(Vehicle vehicle :activeVehicles){
+        for(Vehicle vehicle : activeVehicles){
+            // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
             VehicleMovement movement = vehicle.getMovementForNextDay();
             movements.add(movement);
+            // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
             vehicle.setPosition(movement.getLastPair().getKey());
         }
 

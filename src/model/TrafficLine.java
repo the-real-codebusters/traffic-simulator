@@ -5,14 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Stellt einen Teil des Verkehrsnetzes dar, der verbunden ist und von einem bestimmten TrafficType ist
+ */
 public class TrafficLine {
 
     protected List<Station> stations = new ArrayList<>();
     protected int desiredNumberOfVehicles;
     protected List<Vehicle> vehicles = new ArrayList<>();
     protected BasicModel model;
-    private Vertex startVertexForNewVehicles;
     private TrafficType trafficType;
+
+    // Der Knoten an dem neue Fahrzeuge starten
+    private Vertex startVertexForNewVehicles;
+    // Die Station an der neue Fahrzeuge starten
     private Station startStation;
 
     public TrafficLine(int desiredNumberOfVehicles, BasicModel model, TrafficType trafficType, Station firstStation) {
@@ -23,11 +29,11 @@ public class TrafficLine {
     }
 
     /**
-     * Soll eine neues Fahrzeug zu der Liste der Fahzeuge hinzufügen
+     * Soll eine neues Fahrzeug zu der Liste der Fahzeuge hinzufügen. Gibt das erstellte fahrzeug zurück
      */
-    public void addNewVehicle(){
+    public Vehicle addNewVehicle(){
 
-        // TODO Es wird bisher einfach zufällig ein Fahrzeugtyp ausgewählt, eventuell sollte das mal kompklexer werden
+        // TODO Es wird bisher einfach zufällig ein Fahrzeugtyp ausgewählt, eventuell sollte das mal komplexer werden
         List<Vehicle> vehicleTypes = model.getVehicleTypesForTrafficType(trafficType);
         Random randomGenerator = new Random();
         int randomInt = randomGenerator.nextInt(vehicleTypes.size());
@@ -41,6 +47,7 @@ public class TrafficLine {
         double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
         VehiclePosition position = new VehiclePosition(shiftToWidthInOneTile, shiftToDepthInOneTile,
                                                         rowInTileGrid, columnInTileGrid);
+
         vehicle.setPathfinder(model.getPathfinder());
         vehicle.setPosition(position);
         vehicle.setNextStation(stations.get(0));
@@ -49,9 +56,13 @@ public class TrafficLine {
 
         vehicles.add(vehicle);
         System.out.println(vehicle.getKind());
-        System.out.println("Speed "+vehicle.getSpeed());
+        System.out.println("Speed of new vehicle"+vehicle.getSpeed());
+        return vehicle;
     }
 
+    /**
+     * Sortiert die Liste stations in eine Reihenfolge von der startStation zu einer End-Station
+     */
     private void sortStationsAsPathFromStartStationToLastStation(){
         List<Station> sortedStations = new ArrayList<>();
         sortedStations.add(startStation);
@@ -72,12 +83,19 @@ public class TrafficLine {
 
     }
 
+    /**
+     * Gib die nächste Station aus der Liste zurück, für die angegebene Station. Deshalb ist die Liste sortiert
+     * @param previousStation
+     * @param forwardMovement Ob das fahrzeug die Liste momentan vorwärts oder rückwärts durchläuft
+     * @param vehicle
+     * @return
+     */
     public Station getNextStation(Station previousStation, boolean forwardMovement, Vehicle vehicle){
         int indexOfPreviousStation = stations.indexOf(previousStation);
         int indexOfNextStation;
         if(indexOfPreviousStation == 0){
-            // Set forward movement
             indexOfNextStation = 1;
+            // Set forward movement
             vehicle.setMovementInTrafficLineGoesForward(true);
         }
         else if(indexOfPreviousStation == stations.size()-1){
@@ -113,6 +131,10 @@ public class TrafficLine {
         sortStationsAsPathFromStartStationToLastStation();
     }
 
+    /**
+     * Fügt diese verkehrslinie und die angegene verkehrslinie zu einer Verkehrslinie zusammen
+     * @param otherLine
+     */
     public void mergeWithTrafficLine(TrafficLine otherLine){
         if(!otherLine.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge lines " +
                 "of different trafficTypes");
@@ -131,7 +153,7 @@ public class TrafficLine {
     }
 
     /**
-     * Setzt den Anfangsknoten aus dem Graph für neu hinzugefügte Fahrzeuge
+     * Setzt den Anfangsknoten aus dem Graph für neu hinzugefügte Fahrzeuge. Setzt außerdem die zugehörige Anfangsstation
      */
     public void setStartVertexAndStartStationForNewVehicles(){
 

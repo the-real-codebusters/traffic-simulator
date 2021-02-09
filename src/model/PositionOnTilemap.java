@@ -9,7 +9,7 @@ public class PositionOnTilemap {
     protected double xCoordinateRelativeToTileOrigin;
     protected double yCoordinateRelativeToTileOrigin;
 
-    // Gibt an, auf welchem Feld sich die Position befindet.
+    // Gibt an, auf welchem Tile sich die Position befindet.
     protected int xCoordinateInGameMap;
     protected int yCoordinateInGameMap;
 

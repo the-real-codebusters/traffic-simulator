@@ -2,6 +2,7 @@ package model;
 
 import javafx.geometry.Point2D;
 
+// Die Position eines fahrzeugs in den Model-Koordinaten. ist eigentlich das gleiche wie PositionOnTilemap
 public class VehiclePosition extends PositionOnTilemap {
 
 

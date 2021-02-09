@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Die Punkte, die das Fahrzeug nacheinander ansteuern soll und die jeweilige Distanz vom vorherigen Punkt
-//zu diesem Punkt.
+//Die Punkte (exklusiv der Startposition), die das Fahrzeug nacheinander ansteuern soll und die jeweilige Distanz vom vorherigen Punkt
+//zu diesem Punkt. Außerdem ist die startPosition gespeichert
 public class VehicleMovement {
 
     private PositionOnTilemap startPosition;
@@ -44,9 +44,6 @@ public class VehicleMovement {
     }
 
     public Pair<PositionOnTilemap, Double> getLastPair(){
-//        if(positionsOnMap.size() == 0){
-//            return new Pair(startPosition, null);
-//        }
         int last = positionsOnMap.size()-1;
         if(last != travelDistances.size()-1)
         {

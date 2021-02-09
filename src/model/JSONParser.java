@@ -496,6 +496,7 @@ public class JSONParser {
         road.setPoints(pointMap);
         road.setRoads(roadList);
         road.setCombines(combinesMap);
+        road.setTrafficType(TrafficType.ROAD);
 //        System.out.println("handleRoadContent ");
 //        System.out.println("Name: " + road.getBuildingName());
 //        System.out.println("Roads: " + road.getRoads());
@@ -643,6 +644,7 @@ public class JSONParser {
         rail.setPoints(pointMap);
         rail.setRails(railList);
         rail.setSignals(signals);
+        rail.setTrafficType(TrafficType.RAIL);
         return rail;
     }
 

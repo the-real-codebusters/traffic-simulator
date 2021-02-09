@@ -39,7 +39,8 @@ public class Station {
     }
 
     /**
-     * Gibt zurück, ob die Station mit der angegebenen Station direkt durch Straßen/Schienen/Luft verbunden ist
+     * Gibt zurück, ob die Station mit der angegebenen Station direkt durch Straßen verbunden ist
+     * //TODO Sollte auch für Rail und AIR funktionieren ?
      * @param station
      * @return
      */
@@ -54,6 +55,9 @@ public class Station {
         throw new RuntimeException("Unklarer Verkehrstyp in getTrafficLineForTrafficType");
     }
 
+    /**
+     * Setzt die Variable directlyConnectedStations für alle durch Straßen verbundenen Stationen.
+     */
     public void updateDirectlyConnectedStations(){
         // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
         List<Station> nextStations = pathfinder.findAllDirectlyConnectedStations(this);
@@ -65,6 +69,11 @@ public class Station {
         setDirectlyConnectedStations(nextStations);
     }
 
+    /**
+     * Fügt der Station eine Haltestelle hinzu und setzt in der Haltestelle diese Station
+     * @param building
+     * @return
+     */
     public boolean addBuildingAndSetStationInBuilding(Stop building){
         building.setStation(this);
         if(building instanceof Tower){
