@@ -31,7 +31,6 @@ public class ObjectToImageMapping {
         mapping.put("submerged-arc furnace", "factories/furnace");
         mapping.put("sand pit", "factories/sandPit");
 
-        mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
         mapping.put("stone", "ground/stones");
         mapping.put("runway", "airport/runway");
@@ -63,7 +62,10 @@ public class ObjectToImageMapping {
         mapping.put("car_nw", "road/car_nw");
         mapping.put("car_se", "road/car_se");
         mapping.put("car_sw", "road/car_sw");
-        mapping.put("grass", "ground/grass");
+//        mapping.put("grass", "ground/grass");
+        mapping.put("grass", "ground/grass_tile");
+//                mapping.put("water", "ground/water");
+        mapping.put("water", "ground/water_tile");
 
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");

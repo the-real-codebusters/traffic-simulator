@@ -814,7 +814,7 @@ public class View {
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-        carName = mapping.getImageNameForBuildingName(carName);
+        carName = objectToImageMapping.getImageNameForObjectName(carName);
 
 
         Point2D zeroPointAtStart = moveCoordinates(0,0);

@@ -167,7 +167,7 @@ public class MenuPane extends AnchorPane {
                 //TODO
             }
 
-            if(name.equals("height")){
+            if (name.equals("height")) {
                 Building height_up = new Building();
                 height_up.setBuildingName("height_up");
                 height_up.setWidth(1);
@@ -179,29 +179,29 @@ public class MenuPane extends AnchorPane {
                 height_down.setDepth(1);
                 ImageView imageViewDown = imageViewWithLayout(height_down);
                 container.getChildren().addAll(imageViewUp, imageViewDown);
-
-            if (name.equals("speed")) {
-                // erzeuge einen Button zum Starten/Pausieren von Simulation
-                createAnimationButton();
-                // erzeuge SLider
-                createTickSlider();
-                container.getChildren().add(0, animationButton);
-                container.getChildren().add(1, slider);
             }
 
+                if (name.equals("speed")) {
+                    // erzeuge einen Button zum Starten/Pausieren von Simulation
+                    createAnimationButton();
+                    // erzeuge SLider
+                    createTickSlider();
+                    container.getChildren().add(0, animationButton);
+                    container.getChildren().add(1, slider);
+                }
 
-            if(name.equals("remove")){
-                Building remove = new Building();
-                remove.setBuildingName("remove");
-                remove.setWidth(1);
-                remove.setDepth(1);
-                ImageView imageView = imageViewWithLayout(remove);
-                container.getChildren().add(imageView);
+
+                if (name.equals("remove")) {
+                    Building remove = new Building();
+                    remove.setBuildingName("remove");
+                    remove.setWidth(1);
+                    remove.setDepth(1);
+                    ImageView imageView = imageViewWithLayout(remove);
+                    container.getChildren().add(imageView);
+                }
+
+                tabContents.set(tabNames.indexOf(name), container);
             }
-
-            tabContents.set(tabNames.indexOf(name), container);
-        }
-
 
     }
 
@@ -223,7 +223,7 @@ public class MenuPane extends AnchorPane {
      */
     private ImageView imageViewWithLayout(Building building) {
         String imageName;
-        imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+        imageName = mapping.getImageNameForObjectName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
