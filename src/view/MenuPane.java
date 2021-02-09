@@ -167,27 +167,42 @@ public class MenuPane extends AnchorPane {
                 //TODO
             }
 
-            if (name.equals("speed")) {
-                // erzeuge einen Button zum Starten/Pausieren von Simulation
-                createAnimationButton();
-                // erzeuge SLider
-                createTickSlider();
-                container.getChildren().add(0, animationButton);
-                container.getChildren().add(1, slider);
+            if (name.equals("height")) {
+                Building height_up = new Building();
+                height_up.setBuildingName("height_up");
+                height_up.setWidth(1);
+                height_up.setDepth(1);
+                ImageView imageViewUp = imageViewWithLayout(height_up);
+                Building height_down = new Building();
+                height_down.setBuildingName("height_down");
+                height_down.setWidth(1);
+                height_down.setDepth(1);
+                ImageView imageViewDown = imageViewWithLayout(height_down);
+                container.getChildren().addAll(imageViewUp, imageViewDown);
             }
 
+                if (name.equals("speed")) {
+                    // erzeuge einen Button zum Starten/Pausieren von Simulation
+                    createAnimationButton();
+                    // erzeuge SLider
+                    createTickSlider();
+                    container.getChildren().add(0, animationButton);
+                    container.getChildren().add(1, slider);
+                }
 
-            if(name.equals("remove")){
-                Building remove = new Building();
-                remove.setBuildingName("remove");
-                remove.setWidth(1);
-                remove.setDepth(1);
-                ImageView imageView = imageViewWithLayout(remove);
-                container.getChildren().add(imageView);
+
+                if (name.equals("remove")) {
+                    Building remove = new Building();
+                    remove.setBuildingName("remove");
+                    remove.setWidth(1);
+                    remove.setDepth(1);
+                    ImageView imageView = imageViewWithLayout(remove);
+                    container.getChildren().add(imageView);
+                }
+
+                tabContents.set(tabNames.indexOf(name), container);
             }
 
-            tabContents.set(tabNames.indexOf(name), container);
-        }
     }
 
     /**
@@ -230,6 +245,7 @@ public class MenuPane extends AnchorPane {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+//        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 
@@ -249,7 +265,7 @@ public class MenuPane extends AnchorPane {
                 double ratio = view.getImageNameToImageRatio().get(imageName);
                 double tileWidth = view.getTileImageWidth();
                 Image image = view.getResourceForImageName(imageName, tileWidth, tileWidth * ratio);
-                view.drawTileImage(yCoord, xCoord, image, transparent);
+                view.drawTileImage(xCoord, yCoord, image, transparent);
             }
             return isoCoord;
         } else return null;
