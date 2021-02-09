@@ -2,6 +2,7 @@ package controller;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -9,7 +10,9 @@ import model.*;
 import view.MenuPane;
 import view.View;
 
+
 import java.util.*;
+
 
 public class Controller {
     private View view;
@@ -44,16 +47,6 @@ public class Controller {
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
 
-        // Momentan nur zu Testzwecken da
-        view.getCanvas().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            if (event.getButton().compareTo(MouseButton.PRIMARY) == 0) {
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-                Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-                Tile selectedTile = model.getFieldGridOfMap()[(int)isoCoord.getX()][(int)isoCoord.getY()];
-                generator.generateHeightMap();// Ist momentan nur zum Testen da
-            }
-        });
     }
 
     public void simulateOneDay(){
@@ -197,7 +190,6 @@ public class Controller {
                 }
 
                 }
-
             }
 
             placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
