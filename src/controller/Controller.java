@@ -69,12 +69,16 @@ public class Controller {
             view.translateVehicles(movements);
         }
         else {
-            Timeline timeline = new Timeline(new KeyFrame(
-                    Duration.seconds(view.getTickDuration()),
-                    ae -> simulateOneDay()));
-            timeline.play();
+            waitForOneDay();
         }
 
+    }
+
+    public void waitForOneDay(){
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.seconds(view.getTickDuration()),
+                ae -> simulateOneDay()));
+        timeline.play();
     }
 
     public List<Vertex> getVertexesOfGraph(){

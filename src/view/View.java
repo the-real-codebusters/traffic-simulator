@@ -586,26 +586,49 @@ public class View {
         List<VehicleAnimation> animations = new ArrayList<>();
         // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
         for(VehicleMovement movement : movements){
-            animations.add(getAnimationForMovement(movement));
+            Point2D endPosition = translateTileCoordsToCanvasCoords(movement.getLastPair().getKey().coordsRelativeToMapOrigin());
+            Point2D startPosition = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
+            if((endPosition.getX() < 0 || endPosition.getX() > canvas.getWidth() || endPosition.getY() < 0 || endPosition.getY() > canvas.getHeight())
+                    &&
+                    (startPosition.getX() < 0 || startPosition.getX() > canvas.getWidth() || startPosition.getY() < 0 || startPosition.getY() > canvas.getHeight())
+            ){
+                //Dann liegt die Bewegung nicht auf dem sichtbaren Bereich. Tue also nichts
+                System.out.println("Eine Bewegung nicht im sichtbaren bereich");
+            }
+            else {
+                animations.add(getAnimationForMovement(movement));
+            }
+        }
+        if(animations.size() == 0){
+            controller.waitForOneDay();
+            return;
         }
 
-        // Der Punkt am Anfang der Animation beim Tile an der Stelle x=0, y=0. Wird später verwendet, um die Animation beim
+        // Der Punkt auf dem Canvas am Anfang der Animation beim Tile an der Stelle x=0, y=0. Wird später verwendet, um die Animation beim
         // Verschieben der Karte immer noch an der richtigen Stelle anzuzeigen
         Point2D zeroPointAtStart = translateTileCoordsToCanvasCoords(0,0);
 
         timer = new AnimationTimer() {
             @Override
-            //Diese Methode wird während der Animation ständig aufgerufen. Sie soll das vorherige Bild
+            //Diese Methode wird während der Animation ständig aufgerufen. Sie soll das vorherig gezeichnete Bild des
+            //Fahrzeugs überzeichnen und das Bild mit den neuen Coordinaten zeichnen. Dies tut sie für jedes Fahrzeug
+            //das sich auf der Karte bewegt, also für jede VehicleAnimation in der Liste animations
             public void handle(long now) {
+                // Der Punkt auf dem Canvas zum aktuellen Zeitpunkt beim Tile an der Stelle x=0, y=0. Dadurch kann die
+                //Verschiebung der Karte im Vergleich zum Beginn festgestellt werden.
                 Point2D actualZeroPoint = translateTileCoordsToCanvasCoords(0,0);
                 double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
                 double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 
+                // Wenn diese bedingung falsch ist, befindet sich das Fahrzeug nicht mehr auf der Karte. Die Karte wurde
+                //dann vom Benutzer während der Animation so bewegt, dass die Animation nicht mehr im sichtbaren Bereich
+                //liegt
                 if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
 
                     drawMap();
                     GraphicsContext gc = canvas.getGraphicsContext2D();
                     for(VehicleAnimation animation: animations){
+                        System.out.println("Animation angezeigt");
                         String imageName = animation.getImageName().getValue();
                         if(imageName==null) throw new RuntimeException("imageName was null");
                         Image carImage = getResourceForImageName(imageName, tileImageHeightHalf,
