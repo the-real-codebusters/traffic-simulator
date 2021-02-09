@@ -593,12 +593,12 @@ public class View {
                     (startPosition.getX() < 0 || startPosition.getX() > canvas.getWidth() || startPosition.getY() < 0 || startPosition.getY() > canvas.getHeight())
             ){
                 //Dann liegt die Bewegung nicht auf dem sichtbaren Bereich. Tue also nichts
-                System.out.println("Eine Bewegung nicht im sichtbaren bereich");
             }
             else {
                 animations.add(getAnimationForMovement(movement));
             }
         }
+
         if(animations.size() == 0){
             controller.waitForOneDay();
             return;
@@ -625,21 +625,31 @@ public class View {
                 //liegt
                 if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
 
+                    // Hier wird drawMap() aufgerufen um die vorherigen Bilder zu entfernen. Sollte eventuell anders
+                    //gemacht werden, da das in Zukunft Performance-Probleme verursachen könnte
                     drawMap();
                     GraphicsContext gc = canvas.getGraphicsContext2D();
                     for(VehicleAnimation animation: animations){
-                        System.out.println("Animation angezeigt");
+                        // Der aktuelle Wert für das passende Bild steht in dem imageName Property der VehicleAnimation
                         String imageName = animation.getImageName().getValue();
+
                         if(imageName==null) throw new RuntimeException("imageName was null");
+
                         Image carImage = getResourceForImageName(imageName, tileImageHeightHalf,
                                 imageNameToImageRatio.get(imageName)*tileImageHeightHalf);
+
+                        //Zeichnet das Bild auf das Canvas. xShift und yShift sind nur bei einer Verschiebung der Karte
+                        //während der Animation nicht 0. Die Verschiebung von -15 in y-Richtung sind willkürlich
+                        //und müssen nochmal angeschaut und verbessert werden. Es wurde dadurch versucht die Autos auf
+                        //verschiedenen Straßenseiten anzuzeigen, geht aber noch nicht ganz.
                         gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift,
                                 animation.getyCoordProperty().doubleValue()-15+yShift);
                     }
-
                 }
             }
         };
+        // Die parallelTransition sorgt für eine gleichzeitige Ausführung der Animationen. Dazu werden ihr alle timlines
+        //hinzugefügt
         parallelTransition = new ParallelTransition();
         for(VehicleAnimation animation: animations){
             parallelTransition.getChildren().add(animation.getTimeline());
@@ -649,24 +659,8 @@ public class View {
             parallelTransition.stop();
             timer.stop();
 
-            //Rufe simulateOneDay auf
-
-//            // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
-//            Vertex v1;
-//            Vertex v2;
-//            if (controller.indexOfNext < controller.path.size()-1) {
-//                v1 = controller.path.get(++controller.indexOfStart);
-//                v2 = controller.path.get(++controller.indexOfNext);
-//            } else {
-//                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
-//                Collections.reverse(controller.path);
-//                controller.indexOfStart = 0;
-//                controller.indexOfNext = controller.indexOfStart + 1;
-//
-//                v1 = controller.path.get(++controller.indexOfStart);
-//                v2 = controller.path.get(++controller.indexOfNext);
-//            }
-//            controller.moveCarFromPointToPoint(v1,v2);
+            //Rufe simulateOneDay auf, wenn Animation vorbei. Dadurch entsteht ein Kreislauf, da simulateOneDay dann
+            //wieder translateVehicles aufruft.
             controller.simulateOneDay();
         });
 
@@ -674,30 +668,48 @@ public class View {
         parallelTransition.play();
     }
 
+    /**
+     * Erstellt zu dem VehicleMovement das passende VehicleAnimation Objekt und gibt es zurück
+     * @param movement
+     * @return
+     */
     private VehicleAnimation getAnimationForMovement(VehicleMovement movement){
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
         StringProperty imageName  = new SimpleStringProperty();
 
-
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
         Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
         String startImageName = getImageNameForCar(startPoint, secondPoint);
-        KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()), new KeyValue(imageName, startImageName));
+
+        // Ein KeyFrame gibt den Zustand einer Animation zu einer bestimmten Zeit an. Hier wird der Zustand zu Beginn
+        // angegeben. Ein KeyFrame hat momentan 3 Variablen: Die x-Coordinate des fahrzeugs, die y-Coordinate des
+        // Fahrzeugs und das passende Bild
+        KeyFrame start = new KeyFrame(
+                Duration.seconds(0.0), new KeyValue(x, startPoint.getX()),
+                new KeyValue(y, startPoint.getY()),
+                new KeyValue(imageName, startImageName));
+
         Timeline timeline = new Timeline(start);
         double wholeDistance = movement.getWholeDistance();
 
         double time = 0.0;
         for(int i=0; i<movement.getNumberOfPoints(); i++){
             Pair<PositionOnTilemap, Double> pair = movement.getPairOfPositionAndDistance(i);
-            time += (pair.getValue() / wholeDistance) * tickDuration;
+            double distanceToPosition = pair.getValue();
+            // time gibt den Zeitpunkt des neuen KeyFrames an. Dabei wird anteilig der aktuell animierten Distanz zu der
+            // gesamten Distanz hinzugefügt.
+            time += ( distanceToPosition / wholeDistance) * tickDuration;
             Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
             String actualImageName;
             if(i!=movement.getNumberOfPoints()-1){
+                // Bestimme das Bild des Fahrzeugs aus der aktuellen Position und der nächsten Position (deswegen i+1)
                 Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
                 actualImageName = getImageNameForCar(point, nextPoint);
             }
             else {
+                // Wenn der aktuelle Punkt der letzte Punkt der Liste ist, kann i+1 nicht verwendet werden. Also wird
+                // stattdessen der vorherige Punkt (i-1) benutzt, um das Bild zu bestimmen
                 Point2D lastPoint;
                 if(i==0) lastPoint = startPoint;
                 else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
@@ -711,10 +723,7 @@ public class View {
                     );
             timeline.getKeyFrames().add(frame);
         }
-//        Map<String, Object> movementMap = new HashMap<>();
-//        movementMap.put("timeline", timeline);
-//        movementMap.put("x", x);
-//        movementMap.put("y", y);
+
         VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName);
         return animation;
     }
