@@ -10,9 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -27,6 +25,8 @@ import model.Vertex;
 
 
 import java.util.*;
+import javax.swing.border.Border;
+
 
 
 public class View {
@@ -43,7 +43,7 @@ public class View {
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private Canvas canvas = new Canvas(1200, 600);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -67,6 +67,10 @@ public class View {
 
     private double tickDuration = 1;
     BorderPane borderPane;
+    private ParallelTransition parallelTransition;
+    private AnimationTimer timer;
+
+    private String carName = null;
 
 //    private Map <List<Point2D>, Point2D>  rowColToCanvasCoordinates = new LinkedHashMap<>();
 
@@ -766,15 +770,52 @@ public class View {
     }
 
     /**
+     * Ermittelt das richtige Bild für fahrendes Auto
+     * @param start
+     * @param end
+     */
+    private void setImageForCar(Point2D start, Point2D end) {
+
+        if (start.getX() < end.getX()) {
+            //nach rechts oben fahren
+            //System.out.print("nach rechts");
+            if (start.getY() > end.getY()) {
+                //System.out.println(" oben");
+                carName = "car_ne";
+            }
+            else {
+                //System.out.println(" unten");
+                carName = "car_se";
+            }
+        }
+        else  if (start.getX() > end.getX()){
+            // nach link oben fahren
+            //System.out.print("nach links");
+            if (start.getY() < end.getY()) {
+                //System.out.println(" unten");
+                carName = "car_sw";
+            }
+            else {
+                //System.out.println(" oben");
+                carName = "car_nw";
+            }
+        }
+    }
+
+    /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
      * @param start
      * @param end
      */
     public void translateCar(Point2D start, Point2D end){
+
+        setImageForCar(start, end);
+
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
 
-        String name = objectToImageMapping.getImageNameForObjectName("car-sw");
+        carName = mapping.getImageNameForBuildingName(carName);
+
 
         Point2D zeroPointAtStart = moveCoordinates(0,0);
 
@@ -784,39 +825,53 @@ public class View {
                         new KeyValue(x, start.getX()),
                         new KeyValue(y, start.getY())
                 ),
-                new KeyFrame(Duration.seconds(tickDuration),
+                new KeyFrame(Duration.seconds(0.5),
                         new KeyValue(x, end.getX()),
                         new KeyValue(y, end.getY())
                 )
         );
 
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                Image carImage = getResourceForImageName(name, tileImageHeightHalf,
-                        imageNameToImageRatio.get(name)*tileImageHeightHalf);
+                if (carName != null) {
+                    Image carImage = getResourceForImageName(carName, tileImageHeightHalf,
+                            imageNameToImageRatio.get(carName)*tileImageHeightHalf);
 
-                Point2D actualZeroPoint = moveCoordinates(0,0);
-                double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
-                double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
+                    Point2D actualZeroPoint = moveCoordinates(0,0);
+                    double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
+                    double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 
-                if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
-                    GraphicsContext gc = canvas.getGraphicsContext2D();
-                    drawMap();
-                    gc.drawImage(carImage, x.doubleValue()+xShift,
-                            y.doubleValue()-15+yShift);
+                    if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
+                        GraphicsContext gc = canvas.getGraphicsContext2D();
+                        drawMap();
+                        gc.drawImage(carImage, x.doubleValue()+xShift,
+                                y.doubleValue()-15+yShift);
+                    }
                 }
             }
         };
-        ParallelTransition parallelTransition = new ParallelTransition(timeline);
-
+        parallelTransition = new ParallelTransition(timeline);
+        getMenuPane().getAnimationButton().setDisable(false);
         parallelTransition.setOnFinished(event -> {
             parallelTransition.stop();
             timer.stop();
 
             // Die folgenden Zeilen dienen der experimentellen Darstellung der Animation, sind also nicht endgültig
-            Vertex v1 = controller.path.get(++controller.indexOfStart);
-            Vertex v2 = controller.path.get(++controller.indexOfNext);
+            Vertex v1;
+            Vertex v2;
+            if (controller.indexOfNext < controller.path.size()-1) {
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            } else {
+                // Wenn letzter point aus path erreicht ist, dann kehre Reihenfolge in path um und fahre zurück
+                Collections.reverse(controller.path);
+                controller.indexOfStart = 0;
+                controller.indexOfNext = controller.indexOfStart + 1;
+
+                v1 = controller.path.get(++controller.indexOfStart);
+                v2 = controller.path.get(++controller.indexOfNext);
+            }
             controller.moveCarFromPointToPoint(v1,v2);
         });
 
@@ -877,8 +932,26 @@ public class View {
         return menuPane;
     }
 
+
 //    public Map<List<Point2D>, Point2D> getRowColToCanvasCoordinates() {
 //        return rowColToCanvasCoordinates;
 //    }
+
+    public ParallelTransition getParallelTransition() {
+        return parallelTransition;
+    }
+
+    public double getTickDuration() {
+        return tickDuration;
+    }
+
+    public void setTickDuration(double tickDuration) {
+        this.tickDuration = tickDuration;
+    }
+
+    public AnimationTimer getTimer() {
+        return timer;
+    }
+
 }
 

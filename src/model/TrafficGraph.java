@@ -125,12 +125,6 @@ public class TrafficGraph {
         }
         // vertex2 wird aus Graph zusammen mit seinen Kanten entfernt
         removeVertex(vertex2.getName());
-
-        this.getMapOfVertexes().put(vertex2.getName(), vertex1);
-        List<Vertex> connectionsFromVertex1 = this.adjacencyMap.get(vertex1.getName());
-
-        // Fügt den Namen des vertex2 zusätzlich als Key zu der Map hinzu
-        adjacencyMap.put(vertex2.getName(), connectionsFromVertex1);
     }
 
     /**
@@ -150,8 +144,8 @@ public class TrafficGraph {
                     // da laut Aufgabenstellung double-Werte nicht auf Gleichheit getestet werden sollen (siehe S. 10),
                     // wird hier geprüft, ob der Unterschied unter 0.1 liegt
                     if(Math.abs(differenceX) < 0.1 && Math.abs(differenceY) < 0.1) {
-//                        System.out.println("Joining vertices " + v1.getName() + " " + v2.getName() + " with coords: "
-//                                + v1.coordsRelativeToMapOrigin() + " " + v2.coordsRelativeToMapOrigin());
+                        System.out.println("Joining vertices " + v1.getName() + " " + v2.getName() + " with coords: "
+                                + v1.coordsRelativeToMapOrigin() + " " + v2.coordsRelativeToMapOrigin());
                         joinVertices(v1, v2);
                         j--;
                     }

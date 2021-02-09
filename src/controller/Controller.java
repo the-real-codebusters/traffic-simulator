@@ -10,10 +10,9 @@ import model.*;
 import view.MenuPane;
 import view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 
 public class Controller {
     private View view;
@@ -43,9 +42,11 @@ public class Controller {
 
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
+
         TrafficGraph graph = model.getMap().getRawRoadGraph();
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
+
     }
 
     public void simulateOneDay(){
@@ -98,11 +99,49 @@ public class Controller {
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
+        List<Vertex> addedVertices;
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
+
+            // Wenn ein Gebäude entfernt werden soll
+            if(selectedBuilding.getBuildingName().equals("remove")){
+                selectedBuilding = new Building();
+                selectedBuilding.setBuildingName("grass");
+                selectedBuilding.setWidth(1);
+                selectedBuilding.setDepth(1);
+
+                Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
+                Building buildingOnSelectedTile = selectedTile.getBuilding();
+
+                // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
+                if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
+
+                    PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
+                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
+                    for(Vertex v : addedVertices){
+                        if(v.getName().contains("c")) {
+                            model.getMap().getRawRoadGraph().removeVertex(v.getName());
+                        }
+                    }
+                    // TODO so anpassen, dass es auch für rails funktioniert
+
+                    Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
+                    Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry<String, Vertex> vertex = iterator.next();
+                        List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
+                        if(connections.size()== 0) {
+                            iterator.remove();
+                            continue;
+                        }
+                    }
+                    model.getMap().getRawRoadGraph().printGraph();
+                }
+            }
 
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
@@ -111,7 +150,8 @@ public class Controller {
 
             if(placedBuilding instanceof PartOfTrafficGraph){
                 PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) placedBuilding;
-                List<Vertex> addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+                addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+
 
                 if(placedBuilding instanceof Stop){
                     Station actualStation = ((Stop) placedBuilding).getStation();
@@ -128,7 +168,6 @@ public class Controller {
                         Station nextStation = lastVertex.getStation();
                         if(trafficType.equals(TrafficType.ROAD)){
                             System.out.println("nextStation "+nextStation.getId());
-                            System.out.println("roadTrafficLine "+nextStation.getRoadTrafficLine());
                             nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(actualStation);
                         }
                         else ; //TODO
@@ -153,11 +192,16 @@ public class Controller {
                 }
             }
 
+            placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
 
             view.drawMap();
-            startCarMovement();
+            if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
+                System.out.println(model.getNewCreatedOrIncompleteTrafficLines().size());
+                startCarMovement();
+            }
         }
     }
 
