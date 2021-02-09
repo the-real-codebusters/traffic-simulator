@@ -22,7 +22,7 @@ public class BasicModel {
     private Queue<TrafficLine> newCreatedOrIncompleteTrafficLines = new ArrayDeque<>();
 
     // Alle Verkehrslinien mit mehr als einer Station, die schon Verkehrsmittel auf sich fahren haben sollten
-    private List<TrafficLine> activeTrafficLine = new ArrayList<>();
+    private List<TrafficLine> activeTrafficLines = new ArrayList<>();
 
     private Pathfinder pathfinder;
 
@@ -49,9 +49,9 @@ public class BasicModel {
 
     /**
      * Soll einen Tag, also eine Runde, simulieren
-     * @return eine Liste von aktiven Fahrzeugen zurück
+     * @return eine Liste von Fahrzeugbewegungen des aktuellen Tags
      */
-    public List<Vehicle> simulateOneDay(){
+    public List<VehicleMovement> simulateOneDay(){
 
         // In der Zeit einer Runde, also seit dem letzten Aufruf dieser Methode, können Haltestellen platziert worden
         // sein, die zu neuen, unverbundenen Stationen führen. Eine unverbundene Station stellt erstmal eine neue
@@ -62,8 +62,7 @@ public class BasicModel {
 
             if(newOrIncompleteTrafficLine.checkIfMoreThanOneStation()){
                 if(newOrIncompleteTrafficLine.getTrafficType().equals(TrafficType.ROAD)){
-                    newOrIncompleteTrafficLine.addNewVehicle();
-                    activeTrafficLine.add(newOrIncompleteTrafficLine);
+                    activeTrafficLines.add(newOrIncompleteTrafficLine);
 
                     //TODO Andere TrafficTypes fehlen noch
                 }
@@ -76,16 +75,32 @@ public class BasicModel {
         newCreatedOrIncompleteTrafficLines.addAll(incompleteTrafficLines);
 
         //TODO Es funktioniert, wenn eine Station direkt an eine Verkehrslinie gebaut wird. Es funkltioniert noch nicht,
-        // wenn zwei Stationen erst im Nachhinein mit Straßen verbunden werden
+        // wenn eine existierende Station so erweitert wird, dass sie an eine existierende TrafficLine anschließt
 
         List<Vehicle> activeVehicles = new ArrayList<>();
-        for(TrafficLine activeLine: activeTrafficLine){
+        for(TrafficLine activeLine: activeTrafficLines){
+            // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
+            // Anzahl
+            if(activeLine.getDesiredNumberOfVehicles() > activeLine.getVehicles().size()){
+                activeLine.addNewVehicle();
+            }
+            // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
-        System.out.println(activeTrafficLine);
+        System.out.println("activeTrafficLines "+activeTrafficLines);
+        System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
+
+        List<VehicleMovement> movements = new ArrayList<>();
+        for(Vehicle vehicle : activeVehicles){
+            // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
+            VehicleMovement movement = vehicle.getMovementForNextDay();
+            movements.add(movement);
+            // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+            vehicle.setPosition(movement.getLastPair().getKey());
+        }
 
         day++;
-        return activeVehicles;
+        return movements;
     }
 
     /**
@@ -98,6 +113,7 @@ public class BasicModel {
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
             //TODO hier wird manchmal eine exception geworfen. Warum?
+            System.out.println("Typ eines Vehicles : "+v.getKind());
             if(v.getKind().equals(type)){
                 desiredVehicles.add(v);
             }
@@ -179,7 +195,7 @@ public class BasicModel {
 
 //                    System.out.println(sBuilding.getBuildingName() + " and " +
 //                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
-                    Building combinedBuilding = getBuildingByName(newBuildingName);
+                    Building combinedBuilding = getBuildingByName(newBuildingName).getNewInstance();
                     // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
                     return combinedBuilding;
                 }
@@ -191,7 +207,7 @@ public class BasicModel {
     /**
      *
      * @param name
-     * @return Eine Liste von buildings, die alle den Namen name haben
+     * @return Einen Building-Typ, von dem noch eine Instanz erzeugt werden muss
      */
     public Building getBuildingByName(String name){
         for (Building building : buildings) {
@@ -307,8 +323,8 @@ public class BasicModel {
         return map.getTileGrid();
     }
 
-    public List<TrafficLine> getActiveTrafficLine() {
-        return activeTrafficLine;
+    public List<TrafficLine> getActiveTrafficLines() {
+        return activeTrafficLines;
     }
 
     public void printModelAttributes() {

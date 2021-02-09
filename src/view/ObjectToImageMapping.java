@@ -18,8 +18,8 @@ public class ObjectToImageMapping {
         }
     }
 
-    public String getImageNameForObjectName(String buildingName){
-        return mapping.get(buildingName);
+    public String getImageNameForObjectName(String objectName){
+        return mapping.get(objectName);
     }
 
     private void createPlanverkehrMapping(){

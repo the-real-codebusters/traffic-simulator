@@ -1,36 +1,25 @@
 package model;
 
-public class VehiclePosition {
+import javafx.geometry.Point2D;
 
-    private Tile tilePosition;
+// Die Position eines fahrzeugs in den Model-Koordinaten. ist eigentlich das gleiche wie PositionOnTilemap
+public class VehiclePosition extends PositionOnTilemap {
 
-    // Wert zwischen 0 und 1 ?
-    private double shiftToWidth;
 
-    // Wert zwischen 0 und 1 ?
-    private double shiftToDepth;
+    public VehiclePosition(double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
+                           int xCoordinateInGameMap, int yCoordinateInGameMap) {
 
-    public Tile getTilePosition() {
-        return tilePosition;
+        super(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin, xCoordinateInGameMap,
+                yCoordinateInGameMap);
     }
 
-    public void setTilePosition(Tile tilePosition) {
-        this.tilePosition = tilePosition;
+    public VehiclePosition(Point2D point2D) {
+        super(0,0,0,0);
+        xCoordinateInGameMap = (int) point2D.getX();
+        yCoordinateInGameMap = (int) point2D.getY();
+
+        xCoordinateRelativeToTileOrigin = point2D.getX() - xCoordinateInGameMap;
+        yCoordinateRelativeToTileOrigin = point2D.getY() - yCoordinateInGameMap;
     }
 
-    public double getShiftToWidth() {
-        return shiftToWidth;
-    }
-
-    public void setShiftToWidth(double shiftToWidth) {
-        this.shiftToWidth = shiftToWidth;
-    }
-
-    public double getShiftToDepth() {
-        return shiftToDepth;
-    }
-
-    public void setShiftToDepth(double shiftToDepth) {
-        this.shiftToDepth = shiftToDepth;
-    }
 }

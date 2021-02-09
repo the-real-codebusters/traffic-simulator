@@ -19,10 +19,12 @@ public class Station {
     private TrafficLine railTrafficLine;
     private TrafficLine airTrafficLine;
 
-    private List<Station> directlyConnectedStations = new ArrayList<>();
+    private Set<Station> directlyConnectedStations = new HashSet<>();
+    private Pathfinder pathfinder;
 
 
-    public Station(BasicModel model, TrafficLine roadTrafficLine,  TrafficLine railTrafficLine, TrafficLine airTrafficLine) {
+    public Station(BasicModel model, TrafficLine roadTrafficLine,  TrafficLine railTrafficLine,
+                   TrafficLine airTrafficLine, Pathfinder pathfinder) {
         // Stations haben unendliche Lagerkapazität
         Map<String, Integer> maximumCargo = new HashMap<>();
         for(String commodity: model.getCommodities()) {
@@ -33,9 +35,46 @@ public class Station {
         this.roadTrafficLine = roadTrafficLine;
         this.railTrafficLine = railTrafficLine;
         this.airTrafficLine = airTrafficLine;
+        this.pathfinder = pathfinder;
     }
 
-    public boolean addBuilding(Stop building){
+    /**
+     * Gibt zurück, ob die Station mit der angegebenen Station direkt durch Straßen verbunden ist
+     * //TODO Sollte auch für Rail und AIR funktionieren ?
+     * @param station
+     * @return
+     */
+    public boolean isDirectlyConnectedTo(Station station){
+        return directlyConnectedStations.contains(station);
+    }
+
+    public TrafficLine getTrafficLineForTrafficType(TrafficType trafficType){
+        if(trafficType.equals(TrafficType.ROAD)) return roadTrafficLine;
+        if(trafficType.equals(TrafficType.RAIL)) return railTrafficLine;
+        if(trafficType.equals(TrafficType.AIR)) return airTrafficLine;
+        throw new RuntimeException("Unklarer Verkehrstyp in getTrafficLineForTrafficType");
+    }
+
+    /**
+     * Setzt die Variable directlyConnectedStations für alle durch Straßen verbundenen Stationen.
+     */
+    public void updateDirectlyConnectedStations(){
+        // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
+        List<Station> nextStations = pathfinder.findAllDirectlyConnectedStations(this);
+        System.out.println("Connected Stations for Station "+this.getId());
+        for(Station n: nextStations){
+            System.out.println("Next Station "+n.getId());
+            n.getDirectlyConnectedStations().add(this);
+        }
+        setDirectlyConnectedStations(nextStations);
+    }
+
+    /**
+     * Fügt der Station eine Haltestelle hinzu und setzt in der Haltestelle diese Station
+     * @param building
+     * @return
+     */
+    public boolean addBuildingAndSetStationInBuilding(Stop building){
         building.setStation(this);
         if(building instanceof Tower){
             int maxplanes = ((Tower) building).getMaxplanes();
@@ -94,11 +133,11 @@ public class Station {
         this.airTrafficLine = airTrafficLine;
     }
 
-    public List<Station> getDirectlyConnectedStations() {
+    public Set<Station> getDirectlyConnectedStations() {
         return directlyConnectedStations;
     }
 
     public void setDirectlyConnectedStations(List<Station> directlyConnectedStations) {
-        this.directlyConnectedStations = directlyConnectedStations;
+        this.directlyConnectedStations = new HashSet<>(directlyConnectedStations);
     }
 }

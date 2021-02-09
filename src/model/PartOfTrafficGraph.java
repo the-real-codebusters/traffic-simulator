@@ -10,4 +10,5 @@ public interface PartOfTrafficGraph {
     Map<String, List<Double>> getPoints();
     public String getBuildingName();
     public List<List<String>> getTransportations();
+    TrafficType getTrafficType();
 }

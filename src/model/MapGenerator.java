@@ -67,6 +67,8 @@ public class MapGenerator {
 
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
+        //TODO Hier steht teilweise veralteter Code
+
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
 //                //propability für Wasser

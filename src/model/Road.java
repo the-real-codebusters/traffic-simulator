@@ -13,6 +13,7 @@ public class Road extends Building implements PartOfTrafficGraph{
     private List<List<String>> roads = new ArrayList<>();
     // optional
     private Map<String, String> combines = new HashMap<>();
+    private List<Vertex> vertices = new ArrayList<>();
 
     @Override
     public Road getNewInstance(){
@@ -21,7 +22,7 @@ public class Road extends Building implements PartOfTrafficGraph{
         instance.setPoints(Map.copyOf(points));
         instance.setCombines(Map.copyOf(combines));
         instance.setRoads(roads);
-        setTrafficType(TrafficType.ROAD);
+        instance.setTrafficType(TrafficType.ROAD);
         return instance;
     }
 
@@ -49,6 +50,13 @@ public class Road extends Building implements PartOfTrafficGraph{
         return roads;
     }
 
+    public List<Vertex> getVertices() {
+        return vertices;
+    }
+
+    public void setVertices(List<Vertex> vertices) {
+        this.vertices = vertices;
+    }
 
     public Map<String, String> getCombines() {
         return combines;

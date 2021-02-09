@@ -21,7 +21,7 @@ public class Stop extends Special implements PartOfTrafficGraph{
         instance.setPoints(Map.copyOf(points));
         instance.setTransportations(List.copyOf(transportations));
         instance.setSpecial(getSpecial());
-        setTrafficType(getTrafficType());
+        instance.setTrafficType(getTrafficType());
         return instance;
     }
 
