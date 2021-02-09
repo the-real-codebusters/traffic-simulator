@@ -151,20 +151,12 @@ public class Controller {
                 }
 
                 }
-
             }
-
-
 
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
 
-//            view.drawMap();
-
-            Image road = view.getSingleFieldImage(yCoord, xCoord, model.getFieldGridOfMap());
-//            Image road = view.getResourceForImageName("water");
-//            view.drawPolygon(null, yCoord, xCoord, 0,0,0,0);
-//            Map<List<Point2D>, Point2D> polygonCoordsToHoveredTile = view.getRowColToCanvasCoordinates();
+            view.drawMap();
             startCarMovement();
         }
     }
