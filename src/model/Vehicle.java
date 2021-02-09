@@ -76,9 +76,16 @@ public class Vehicle {
         wayToGo+=distanceToNextVertex;
         pathToNextStation.add(0, (Vertex) currentPosition);
         vehicleMovement.removeLastPair();
-        //TODO manchmal ist VehicleMovement leer und es kommt ein Fehler
 
-        VehiclePosition lastPosition = vehicleMovement.getLastPair().getKey().
+        PositionOnTilemap previouslyLastPosition;
+        if(vehicleMovement.getNumberOfPoints() == 0){
+            //TODO manchmal ist VehicleMovement leer und es kommt ein Fehler
+            System.out.println("way to go "+wayToGo);
+            System.out.println("path to next station "+pathToNextStation);
+            previouslyLastPosition = vehicleMovement.getStartPosition();
+        }
+        else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
+        VehiclePosition lastPosition = previouslyLastPosition.
                 getnewPositionShiftedTowardsGivenPointByGivenDistance(
                         currentPosition.coordsRelativeToMapOrigin(), wayToGo);
         //TODO Was wenn es genau am Ziel landet?

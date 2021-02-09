@@ -34,6 +34,7 @@ public class View {
 
     private Controller controller;
 
+    // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
     private Canvas canvas = new Canvas(900, 450);
@@ -41,7 +42,9 @@ public class View {
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
 
+    // Gibt die Verschiebung des sichtbaren Bereichs der Karte in x-Richtung an
     private double cameraOffsetX = 0.0;
+    // Gibt die Verschiebung des sichtbaren Bereichs der Karte in y-Richtung an
     private double cameraOffsetY = 0.0;
     private Tile[][] fields;
 
@@ -85,7 +88,6 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-//        zoom2();
 
         this.stage.setScene(new Scene(borderPane));
     }
@@ -110,44 +112,44 @@ public class View {
 
         });
     }
+//
+//    public void zoom2 (){
+//        canvas.setOnScroll(event -> {
+//            double delta = 1.2;
+//            double scale = canvas.getScaleY(); // currently we only use Y, same value is used for X
+//            double oldScale = scale;
+//
+//            if (event.getDeltaY() < 0) scale /= delta;
+//            else scale *= delta;
+//
+//            scale = clamp(scale, MIN_SCALE, MAX_SCALE);
+//            double f = (scale / oldScale) - 1;
+//            double dx = (event.getSceneX() - (canvas.getBoundsInParent().getWidth() / 2 + canvas.getBoundsInParent().getMinX()));
+//            double dy = (event.getSceneY() - (canvas.getBoundsInParent().getHeight() / 2 + canvas.getBoundsInParent().getMinY()));
+//
+//            canvas.setScaleY(scale);
+//            // note: pivot value must be untransformed, i. e. without scaling
+//            setPivot(f * dx, f * dy);
+//            event.consume();
+//        });
+//    }
 
-    public void zoom2 (){
-        canvas.setOnScroll(event -> {
-            double delta = 1.2;
-            double scale = canvas.getScaleY(); // currently we only use Y, same value is used for X
-            double oldScale = scale;
 
-            if (event.getDeltaY() < 0) scale /= delta;
-            else scale *= delta;
-
-            scale = clamp(scale, MIN_SCALE, MAX_SCALE);
-            double f = (scale / oldScale) - 1;
-            double dx = (event.getSceneX() - (canvas.getBoundsInParent().getWidth() / 2 + canvas.getBoundsInParent().getMinX()));
-            double dy = (event.getSceneY() - (canvas.getBoundsInParent().getHeight() / 2 + canvas.getBoundsInParent().getMinY()));
-
-            canvas.setScaleY(scale);
-            // note: pivot value must be untransformed, i. e. without scaling
-            setPivot(f * dx, f * dy);
-            event.consume();
-        });
-    }
-
-
-    public void setPivot( double x, double y) {
-        canvas.setTranslateX(canvas.getTranslateX()-x);
-        canvas.setTranslateY(canvas.getTranslateY()-y);
-    }
-
-    public static double clamp( double value, double min, double max) {
-
-        if( Double.compare(value, min) < 0)
-            return min;
-
-        if( Double.compare(value, max) > 0)
-            return max;
-
-        return value;
-    }
+//    public void setPivot( double x, double y) {
+//        canvas.setTranslateX(canvas.getTranslateX()-x);
+//        canvas.setTranslateY(canvas.getTranslateY()-y);
+//    }
+//
+//    public static double clamp( double value, double min, double max) {
+//
+//        if( Double.compare(value, min) < 0)
+//            return min;
+//
+//        if( Double.compare(value, max) > 0)
+//            return max;
+//
+//        return value;
+//    }
 
     public double getQuadraticTileWidthOrDepth(){
         return Math.sqrt(Math.pow(tileImageWidth/2, 2) + Math.pow(tileImageHeight/2, 2));
@@ -210,7 +212,7 @@ public class View {
     //TODO Checken: Sind die Zuordnungen von row -> Depth, column -> width so richtig? Ist es überall konsistent?
 
     /**
-     * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Fields
+     * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Tiles
      */
     public void drawMap() {
         // Hintergrund wird schwarz gesetzt
@@ -488,8 +490,6 @@ public class View {
         });
     }
 
-
-
     /**
      * Gibt das Bild für den entsprechenden Namen eines Bildes in der gewünschten Höhe und Breite zurück.
      * Dabei wird Caching verwendet.
@@ -578,20 +578,24 @@ public class View {
     }
 
     /**
-     * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
+     * Zeigt Auto-Animationen für die Punkte in dem jeweiligen movement an.
+     * Soll in Zukunft auch movements von Flugzeugen und Zügen darstellen
      */
-    public void translateVehicle(List<VehicleMovement> movements){
-
+    public void translateVehicles(List<VehicleMovement> movements){
 
         List<VehicleAnimation> animations = new ArrayList<>();
+        // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
         for(VehicleMovement movement : movements){
             animations.add(getAnimationForMovement(movement));
         }
 
+        // Der Punkt am Anfang der Animation beim Tile an der Stelle x=0, y=0. Wird später verwendet, um die Animation beim
+        // Verschieben der Karte immer noch an der richtigen Stelle anzuzeigen
         Point2D zeroPointAtStart = translateTileCoordsToCanvasCoords(0,0);
 
         timer = new AnimationTimer() {
             @Override
+            //Diese Methode wird während der Animation ständig aufgerufen. Sie soll das vorherige Bild
             public void handle(long now) {
                 Point2D actualZeroPoint = translateTileCoordsToCanvasCoords(0,0);
                 double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
@@ -599,14 +603,13 @@ public class View {
 
                 if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
 
-                    GraphicsContext gc = canvas.getGraphicsContext2D();
                     drawMap();
+                    GraphicsContext gc = canvas.getGraphicsContext2D();
                     for(VehicleAnimation animation: animations){
                         String imageName = animation.getImageName().getValue();
                         if(imageName==null) throw new RuntimeException("imageName was null");
                         Image carImage = getResourceForImageName(imageName, tileImageHeightHalf,
                                 imageNameToImageRatio.get(imageName)*tileImageHeightHalf);
-
                         gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift,
                                 animation.getyCoordProperty().doubleValue()-15+yShift);
                     }
@@ -655,7 +658,7 @@ public class View {
 
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
-        Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOFPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
+        Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
         String startImageName = getImageNameForCar(startPoint, secondPoint);
         KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()), new KeyValue(imageName, startImageName));
         Timeline timeline = new Timeline(start);
@@ -663,16 +666,18 @@ public class View {
 
         double time = 0.0;
         for(int i=0; i<movement.getNumberOfPoints(); i++){
-            Pair<PositionOnTilemap, Double> pair = movement.getPairOFPositionAndDistance(i);
+            Pair<PositionOnTilemap, Double> pair = movement.getPairOfPositionAndDistance(i);
             time += (pair.getValue() / wholeDistance) * tickDuration;
             Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
             String actualImageName;
             if(i!=movement.getNumberOfPoints()-1){
-                Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOFPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
+                Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
                 actualImageName = getImageNameForCar(point, nextPoint);
             }
             else {
-                Point2D lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOFPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
+                Point2D lastPoint;
+                if(i==0) lastPoint = startPoint;
+                else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
                 actualImageName = getImageNameForCar(lastPoint, point);
             }
             KeyFrame frame = new KeyFrame(

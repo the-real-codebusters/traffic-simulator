@@ -15,7 +15,7 @@ public class VehicleMovement {
     private List<PositionOnTilemap> positionsOnMap = new ArrayList<>();
     private List<Double> travelDistances = new ArrayList<>();
 
-    public Pair<PositionOnTilemap, Double> getPairOFPositionAndDistance(int i){
+    public Pair<PositionOnTilemap, Double> getPairOfPositionAndDistance(int i){
         return new Pair<PositionOnTilemap, Double>(positionsOnMap.get(i), travelDistances.get(i));
     }
 
@@ -44,6 +44,9 @@ public class VehicleMovement {
     }
 
     public Pair<PositionOnTilemap, Double> getLastPair(){
+//        if(positionsOnMap.size() == 0){
+//            return new Pair(startPosition, null);
+//        }
         int last = positionsOnMap.size()-1;
         if(last != travelDistances.size()-1)
         {

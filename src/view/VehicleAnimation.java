@@ -2,9 +2,12 @@ package view;
 
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 
+/*
+Stellt eine "Animation" dar, also ein Timeline Objekt, die sich über die Zeit ändernde x-Koordinate, die sich über die
+Zeit änderende y-Koordinate und den sich ändernden Namen des Bildes
+ */
 public class VehicleAnimation {
     private DoubleProperty xCoordProperty;
     private DoubleProperty yCoordProperty;
@@ -17,7 +20,6 @@ public class VehicleAnimation {
         this.timeline = timeline;
         this.imageName = imageName;
     }
-
 
     public DoubleProperty getxCoordProperty() {
         return xCoordProperty;

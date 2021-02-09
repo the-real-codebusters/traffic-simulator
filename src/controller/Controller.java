@@ -1,6 +1,5 @@
 package controller;
 
-import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
@@ -67,7 +66,7 @@ public class Controller {
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
         if(movements.size() > 0){
-            view.translateVehicle(movements);
+            view.translateVehicles(movements);
         }
         else {
             Timeline timeline = new Timeline(new KeyFrame(
