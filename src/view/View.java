@@ -37,7 +37,7 @@ public class View {
 
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private Canvas canvas = new Canvas(1200, 600);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -62,7 +62,6 @@ public class View {
     BorderPane borderPane;
     private ParallelTransition parallelTransition;
     private AnimationTimer timer;
-
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
@@ -314,7 +313,7 @@ public class View {
     public void drawBuildingOverMoreTiles(Tile tile, Building building, int row, int column) {
         if (tile.isBuildingOrigin()) {
             String buildingName = building.getBuildingName();
-            String name = mapping.getImageNameForBuildingName(buildingName);
+            String name = mapping.getImageNameForObjectName(buildingName);
             double ratio = imageNameToImageRatio.get(name);
 
 //            double imageWidth = tileWidth + (tileWidth * 0.5) * (building.getDepth() + building.getWidth() - 2);
@@ -355,7 +354,7 @@ public class View {
             } else {
                 buildingName = field.getBuilding().getBuildingName();
             }
-            name = mapping.getImageNameForBuildingName(buildingName);
+            name = mapping.getImageNameForObjectName(buildingName);
         }
 
         double ratio = imageNameToImageRatio.get(name);
@@ -376,7 +375,7 @@ public class View {
         String buildingName = "grass";;
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
-            name = mapping.getImageNameForBuildingName(buildingName);
+            name = mapping.getImageNameForObjectName(buildingName);
         }
 
         double ratio = imageNameToImageRatio.get(name);
@@ -545,43 +544,80 @@ public class View {
     }
 
     /**
+     * Ermittelt das richtige Bild für fahrendes Auto
+     * @param start
+     * @param end
+     */
+    private String getImageNameForCar(Point2D start, Point2D end) {
+
+        String carName = null;
+        if (start.getX() < end.getX()) {
+            //nach rechts oben fahren
+            //System.out.print("nach rechts");
+            if (start.getY() > end.getY()) {
+                //System.out.println(" oben");
+                carName = "car_ne";
+            }
+            else {
+                //System.out.println(" unten");
+                carName = "car_se";
+            }
+        }
+        else  if (start.getX() > end.getX()){
+            // nach link oben fahren
+            //System.out.print("nach links");
+            if (start.getY() < end.getY()) {
+                //System.out.println(" unten");
+                carName = "car_sw";
+            }
+            else {
+                //System.out.println(" oben");
+                carName = "car_nw";
+            }
+        }
+        return mapping.getImageNameForObjectName(carName);
+    }
+
+    /**
      * Experimentelle Methode, die ein Auto vom Punkt start zum Punkt end fahren lässt
      */
     public void translateVehicle(List<VehicleMovement> movements){
 
-        List<Map<String, Object>> maps = new ArrayList<>();
-        for(VehicleMovement movement : movements){
-            maps.add(getTimelineAndPropertiesForMovement(movement));
-        }
 
-        String name = mapping.getImageNameForBuildingName("car-sw");
+        List<VehicleAnimation> animations = new ArrayList<>();
+        for(VehicleMovement movement : movements){
+            animations.add(getAnimationForMovement(movement));
+        }
 
         Point2D zeroPointAtStart = translateTileCoordsToCanvasCoords(0,0);
 
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                Image carImage = getResourceForImageName(name, tileImageHeightHalf,
-                        imageNameToImageRatio.get(name)*tileImageHeightHalf);
-
                 Point2D actualZeroPoint = translateTileCoordsToCanvasCoords(0,0);
                 double xShift = actualZeroPoint.getX() - zeroPointAtStart.getX();
                 double yShift = actualZeroPoint.getY() - zeroPointAtStart.getY();
 
                 if(xShift < canvas.getWidth() && yShift < canvas.getHeight()){
+
                     GraphicsContext gc = canvas.getGraphicsContext2D();
                     drawMap();
-                    for(Map map: maps){
-                        gc.drawImage(carImage, ((DoubleProperty)map.get("x")).doubleValue()+xShift,
-                                ((DoubleProperty)map.get("y")).doubleValue()-15+yShift);
+                    for(VehicleAnimation animation: animations){
+                        String imageName = animation.getImageName();
+                        if(imageName==null) throw new RuntimeException("imageName was null");
+                        Image carImage = getResourceForImageName(imageName, tileImageHeightHalf,
+                                imageNameToImageRatio.get(imageName)*tileImageHeightHalf);
+
+                        gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift,
+                                animation.getyCoordProperty().doubleValue()-15+yShift);
                     }
 
                 }
             }
         };
         parallelTransition = new ParallelTransition();
-        for(Map map: maps){
-            parallelTransition.getChildren().add((Animation) map.get("timeline"));
+        for(VehicleAnimation animation: animations){
+            parallelTransition.getChildren().add(animation.getTimeline());
         }
         getMenuPane().getAnimationButton().setDisable(false);
         parallelTransition.setOnFinished(event -> {
@@ -613,9 +649,11 @@ public class View {
         parallelTransition.play();
     }
 
-    private Map<String, Object> getTimelineAndPropertiesForMovement(VehicleMovement movement){
+    private VehicleAnimation getAnimationForMovement(VehicleMovement movement){
         DoubleProperty x  = new SimpleDoubleProperty();
         DoubleProperty y  = new SimpleDoubleProperty();
+
+        String imageName = getImageNameForCar(movement.getPairOFPositionAndDistance(0).getKey().coordsRelativeToMapOrigin(), movement.getLastPair().getKey().coordsRelativeToMapOrigin());
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
         KeyFrame start = new KeyFrame(Duration.seconds(0.0), new KeyValue(x, startPoint.getX()), new KeyValue(y, startPoint.getY()));
@@ -630,12 +668,12 @@ public class View {
             KeyFrame frame = new KeyFrame(Duration.seconds(time), new KeyValue(x, point.getX()), new KeyValue(y, point.getY()));
             timeline.getKeyFrames().add(frame);
         }
-        Map<String, Object> movementMap = new HashMap<>();
-        movementMap.put("timeline", timeline);
-        movementMap.put("x", x);
-        movementMap.put("y", y);
-
-        return movementMap;
+//        Map<String, Object> movementMap = new HashMap<>();
+//        movementMap.put("timeline", timeline);
+//        movementMap.put("x", x);
+//        movementMap.put("y", y);
+        VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName);
+        return animation;
     }
 
 

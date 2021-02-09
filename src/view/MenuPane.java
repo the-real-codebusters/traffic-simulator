@@ -159,7 +159,7 @@ public class MenuPane extends AnchorPane {
             for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
-                String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+                String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
                 if (imageName == null) continue;
                 ImageView imageView = imageViewWithLayout(building);
 
@@ -208,7 +208,7 @@ public class MenuPane extends AnchorPane {
      */
     private ImageView imageViewWithLayout(Building building) {
         String imageName;
-        imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+        imageName = mapping.getImageNameForObjectName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
@@ -238,7 +238,7 @@ public class MenuPane extends AnchorPane {
             return isoCoord;
         }
         if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
-            String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
+            String imageName = mapping.getImageNameForObjectName(selectedBuilding.getBuildingName());
             if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
                 Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
                 tile.setBuildingOrigin(true);
