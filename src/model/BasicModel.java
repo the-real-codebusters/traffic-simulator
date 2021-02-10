@@ -87,8 +87,8 @@ public class BasicModel {
             // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
             activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
-        System.out.println("activeTrafficLines "+activeTrafficLines);
-        System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
+//        System.out.println("activeTrafficLines "+activeTrafficLines);
+//        System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
 
         List<VehicleMovement> movements = new ArrayList<>();
         for(Vehicle vehicle : activeVehicles){

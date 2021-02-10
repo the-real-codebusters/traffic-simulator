@@ -18,6 +18,22 @@ public class Tile {
     }
 
 
+    public String absoluteHeigtToRelativeHeight(Map<String, Integer> cornerHeights){
+        String absoluteHeight = "";
+        int minHeight = Integer.MAX_VALUE;
+        for (Integer corner : cornerHeights.values()){
+            if (corner < minHeight){
+                minHeight = corner;
+            }
+        }
+        for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()){
+            entry.setValue(entry.getValue() - minHeight);
+            absoluteHeight += entry.getValue();
+        }
+        return absoluteHeight;
+    }
+
+
     public Building getBuilding() {
         return building;
     }

@@ -39,7 +39,7 @@ public class View {
     // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private Canvas canvas = new Canvas(900, 450);
+    private Canvas canvas = new Canvas(1200, 600);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -244,8 +244,8 @@ public class View {
 
                 // Linke Ecke des Tiles
                 Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, col);
-                if(drawOrigin.getX() > -tileImageWidth && drawOrigin.getX() < canvas.getWidth()
-                && drawOrigin.getY() > -tileImageHeightHalf && drawOrigin.getY() < canvas.getHeight() + tileImageHeightHalf){
+                if(drawOrigin.getX() > -tileImageWidth*4 && drawOrigin.getX() < canvas.getWidth()
+                && drawOrigin.getY() > -tileImageHeightHalf*4 && drawOrigin.getY() < canvas.getHeight() + tileImageHeightHalf*4){
 
 
                 //TODO fields von Controller holen, da mvc-model
