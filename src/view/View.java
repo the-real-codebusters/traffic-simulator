@@ -267,7 +267,7 @@ public class View {
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
                         // obere ecke ist ein gebäude
-                        if (row == building.getStartRow() && col == building.getStartColumn()) {
+                        if (row == building.getStartRow()-1 && col == building.getStartColumn()) {
                             // Startzeile und Start/Endespalte merken
                             startRow = row + building.getWidth();
                             endCol = col;

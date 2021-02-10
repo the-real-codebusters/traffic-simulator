@@ -51,7 +51,10 @@ public class TrafficLine {
         vehicle.setPathfinder(model.getPathfinder());
         vehicle.setPosition(position);
         vehicle.setNextStation(stations.get(0));
-        vehicle.updateNextStation();
+        if (trafficType != TrafficType.AIR) {
+            vehicle.updateNextStation();
+        }
+
         vehicle.savePathToNextStation(startVertexForNewVehicles);
 
         vehicles.add(vehicle);
@@ -128,7 +131,7 @@ public class TrafficLine {
 
         station.updateDirectlyConnectedStations();
         setStartVertexAndStartStationForNewVehicles();
-        sortStationsAsPathFromStartStationToLastStation();
+        //sortStationsAsPathFromStartStationToLastStation();
     }
 
     /**

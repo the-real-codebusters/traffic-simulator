@@ -447,6 +447,6 @@ public class Pathfinder {
     }
 
     public List<Vertex> findPathForPlane(Vertex startVertex, Vertex destinationVertex){
-        return new ArrayList<>();
+        return Arrays.asList(startVertex, destinationVertex);
     }
 }

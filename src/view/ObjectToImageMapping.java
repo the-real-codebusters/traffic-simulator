@@ -39,9 +39,6 @@ public class ObjectToImageMapping {
         mapping.put("railstation-nw-se", "stations/rail/railstation");
         mapping.put("busstop-nw-se", "stations/road/busstop");
 
-
-
-
         mapping.put("road-ne", "road/road-ne");
         mapping.put("road-nw", "road/road-nw");
         mapping.put("road-se", "road/road-se");

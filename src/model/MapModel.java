@@ -258,15 +258,19 @@ public class MapModel {
             trafficGraph = this.rawRoadGraph;
         }
         else {
+            if(building.getTrafficType().equals(TrafficType.AIR)) {
+                trafficGraph = this.rawRoadGraph;
+            }
             //TODO rails
-            //TODO Air ?
 
             //Vielleicht sollte man für Flugzeuge eine eigene globale Variable von TrafficGraph erstellen, der die Punkte der
             // Flugverbindungen abspeichert. Dann müssten auch im Pathfinder unterschiedliche Graphen benutzt werden,
             // je nach TrafficType, und die Methode addNewStationToTrafficLineOrCreateNewTrafficLine() mit Sicherheit auch
 
-            throw new RuntimeException("Unfertiger Code");
-        };
+            else {
+                throw new RuntimeException("Unfertiger Code");
+            }
+        }
 
         // TODO Vertex zusammenführen überprüfen
 
@@ -334,7 +338,16 @@ public class MapModel {
      * @return
      */
     private TrafficLine addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
-        List<Vertex> pathToStation = model.getPathfinder().findPathToNextStation(newStation);
+        List<Vertex> pathToStation;
+        if (trafficType == TrafficType.AIR && stations.size() > 1) {
+            Vertex startVertex = stations.get(0).getComponents().get(0).getVertices().get(0);
+            Vertex endVertex = newStation.getComponents().get(0).getVertices().get(0);
+            pathToStation = model.getPathfinder().findPathForPlane(startVertex, endVertex);
+        }
+        else {
+            pathToStation = model.getPathfinder().findPathToNextStation(newStation);
+        }
+
 
         boolean anotherStationFindable = false;
         if (pathToStation.size() > 0) anotherStationFindable = true;
@@ -346,11 +359,28 @@ public class MapModel {
                 nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
                 newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
                 return nextStation.getRoadTrafficLine();
-            } else ; //TODO Andere Verkehrstypen
+            }
+
+            if (trafficType.equals(TrafficType.AIR)) {
+                TrafficLine trafficLine = new TrafficLine(2, model, TrafficType.AIR, stations.get(0));
+                nextStation.setAirTrafficLine(trafficLine);
+                nextStation.getAirTrafficLine().addStationAndUpdateConnectedStations(newStation);
+                // TODO: hack:  erste Station löschen
+                model.getNewCreatedOrIncompleteTrafficLines().remove();
+                model.getNewCreatedOrIncompleteTrafficLines().add(nextStation.getAirTrafficLine());
+
+                //stations.get(0).setAirTrafficLine(nextStation.getAirTrafficLine());
+               // nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
+               // newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
+                return nextStation.getAirTrafficLine();
+            }
+            else ; //TODO Andere Verkehrstypen
         } else {
             TrafficLine trafficLine = null;
             switch (trafficType) {
                 case AIR:
+                    trafficLine = new TrafficLine(2, model, TrafficType.AIR, newStation);
+                    newStation.setAirTrafficLine(trafficLine);
                     break;
                 case RAIL:
                     break;
