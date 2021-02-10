@@ -79,14 +79,17 @@ public class View {
         Label mousePosLabel = new Label();
         mousePosLabel.setFont(new Font("Arial", 15));
 
+        Label cornerLabel = new Label();
+        mousePosLabel.setFont(new Font("Arial", 15));
+
         borderPane = new BorderPane();
         VBox vBox = new VBox();
         borderPane.setBottom(vBox);
-        vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
+        vBox.getChildren().addAll(mousePosLabel, isoCoordLabel, cornerLabel);
         borderPane.setCenter(canvas);
 
         canvas.setFocusTraversable(true);
-        showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
+        showCoordinatesOnClick(mousePosLabel, isoCoordLabel, cornerLabel);
         scrollOnKeyPressed();
         scrollOnMouseDragged();
 
@@ -254,6 +257,7 @@ public class View {
                 if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
                     Tile field = fields[row][col];
                     Building building = field.getBuilding();
+                    Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, col).getCornerHeights();
 
                     // Wenn das building größer als ein Tile ist, zeichne über mehrere Tiles
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
@@ -262,7 +266,7 @@ public class View {
                             for(int i = col; i <= col + building.getDepth()-1; i++) {
                                 // Obere Kante vom Gebäude mit Grassfläche übermalen
                                 Image image = getGrassImage(i, row);
-                                drawTileImage(drawOrigin, image, false);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
                             }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
@@ -275,7 +279,7 @@ public class View {
                             for(int i = row; i <= startRow; i++) {
                                 // Rechte Kante vom Gebäude mit Grassfläche übermalen
                                 Image image = getGrassImage(col, i);
-                                drawTileImage(drawOrigin, image, false);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
                             }
 
                         }
@@ -286,18 +290,39 @@ public class View {
                         if (row == startRow && col >= startCol && col <= endCol) {
                             // und muss daher als Grass gezeichnet werden
                             Image image = getGrassImage(col, row);
-                            drawTileImage(drawOrigin, image, false);
+                            drawTileImage(drawOrigin, image, false, cornerHeights);
                         }
                         else {
 
+                            String absoluteTileHeight = controller.getTileOfMapTileGrid(row, col).absoluteHeigtToRelativeHeight(cornerHeights);
+
+
+                            String buildingName = absoluteTileHeight;
+
+
                             Image image = getSingleFieldImage(col, row, fields);
-                            drawTileImage(drawOrigin, image, false);
+
+                            String imageName = objectToImageMapping.getImageNameForObjectName(buildingName);
+
+                            Image r = getResourceForImageName(imageName);
+                            double ratio = r.getHeight() / r.getWidth();
+                            System.out.println("Ratio: " + ratio);
+
+
+                            if(ratio != 0.484375){
+                                drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
+//                            }
+//                            if(image.getUrl().contains("Slope_NE.png")){
+//                                drawGroundOverMoreTiles("1100", row, col, image);
+                            } else {
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
+                            }
                             //TODO Polygone mit Wasser oder Gras Tiles zu zeichnen, je nach Höhe
-                            Tile tile = fields[row][col];
-                            int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
-                            int cornerHeightWest = tile.getCornerHeights().get("cornerW");
-                            int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
-                            int cornerHeightEast = tile.getCornerHeights().get("cornerE");
+//                            Tile tile = fields[row][col];
+//                            int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
+//                            int cornerHeightWest = tile.getCornerHeights().get("cornerW");
+//                            int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
+//                            int cornerHeightEast = tile.getCornerHeights().get("cornerE");
 
 //                            int cornerHeightSouth = 0;
 //                            int cornerHeightWest = 0;
@@ -506,7 +531,7 @@ public class View {
      * @param image
      * @param transparent
      */
-    public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent) {
+    public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent, Map<String, Integer> cornerHeights) {
 
         // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
         // Zeichenreihenfolge von oben rechts nach unten links
@@ -515,7 +540,9 @@ public class View {
 
 //        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
-        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
+//        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * (cornerHeights.get("cornerW")+1);
+
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
@@ -549,6 +576,36 @@ public class View {
     public Canvas getCanvas() {
         return canvas;
     }
+
+
+
+    public void drawGroundOverMoreTiles(String name, int row, int column, Image image, Map<String, Integer> cornerHeights) {
+        String imageName = objectToImageMapping.getImageNameForObjectName(name);
+
+        double heightAboveTile = image.getHeight() - tileImageHeight;
+        System.out.println("HeightAboveTile: " + heightAboveTile);
+
+        Image r = getResourceForImageName(imageName);
+        double ratio = r.getHeight() / r.getWidth();
+
+        System.out.println("Ratio: " + ratio);
+
+
+//        double imageWidth = tileImageWidth;
+//        double imageHeight = imageWidth * ratio;
+//        double heightDifference = tileImageHeight - imageHeight;
+
+//        System.out.println("imageHeight: " + imageHeight);
+//        System.out.println("HeightDifference: " + heightDifference);
+
+            Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
+            double xCoordOnCanvas = drawOrigin.getX();
+//        double yCoordOnCanvas = drawOrigin.getY() - (Math.abs(tileImageHeight - imageHeight)*cornerHeights.get("cornerW")) ;
+//        double yCoordOnCanvas = drawOrigin.getY() - heightDifference * cornerHeights.get("cornerW");
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * (cornerHeights.get("cornerW")+1);
+            canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
+    }
+
 
     /**
      * Zeichnet ein building, das größer ist als 1x1, über mehrere tiles.
@@ -601,6 +658,46 @@ public class View {
             return newPattern;
         }
     }
+//
+//    /**
+//     * Gibt ein Image für die geforderte Stelle in der Tile-Map zurück in der Breite eines Tiles
+//     * @param column
+//     * @param row
+//     * @param fields
+//     * @return
+//     */
+//    public Image getGroundImage(int column, int row, Tile[][] fields) {
+//        String name;
+//        String buildingName;
+//
+//                Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
+//                System.out.println(row + " " + column + " " + cornerHeights);
+//                String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
+//                System.out.println(row + " " + column + " " + absoluteTileHeight);
+////
+////                Map<String, Integer> heightMap = new HashMap<>();
+////                heightMap.put("cornerN", 0);
+////                heightMap.put("cornerE", 0);
+////                heightMap.put("cornerS", 0);
+////                heightMap.put("cornerW", 0);
+////
+////                Building ground = new Building();
+////                controller.getTileOfMapTileGrid(row, column).setCornerHeights(cornerHeights);
+//                ground.setBuildingName(absoluteTileHeight);
+//                ground.setWidth(1);
+//                ground.setDepth(1);
+//                controller.getTileOfMapTileGrid(row, column).setBuilding(ground);
+//                buildingName = field.getBuilding().getBuildingName();
+//
+//            name = objectToImageMapping.getImageNameForObjectName(buildingName);
+//
+//
+//        System.out.println(imageNameToImageRatio);
+//        double ratio = imageNameToImageRatio.get(name);
+//
+//        return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
+//
+//    }
 
     /**
      * Gibt ein Image für die geforderte Stelle in der Tile-Map zurück in der Breite eines Tiles
@@ -620,14 +717,28 @@ public class View {
             } else if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
             } else {
-                buildingName = field.getBuilding().getBuildingName();
+
+                Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
+//                System.out.println(row + " " + column + " " + cornerHeights);
+                String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
+//                System.out.println(row + " " + column + " " + absoluteTileHeight);
+
+                buildingName = absoluteTileHeight;
+                System.out.println("Buildingname: " + buildingName);
+
             }
             name = objectToImageMapping.getImageNameForObjectName(buildingName);
         }
-
-        double ratio = imageNameToImageRatio.get(name);
-
-        return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
+        double ratio = 0;
+        if(name != null && imageNameToImageRatio.containsKey(name)){
+            System.out.println(name + " " + imageNameToImageRatio.get(name));
+            ratio = imageNameToImageRatio.get(name);
+            return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
+        }
+        else {
+            System.out.println("invalid name: + " + name);
+            throw new RuntimeException("invalid building name");
+        }
 
     }
 
@@ -691,7 +802,7 @@ public class View {
      * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
      * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
      */
-    public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel) {
+    public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel, Label cornerLabel) {
 
         canvas.setOnMouseClicked(event -> {
             double mouseX = event.getX();
@@ -711,6 +822,10 @@ public class View {
             String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
 //            String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
             isoCoordLabel.setText(tileCoords);
+
+            Tile tile =controller.getTileOfMapTileGrid((int)isoCoord.getX(), (int)isoCoord.getY());
+            Map<String, Integer> cornerHeights = tile.getCornerHeights();
+            cornerLabel.setText(cornerHeights.toString());
         });
     }
 

@@ -27,9 +27,10 @@ public class Tile {
             }
         }
         for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()){
-            entry.setValue(entry.getValue() - minHeight);
+            entry.setValue(Math.abs(entry.getValue() - minHeight));
             absoluteHeight += entry.getValue();
         }
+//        System.out.println( absoluteHeight + " absoluteHeigtToRelativeHeight");
         return absoluteHeight;
     }
 
