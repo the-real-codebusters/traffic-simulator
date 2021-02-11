@@ -20,6 +20,8 @@ public class Station {
     private TrafficLine airTrafficLine;
 
     private ConnectedTrafficPart roadTrafficPart;
+    private ConnectedTrafficPart airTrafficPart;
+
 
     private Set<Station> directlyConnectedStations = new HashSet<>();
     private Pathfinder pathfinder;
@@ -112,6 +114,13 @@ public class Station {
         return id;
     }
 
+    public ConnectedTrafficPart getAirTrafficPart() {
+        return airTrafficPart;
+    }
+
+    public void setAirTrafficPart(ConnectedTrafficPart airTrafficPart) {
+        this.airTrafficPart = airTrafficPart;
+    }
 
     public Set<Station> getDirectlyConnectedStations() {
         return directlyConnectedStations;
