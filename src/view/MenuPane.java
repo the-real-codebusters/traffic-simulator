@@ -15,6 +15,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
@@ -38,6 +40,7 @@ public class MenuPane extends AnchorPane {
     private Controller controller;
     private MouseEvent hoveredEvent;
     private int result;
+    private HBox trafficPartTabContent;
 
     // Wenn null, ist kein Bauwerk ausgewählt
     private Building selectedBuilding;
@@ -64,8 +67,18 @@ public class MenuPane extends AnchorPane {
 
 
         for (int i = 0; i < tabNames.size(); i++) {
-            addTab(tabNames.get(i), tabContents.get(i));
+            addTab(tabNames.get(i), tabContents.get(i), false);
         }
+        createTrafficpartTab();
+    }
+
+    private void createTrafficpartTab(){
+        String name = "traffic part";
+        HBox box = boxWithLayout();
+        tabNames.add(name);
+        tabContents.add(box);
+        addTab(name, box, false);
+        trafficPartTabContent = box;
     }
 
     /**
@@ -73,11 +86,13 @@ public class MenuPane extends AnchorPane {
      * @param name
      * @param content
      */
-    private void addTab(String name, Node content) {
+    private Tab addTab(String name, Node content, boolean closeable) {
         Tab tab = new Tab();
         tab.setText(name);
         tab.setContent(content);
+        tab.setClosable(closeable);
         tabPane.getTabs().add(tab);
+        return tab;
     }
 
     /**
@@ -208,6 +223,7 @@ public class MenuPane extends AnchorPane {
                     container.getChildren().add(imageView);
                 }
 
+
                 tabContents.set(tabNames.indexOf(name), container);
             }
 
@@ -279,6 +295,60 @@ public class MenuPane extends AnchorPane {
         } else return null;
     }
 
+    public void showTrafficPart(ConnectedTrafficPart part){
+        trafficPartTabContent.getChildren().clear();
+        Label type = new Label("Traffic type: \n"+part.getTrafficType().name());
+        Label stationList = new Label("Stations:");
+        Pane box;
+        if(part.getStations().size() > 4){
+            HBox secondBox = boxWithLayout();
+            VBox vbox1 = new VBox();
+            VBox vbox2 = new VBox();
+            vbox1.getChildren().add(stationList);
+            vbox2.getChildren().add(new Label(""));
+            secondBox.getChildren().addAll(vbox1, vbox2);
+            for(int i=0; i<part.getStations().size(); i++){
+                if(i<4){
+                    vbox1.getChildren().add(new Label("ID: "+part.getStations().get(i).getId()));
+                }
+                else if(i<8) vbox2.getChildren().add(new Label("ID: "+part.getStations().get(i).getId()));
+                else if(i==8){
+                    vbox2.getChildren().remove(vbox2.getChildren().size()-1);
+                    vbox2.getChildren().add(new Label("... and more"));
+                    break;
+                }
+            }
+            box = secondBox;
+        }
+        else {
+            List<Station> stations = part.getStations();
+            VBox vbox = new VBox();
+            vbox.getChildren().add(stationList);
+            for (Station station : stations) {
+                vbox.getChildren().add(new Label("ID: " + station.getId()));
+            }
+            box = vbox;
+        }
+        Button newTrafficLine = new Button("new Traffic Line");
+        trafficPartTabContent.getChildren().addAll(type, box, newTrafficLine);
+        int index = tabContents.indexOf(trafficPartTabContent);
+        tabPane.getSelectionModel().select(index);
+
+//        trafficPartTabContent.getChildren().clear();
+//        Label type = new Label("Traffic type: \n"+part.getTrafficType().name());
+//        String stationList = "Stations \n";
+//        for(Station station : part.getStations()){
+//            stationList += "ID: "+station.getId()+"\n";
+//        }
+//        Label stations = new Label(stationList);
+//        Button newTrafficLine = new Button("new Traffic Line");
+//        trafficPartTabContent.getChildren().addAll(type, stations, newTrafficLine);
+//        int index = tabContents.indexOf(trafficPartTabContent);
+//        tabPane.getSelectionModel().select(index);
+    }
+
+
+
     /**
      * Setzt einige Reaktionen auf Events auf dem canvas der View
      */
@@ -302,6 +372,11 @@ public class MenuPane extends AnchorPane {
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding != null) {
                 controller.managePlacement(event);
+            }
+            else if (
+                    event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
+                            selectedBuilding == null) {
+                controller.showTrafficPartInView(event);
             }
         });
 

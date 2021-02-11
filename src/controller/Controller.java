@@ -235,6 +235,23 @@ public class Controller {
         return model.getMap().canPlaceBuilding(row, column, building);
     }
 
+    public void showTrafficPartInView(MouseEvent event){
+        double mouseX = event.getX();
+        double mouseY = event.getY();
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
+
+        Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
+        if(building instanceof PartOfTrafficGraph){
+            ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
+            if(trafficPart != null){
+                view.getMenuPane().showTrafficPart(trafficPart);
+            }
+        }
+
+    }
+
     public Tile getTileOfMapTileGrid(int row, int column){
         return model.getMap().getTileGrid()[row][column];
     }

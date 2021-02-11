@@ -13,10 +13,10 @@ public class Vertex extends PositionOnTilemap {
 
     // Liste von Bauwerken, zu denen der Punkt gehört
     // Wenn ein Punkt zu einer Haltestelle gehört, darf ein Fahrzeug darauf anhalten
-    private List<Building> buildings;
+//    private List<Building> buildings
 
+    private PartOfTrafficGraph building;
     private int actualSearchLevel;
-
 
     public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
         int xCoordinateInGameMap, int yCoordinateInGameMap) {
@@ -52,6 +52,14 @@ public class Vertex extends PositionOnTilemap {
 
     public void setStation(Station station) {
         this.station = station;
+    }
+
+    public PartOfTrafficGraph getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(PartOfTrafficGraph building) {
+        this.building = building;
     }
 
     @Override

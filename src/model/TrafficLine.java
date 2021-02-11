@@ -126,7 +126,7 @@ public class TrafficLine {
         // Finde den Knoten um das Auto zu platzieren
         for(Stop stop: startStation.getComponents()){
             if(stop.getTrafficType().equals(trafficType)){
-                startVertexForNewVehicles = stop.getVertices().get(0);
+                startVertexForNewVehicles = stop.getVertices().iterator().next();
                 break;
             }
         }

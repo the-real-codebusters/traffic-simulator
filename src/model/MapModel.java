@@ -320,8 +320,9 @@ public class MapModel {
                 addedVertices.add(j);
             }
         }
-        if(isPointPartOfStation){
-            ((Stop) building).getVertices().addAll(addedVertices);
+        building.getVertices().addAll(addedVertices);
+        for(Vertex addedV: addedVertices){
+            addedV.setBuilding(building);
         }
         return addedVertices;
     }

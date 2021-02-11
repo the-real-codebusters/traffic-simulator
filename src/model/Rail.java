@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Rail extends Building implements PartOfTrafficGraph{
@@ -15,6 +12,9 @@ public class Rail extends Building implements PartOfTrafficGraph{
 
     // optional
     private Map<String, String> combines = new HashMap<>();
+    private ConnectedTrafficPart associatedPartOfTraffic;
+    private Set<Vertex> vertices = new HashSet<>();
+
 
     @Override
     public Rail getNewInstance(){
@@ -58,6 +58,21 @@ public class Rail extends Building implements PartOfTrafficGraph{
 
     public void setSignals(List<String> signals) {
         this.signals = signals;
+    }
+
+    @Override
+    public ConnectedTrafficPart getAssociatedPartOfTraffic() {
+        return associatedPartOfTraffic;
+    }
+
+    @Override
+    public Set<Vertex> getVertices() {
+        return vertices;
+    }
+
+    @Override
+    public void setAssociatedPartOfTraffic(ConnectedTrafficPart associatedPartOfTraffic) {
+        this.associatedPartOfTraffic = associatedPartOfTraffic;
     }
 
     @Override
