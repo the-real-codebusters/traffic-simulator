@@ -227,7 +227,7 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Tiles
      */
     public void drawMap() {
-        numberOfDrawPol = 0;
+//        numberOfDrawPol = 0;
         final String grass1 = "file:grass.png";
         Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
@@ -358,19 +358,18 @@ public class View {
     }
 
 
-    int numberOfDrawPol = 0;
+//    int numberOfDrawPol = 0;
     public void drawPolygon(int row, int col , Point2D drawOrigin, int heightNorth, int heightEast, int heightSouth, int heightWest) {
 
-        numberOfDrawPol++;
-        // X und Y Koordinaten der linken Ecke des Tiles
+//        numberOfDrawPol++;
 
         double xCoordOnCanvas = drawOrigin.getX();
 //        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
         double yCoordOnCanvas = drawOrigin.getY();
 //
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        int numberOfPoints = 4;
-        double heightShift = tileImageHeight / 5;
+//        GraphicsContext gc = canvas.getGraphicsContext2D();
+//        int numberOfPoints = 4;
+        double heightShift = tileImageHeight / 4;
         double xCoordWest = xCoordOnCanvas;
         double yCoordWest = yCoordOnCanvas - heightWest * heightShift;
 
@@ -417,7 +416,7 @@ public class View {
 
                 if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
                     rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
-                    System.out.println(rowColToCanvasCoordinates.size());
+//                    System.out.println(rowColToCanvasCoordinates.size());
                 }
 //            }
 //        }
@@ -463,10 +462,6 @@ public class View {
             if (intersect) inside = !inside;
         }
 
-        if(inside){
-            System.out.println(rowColToCanvasCoordinates.get(coordsOnCanvas));
-        }
-
         return inside;
 
     }
@@ -476,7 +471,6 @@ public class View {
         Point2D newIsoCoord = new Point2D(0,0);
         for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
             if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
-                System.out.println("Clicked on coordinates : " + entry.getValue());
                 newIsoCoord = entry.getValue();
             }
         }
