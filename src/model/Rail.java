@@ -24,7 +24,7 @@ public class Rail extends Building implements PartOfTrafficGraph{
         instance.setRails(List.copyOf(rails));
         instance.setSignals(List.copyOf(signals));
         instance.setCombines(Map.copyOf(combines));
-        setTrafficType(TrafficType.RAIL);
+        instance.setTrafficType(TrafficType.RAIL);
         return instance;
     }
 

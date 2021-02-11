@@ -18,8 +18,8 @@ public class ObjectToImageMapping {
         }
     }
 
-    public String getImageNameForBuildingName(String buildingName){
-        return mapping.get(buildingName);
+    public String getImageNameForObjectName(String objectName){
+        return mapping.get(objectName);
     }
 
     private void createPlanverkehrMapping(){
@@ -31,7 +31,6 @@ public class ObjectToImageMapping {
         mapping.put("submerged-arc furnace", "factories/furnace");
         mapping.put("sand pit", "factories/sandPit");
 
-        mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
         mapping.put("stone", "ground/stones");
         mapping.put("runway", "airport/runway");
@@ -59,8 +58,20 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-sw", "road/road-nw-sw");
         mapping.put("road-se-sw", "road/road-se-sw");
 
-        mapping.put("car-sw", "road/car-sw");
-        mapping.put("grass", "ground/grass");
+        mapping.put("car_ne", "road/car_ne");
+        mapping.put("car_nw", "road/car_nw");
+        mapping.put("car_se", "road/car_se");
+        mapping.put("car_sw", "road/car_sw");
+//        mapping.put("grass", "ground/grass");
+        mapping.put("grass", "ground/grass_tile");
+//                mapping.put("water", "ground/water");
+        mapping.put("water", "ground/water_tile");
+
+        mapping.put("height_up" , "height_up");
+        mapping.put("height_down" , "height_down");
+
+        mapping.put("remove", "remove");
+
     }
 
     public Collection<String> getImageNames(){

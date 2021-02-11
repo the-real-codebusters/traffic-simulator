@@ -1,8 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MapModel {
     private String mapgen;
@@ -34,7 +32,8 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
-        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
+        System.out.println("place building "+instance.getBuildingName()+" with TrafficType "+instance.getTrafficType());
+//        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
                 if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
@@ -46,17 +45,39 @@ public class MapModel {
         instance.setOriginColumn(column);
         instance.setOriginRow(row);
 
+        boolean createdNewStation = false;
+        Station station = null;
+
         if(instance instanceof Stop) {
             Station nextStation = getStationNextToStop(row, column, (Stop) instance);
 //            ((Stop) instance).getSpecial().equals("busstop");
-            Station station = new Station(model, null, null, null);
             if(nextStation != null) {
                 station = nextStation;
+                System.out.println("Nachbar für Stop gefunden");
             } else {
+                station = new Station(model, null, null, null, model.getPathfinder());
                 stations.add(station);
+                System.out.println("Station neu erzeugt");
+                createdNewStation = true;
             }
-            station.addBuilding((Stop) instance);
+            station.addBuildingAndSetStationInBuilding((Stop) instance);
+            System.out.println("StationID in placeBuilding "+((Stop) instance).getStation().getId());
+
         }
+        if(instance instanceof PartOfTrafficGraph){
+            List<Vertex> addedPoints = model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
+            if(instance instanceof Road){
+                //checke, ob man zwei TrafficLines mergen sollte
+                mergeTrafficLinesIfNeccessary(addedPoints.get(0));
+            }
+        }
+
+
+        if(createdNewStation){
+            TrafficLine trafficLine = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
+            instance.setTrafficLine(trafficLine);
+        }
+
         return instance;
     }
 
@@ -82,8 +103,26 @@ public class MapModel {
                 if(tile.getBuilding() instanceof Road) {
                     // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;
-                    return canCombine;
+                    // Wenn eine strasse abgerissen werden soll, soll ebenfalls true zurückgegeben werden
+                    if(canCombine || building.getBuildingName().equals("remove")){
+                        return true;
+                    }
                 }
+
+                if(tile.getBuilding() instanceof Rail) {
+                    boolean canCombine = model.checkCombines(row, column, building) != building;
+                    if(canCombine || building.getBuildingName().equals("remove")){
+                        return true;
+                    }
+                }
+
+                // Auf Graßfelder soll wieder gebaut werden dürfen
+                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")){
+                    return true;
+                }
+
+                if(tile.getBuilding() instanceof Stop && building.getBuildingName().equals("remove")) return true;
+
                 if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
@@ -115,6 +154,53 @@ public class MapModel {
         return true;
     }
 
+    //TODO Funktioniert momentan nur für ROAD
+
+    /**
+     * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrslinien verbunden wurden. Wenn das der Fall ist,
+     * fügt es die beiden Verkehrlinien zu einer zusammen.
+     * @param newAddedVertex
+     */
+    private void mergeTrafficLinesIfNeccessary(Vertex newAddedVertex){
+        System.out.println("mergeTrafficLinesIfNeccessary called");
+
+        List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex);
+        Set<TrafficLine> differentLines = new HashSet<>();
+        for(Station station: nearStations){
+            differentLines.add(station.getRoadTrafficLine());
+        }
+        int numberOfNearTrafficLines = differentLines.size();
+        System.out.println(numberOfNearTrafficLines);
+        if(numberOfNearTrafficLines > 1){
+            System.out.println("tried to merge trafficLines");
+            System.out.println("found lines "+numberOfNearTrafficLines);
+            mergeTrafficLines(new ArrayList<>(differentLines));
+        }
+    }
+
+    /**
+     * Fügt die angegebenen Verkehrslinien zu einer zusammen
+     * @param lines
+     */
+    private void mergeTrafficLines(List<TrafficLine> lines){
+        TrafficLine firstLine = lines.get(0);
+        System.out.println("firstLine "+firstLine.getStations().size());
+        for(int i=1; i<lines.size(); i++){
+            firstLine.mergeWithTrafficLine(lines.get(i));
+            model.getActiveTrafficLines().remove(lines.get(i));
+            model.getNewCreatedOrIncompleteTrafficLines().remove(lines.get(i));
+        }
+        System.out.println("firstLine after merge "+firstLine.getStations().size());
+    }
+
+    /**
+     * Gibt die Station zurück, die direkt neben der Haltestelle in x- oder y-Richtung steht. Wenn keine Station angrenzt,
+     * wird null zurückgegeben
+     * @param row
+     * @param column
+     * @param building
+     * @return
+     */
     private Station getStationNextToStop(int row, int column, Stop building){
         Station station;
         for(int r=row; r<row+building.getWidth(); r++){
@@ -141,6 +227,7 @@ public class MapModel {
         return null;
     }
 
+    //TODO refactoring
     private boolean checkForSecondStation(Building building) {
         Long currentId = ((Stop) building).getStation().getId();
 
@@ -166,19 +253,26 @@ public class MapModel {
      */
     public List<Vertex> addPointsToGraph(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile) {
         TrafficGraph trafficGraph;
-        if(building instanceof PartOfTrafficGraph) {
+        if(building == null) throw new IllegalArgumentException("building was null");
+        if(building.getTrafficType().equals(TrafficType.ROAD)) {
             trafficGraph = this.rawRoadGraph;
         }
         else {
-            return new ArrayList<>();
             //TODO rails
+            //TODO Air ?
+
+            //Vielleicht sollte man für Flugzeuge eine eigene globale Variable von TrafficGraph erstellen, der die Punkte der
+            // Flugverbindungen abspeichert. Dann müssten auch im Pathfinder unterschiedliche Graphen benutzt werden,
+            // je nach TrafficType, und die Methode addNewStationToTrafficLineOrCreateNewTrafficLine() mit Sicherheit auch
+
+            throw new RuntimeException("Unfertiger Code");
         };
 
         // TODO Vertex zusammenführen überprüfen
 
         boolean isPointPartOfStation = false;
         if(building instanceof Stop) isPointPartOfStation = true;
-        List<Vertex> addedVertices = new ArrayList<>();
+        List<Vertex> verticesBefore = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
 
                 Map<String, List<Double>> points = building.getPoints();
                 for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
@@ -195,10 +289,8 @@ public class MapModel {
                     v.setPointOfStation(isPointPartOfStation);
                     if(isPointPartOfStation) {
                         v.setStation(((Stop) building).getStation());
-                        ((Stop) building).getVertices().add(v);
                     }
                     trafficGraph.addVertex(v);
-                    addedVertices.add(v);
 
                     for (Vertex v1 : trafficGraph.getMapOfVertexes().values()) {
                         List<List<String>> edges = building.getTransportations();
@@ -214,10 +306,68 @@ public class MapModel {
                         }
                     }
                 }
-        trafficGraph.checkForDuplicatePoints();
+        List<Vertex> joinedVertices = trafficGraph.checkForDuplicatePoints();
         trafficGraph.printGraph();
         System.out.println();
+        List<Vertex> verticesAfter = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
+        System.out.println(verticesAfter);
+        verticesAfter.removeAll(verticesBefore);
+        System.out.println(verticesAfter);
+
+        List<Vertex> addedVertices = verticesAfter;
+        for(Vertex j:joinedVertices){
+            if(!addedVertices.contains(j)){
+                addedVertices.add(j);
+            }
+        }
+        if(isPointPartOfStation){
+            ((Stop) building).getVertices().addAll(addedVertices);
+        }
         return addedVertices;
+    }
+
+    /**
+     * Wenn keine andere Station im Straßengraphen findbar, fügt es dem Straßengraph eine neue Verkehrslinie hinzu. Wenn eine andere Station
+     * findbar, wird der verkehrslinie der gefundenen Station die angegebene Station hinzugefügt
+     * @param newStation
+     * @param trafficType
+     * @return
+     */
+    private TrafficLine addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
+        List<Vertex> pathToStation = model.getPathfinder().findPathToNextStation(newStation);
+
+        boolean anotherStationFindable = false;
+        if (pathToStation.size() > 0) anotherStationFindable = true;
+
+        if (anotherStationFindable) {
+            Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
+            Station nextStation = lastVertex.getStation();
+            if (trafficType.equals(TrafficType.ROAD)) {
+                nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
+                newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
+                return nextStation.getRoadTrafficLine();
+            } else ; //TODO Andere Verkehrstypen
+        } else {
+            TrafficLine trafficLine = null;
+            switch (trafficType) {
+                case AIR:
+                    break;
+                case RAIL:
+                    break;
+                case ROAD:
+                    trafficLine = new TrafficLine(2, model, TrafficType.ROAD, newStation);
+                    newStation.setRoadTrafficLine(trafficLine);
+                    break;
+                default:
+                    break;
+            }
+            // TODO AIR, RAIL, desiredNumber
+            // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
+
+            model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
+            return trafficLine;
+        }
+        throw new RuntimeException("Unfertiger Code");
     }
 
 
@@ -254,10 +404,9 @@ public class MapModel {
 //                    System.out.print("[" + row + ", " + column + "]" + fieldGrid[row][column].getBuilding().getBuildingName() + " ");
 //                }
             }
-            System.out.println();
+//            System.out.println();
         }
     }
-
 
     public TrafficGraph getRawRoadGraph() {
         return rawRoadGraph;

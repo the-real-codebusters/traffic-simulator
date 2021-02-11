@@ -1,7 +1,7 @@
 package view;
 
 import controller.Controller;
-import javafx.application.Application;
+import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -15,13 +15,11 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 import model.*;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -46,6 +44,10 @@ public class MenuPane extends AnchorPane {
 
     ObjectToImageMapping mapping;
 
+    private boolean run = true;
+    private Button animationButton;
+    private Slider slider;
+
     public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
         this.canvas = canvas;
@@ -55,10 +57,11 @@ public class MenuPane extends AnchorPane {
 
         setCanvasEvents();
 
+        // HBox mit Reitern
         hBox = new HBox(tabPane);
         this.getChildren().add(hBox);
-
         generateTabContents();
+
 
         for (int i = 0; i < tabNames.size(); i++) {
             addTab(tabNames.get(i), tabContents.get(i));
@@ -78,6 +81,69 @@ public class MenuPane extends AnchorPane {
     }
 
     /**
+     * Erzeugt einen Button zum Starten/Pausieren von Simulation
+     */
+    private void createAnimationButton() {
+        animationButton = new Button("PAUSE");
+        animationButton.setDisable(view.getParallelTransition() == null);
+        animationButton.setOnAction(e -> {
+
+            ParallelTransition pt = view.getParallelTransition();
+
+            if (pt != null) {
+                if (run) {
+                    animationButton.setText("START");
+                    run = false;
+                    pt.stop();
+                    view.getTimer().stop();
+                }
+                else {
+                    animationButton.setText("PAUSE");
+                    run = true;
+                    //pt.play();
+                    view.getTimer().start();
+                    pt.playFrom(Duration.seconds(1));
+                }
+            }
+        });
+    }
+
+    /**
+     * Erstellt einen Slider zum Steuern von Tick-Duration
+     */
+    private void createTickSlider() {
+        slider = new Slider();
+        slider.setLayoutX(view.getCanvas().getWidth()-10);
+        slider.setMin(0.01);
+        slider.setMax(5);
+        slider.setValue(view.getTickDuration());
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+        slider.setBlockIncrement(1);
+
+        slider.valueProperty().addListener((observableValue, oldValue,newValue ) -> {
+            view.setTickDuration(newValue.doubleValue());
+        });
+        slider.setLabelFormatter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double n) {
+                if (n == 0.01) return "faster";
+                return "slower";
+            }
+
+            @Override
+            public Double fromString(String s) {
+                switch (s) {
+                    case "faster":
+                        return 0.01;
+                    default:
+                        return 5.0;
+                }
+            }
+        });
+    }
+
+    /**
      * Erstellt die Inhalte der Tabs in der tabPane nach den buildmenus in der JSONDatei und zusätzlich height und
      * vehicles
      */
@@ -86,8 +152,9 @@ public class MenuPane extends AnchorPane {
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
 
+        tabNames.addAll(List.of("speed"));
         tabNames.addAll(buildmenus);
-        tabNames.addAll(List.of("height", "vehicles"));
+        tabNames.addAll(List.of("height", "vehicles", "remove"));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
@@ -100,14 +167,50 @@ public class MenuPane extends AnchorPane {
             for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
-                String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+                String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
                 if (imageName == null) continue;
                 ImageView imageView = imageViewWithLayout(building);
+
                 container.getChildren().add(imageView);
                 //TODO
             }
-            tabContents.set(tabNames.indexOf(name), container);
-        }
+
+            if (name.equals("height")) {
+                Building height_up = new Building();
+                height_up.setBuildingName("height_up");
+                height_up.setWidth(1);
+                height_up.setDepth(1);
+                ImageView imageViewUp = imageViewWithLayout(height_up);
+                Building height_down = new Building();
+                height_down.setBuildingName("height_down");
+                height_down.setWidth(1);
+                height_down.setDepth(1);
+                ImageView imageViewDown = imageViewWithLayout(height_down);
+                container.getChildren().addAll(imageViewUp, imageViewDown);
+            }
+
+                if (name.equals("speed")) {
+                    // erzeuge einen Button zum Starten/Pausieren von Simulation
+                    createAnimationButton();
+                    // erzeuge SLider
+                    createTickSlider();
+                    container.getChildren().add(0, animationButton);
+                    container.getChildren().add(1, slider);
+                }
+
+
+                if (name.equals("remove")) {
+                    Building remove = new Building();
+                    remove.setBuildingName("remove");
+                    remove.setWidth(1);
+                    remove.setDepth(1);
+                    ImageView imageView = imageViewWithLayout(remove);
+                    container.getChildren().add(imageView);
+                }
+
+                tabContents.set(tabNames.indexOf(name), container);
+            }
+
     }
 
     /**
@@ -127,7 +230,8 @@ public class MenuPane extends AnchorPane {
      * @return
      */
     private ImageView imageViewWithLayout(Building building) {
-        String imageName = mapping.getImageNameForBuildingName(building.getBuildingName());
+        String imageName;
+        imageName = mapping.getImageNameForObjectName(building.getBuildingName());
         Image image = view.getResourceForImageName(imageName);
         ImageView imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
@@ -149,6 +253,7 @@ public class MenuPane extends AnchorPane {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+//        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 
@@ -157,7 +262,7 @@ public class MenuPane extends AnchorPane {
             return isoCoord;
         }
         if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
-            String imageName = mapping.getImageNameForBuildingName(selectedBuilding.getBuildingName());
+            String imageName = mapping.getImageNameForObjectName(selectedBuilding.getBuildingName());
             if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
                 Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
                 tile.setBuildingOrigin(true);
@@ -168,7 +273,7 @@ public class MenuPane extends AnchorPane {
                 double ratio = view.getImageNameToImageRatio().get(imageName);
                 double tileWidth = view.getTileImageWidth();
                 Image image = view.getResourceForImageName(imageName, tileWidth, tileWidth * ratio);
-                view.drawTileImage(yCoord, xCoord, image, transparent);
+                view.drawTileImage(xCoord, yCoord, image, transparent);
             }
             return isoCoord;
         } else return null;
@@ -228,5 +333,9 @@ public class MenuPane extends AnchorPane {
 
     public MouseEvent getHoveredEvent() {
         return hoveredEvent;
+    }
+
+    public Button getAnimationButton() {
+        return animationButton;
     }
 }

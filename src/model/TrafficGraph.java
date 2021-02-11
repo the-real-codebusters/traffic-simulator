@@ -103,7 +103,7 @@ public class TrafficGraph {
      * @param vertex1 Dieser Knoten bleibt nach der Zusammenlegung bestehen.
      * @param vertex2 Dieser Knoten wird nach der Zusammenlegung aus dem Graph entfernt.
      */
-    public void joinVertices(Vertex vertex1, Vertex vertex2) {
+    public Vertex joinVertices(Vertex vertex1, Vertex vertex2) {
 
         List<Vertex> connectionsFromVertex2 = adjacencyMap.get(vertex2.getName());
 
@@ -125,19 +125,15 @@ public class TrafficGraph {
         }
         // vertex2 wird aus Graph zusammen mit seinen Kanten entfernt
         removeVertex(vertex2.getName());
-
-        this.getMapOfVertexes().put(vertex2.getName(), vertex1);
-        List<Vertex> connectionsFromVertex1 = this.adjacencyMap.get(vertex1.getName());
-
-        // Fügt den Namen des vertex2 zusätzlich als Key zu der Map hinzu
-        adjacencyMap.put(vertex2.getName(), connectionsFromVertex1);
+        return vertex1;
     }
 
     /**
      * Soll überprüfen, ob es im Graph Punkte gibt, die sich "an der gleichen Stelle" befinden (also die gleichen
      * Koordinaten relativ zum Ursprung der der game map haben)
      */
-    public void checkForDuplicatePoints() {
+    public List<Vertex> checkForDuplicatePoints() {
+        List<Vertex> joinedVertices = new ArrayList<>();
         for (int i = 0; i < mapOfVertexes.size(); i++) {
             for (int j = 0; j < mapOfVertexes.size(); j++) {
                 String nameOfVertex1 = mapOfVertexes.keySet().toArray()[i].toString();
@@ -152,12 +148,13 @@ public class TrafficGraph {
                     if(Math.abs(differenceX) < 0.1 && Math.abs(differenceY) < 0.1) {
 //                        System.out.println("Joining vertices " + v1.getName() + " " + v2.getName() + " with coords: "
 //                                + v1.coordsRelativeToMapOrigin() + " " + v2.coordsRelativeToMapOrigin());
-                        joinVertices(v1, v2);
+                        joinedVertices.add(joinVertices(v1, v2));
                         j--;
                     }
                 }
             }
         }
+        return joinedVertices;
     }
 
 

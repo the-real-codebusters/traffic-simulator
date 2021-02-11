@@ -1,7 +1,10 @@
 package model;
 
+import javafx.geometry.Point2D;
 import javafx.util.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Vehicle {
@@ -11,7 +14,15 @@ public class Vehicle {
     private String graphic;
     private Storage storage;
 
-    private VehiclePosition position;
+    private PositionOnTilemap position;
+    private List<Vertex> pathToNextStation = new ArrayList<>();
+
+    // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
+    boolean movementInTrafficLineGoesForward = true;
+
+    // Die nächste Station, zu der das fahrzeug fahren will. Sozusagen das aktuelle Ziel
+    private Station nextStation;
+    private Pathfinder pathfinder;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -27,10 +38,73 @@ public class Vehicle {
         return instance;
     }
 
-    // Wo startet das Fahrzeug?
-    // Wo will es hin?
-    public void searchForPath(){
+    /**
+     * Speichert den Weg zur nächsten Station ab. Momentan nur für Straßen
+     * @param startVertex
+     */
+    public void savePathToNextStation(Vertex startVertex){
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex);
+    }
 
+    public void updateNextStation() {
+        TrafficLine line = nextStation.getTrafficLineForTrafficType(kind);
+        nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+    }
+
+    /**
+     * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Entfernt die abgefahrenen Knoten aus
+     * pathToNextStation
+     * @return Ein VehicleMovement Objekt
+     */
+    public VehicleMovement getMovementForNextDay(){
+        // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
+        double wayToGo = speed;
+        // Die Bewegung startet an der aktuellen Position
+        PositionOnTilemap currentPosition = position;
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition);
+        double distanceToNextVertex = 0;
+        // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
+        // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
+        // Knoten, und der Länge des Wegs zu diesem Knoten mitgegeben werden
+        while(wayToGo >= 0 && pathToNextStation.size() > 0){
+            Vertex nextVertex = pathToNextStation.remove(0);
+            //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
+            distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
+            vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
+            currentPosition = nextVertex;
+            wayToGo -= distanceToNextVertex;
+        }
+        if(pathToNextStation.size() == 0){
+            // Station ist erreicht
+            updateNextStation();
+            savePathToNextStation((Vertex) currentPosition);
+            return vehicleMovement;
+        }
+        // Ansonsten wurde die Zielstation nicht erreicht
+
+        // Da wayToGo dann vermutlich negativ ist, also nicht genug Weg bis zum nächsten Knoten vorhanden war, muss der
+        // letzte Knoten aus dem VehicleMovement wieder entfernt werden und stattdessen eine Position anteilig des übrigen
+        // Weges in Richtung des nächsten Knotens hinzugefügt werden
+
+        wayToGo+=distanceToNextVertex;
+        pathToNextStation.add(0, (Vertex) currentPosition);
+        vehicleMovement.removeLastPair();
+
+        PositionOnTilemap previouslyLastPosition;
+        if(vehicleMovement.getNumberOfPoints() == 0){
+            System.out.println("way to go "+wayToGo);
+            System.out.println("path to next station "+pathToNextStation);
+            previouslyLastPosition = vehicleMovement.getStartPosition();
+        }
+        else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
+        VehiclePosition lastPosition = previouslyLastPosition.
+                getnewPositionShiftedTowardsGivenPointByGivenDistance(
+                        currentPosition.coordsRelativeToMapOrigin(), wayToGo);
+
+        //TODO Was wenn es genau am Ziel landet?
+
+        vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
+        return vehicleMovement;
     }
 
     /**
@@ -122,11 +196,31 @@ public class Vehicle {
         this.storage = storage;
     }
 
-    public VehiclePosition getPosition() {
+    public PositionOnTilemap getPosition() {
         return position;
     }
 
-    public void setPosition(VehiclePosition position) {
+    public void setPosition(PositionOnTilemap position) {
         this.position = position;
+    }
+
+    public void setPathfinder(Pathfinder pathfinder) {
+        this.pathfinder = pathfinder;
+    }
+
+    public boolean isMovementInTrafficLineGoesForward() {
+        return movementInTrafficLineGoesForward;
+    }
+
+    public void setMovementInTrafficLineGoesForward(boolean movementInTrafficLineGoesForward) {
+        this.movementInTrafficLineGoesForward = movementInTrafficLineGoesForward;
+    }
+
+    public Station getNextStation() {
+        return nextStation;
+    }
+
+    public void setNextStation(Station nextStation) {
+        this.nextStation = nextStation;
     }
 }

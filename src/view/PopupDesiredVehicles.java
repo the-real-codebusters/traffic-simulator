@@ -1,4 +1,4 @@
-package model;
+package view;
 
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -9,7 +9,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 
-public class Anzeige extends Application {
+public class PopupDesiredVehicles extends Application {
 
     private int result;
 

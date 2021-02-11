@@ -19,6 +19,7 @@ public class MapGenerator {
 
         generateNature(mapWidth, mapDepth, basicModel);
         generateFactories(mapWidth, mapDepth, basicModel);
+        generateHeightMap();
 
         return mapFieldGrid;
     }
@@ -67,37 +68,43 @@ public class MapGenerator {
 
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
+        //TODO Hier steht teilweise veralteter Code
+
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
-                //propability für Wasser
-                int probWater = 1;
-                if (row > 1 && col > 1) {
-                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
-                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
-                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
-                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
-                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
-                }
+//                //propability für Wasser
+//                int probWater = 1;
+//                if (row > 1 && col > 1) {
+//                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
+//                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
+//                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
+//                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
+//                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
+//                }
 
 
                 Building building = null;
-                int heightRandom = new Random().nextInt(1000);
-                if (heightRandom <= probWater) {
-                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-                    cornerHeights.put("cornerN", -1);
-                    cornerHeights.put("cornerE", -1);
-                    cornerHeights.put("cornerS", -1);
-                    cornerHeights.put("cornerW", -1);
-
-                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
-                }
+//                int heightRandom = new Random().nextInt(1000);
+//                if (heightRandom <= probWater && false) {
+//                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
+//                    cornerHeights.put("cornerN", 0);
+//                    cornerHeights.put("cornerE", 0);
+//                    cornerHeights.put("cornerS", 0);
+//                    cornerHeights.put("cornerW", 0);
+//                    //TODO && false löschen
+//
+//                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
+//                }
 
                 //Wenn kein Wasser gesetzt ist, andere Höhen setzen
-                else {
-                    int buildingRandom = new Random().nextInt(7)==0?0:1;
+                    int buildingRandom = new Random().nextInt(natureBuildings.size());
                     building = natureBuildings.get(buildingRandom).getNewInstance();
-                    mapFieldGrid[row][col] = new Tile(building, generateTileHeight(), false);
-                }
+                    Map <String, Integer> heightMap = new HashMap<>();
+                    heightMap.put("cornerN", 0);
+                    heightMap.put("cornerE", 0);
+                    heightMap.put("cornerS", 0);
+                    heightMap.put("cornerW", 0);
+                   mapFieldGrid[row][col] = new Tile(building, heightMap, false);
 
             }
         }
@@ -142,7 +149,7 @@ public class MapGenerator {
                     Map<String, Integer> map = generateTileHeightFirstColumn(heightOfCornerS, heightOfCornerE);
 
                     mapFieldGrid[row][0].setCornerHeights(map);
-//                    System.out.println("row: " + row + " col: " +  col + " " + map);
+                    System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für alle Felder, die nicht in der ersten Zeile oder in der ersten Spalte sind
                 } else if (row != 0 && col != 0){
@@ -157,9 +164,9 @@ public class MapGenerator {
             }
         }
 
-//        System.out.println("links: " + mapFieldGrid[16][21].getCornerHeights());
-//        System.out.println("unten: " + mapFieldGrid[17][20].getCornerHeights());
-//        System.out.println("zu prüfen: " + mapFieldGrid[17][21].getCornerHeights());
+        System.out.println("links: " + mapFieldGrid[16][21].getCornerHeights());
+        System.out.println("unten: " + mapFieldGrid[17][20].getCornerHeights());
+        System.out.println("zu prüfen: " + mapFieldGrid[17][21].getCornerHeights());
     }
 
 
@@ -180,7 +187,7 @@ public class MapGenerator {
 
         // Stelle sicher, dass Höhenunterschied zwischen Süd und Ost immer noch innerhalb der erlaubten Toleranz liegt
         if (Math.abs(cornerS - cornerE) > 1) {
-            int digit = new Random().nextInt(1) + 1;
+            int digit = new Random().nextInt(2);
             if (Math.abs(cornerS - cornerE) > 2) {
                 digit = 2;
             }
@@ -217,14 +224,14 @@ public class MapGenerator {
             if (Math.abs(cornerS - cornerW) > 2) {
                 digit = 2;
             }
-            if (cornerS > cornerW) cornerW = cornerW + digit;
-            else cornerW = cornerW - digit;
+            if (cornerS > cornerW) cornerS = cornerS - digit;
+            else cornerS = cornerS + digit;
         }
 
+        cornerHeights.put("cornerW", cornerW);
         cornerHeights.put("cornerN", cornerN);
         cornerHeights.put("cornerE", cornerE);
         cornerHeights.put("cornerS", cornerS);
-        cornerHeights.put("cornerW", cornerW);
 
         return cornerHeights;
     }
@@ -250,8 +257,8 @@ public class MapGenerator {
             if (Math.abs(cornerN - cornerW) > 2) {
                 digit = 2;
             }
-            if (cornerN > cornerW) cornerW = cornerW + digit;
-            else cornerW = cornerW - digit;
+            if (cornerN > cornerW) cornerN = cornerN - digit;
+            else cornerN = cornerN + digit;
         }
 
         if (Math.abs(cornerS - cornerE) > 1) {
@@ -317,19 +324,55 @@ public class MapGenerator {
 
         int minHeight;
         int maxHeight;
-        if (heightOfEdgeBefore != 0) {
+        if (heightOfEdgeBefore != -3) {
             minHeight = heightOfEdgeBefore - 1;
         } else {
             minHeight = heightOfEdgeBefore;
         }
 
-        if (heightOfEdgeBefore == 9) {
+        if (heightOfEdgeBefore == 5) {
             maxHeight = heightOfEdgeBefore;
         } else {
             maxHeight = heightOfEdgeBefore + 1;
         }
 
-        int heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+//        int heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+
+        //TODO Wenn man die Wahrscheinlichkeiten probabilityMinHeight und probabilityMaxHeight verkleinert, treten sehr
+        //komische Probleme auf. Was ist da los?
+
+        int heightOfNextCorner;
+        if(heightOfEdgeBefore > 0){
+            int probabilityMinHeight = 40;
+            int randomNumber = r.nextInt(100)+1;
+            if(randomNumber < probabilityMinHeight){
+                heightOfNextCorner = minHeight;
+            }
+            else {
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 2) + minHeight;
+            }
+        }
+        else if (heightOfEdgeBefore < 0) {
+            int probabilityMaxHeight = 40;
+            int randomNumber = r.nextInt(100)+1;
+            if(randomNumber < probabilityMaxHeight){
+                heightOfNextCorner = maxHeight;
+            }
+            else {
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight) + minHeight;
+            }
+        }
+        else {
+            int probabilityNullHeight = 90;
+            int randomNumber = r.nextInt(100)+1;
+            if(randomNumber < probabilityNullHeight){
+                heightOfNextCorner = 0;
+            }
+            else {
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
+            }
+        }
+
 
         return heightOfNextCorner;
     }

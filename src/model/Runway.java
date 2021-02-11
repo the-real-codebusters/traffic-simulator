@@ -16,7 +16,7 @@ public class Runway extends Stop {
         instance.setSpecial(getSpecial());
         instance.setTransportations(List.copyOf(transportations));
         instance.setEntry(entry);
-        setTrafficType(TrafficType.AIR);
+        instance.setTrafficType(TrafficType.AIR);
         return instance;
     }
 
