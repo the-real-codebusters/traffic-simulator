@@ -1,7 +1,5 @@
 package model;
 
-import view.ObjectToImageMapping;
-
 import java.util.*;
 
 public class MapGenerator {
@@ -129,47 +127,14 @@ public class MapGenerator {
 
 //                if (!mapFieldGrid[row][col].isWater() && mapFieldGrid[row][col].getBuilding() instanceof Nature) {
 
-                    // Erzeuge Höhe für das Feld mit Koordinaten [0,0] und setze die erzeugten Höhen für das Feld
-                    if (row == 0 && col == 0) {
-//                        Map<String, Integer> map = generateTileHeight();
+                // Setze höhen der ecken für erste zeile und erste spalte auf 0
+                    if (row == 0 || col == 0) {
                         Map<String, Integer> map = new LinkedHashMap<>();
                         map.put("cornerN", 0);
                         map.put("cornerE", 0);
                         map.put("cornerS", 0);
                         map.put("cornerW", 0);
-                        mapFieldGrid[0][0].setCornerHeights(map);
-//                    System.out.println("row: " + row + " col: " +  col + " " + map);
-
-                        // Erzeuge Höhen für die erste Zeile ausschließlich des Felds[0,0]
-                    } else if (row == 0 && col != 0) {
-                        // Holt sich die Werte der Ecken des "Vorgängerfeldes" und gibt diese als Parameter in der Methode
-                        // zur Erzeugung der Höhen mit, damit diese Werte berücksichtigt werden können
-                        int heightOfCornerN = mapFieldGrid[0][col - 1].getCornerHeights().get("cornerN");
-                        int heightOfCornerE = mapFieldGrid[0][col - 1].getCornerHeights().get("cornerE");
-
-//                        Map<String, Integer> map = generateTileHeightFirstRow(heightOfCornerN, heightOfCornerE);
-                        Map<String, Integer> map = new LinkedHashMap<>();
-                        map.put("cornerN", 0);
-                    map.put("cornerE", 0);
-                    map.put("cornerS", 0);
-                    map.put("cornerW", 0);
-
-                        mapFieldGrid[0][col].setCornerHeights(map);
-//                    System.out.println("row: " + row + " col: " +  col + " " + map);
-
-                        // Erzeuge Höhen für die erste Spalte ausschließlich des Felds[0,0]
-                    } else if (row != 0 && col == 0) {
-                        int heightOfCornerS = mapFieldGrid[row - 1][0].getCornerHeights().get("cornerS");
-                        int heightOfCornerE = mapFieldGrid[row - 1][0].getCornerHeights().get("cornerE");
-
-//                        Map<String, Integer> map = generateTileHeightFirstColumn(heightOfCornerS, heightOfCornerE);
-
-                        Map<String, Integer> map = new LinkedHashMap<>();
-                        map.put("cornerN", 0);
-                        map.put("cornerE", 0);
-                        map.put("cornerS", 0);
-                        map.put("cornerW", 0);
-                        mapFieldGrid[row][0].setCornerHeights(map);
+                        mapFieldGrid[row][col].setCornerHeights(map);
 //                        System.out.println("row: " + row + " col: " + col + " " + map);
 
                         // Erzeuge Höhen für alle Felder, die nicht in der ersten Zeile oder in der ersten Spalte sind
@@ -199,9 +164,9 @@ public class MapGenerator {
 //                    ground.setWidth(1);
 //                    ground.setDepth(1);
 //                    mapFieldGrid[row][col].setBuilding(ground);
-                }
+//                }
             }
-//        }
+        }
     }
 
 
@@ -218,8 +183,6 @@ public class MapGenerator {
         Map<String, Integer> cornerHeights = new LinkedHashMap<>();
 
         int cornerE = generateHeightForCorner(cornerN);
-//        System.out.println(cornerE);
-
 
         if (Math.abs(cornerS - cornerE) > 1) {
 //            int digit = new Random().nextInt(1) + 1;
@@ -240,29 +203,6 @@ public class MapGenerator {
 
         return cornerHeights;
     }
-//        Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-//
-//        // Generiere Höhe für die fehlende Ecke
-//        int cornerE = generateHeightForCorner(cornerN);
-//
-//        // Stelle sicher, dass Höhenunterschied zwischen Süd und Ost immer noch innerhalb der erlaubten Toleranz liegt
-//        if (Math.abs(cornerS - cornerE) > 1) {
-//            int digit = new Random().nextInt(2);
-//            if (Math.abs(cornerS - cornerE) > 2) {
-//                digit = 2;
-//            }
-//            if (cornerS > cornerE) cornerE = cornerE + digit;
-//            else cornerE = cornerE - digit;
-//        }
-//
-//        // Füge Höhen der Map hinzu
-//        cornerHeights.put("cornerN", cornerN);
-//        cornerHeights.put("cornerE", cornerE);
-//        cornerHeights.put("cornerS", cornerS);
-//        cornerHeights.put("cornerW", cornerW);
-//
-//        return cornerHeights;
-//    }
 
     /**
      * Generiert eine Zahl für die Ecke eines Tiles unter berücksichtigung der Höhe der vorherigen benachbarten Ecke
@@ -324,113 +264,5 @@ public class MapGenerator {
             }
         }
         return heightOfNextCorner;
-    }
-
-    /**
-     * Generiert Höhen für die Tiles in der ersten Spalte
-     * Die Werte der übergebenen Parameter sind die Höhen des "Vorgängerfelds", die bei der Erzeugung der Höhen des
-     * aktuellen Feldes berücksichtigt und beibehalten werden müssen.
-     * @param cornerW
-     * @param cornerN
-     * @return eine Map, die die Ecken eines Tiles auf die zugehörige Höhe abbildet
-     */
-    public Map<String, Integer> generateTileHeightFirstColumn(int cornerW , int cornerN) {
-        Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-
-        int cornerE = generateHeightForCorner(cornerN);
-        int cornerS = generateHeightForCorner(cornerE);
-
-
-        if (Math.abs(cornerS - cornerW) > 1) {
-            int digit = new Random().nextInt(1) + 1;
-            if (Math.abs(cornerS - cornerW) > 2) {
-                digit = 2;
-            }
-            if (cornerS > cornerW) cornerS = cornerS - digit;
-            else cornerS = cornerS + digit;
-        }
-
-        cornerHeights.put("cornerW", cornerW);
-        cornerHeights.put("cornerN", cornerN);
-        cornerHeights.put("cornerE", cornerE);
-        cornerHeights.put("cornerS", cornerS);
-
-        return cornerHeights;
-    }
-
-    /**
-     * Generiert Höhen für die Tiles in der ersten Zeile
-     * Die Werte der übergebenen Parameter sind die Höhen des "Vorgängerfelds", die bei der Erzeugung der Höhen des
-     * aktuellen Feldes berücksichtigt und beibehalten werden müssen.
-     * @param cornerW
-     * @param cornerS
-     * @return eine Map, die die Ecken eines Tiles auf die zugehörige Höhe abbildet
-     */
-    public Map<String, Integer> generateTileHeightFirstRow(int cornerW , int cornerS) {
-        Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-
-        int cornerN = generateHeightForCorner(cornerW);
-        int cornerE = generateHeightForCorner(cornerN);
-
-        // prüfe ob max. Höhenunterschied eingehalten wird
-        // falls nicht, ändere den Wert
-        if (Math.abs(cornerN - cornerW) > 1) {
-            int digit = new Random().nextInt(1) + 1;
-            if (Math.abs(cornerN - cornerW) > 2) {
-                digit = 2;
-            }
-            if (cornerN > cornerW) cornerN = cornerN - digit;
-            else cornerN = cornerN + digit;
-        }
-
-        if (Math.abs(cornerS - cornerE) > 1) {
-            int digit = new Random().nextInt(1) + 1;
-            if (Math.abs(cornerS - cornerE) > 2) {
-                digit = 2;
-            }
-            if (cornerS > cornerE) cornerE = cornerE + digit;
-            else cornerE = cornerE - digit;
-        }
-
-        cornerHeights.put("cornerN", cornerN);
-        cornerHeights.put("cornerE", cornerE);
-        cornerHeights.put("cornerS", cornerS);
-        cornerHeights.put("cornerW", cornerW);
-
-        return cornerHeights;
-    }
-
-    /**
-     * Generiert Höhen für die vier Ecken eines Tiles unter Berücksichtigung der Einschränkungen (benachbarte Ecken
-     * dürfen einen Höhenunterschied von max. 1 haben und diagonal gegenüberliegende Ecken max. 2
-     *
-     * @return eine Map, die die Ecken eines Tiles auf die zugehörige Höhe abbildet
-     */
-    public Map<String, Integer> generateTileHeight() {
-        Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-
-        int cornerN = new Random().nextInt(5);
-        int cornerE = generateHeightForCorner(cornerN);
-        int cornerS = generateHeightForCorner(cornerE);
-        int cornerW = generateHeightForCorner(cornerS);
-
-        // prüfe ob max. Höhenunterschied zwischen angegebenen Ecken eingehalten wird
-        // falls nicht, ändere den Wert
-        if (Math.abs(cornerN - cornerW) > 1) {
-            int digit = new Random().nextInt(1) + 1;
-            if (Math.abs(cornerN - cornerW) > 2) {
-                digit = 2;
-            }
-            if (cornerN > cornerW) cornerW = cornerW + digit;
-            else cornerW = cornerW - digit;
-        }
-
-        // Füge gefundene Höhen der Map hinzu
-        cornerHeights.put("cornerN", cornerN);
-        cornerHeights.put("cornerE", cornerE);
-        cornerHeights.put("cornerS", cornerS);
-        cornerHeights.put("cornerW", cornerW);
-
-        return cornerHeights;
     }
 }

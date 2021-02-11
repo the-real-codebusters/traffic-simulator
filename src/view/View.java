@@ -547,7 +547,7 @@ public class View {
         if(cornerHeights.get("cornerN") >= 0){
             yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerN");
         } else {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN");
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN") +tileImageHeightHalf/2;
         }
 
 
