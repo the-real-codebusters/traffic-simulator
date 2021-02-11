@@ -69,6 +69,8 @@ public class View {
     private ParallelTransition parallelTransition;
     private AnimationTimer timer;
 
+    private Map<List<Point2D>, Point2D> rowColToCanvasCoordinates = new LinkedHashMap<>();
+
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         objectToImageMapping = new ObjectToImageMapping(model.getGamemode());
@@ -303,9 +305,7 @@ public class View {
 
                             String buildingName = absoluteTileHeight;
 
-
                             Image image = getSingleFieldImage(col, row, fields);
-
                             String imageName = objectToImageMapping.getImageNameForObjectName(buildingName);
 
                             Image r = getResourceForImageName(imageName);
@@ -322,16 +322,11 @@ public class View {
 
 //                            System.out.println(row + " " + col + " " + cornerHeights);
                             //TODO Polygone mit Wasser oder Gras Tiles zu zeichnen, je nach Höhe
-//                            Tile tile = fields[row][col];
-//                            int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
-//                            int cornerHeightWest = tile.getCornerHeights().get("cornerW");
-//                            int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
-//                            int cornerHeightEast = tile.getCornerHeights().get("cornerE");
-
-//                            int cornerHeightSouth = 0;
-//                            int cornerHeightWest = 0;
-//                            int cornerHeightNorth = 0;
-//                            int cornerHeightEast = 0;
+                            Tile tile = fields[row][col];
+                            int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
+                            int cornerHeightWest = tile.getCornerHeights().get("cornerW");
+                            int cornerHeightNorth = tile.getCornerHeights().get("cornerN");
+                            int cornerHeightEast = tile.getCornerHeights().get("cornerE");
 
 
                             /*if(row-1 >= 0){
@@ -339,7 +334,7 @@ public class View {
                                 cornerHeightEast = fields[row+1][col+1].getCornerHeights().get("cornerW");
                                 cornerHeightNorth = fields[row][col+1].getCornerHeights().get("cornerW");
                             }*/
-//                            drawPolygon(drawOrigin, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
+                            drawPolygon( row, col, drawOrigin, cornerHeightNorth,cornerHeightEast,cornerHeightSouth,cornerHeightWest);
                         }
                     }
                 }
@@ -364,7 +359,7 @@ public class View {
 
 
     int numberOfDrawPol = 0;
-    public void drawPolygon(Point2D drawOrigin, int heightNorth, int heightEast, int heightSouth, int heightWest) {
+    public void drawPolygon(int row, int col , Point2D drawOrigin, int heightNorth, int heightEast, int heightSouth, int heightWest) {
 
         numberOfDrawPol++;
         // X und Y Koordinaten der linken Ecke des Tiles
@@ -420,28 +415,28 @@ public class View {
 //                shouldBeDrawed = false;
 
 
-//                if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
-//                    rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
-//                    System.out.println(rowColToCanvasCoordinates.size());
-//                }
+                if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
+                    rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
+                    System.out.println(rowColToCanvasCoordinates.size());
+                }
 //            }
 //        }
 //        if(shouldBeDrawed){
-                            ImagePattern imagePattern;
-                if (heightWest < 0) {
-                    imagePattern = getImagePatternForGroundName("water");
-                } else {
-                    imagePattern = getImagePatternForGroundName("grass");
-                }
-                gc.setFill(imagePattern);
-//            gc.setFill(Color.BLUEVIOLET);
-            gc.fillPolygon(xCoords, yCoords, numberOfPoints);
-                gc.strokePolygon(xCoords, yCoords, 4);
-//            gc.setStroke(Color.WHITE);
-
-//              gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
-
-            gc.setFill(Color.BLACK);
+//                            ImagePattern imagePattern;
+//                if (heightWest < 0) {
+//                    imagePattern = getImagePatternForGroundName("water");
+//                } else {
+//                    imagePattern = getImagePatternForGroundName("grass");
+//                }
+//                gc.setFill(imagePattern);
+////            gc.setFill(Color.BLUEVIOLET);
+//            gc.fillPolygon(xCoords, yCoords, numberOfPoints);
+//                gc.strokePolygon(xCoords, yCoords, 4);
+////            gc.setStroke(Color.WHITE);
+//
+////              gc.strokeText("N: " + heightNorth + " E " + heightEast + " S " + heightSouth + " W " + heightWest, xCoordOnCanvas, yCoordOnCanvas);
+//
+//            gc.setFill(Color.BLACK);
 //        }
 
 
@@ -450,43 +445,43 @@ public class View {
 
     }
 
-//    public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
-//
-//        double x = mouseX;
-//        double y = mouseY;
-//
-//        boolean inside = false;
-//        for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
-//
-//            double xi = coordsOnCanvas.get(i).getX();
-//            double yi = coordsOnCanvas.get(i).getY();
-//
-//            double xj = coordsOnCanvas.get(j).getX();
-//            double yj = coordsOnCanvas.get(j).getY();
-//
-//            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-//            if (intersect) inside = !inside;
-//        }
-//
-//        if(inside){
-//            System.out.println(rowColToCanvasCoordinates.get(coordsOnCanvas));
-//        }
-//
-//        return inside;
-//
-//    }
+    public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
+
+        double x = mouseX;
+        double y = mouseY;
+
+        boolean inside = false;
+        for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
+
+            double xi = coordsOnCanvas.get(i).getX();
+            double yi = coordsOnCanvas.get(i).getY();
+
+            double xj = coordsOnCanvas.get(j).getX();
+            double yj = coordsOnCanvas.get(j).getY();
+
+            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+
+        if(inside){
+            System.out.println(rowColToCanvasCoordinates.get(coordsOnCanvas));
+        }
+
+        return inside;
+
+    }
 
 
-//    public Point2D findTileCoordNew(double mouseX, double mouseY) {
-//        Point2D newIsoCoord = new Point2D(0,0);
-//        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
-//            if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
-//                System.out.println("Clicked on coordinates : " + entry.getValue());
-//                newIsoCoord = entry.getValue();
-//            }
-//        }
-//        return newIsoCoord;
-//    }
+    public Point2D findTileCoordNew(double mouseX, double mouseY) {
+        Point2D newIsoCoord = new Point2D(0,0);
+        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
+            if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
+                System.out.println("Clicked on coordinates : " + entry.getValue());
+                newIsoCoord = entry.getValue();
+            }
+        }
+        return newIsoCoord;
+    }
 
     /**
      * Soll die Koordinaten der Mausposition von Pixel zu isometrischen Koordinaten umrechnen
@@ -756,9 +751,7 @@ public class View {
             } else {
 
                 Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
-//                System.out.println(row + " " + column + " " + cornerHeights);
                 String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
-//                System.out.println(row + " " + column + " " + absoluteTileHeight);
 
                 buildingName = absoluteTileHeight;
 //                System.out.println("Buildingname: " + buildingName);
@@ -853,11 +846,11 @@ public class View {
             // Findet isometrische Koordinaten der Mouseposition
             Point2D isoCoord = findTileCoord(mouseX, mouseY);
 
-//            Point2D newIsoCoord = findTileCoordNew(mouseX, mouseY);
+            Point2D newIsoCoord = findTileCoordNew(mouseX, mouseY);
 
 //            System.out.println(rowColToCanvasCoordinates);
-            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
-//            String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
+//            String tileCoords = "Tile coordinates: x: " + isoCoord.getX() + " y: " + isoCoord.getY();
+            String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
             isoCoordLabel.setText(tileCoords);
 
 
