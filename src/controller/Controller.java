@@ -120,6 +120,7 @@ public class Controller {
         int yCoord = (int) isoCoord.getY();
         List<Vertex> addedVertices;
 
+
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
@@ -146,6 +147,7 @@ public class Controller {
                             model.getMap().getRawRoadGraph().removeVertex(v.getName());
                         }
                     }
+
                     // TODO so anpassen, dass es auch für rails funktioniert
 
                     Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();

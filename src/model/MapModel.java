@@ -36,7 +36,7 @@ public class MapModel {
 //        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
+                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights());
                 else tileGrid[r][c].setBuilding(instance);
             }
         }
@@ -94,38 +94,38 @@ public class MapModel {
         if((row+building.getWidth()) >= depth) return  false;
         if((column+building.getDepth()) >= width) return  false;
 
+        if(building.getBuildingName().equals("remove")
+                && !tileGrid[row][column].isWater()
+                && !(tileGrid[row][column].getBuilding() instanceof Factory)) return true;
+
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = tileGrid[r][c];
 //                if(tile.getHeight() < 0) return false;
                 // TODO Wenn Höhe nicht passt, return false
 
+                //Auf Wasserfeldern darf nicht gebaut werden
+                if(tile.isWater()) return false;
+
                 if(tile.getBuilding() instanceof Road) {
-                    // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;
                     // Wenn eine strasse abgerissen werden soll, soll ebenfalls true zurückgegeben werden
-                    if(canCombine || building.getBuildingName().equals("remove")){
-                        return true;
-                    }
+                    if(! canCombine) return false;
                 }
-
-                if(tile.getBuilding() instanceof Rail) {
+                else if (tile.getBuilding() instanceof Rail){
                     boolean canCombine = model.checkCombines(row, column, building) != building;
-                    if(canCombine || building.getBuildingName().equals("remove")){
-                        return true;
-                    }
+                    if(! canCombine) return false;
                 }
 
-                // Auf Graßfelder soll wieder gebaut werden dürfen
-                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")){
-                    return true;
+                else {
+                    // Auf Graßfelder soll wieder gebaut werden dürfen
+                    if(! ((tile.getBuilding() instanceof Nature) ||
+                            tile.getBuilding().getBuildingName().equals("grass"))) return false;
                 }
-
-                if(tile.getBuilding() instanceof Stop && building.getBuildingName().equals("remove")) return true;
-
-                if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
+
+        //TODO Runways werden beim platzieren abgeschnitten
 
         if(building instanceof Stop){
             adjacentStationId = -1L;

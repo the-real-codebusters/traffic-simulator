@@ -115,28 +115,29 @@ public class View {
 
         });
     }
+//        public void zoom1 (){
+//        canvas.setOnScroll(scrollEvent -> {
+//            double scrollDelta = scrollEvent.getDeltaY();
+//            System.out.println(scrollDelta);
+//            double zoomFactor = Math.exp(scrollDelta * 0.01);
+//           tileImageWidth = tileImageWidth * zoomFactor;
+//            tileImageHeight = tileImageHeight * zoomFactor;
 //
-//    public void zoom2 (){
-//        canvas.setOnScroll(event -> {
-//            double delta = 1.2;
-//            double scale = canvas.getScaleY(); // currently we only use Y, same value is used for X
-//            double oldScale = scale;
+//            tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
+//             tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+//             if (scrollDelta > 0) {
 //
-//            if (event.getDeltaY() < 0) scale /= delta;
-//            else scale *= delta;
 //
-//            scale = clamp(scale, MIN_SCALE, MAX_SCALE);
-//            double f = (scale / oldScale) - 1;
-//            double dx = (event.getSceneX() - (canvas.getBoundsInParent().getWidth() / 2 + canvas.getBoundsInParent().getMinX()));
-//            double dy = (event.getSceneY() - (canvas.getBoundsInParent().getHeight() / 2 + canvas.getBoundsInParent().getMinY()));
+//                 int halfX = (int) (canvas.getBoundsInParent().getWidth() / 2);
+//                 int halfY = (int) (canvas.getBoundsInParent().getHeight() / 2);
 //
-//            canvas.setScaleY(scale);
-//            // note: pivot value must be untransformed, i. e. without scaling
-//            setPivot(f * dx, f * dy);
-//            event.consume();
+//
+//                 setPivot(scrollEvent.getX() - halfX, scrollEvent.getY() - halfY);
+//             }
+//            drawMap();
+//
 //        });
 //    }
-
 
 //    public void setPivot( double x, double y) {
 //        canvas.setTranslateX(canvas.getTranslateX()-x);
@@ -640,7 +641,7 @@ public class View {
      */
     public Image getGrassImage(int column, int row) {
         String name;
-        String buildingName = "grass";;
+        String buildingName = "grass";
         if (column < 0 || row < 0 || column >= mapWidth || row >= mapDepth) name = "black";
         else {
             name = objectToImageMapping.getImageNameForObjectName(buildingName);

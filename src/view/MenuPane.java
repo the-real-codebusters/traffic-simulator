@@ -4,7 +4,9 @@ import controller.Controller;
 import javafx.animation.ParallelTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -20,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+
+
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+
 public class MenuPane extends AnchorPane {
 
     private List<Node> tabContents = new ArrayList();
@@ -30,6 +37,7 @@ public class MenuPane extends AnchorPane {
     private Canvas canvas;
     private Controller controller;
     private MouseEvent hoveredEvent;
+    private int result;
 
     // Wenn null, ist kein Bauwerk ausgewählt
     private Building selectedBuilding;
@@ -308,9 +316,12 @@ public class MenuPane extends AnchorPane {
     }
 
 
-    public Controller getController() {
-        return controller;
-    }
+
+
+
+
+
+
 
     public void setController(Controller controller) {
         this.controller = controller;

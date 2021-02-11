@@ -18,9 +18,8 @@ public class MapGenerator {
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         generateNature(mapWidth, mapDepth, basicModel);
-        generateFactories(mapWidth, mapDepth, basicModel);
         generateHeightMap();
-
+        generateFactories(mapWidth, mapDepth, basicModel);
         return mapFieldGrid;
     }
 
@@ -63,48 +62,56 @@ public class MapGenerator {
      * @param basicModel
      */
     private void generateNature(int mapWidth, int mapDepth, BasicModel basicModel) {
+        System.out.println("generate nature called");
         List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
 
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
-        //TODO Hier steht teilweise veralteter Code
+        HashMap<Building, Integer> natureStartProbabilities = new HashMap<>();
+        for(Building nature: natureBuildings){
+            natureStartProbabilities.put(nature, 3/natureBuildings.size()>=1?3/natureBuildings.size():1);
+        }
 
+        int percentPointsIfEqualNatureBuildingNear = 25;
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
-//                //propability für Wasser
-//                int probWater = 1;
-//                if (row > 1 && col > 1) {
-//                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
-//                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
-//                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
-//                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
-//                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
-//                }
+                Map<Building, Integer> natureProbabilities = new HashMap<>();
+                natureProbabilities.putAll(natureStartProbabilities);
+                if(row > 0){
+                    Building rowNearBuilding = mapFieldGrid[row-1][col].getBuilding();
+                    if(natureProbabilities.containsKey(rowNearBuilding)){
+                        natureProbabilities.replace(rowNearBuilding, natureProbabilities.get(rowNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+                    }
+                }
+                if(col > 0){
+                    Building colNearBuilding = mapFieldGrid[row][col-1].getBuilding();
+                    if(natureProbabilities.containsKey(colNearBuilding)){
+                        natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+                    }
+                }
+                if(col > 0 && row>0){
+                    Building colNearBuilding = mapFieldGrid[row-1][col-1].getBuilding();
+                    if(natureProbabilities.containsKey(colNearBuilding)){
+                        natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+                    }
+                }
+                int probCounter = 0;
+                int random = new Random().nextInt(99)+1;
+                Building building = new Building(1, 1, "grass");
+                for (Map.Entry<Building, Integer> entry : natureProbabilities.entrySet()) {
+                    probCounter+=entry.getValue();
+                    if(random <= probCounter){
+                        building = entry.getKey();
+                        break;
+                    }
+                }
 
-
-                Building building = null;
-//                int heightRandom = new Random().nextInt(1000);
-//                if (heightRandom <= probWater && false) {
-//                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-//                    cornerHeights.put("cornerN", 0);
-//                    cornerHeights.put("cornerE", 0);
-//                    cornerHeights.put("cornerS", 0);
-//                    cornerHeights.put("cornerW", 0);
-//                    //TODO && false löschen
-//
-//                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
-//                }
-
-                //Wenn kein Wasser gesetzt ist, andere Höhen setzen
-                    int buildingRandom = new Random().nextInt(natureBuildings.size());
-                    building = natureBuildings.get(buildingRandom).getNewInstance();
                     Map <String, Integer> heightMap = new HashMap<>();
                     heightMap.put("cornerN", 0);
                     heightMap.put("cornerE", 0);
                     heightMap.put("cornerS", 0);
                     heightMap.put("cornerW", 0);
-                   mapFieldGrid[row][col] = new Tile(building, heightMap, false);
-
+                    mapFieldGrid[row][col] = new Tile(building, heightMap);
             }
         }
     }
@@ -119,13 +126,15 @@ public class MapGenerator {
         int mapDepth = mapModel.getDepth();
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
+        System.out.println("generate height map called");
+
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
 
                 // Erzeuge Höhe für das Feld mit Koordinaten [0,0] und setze die erzeugten Höhen für das Feld
                 if(row == 0 && col == 0){
                     Map<String, Integer> map = generateTileHeight();
-                    mapFieldGrid[0][0].setCornerHeights(map);
+                    mapFieldGrid[0][0].setCornerHeightsAndUpdateIsWater(map);
 //                    System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für die erste Zeile ausschließlich des Felds[0,0]
@@ -137,7 +146,7 @@ public class MapGenerator {
 
                     Map<String, Integer> map = generateTileHeightFirstRow(heightOfCornerN, heightOfCornerE);
 
-                    mapFieldGrid[0][col].setCornerHeights(map);
+                    mapFieldGrid[0][col].setCornerHeightsAndUpdateIsWater(map);
 //                    System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für die erste Spalte ausschließlich des Felds[0,0]
@@ -147,7 +156,7 @@ public class MapGenerator {
 
                     Map<String, Integer> map = generateTileHeightFirstColumn(heightOfCornerS, heightOfCornerE);
 
-                    mapFieldGrid[row][0].setCornerHeights(map);
+                    mapFieldGrid[row][0].setCornerHeightsAndUpdateIsWater(map);
                     System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für alle Felder, die nicht in der ersten Zeile oder in der ersten Spalte sind
@@ -157,7 +166,7 @@ public class MapGenerator {
                     int heightOfCornerECol = mapFieldGrid[row-1][col].getCornerHeights().get("cornerE");
 
                     Map<String, Integer> map = generateTileHeightMiddle(heightOfCornerN, heightOfCornerECol, heightOfCornerERow);
-                    mapFieldGrid[row][col].setCornerHeights(map);
+                    mapFieldGrid[row][col].setCornerHeightsAndUpdateIsWater(map);
 //                    System.out.println("row: " + row + " col: " +  col + " " + map);
                 }
             }
