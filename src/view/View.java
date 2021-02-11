@@ -271,7 +271,7 @@ public class View {
                             for(int i = col; i <= col + building.getDepth()-1; i++) {
                                 // Obere Kante vom Gebäude mit Grassfläche übermalen
                                 Image image = getGrassImage(i, row);
-                                drawTileImage(drawOrigin, image, false, cornerHeights);
+                                drawTileImage(drawOrigin, image, false);
                             }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
@@ -284,7 +284,7 @@ public class View {
                             for(int i = row; i <= startRow; i++) {
                                 // Rechte Kante vom Gebäude mit Grassfläche übermalen
                                 Image image = getGrassImage(col, i);
-                                drawTileImage(drawOrigin, image, false, cornerHeights);
+                                drawTileImage(drawOrigin, image, false);
                             }
 
                         }
@@ -295,7 +295,7 @@ public class View {
                         if (row == startRow && col >= startCol && col <= endCol) {
                             // und muss daher als Grass gezeichnet werden
                             Image image = getGrassImage(col, row);
-                            drawTileImage(drawOrigin, image, false, cornerHeights);
+                            drawTileImage(drawOrigin, image, false);
                         }
                         else {
 
@@ -538,22 +538,21 @@ public class View {
      * @param image
      * @param transparent
      */
-    public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent, Map<String, Integer> cornerHeights) {
+    public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent) {
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
-//        System.out.println(drawOrigin.getX() + " " + drawOrigin.getY() + "Height above tile: " + heightAboveTile);
 
 //        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
 //        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
-//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile;
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile;
 
-        double yCoordOnCanvas;
-        if(cornerHeights.get("cornerS") == 0) {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
-        } else {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset * cornerHeights.get("cornerS");
-        }
+//        double yCoordOnCanvas;
+//        if(cornerHeights.get("cornerS") == 0) {
+//            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
+//        } else {
+//            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset * cornerHeights.get("cornerS");
+//        }
 
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
@@ -861,9 +860,15 @@ public class View {
 //            String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
             isoCoordLabel.setText(tileCoords);
 
-            Tile tile =controller.getTileOfMapTileGrid((int)isoCoord.getX(), (int)isoCoord.getY());
-            Map<String, Integer> cornerHeights = tile.getCornerHeights();
-            cornerLabel.setText(cornerHeights.toString());
+
+            Map<String, Integer> cornerHeights;
+            if(isoCoord.getX() >= 0 && isoCoord.getX() < mapWidth && isoCoord.getY() >= 0 && isoCoord.getY() < mapDepth) {
+                Tile tile = controller.getTileOfMapTileGrid((int) isoCoord.getX(), (int) isoCoord.getY());
+                cornerHeights = tile.getCornerHeights();
+                cornerLabel.setText(cornerHeights.toString());
+            } else {
+                cornerLabel.setText("undefined corner heights for this coordinates");
+            }
         });
     }
 
