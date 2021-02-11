@@ -1,7 +1,5 @@
 package model;
 
-import javafx.beans.property.StringProperty;
-
 import java.util.*;
 
 public class MapGenerator {
@@ -20,8 +18,8 @@ public class MapGenerator {
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
         generateNature(mapWidth, mapDepth, basicModel);
-        generateFactories(mapWidth, mapDepth, basicModel);
         generateHeightMap();
+        generateFactories(mapWidth, mapDepth, basicModel);
         return mapFieldGrid;
     }
 
@@ -71,10 +69,10 @@ public class MapGenerator {
 
         HashMap<Building, Integer> natureStartProbabilities = new HashMap<>();
         for(Building nature: natureBuildings){
-            natureStartProbabilities.put(nature, 5/natureBuildings.size()>=1?5/natureBuildings.size():1);
+            natureStartProbabilities.put(nature, 3/natureBuildings.size()>=1?3/natureBuildings.size():1);
         }
 
-        int percentPointsIfEqualNatureBuildingNear = 20;
+        int percentPointsIfEqualNatureBuildingNear = 25;
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
                 Map<Building, Integer> natureProbabilities = new HashMap<>();
@@ -91,13 +89,17 @@ public class MapGenerator {
                         natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
                     }
                 }
+                if(col > 0 && row>0){
+                    Building colNearBuilding = mapFieldGrid[row-1][col-1].getBuilding();
+                    if(natureProbabilities.containsKey(colNearBuilding)){
+                        natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+                    }
+                }
                 int probCounter = 0;
                 int random = new Random().nextInt(99)+1;
                 Building building = new Building(1, 1, "grass");
                 for (Map.Entry<Building, Integer> entry : natureProbabilities.entrySet()) {
-                    System.out.println("nature prob "+entry.getValue());
                     probCounter+=entry.getValue();
-                    System.out.println("probCounter "+probCounter);
                     if(random <= probCounter){
                         building = entry.getKey();
                         break;
@@ -132,7 +134,7 @@ public class MapGenerator {
                 // Erzeuge Höhe für das Feld mit Koordinaten [0,0] und setze die erzeugten Höhen für das Feld
                 if(row == 0 && col == 0){
                     Map<String, Integer> map = generateTileHeight();
-                    mapFieldGrid[0][0].setCornerHeights(map);
+                    mapFieldGrid[0][0].setCornerHeightsAndUpdateIsWater(map);
 //                    System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für die erste Zeile ausschließlich des Felds[0,0]
@@ -144,7 +146,7 @@ public class MapGenerator {
 
                     Map<String, Integer> map = generateTileHeightFirstRow(heightOfCornerN, heightOfCornerE);
 
-                    mapFieldGrid[0][col].setCornerHeights(map);
+                    mapFieldGrid[0][col].setCornerHeightsAndUpdateIsWater(map);
 //                    System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für die erste Spalte ausschließlich des Felds[0,0]
@@ -154,7 +156,7 @@ public class MapGenerator {
 
                     Map<String, Integer> map = generateTileHeightFirstColumn(heightOfCornerS, heightOfCornerE);
 
-                    mapFieldGrid[row][0].setCornerHeights(map);
+                    mapFieldGrid[row][0].setCornerHeightsAndUpdateIsWater(map);
                     System.out.println("row: " + row + " col: " +  col + " " + map);
 
                 // Erzeuge Höhen für alle Felder, die nicht in der ersten Zeile oder in der ersten Spalte sind
@@ -164,7 +166,7 @@ public class MapGenerator {
                     int heightOfCornerECol = mapFieldGrid[row-1][col].getCornerHeights().get("cornerE");
 
                     Map<String, Integer> map = generateTileHeightMiddle(heightOfCornerN, heightOfCornerECol, heightOfCornerERow);
-                    mapFieldGrid[row][col].setCornerHeights(map);
+                    mapFieldGrid[row][col].setCornerHeightsAndUpdateIsWater(map);
 //                    System.out.println("row: " + row + " col: " +  col + " " + map);
                 }
             }

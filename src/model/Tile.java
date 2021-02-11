@@ -29,8 +29,17 @@ public class Tile {
         return cornerHeights;
     }
 
-    public void setCornerHeights(Map<String, Integer> cornerHeights) {
+    public void setCornerHeightsAndUpdateIsWater(Map<String, Integer> cornerHeights) {
         this.cornerHeights = cornerHeights;
+        int numberOfCornersUnder0 = 0;
+        for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()) {
+            if(entry.getValue() < 0) numberOfCornersUnder0++;
+        }
+        if(numberOfCornersUnder0 >= 2) {
+            isWater = true;
+            building = null;
+        }
+        else isWater = false;
     }
 
     public boolean isBuildingOrigin() {
