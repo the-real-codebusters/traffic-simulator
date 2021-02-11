@@ -51,6 +51,7 @@ public class Vehicle {
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
 
+
     /**
      * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Entfernt die abgefahrenen Knoten aus
      * pathToNextStation

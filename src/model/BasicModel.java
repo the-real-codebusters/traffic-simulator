@@ -53,6 +53,13 @@ public class BasicModel {
      */
     public List<VehicleMovement> simulateOneDay(){
 
+        // runway platzieren (2x) -> Koordinaten speichern
+        // gelbe Punkte platzieren (?)
+        // flugzeug von a nach b sich bewegen und zurück
+        //
+
+
+
         // In der Zeit einer Runde, also seit dem letzten Aufruf dieser Methode, können Haltestellen platziert worden
         // sein, die zu neuen, unverbundenen Stationen führen. Eine unverbundene Station stellt erstmal eine neue
         // Verkehrslinie dar. Diese neue Verkehrslinie wurde der Queue newCreatedOrIncompleteTrafficLines hinzugefügt
@@ -66,11 +73,16 @@ public class BasicModel {
 
                     //TODO Andere TrafficTypes fehlen noch
                 }
+                if(newOrIncompleteTrafficLine.getTrafficType().equals(TrafficType.AIR)){
+                    activeTrafficLines.add(newOrIncompleteTrafficLine);
+                }
             }
             // Eine Station, die nur eine Station hat, ist eine unfertige Verkehrslinie
             else {
                 incompleteTrafficLines.add(newOrIncompleteTrafficLine);
             }
+
+
         }
         newCreatedOrIncompleteTrafficLines.addAll(incompleteTrafficLines);
 
@@ -81,6 +93,7 @@ public class BasicModel {
         for(TrafficLine activeLine: activeTrafficLines){
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
+
             if(activeLine.getDesiredNumberOfVehicles() > activeLine.getVehicles().size()){
                 activeLine.addNewVehicle();
             }
@@ -89,6 +102,9 @@ public class BasicModel {
         }
         System.out.println("activeTrafficLines "+activeTrafficLines);
         System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
+        //newCreatedOrIncompleteTrafficLines.peek().get
+
+        //VehicleMovement airplaneMovement = new VehicleMovement(new PositionOnTilemap());
 
         List<VehicleMovement> movements = new ArrayList<>();
         for(Vehicle vehicle : activeVehicles){
