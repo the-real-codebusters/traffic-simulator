@@ -259,6 +259,8 @@ public class View {
                     Building building = field.getBuilding();
                     Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, col).getCornerHeights();
 
+//                    System.out.println("View: " + row + " " + col + " " + cornerHeights);
+
                     // Wenn das building größer als ein Tile ist, zeichne über mehrere Tiles
                     if (building != null && (building.getWidth() > 1 || building.getDepth() > 1)) {
                         if (field.isBuildingOrigin()) {
@@ -296,7 +298,6 @@ public class View {
 
                             String absoluteTileHeight = controller.getTileOfMapTileGrid(row, col).absoluteHeigtToRelativeHeight(cornerHeights);
 
-
                             String buildingName = absoluteTileHeight;
 
 
@@ -306,17 +307,16 @@ public class View {
 
                             Image r = getResourceForImageName(imageName);
                             double ratio = r.getHeight() / r.getWidth();
-                            System.out.println("Ratio: " + ratio);
+//                            System.out.println("Ratio: " + ratio);
 
 
                             if(ratio != 0.484375){
                                 drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
-//                            }
-//                            if(image.getUrl().contains("Slope_NE.png")){
-//                                drawGroundOverMoreTiles("1100", row, col, image);
                             } else {
                                 drawTileImage(drawOrigin, image, false, cornerHeights);
                             }
+
+//                            System.out.println(row + " " + col + " " + cornerHeights);
                             //TODO Polygone mit Wasser oder Gras Tiles zu zeichnen, je nach Höhe
 //                            Tile tile = fields[row][col];
 //                            int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
@@ -541,7 +541,14 @@ public class View {
 //        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
 //        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
-        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * (cornerHeights.get("cornerW")+1);
+//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile;
+
+        double yCoordOnCanvas;
+        if(cornerHeights.get("cornerN") >= 0){
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerN");
+        } else {
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN");
+        }
 
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
@@ -583,27 +590,21 @@ public class View {
         String imageName = objectToImageMapping.getImageNameForObjectName(name);
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
-        System.out.println("HeightAboveTile: " + heightAboveTile);
+//        System.out.println("HeightAboveTile: " + heightAboveTile);
 
-        Image r = getResourceForImageName(imageName);
-        double ratio = r.getHeight() / r.getWidth();
+        Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
+        double xCoordOnCanvas = drawOrigin.getX();
+//        int diff = cornerHeights.get("cornerS")
+        int maxCorner = controller.getTileOfMapTileGrid(row, column).findMaxCorner(cornerHeights);
+//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * Math.abs(maxCorner);
+        double yCoordOnCanvas;
+        if(cornerHeights.get("cornerN") >= 0){
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerN");
+        } else {
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN");
+        }
 
-        System.out.println("Ratio: " + ratio);
-
-
-//        double imageWidth = tileImageWidth;
-//        double imageHeight = imageWidth * ratio;
-//        double heightDifference = tileImageHeight - imageHeight;
-
-//        System.out.println("imageHeight: " + imageHeight);
-//        System.out.println("HeightDifference: " + heightDifference);
-
-            Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
-            double xCoordOnCanvas = drawOrigin.getX();
-//        double yCoordOnCanvas = drawOrigin.getY() - (Math.abs(tileImageHeight - imageHeight)*cornerHeights.get("cornerW")) ;
-//        double yCoordOnCanvas = drawOrigin.getY() - heightDifference * cornerHeights.get("cornerW");
-        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * (cornerHeights.get("cornerW")+1);
-            canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
+        canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
     }
 
 
@@ -658,14 +659,8 @@ public class View {
             return newPattern;
         }
     }
+
 //
-//    /**
-//     * Gibt ein Image für die geforderte Stelle in der Tile-Map zurück in der Breite eines Tiles
-//     * @param column
-//     * @param row
-//     * @param fields
-//     * @return
-//     */
 //    public Image getGroundImage(int column, int row, Tile[][] fields) {
 //        String name;
 //        String buildingName;
@@ -714,7 +709,8 @@ public class View {
             Tile field = fields[row][column];
             if (field.isWater()) {
                 buildingName = "water";
-            } else if (field.getBuilding() == null) {
+            } else
+                if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
             } else {
 
@@ -724,19 +720,19 @@ public class View {
 //                System.out.println(row + " " + column + " " + absoluteTileHeight);
 
                 buildingName = absoluteTileHeight;
-                System.out.println("Buildingname: " + buildingName);
+//                System.out.println("Buildingname: " + buildingName);
 
             }
             name = objectToImageMapping.getImageNameForObjectName(buildingName);
         }
         double ratio = 0;
         if(name != null && imageNameToImageRatio.containsKey(name)){
-            System.out.println(name + " " + imageNameToImageRatio.get(name));
+//            System.out.println(name + " " + imageNameToImageRatio.get(name));
             ratio = imageNameToImageRatio.get(name);
             return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
         }
         else {
-            System.out.println("invalid name: + " + name);
+//            System.out.println("invalid name: + " + name);
             throw new RuntimeException("invalid building name");
         }
 

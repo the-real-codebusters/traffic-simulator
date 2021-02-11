@@ -1,6 +1,9 @@
 package model;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Tile {
 
@@ -19,6 +22,10 @@ public class Tile {
 
 
     public String absoluteHeigtToRelativeHeight(Map<String, Integer> cornerHeights){
+        // Eine Kopie der Map wird erzeugt, damit die ursprüngliche Map nicht verändert wird
+        Map<String, Integer> absoluteCornerHeights = new LinkedHashMap<>();
+        absoluteCornerHeights.putAll(cornerHeights);
+
         String absoluteHeight = "";
         int minHeight = Integer.MAX_VALUE;
         for (Integer corner : cornerHeights.values()){
@@ -26,12 +33,24 @@ public class Tile {
                 minHeight = corner;
             }
         }
-        for (Map.Entry<String, Integer> entry : cornerHeights.entrySet()){
+        for (Map.Entry<String, Integer> entry : absoluteCornerHeights.entrySet()){
             entry.setValue(Math.abs(entry.getValue() - minHeight));
             absoluteHeight += entry.getValue();
         }
 //        System.out.println( absoluteHeight + " absoluteHeigtToRelativeHeight");
         return absoluteHeight;
+    }
+
+
+    public int findMaxCorner(Map<String, Integer> cornerHeights){
+
+        int maxHeight = Integer.MIN_VALUE;
+        for (Integer corner : cornerHeights.values()){
+            if (corner > maxHeight){
+                maxHeight = corner;
+            }
+        }
+        return maxHeight;
     }
 
 

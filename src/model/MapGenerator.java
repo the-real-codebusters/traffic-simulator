@@ -73,31 +73,31 @@ public class MapGenerator {
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
-                //propability für Wasser
-                int probWater = 1;
-                if (row > 1 && col > 1) {
-                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
-                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
-                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
-                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
-                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
-                }
-
-
+//                //propability für Wasser
+//                int probWater = 1;
+//                if (row > 1 && col > 1) {
+//                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
+//                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
+//                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
+//                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
+//                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
+//                }
+//
+//
                 Building building = null;
-                int heightRandom = new Random().nextInt(1000);
-                if (heightRandom <= probWater ) {
-                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-                    cornerHeights.put("cornerN", -1);
-                    cornerHeights.put("cornerE", -1);
-                    cornerHeights.put("cornerS", -1);
-                    cornerHeights.put("cornerW", -1);
-                    //TODO && false löschen
-
-                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
-                }
-
-                else {
+//                int heightRandom = new Random().nextInt(1000);
+//                if (heightRandom <= probWater ) {
+//                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
+//                    cornerHeights.put("cornerN", -1);
+//                    cornerHeights.put("cornerE", -1);
+//                    cornerHeights.put("cornerS", -1);
+//                    cornerHeights.put("cornerW", -1);
+//                    //TODO && false löschen
+//
+//                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
+//                }
+//
+//                else {
 
                     //Wenn kein Wasser gesetzt ist, andere Höhen setzen
                     int buildingRandom = new Random().nextInt(natureBuildings.size());
@@ -111,7 +111,7 @@ public class MapGenerator {
 
                 }
             }
-        }
+//        }
     }
 
 
@@ -127,7 +127,7 @@ public class MapGenerator {
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
 
-                if (!mapFieldGrid[row][col].isWater()) {
+//                if (!mapFieldGrid[row][col].isWater() && mapFieldGrid[row][col].getBuilding() instanceof Nature) {
 
                     // Erzeuge Höhe für das Feld mit Koordinaten [0,0] und setze die erzeugten Höhen für das Feld
                     if (row == 0 && col == 0) {
@@ -186,22 +186,22 @@ public class MapGenerator {
 //                    System.out.println(row + " " + col + " " + cornerHeights);
 //                    String absoluteTileHeight = mapFieldGrid[row][col].absoluteHeigtToRelativeHeight(cornerHeights);
 //                    System.out.println(row + " " + col + " " + absoluteTileHeight);
-////
+//
 //                    Map<String, Integer> heightMap = new HashMap<>();
 //                    heightMap.put("cornerN", 0);
 //                    heightMap.put("cornerE", 0);
 //                    heightMap.put("cornerS", 0);
 //                    heightMap.put("cornerW", 0);
-////
+//
 //                    Building ground = new Building();
 //                    mapFieldGrid[row][col].setCornerHeights(cornerHeights);
-//                    ground.setBuildingName(absoluteTileHeight);
+//                    ground.setBuildingName("ground");
 //                    ground.setWidth(1);
 //                    ground.setDepth(1);
 //                    mapFieldGrid[row][col].setBuilding(ground);
                 }
             }
-        }
+//        }
     }
 
 
@@ -300,7 +300,7 @@ public class MapGenerator {
                 heightOfNextCorner = minHeight;
             }
             else {
-                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 2) + minHeight;
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
             }
         }
         else if (heightOfEdgeBefore < 0) {
@@ -310,7 +310,7 @@ public class MapGenerator {
                 heightOfNextCorner = maxHeight;
             }
             else {
-                heightOfNextCorner = r.nextInt(maxHeight - minHeight) + minHeight;
+                heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
             }
         }
         else {
@@ -323,9 +323,6 @@ public class MapGenerator {
                 heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
             }
         }
-
-        System.out.println("heightOfEdgeBefore: " + heightOfEdgeBefore);
-        System.out.println(" heightOfNextCorner: " + heightOfNextCorner);
         return heightOfNextCorner;
     }
 
