@@ -31,6 +31,7 @@ public class View {
     private double tileImageWidthHalf = tileImageWidth / 2;
     private double tileImageHeight = 64;
     private double tileImageHeightHalf = tileImageHeight / 2;
+    double tilePlacingOffset = 15.5;
     private int mapWidth;
     private int mapDepth;
 
@@ -113,6 +114,8 @@ public class View {
 
             tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
             tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+
+            tilePlacingOffset = tilePlacingOffset * zoomFactor;
 
             drawMap();
 
@@ -311,9 +314,10 @@ public class View {
 
 
                             if(ratio != 0.484375){
-                                drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
+//                                drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
                             } else {
                                 drawTileImage(drawOrigin, image, false, cornerHeights);
+//                                drawGroundInOneTile(drawOrigin, image, false, cornerHeights);
                             }
 
 //                            System.out.println(row + " " + col + " " + cornerHeights);
@@ -524,6 +528,9 @@ public class View {
         return new Point2D(x, y);
     }
 
+
+
+
     /**
      * Zeichnet das Bild in ein Feld an der angegebenen Stelle
 //     * @param column
@@ -537,6 +544,7 @@ public class View {
         // Zeichenreihenfolge von oben rechts nach unten links
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
+        System.out.println(drawOrigin.getX() + " " + drawOrigin.getY() + "Height above tile: " + heightAboveTile);
 
 //        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
@@ -544,10 +552,12 @@ public class View {
 //        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile;
 
         double yCoordOnCanvas;
-        if(cornerHeights.get("cornerN") >= 0){
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerN");
+        if(cornerHeights.get("cornerS") == 0) {
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
+//        } else if(cornerHeights.get("cornerS") > 0){
+//            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - 15.5 * cornerHeights.get("cornerS");
         } else {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN") +tileImageHeightHalf/2;
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset * cornerHeights.get("cornerS");
         }
 
 
@@ -584,7 +594,38 @@ public class View {
         return canvas;
     }
 
+    /**
+     * Zeichnet das Bild in ein Feld an der angegebenen Stelle
+     //     * @param column
+     //     * @param row
+     * @param image
+     * @param transparent
+     */
+    public void drawGroundInOneTile(Point2D drawOrigin, Image image, boolean transparent, Map<String, Integer> cornerHeights) {
 
+        double xCoordOnCanvas = drawOrigin.getX();
+        double yCoordOnCanvas;
+
+        if(cornerHeights.get("cornerN") == 1 && cornerHeights.get("cornerE") == 0 && cornerHeights.get("cornerS") == 1
+                && cornerHeights.get("cornerW") == 0 ){
+            System.out.println("Gotcha");
+        }
+
+        if(cornerHeights.get("cornerW") == 0) {
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
+//                    - cornerHeights.get("cornerW")*20;
+        } else if (cornerHeights.get("cornerW") > 0){
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
+//                    - cornerHeights.get("cornerW") * 15;
+        } else {
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
+        }
+
+
+        if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
+        canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
+        canvas.getGraphicsContext2D().setGlobalAlpha(1);
+    }
 
     public void drawGroundOverMoreTiles(String name, int row, int column, Image image, Map<String, Integer> cornerHeights) {
         String imageName = objectToImageMapping.getImageNameForObjectName(name);
@@ -598,10 +639,10 @@ public class View {
         int maxCorner = controller.getTileOfMapTileGrid(row, column).findMaxCorner(cornerHeights);
 //        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * Math.abs(maxCorner);
         double yCoordOnCanvas;
-        if(cornerHeights.get("cornerN") >= 0){
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerN");
+        if(cornerHeights.get("cornerW") >= 0){
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerW");
         } else {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN");
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerW");
         }
 
         canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
@@ -779,7 +820,7 @@ public class View {
         double startY = pixelYCoordAtTile + canvasCenterHeight - (tileOffset * tileImageHeight);
         startX -= cameraOffsetX;
         startY -= cameraOffsetY;
-//        System.out.println("moveCoordinates: " + startX + " " + startY);
+//        System.out.println("moveCoordinates: row " + startX + " column " + startY);
         return new Point2D(startX, startY);
     }
 
