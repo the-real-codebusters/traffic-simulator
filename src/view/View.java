@@ -314,7 +314,7 @@ public class View {
 
 
                             if(ratio != 0.484375){
-//                                drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
+                                drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
                             } else {
                                 drawTileImage(drawOrigin, image, false, cornerHeights);
 //                                drawGroundInOneTile(drawOrigin, image, false, cornerHeights);
@@ -540,11 +540,8 @@ public class View {
      */
     public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent, Map<String, Integer> cornerHeights) {
 
-        // TileX und TileY berechnet Abstand der Position von einem Bild zum nächsten in Pixel
-        // Zeichenreihenfolge von oben rechts nach unten links
-
         double heightAboveTile = image.getHeight() - tileImageHeight;
-        System.out.println(drawOrigin.getX() + " " + drawOrigin.getY() + "Height above tile: " + heightAboveTile);
+//        System.out.println(drawOrigin.getX() + " " + drawOrigin.getY() + "Height above tile: " + heightAboveTile);
 
 //        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
@@ -554,8 +551,6 @@ public class View {
         double yCoordOnCanvas;
         if(cornerHeights.get("cornerS") == 0) {
             yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
-//        } else if(cornerHeights.get("cornerS") > 0){
-//            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - 15.5 * cornerHeights.get("cornerS");
         } else {
             yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset * cornerHeights.get("cornerS");
         }
@@ -606,15 +601,10 @@ public class View {
         double xCoordOnCanvas = drawOrigin.getX();
         double yCoordOnCanvas;
 
-        if(cornerHeights.get("cornerN") == 1 && cornerHeights.get("cornerE") == 0 && cornerHeights.get("cornerS") == 1
-                && cornerHeights.get("cornerW") == 0 ){
-            System.out.println("Gotcha");
-        }
-
-        if(cornerHeights.get("cornerW") == 0) {
+        if(cornerHeights.get("cornerS") == 0) {
             yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf;
 //                    - cornerHeights.get("cornerW")*20;
-        } else if (cornerHeights.get("cornerW") > 0){
+        } else if (cornerHeights.get("cornerS") > 0){
             yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
 //                    - cornerHeights.get("cornerW") * 15;
         } else {
@@ -628,21 +618,48 @@ public class View {
     }
 
     public void drawGroundOverMoreTiles(String name, int row, int column, Image image, Map<String, Integer> cornerHeights) {
-        String imageName = objectToImageMapping.getImageNameForObjectName(name);
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
-//        System.out.println("HeightAboveTile: " + heightAboveTile);
 
         Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
-//        int diff = cornerHeights.get("cornerS")
-        int maxCorner = controller.getTileOfMapTileGrid(row, column).findMaxCorner(cornerHeights);
-//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * Math.abs(maxCorner);
         double yCoordOnCanvas;
-        if(cornerHeights.get("cornerW") >= 0){
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile * cornerHeights.get("cornerW");
-        } else {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerW");
+
+
+//        if(heightAboveTile == -18.0){
+//            if(cornerHeights.get("cornerS") > cornerHeights.get("cornerN")){
+//                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN");
+//            } else{
+//                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerS");
+//            }
+//        } else if(heightAboveTile == 14.0){
+//            if(cornerHeights.get("cornerS") > cornerHeights.get("cornerN")){
+//                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf/2 + heightAboveTile * cornerHeights.get("cornerN");
+//            } else{
+//                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf/2 + heightAboveTile * cornerHeights.get("cornerS");
+//            }
+
+//        } else
+        // schmales tile
+            if(name.equals("2010")){
+            yCoordOnCanvas = drawOrigin.getY() - tileImageWidth - tilePlacingOffset * cornerHeights.get("cornerS");
+
+        } else if(name.equals("1100") || name.equals("1001") || name.equals("1101") || name.equals("1000")){
+            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset -tilePlacingOffset * cornerHeights.get("cornerS");
+
+        } else if(name.equals("2101")){
+                yCoordOnCanvas = drawOrigin.getY() - tileImageHeight - tilePlacingOffset* cornerHeights.get("cornerS");
+
+        } else if(name.equals("0121")){
+        yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf/2 - (tilePlacingOffset-tilePlacingOffset/3)* cornerHeights.get("cornerS");
+
+        }else {
+                System.out.println("Row: " + row + " Col: " + column + " HeightAboveTile: " + heightAboveTile + " " + name);
+            if(cornerHeights.get("cornerS") > cornerHeights.get("cornerN")){
+                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerN");
+            } else{
+                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + heightAboveTile * cornerHeights.get("cornerS");
+            }
         }
 
         canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
