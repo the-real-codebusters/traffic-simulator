@@ -4,8 +4,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -174,8 +172,8 @@ public class Controller {
             // Wenn nein, dann neu erstellen
 
             view.drawMap();
-            if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
-                System.out.println("Size of incompleteTrafficLines "+model.getNewCreatedOrIncompleteTrafficLines().size());
+            if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {
+                System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
             }
         }
     }

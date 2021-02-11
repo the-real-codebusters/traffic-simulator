@@ -55,7 +55,7 @@ public class MapModel {
                 station = nextStation;
                 System.out.println("Nachbar für Stop gefunden");
             } else {
-                station = new Station(model, null, null, null, model.getPathfinder());
+                station = new Station(model, null, null, null, model.getPathfinder(), null);
                 stations.add(station);
                 System.out.println("Station neu erzeugt");
                 createdNewStation = true;
@@ -68,14 +68,14 @@ public class MapModel {
             List<Vertex> addedPoints = model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
             if(instance instanceof Road){
                 //checke, ob man zwei TrafficLines mergen sollte
-                mergeTrafficLinesIfNeccessary(addedPoints.get(0));
+                mergeTrafficPartsIfNeccessary(addedPoints.get(0));
             }
         }
 
 
         if(createdNewStation){
-            TrafficLine trafficLine = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
-            instance.setTrafficLine(trafficLine);
+            ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
+            instance.setTrafficLine(connectedTrafficPart);
         }
 
         return instance;
@@ -157,40 +157,40 @@ public class MapModel {
     //TODO Funktioniert momentan nur für ROAD
 
     /**
-     * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrslinien verbunden wurden. Wenn das der Fall ist,
-     * fügt es die beiden Verkehrlinien zu einer zusammen.
+     * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrsteile verbunden wurden. Wenn das der Fall ist,
+     * fügt es die beiden Verkehrsteile zu einer zusammen.
      * @param newAddedVertex
      */
-    private void mergeTrafficLinesIfNeccessary(Vertex newAddedVertex){
-        System.out.println("mergeTrafficLinesIfNeccessary called");
+    private void mergeTrafficPartsIfNeccessary(Vertex newAddedVertex){
 
         List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex);
-        Set<TrafficLine> differentLines = new HashSet<>();
+        Set<ConnectedTrafficPart> differentLines = new HashSet<>();
         for(Station station: nearStations){
-            differentLines.add(station.getRoadTrafficLine());
+            differentLines.add(station.getRoadTrafficPart());
+            //TODO Wann wird TrafficPart in Station gesetzt?
         }
         int numberOfNearTrafficLines = differentLines.size();
         System.out.println(numberOfNearTrafficLines);
         if(numberOfNearTrafficLines > 1){
             System.out.println("tried to merge trafficLines");
             System.out.println("found lines "+numberOfNearTrafficLines);
-            mergeTrafficLines(new ArrayList<>(differentLines));
+            mergeTrafficParts(new ArrayList<>(differentLines));
         }
     }
 
     /**
-     * Fügt die angegebenen Verkehrslinien zu einer zusammen
-     * @param lines
+     * Fügt die angegebenen Verkehrsteile zu einem zusammen
+     * @param parts
      */
-    private void mergeTrafficLines(List<TrafficLine> lines){
-        TrafficLine firstLine = lines.get(0);
-        System.out.println("firstLine "+firstLine.getStations().size());
-        for(int i=1; i<lines.size(); i++){
-            firstLine.mergeWithTrafficLine(lines.get(i));
-            model.getActiveTrafficLines().remove(lines.get(i));
-            model.getNewCreatedOrIncompleteTrafficLines().remove(lines.get(i));
+    private void mergeTrafficParts(List<ConnectedTrafficPart> parts){
+        ConnectedTrafficPart firstPart = parts.get(0);
+        System.out.println("firstPart "+firstPart.getStations().size());
+        for(int i=1; i<parts.size(); i++){
+            firstPart.mergeWithTrafficPart(parts.get(i));
+            model.getActiveTrafficParts().remove(parts.get(i));
+            model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
         }
-        System.out.println("firstLine after merge "+firstLine.getStations().size());
+        System.out.println("firstPart after merge "+firstPart.getStations().size());
     }
 
     /**
@@ -333,7 +333,7 @@ public class MapModel {
      * @param trafficType
      * @return
      */
-    private TrafficLine addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
+    private ConnectedTrafficPart addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
         List<Vertex> pathToStation = model.getPathfinder().findPathToNextStation(newStation);
 
         boolean anotherStationFindable = false;
@@ -343,20 +343,20 @@ public class MapModel {
             Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
             Station nextStation = lastVertex.getStation();
             if (trafficType.equals(TrafficType.ROAD)) {
-                nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
-                newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
-                return nextStation.getRoadTrafficLine();
+                nextStation.getRoadTrafficPart().addStationAndUpdateConnectedStations(newStation);
+                newStation.setRoadTrafficPart(nextStation.getRoadTrafficPart());
+                return nextStation.getRoadTrafficPart();
             } else ; //TODO Andere Verkehrstypen
         } else {
-            TrafficLine trafficLine = null;
+            ConnectedTrafficPart connectedTrafficPart = null;
             switch (trafficType) {
                 case AIR:
                     break;
                 case RAIL:
                     break;
                 case ROAD:
-                    trafficLine = new TrafficLine(2, model, TrafficType.ROAD, newStation);
-                    newStation.setRoadTrafficLine(trafficLine);
+                    connectedTrafficPart = new ConnectedTrafficPart(model, TrafficType.ROAD, newStation);
+                    newStation.setRoadTrafficPart(connectedTrafficPart);
                     break;
                 default:
                     break;
@@ -364,8 +364,8 @@ public class MapModel {
             // TODO AIR, RAIL, desiredNumber
             // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
 
-            model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
-            return trafficLine;
+            model.getNewCreatedOrIncompleteTrafficParts().add(connectedTrafficPart);
+            return connectedTrafficPart;
         }
         throw new RuntimeException("Unfertiger Code");
     }

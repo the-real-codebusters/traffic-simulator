@@ -10,7 +10,7 @@ public class Building {
     protected int originColumn;
     protected int originRow;
     private TrafficType trafficType;
-    private TrafficLine trafficLine;
+    private ConnectedTrafficPart connectedTrafficPart;
 
     public Building(int width, int depth, String buildingName) {
         this.width = width;
@@ -92,12 +92,12 @@ public class Building {
         return dz;
     }
 
-    public TrafficLine getTrafficLine() {
-        return trafficLine;
+    public ConnectedTrafficPart getTrafficLine() {
+        return connectedTrafficPart;
     }
 
-    public void setTrafficLine(TrafficLine trafficLine) {
-        this.trafficLine = trafficLine;
+    public void setTrafficLine(ConnectedTrafficPart connectedTrafficPart) {
+        this.connectedTrafficPart = connectedTrafficPart;
     }
 
     public TrafficType getTrafficType() {

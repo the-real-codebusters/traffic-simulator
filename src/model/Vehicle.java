@@ -1,6 +1,5 @@
 package model;
 
-import javafx.geometry.Point2D;
 import javafx.util.Pair;
 
 import java.util.ArrayList;

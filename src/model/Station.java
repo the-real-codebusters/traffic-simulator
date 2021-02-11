@@ -19,12 +19,14 @@ public class Station {
     private TrafficLine railTrafficLine;
     private TrafficLine airTrafficLine;
 
+    private ConnectedTrafficPart roadTrafficPart;
+
     private Set<Station> directlyConnectedStations = new HashSet<>();
     private Pathfinder pathfinder;
 
 
-    public Station(BasicModel model, TrafficLine roadTrafficLine,  TrafficLine railTrafficLine,
-                   TrafficLine airTrafficLine, Pathfinder pathfinder) {
+    public Station(BasicModel model, TrafficLine roadTrafficLine, TrafficLine railTrafficLine,
+                   TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart trafficPart) {
         // Stations haben unendliche Lagerkapazität
         Map<String, Integer> maximumCargo = new HashMap<>();
         for(String commodity: model.getCommodities()) {
@@ -36,6 +38,7 @@ public class Station {
         this.railTrafficLine = railTrafficLine;
         this.airTrafficLine = airTrafficLine;
         this.pathfinder = pathfinder;
+        this.roadTrafficPart = trafficPart;
     }
 
     /**
@@ -109,29 +112,6 @@ public class Station {
         return id;
     }
 
-    public TrafficLine getRoadTrafficLine() {
-        return roadTrafficLine;
-    }
-
-    public void setRoadTrafficLine(TrafficLine roadTrafficLine) {
-        this.roadTrafficLine = roadTrafficLine;
-    }
-
-    public TrafficLine getRailTrafficLine() {
-        return railTrafficLine;
-    }
-
-    public void setRailTrafficLine(TrafficLine railTrafficLine) {
-        this.railTrafficLine = railTrafficLine;
-    }
-
-    public TrafficLine getAirTrafficLine() {
-        return airTrafficLine;
-    }
-
-    public void setAirTrafficLine(TrafficLine airTrafficLine) {
-        this.airTrafficLine = airTrafficLine;
-    }
 
     public Set<Station> getDirectlyConnectedStations() {
         return directlyConnectedStations;
@@ -139,5 +119,13 @@ public class Station {
 
     public void setDirectlyConnectedStations(List<Station> directlyConnectedStations) {
         this.directlyConnectedStations = new HashSet<>(directlyConnectedStations);
+    }
+
+    public ConnectedTrafficPart getRoadTrafficPart() {
+        return roadTrafficPart;
+    }
+
+    public void setRoadTrafficPart(ConnectedTrafficPart roadTrafficPart) {
+        this.roadTrafficPart = roadTrafficPart;
     }
 }
