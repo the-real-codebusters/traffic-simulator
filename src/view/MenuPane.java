@@ -2,6 +2,8 @@ package view;
 
 import controller.Controller;
 import javafx.animation.ParallelTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -205,6 +207,17 @@ public class MenuPane extends AnchorPane {
             }
 
                 if (name.equals("speed")) {
+                    Button standardSpeedButton = new Button();
+                    standardSpeedButton.setText("Standard Speed");
+                    standardSpeedButton.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            view.setTickDuration(1.0);
+                            slider.setValue(view.getTickDuration());
+
+                        }
+                    });
+                    container.getChildren().add(standardSpeedButton);
                     // erzeuge einen Button zum Starten/Pausieren von Simulation
                     createAnimationButton();
                     // erzeuge SLider
