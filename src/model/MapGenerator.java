@@ -1,5 +1,7 @@
 package model;
 
+import javafx.beans.property.StringProperty;
+
 import java.util.*;
 
 public class MapGenerator {
@@ -20,7 +22,6 @@ public class MapGenerator {
         generateNature(mapWidth, mapDepth, basicModel);
         generateFactories(mapWidth, mapDepth, basicModel);
         generateHeightMap();
-        System.out.println("Generate Height Map ready");
         return mapFieldGrid;
     }
 
@@ -68,24 +69,49 @@ public class MapGenerator {
 
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
-        //TODO Hier steht teilweise veralteter Code
+        HashMap<Building, Integer> natureStartProbabilities = new HashMap<>();
+        for(Building nature: natureBuildings){
+            natureStartProbabilities.put(nature, 5/natureBuildings.size()>=1?5/natureBuildings.size():1);
+        }
 
+        int percentPointsIfEqualNatureBuildingNear = 20;
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
-                    int buildingRandom = new Random().nextInt(natureBuildings.size()*4);
-                    Building building = null;
-                    if(buildingRandom < natureBuildings.size()){
-                        building = natureBuildings.get(buildingRandom).getNewInstance();
+                Map<Building, Integer> natureProbabilities = new HashMap<>();
+                natureProbabilities.putAll(natureStartProbabilities);
+                if(row > 0){
+                    Building rowNearBuilding = mapFieldGrid[row-1][col].getBuilding();
+                    if(natureProbabilities.containsKey(rowNearBuilding)){
+                        natureProbabilities.replace(rowNearBuilding, natureProbabilities.get(rowNearBuilding)+percentPointsIfEqualNatureBuildingNear);
                     }
+                }
+                if(col > 0){
+                    Building colNearBuilding = mapFieldGrid[row][col-1].getBuilding();
+                    if(natureProbabilities.containsKey(colNearBuilding)){
+                        natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+                    }
+                }
+                int probCounter = 0;
+                int random = new Random().nextInt(99)+1;
+                Building building = new Building(1, 1, "grass");
+                for (Map.Entry<Building, Integer> entry : natureProbabilities.entrySet()) {
+                    System.out.println("nature prob "+entry.getValue());
+                    probCounter+=entry.getValue();
+                    System.out.println("probCounter "+probCounter);
+                    if(random <= probCounter){
+                        building = entry.getKey();
+                        break;
+                    }
+                }
+
                     Map <String, Integer> heightMap = new HashMap<>();
                     heightMap.put("cornerN", 0);
                     heightMap.put("cornerE", 0);
                     heightMap.put("cornerS", 0);
                     heightMap.put("cornerW", 0);
-                   mapFieldGrid[row][col] = new Tile(building, heightMap, false);
+                    mapFieldGrid[row][col] = new Tile(building, heightMap);
             }
         }
-        System.out.println("generate Nature ready");
     }
 
 
@@ -97,6 +123,8 @@ public class MapGenerator {
         int mapWidth = mapModel.getWidth();
         int mapDepth = mapModel.getDepth();
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
+
+        System.out.println("generate height map called");
 
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
