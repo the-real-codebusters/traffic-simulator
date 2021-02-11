@@ -112,7 +112,7 @@ public class Pathfinder {
      */
     public List<Vertex> findPathToNextStation(Station actualStation){
 
-        Vertex startVertex = actualStation.getComponents().get(0).getVertices().get(0);
+        Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
@@ -210,7 +210,7 @@ public class Pathfinder {
      */
     public List<Station> findAllDirectlyConnectedStations(Station actualStation){
 
-        Vertex startVertex = actualStation.getComponents().get(0).getVertices().get(0);
+        Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         List<Station> foundStations = new ArrayList<>();
@@ -268,6 +268,69 @@ public class Pathfinder {
         }
         // Wenn kein Pfand gefunden, return leere Liste
         return foundStations;
+    }
+
+    /**
+     * Sucht sich einen Weg von dem angegebenen Knoten zu allen verbundenen Gebäuden.
+     * @return Liste der gefundenen verbundenen Knoten
+     */
+    public Set<PartOfTrafficGraph> findAllConnectedBuildings(Vertex startVertex){
+
+        System.out.println("startVertex in Pathfinder "+startVertex.getName());
+
+        Set<PartOfTrafficGraph> foundBuildings = new HashSet<>();
+
+        // Ebene der Breitensuche in dem Graph. Dies sollte auch der Entfernung zum Startknoten entsprechen
+        int searchLevel = 0;
+        startVertex.setActualSearchLevel(0);
+
+        Queue<Vertex> queue = new ArrayDeque<>();
+        queue.add(startVertex);
+
+        // Knoten die schon in der Suche besucht wurden
+        List<Vertex> alreadyVisited = new ArrayList<Vertex>();
+        alreadyVisited.add(startVertex);
+
+        // Child, Parent
+        // Speichert den Parent eines Knotens, von dem die Breitensuche zu diesem Knoten gelangt ist
+        Map<Vertex, Vertex> parentNodes = new HashMap<Vertex, Vertex>();
+
+        Vertex currentNode;
+
+        // Die Queue ist leer, wenn kein Zielknoten gefunden wurde
+        while (!queue.isEmpty()) {
+            currentNode = queue.remove();
+            searchLevel = currentNode.getActualSearchLevel();
+
+            //Wenn if-Bedingung erfüllt ist, dann haben wir ein Ziel gefunden
+            if (currentNode != null && currentNode.getBuilding() != null) {
+
+                foundBuildings.add(currentNode.getBuilding());
+            }
+            // Wenn wir in den else-Teil gehen, haben wir noch kein Ziel gefunden
+                // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
+                List<Vertex> childs = new ArrayList<>();
+                System.out.println("current Node : "+currentNode.getName());
+                childs.addAll(trafficGraph.getAdjacencyMap().get(currentNode.getName()));
+
+                // Entferne alle bereits gesuchten Knoten aus den childs
+                childs.removeAll(alreadyVisited);
+
+                // Füge alle noch übrigen childs zu den bereits beuschten Knoten hinzu. Ist für nächste Durchlaufe
+                // der Schleife wichtig
+                alreadyVisited.addAll(childs);
+
+                int searchLevelOfChild = searchLevel + 1;
+                for (Vertex child : childs) {
+                    child.setActualSearchLevel(searchLevelOfChild);
+                }
+
+                // Füge die übrigen Knoten der Queue hinzu
+                queue.addAll(childs);
+
+        }
+        // Wenn kein Pfand gefunden, return leere Liste
+        return foundBuildings;
     }
 
     /**

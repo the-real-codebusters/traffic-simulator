@@ -1,19 +1,17 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-/**
- * Stellt einen Teil des Verkehrsnetzes dar, der verbunden ist und von einem bestimmten TrafficType ist
- */
 public class TrafficLine {
 
-    protected List<Station> stations = new ArrayList<>();
-    protected int desiredNumberOfVehicles;
-    protected List<Vehicle> vehicles = new ArrayList<>();
-    protected BasicModel model;
+    private List<Station> stations = new ArrayList<>();
+    private Map<Vehicle, Integer> desiredNumbersOfVehicles;
+    private int totalDesiredNumbersOfVehicles;
+    private List<Vehicle> vehicles = new ArrayList<>();
+    private BasicModel model;
     private TrafficType trafficType;
 
     // Der Knoten an dem neue Fahrzeuge starten
@@ -21,23 +19,15 @@ public class TrafficLine {
     // Die Station an der neue Fahrzeuge starten
     private Station startStation;
 
-    public TrafficLine(int desiredNumberOfVehicles, BasicModel model, TrafficType trafficType, Station firstStation) {
-        this.desiredNumberOfVehicles = desiredNumberOfVehicles;
+    public TrafficLine(BasicModel model, TrafficType trafficType) {
         this.model = model;
         this.trafficType = trafficType;
-        stations.add(firstStation);
     }
 
     /**
      * Soll eine neues Fahrzeug zu der Liste der Fahzeuge hinzufügen. Gibt das erstellte fahrzeug zurück
      */
-    public Vehicle addNewVehicle(){
-
-        // TODO Es wird bisher einfach zufällig ein Fahrzeugtyp ausgewählt, eventuell sollte das mal komplexer werden
-        List<Vehicle> vehicleTypes = model.getVehicleTypesForTrafficType(trafficType);
-        Random randomGenerator = new Random();
-        int randomInt = randomGenerator.nextInt(vehicleTypes.size());
-        Vehicle vehicle = vehicleTypes.get(randomInt).getNewInstance();
+    public Vehicle addNewVehicle(Vehicle vehicle){
 
         if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
         int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
@@ -46,7 +36,7 @@ public class TrafficLine {
         double shiftToDepthInOneTile = startVertexForNewVehicles.getxCoordinateRelativeToTileOrigin();
         double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
         VehiclePosition position = new VehiclePosition(shiftToWidthInOneTile, shiftToDepthInOneTile,
-                                                        rowInTileGrid, columnInTileGrid);
+                rowInTileGrid, columnInTileGrid);
 
         vehicle.setPathfinder(model.getPathfinder());
         vehicle.setPosition(position);
@@ -83,8 +73,8 @@ public class TrafficLine {
 
         System.out.println("sorted Stations");
         stations.forEach(x -> System.out.println("station "+x.getId()));
-
     }
+
 
     /**
      * Gib die nächste Station aus der Liste zurück, für die angegebene Station. Deshalb ist die Liste sortiert
@@ -114,47 +104,6 @@ public class TrafficLine {
         return stations.get(indexOfNextStation);
     }
 
-
-    public boolean checkIfMoreThanOneStation(){
-        return stations.size() >= 2;
-    }
-
-    /**
-     * Fügt eine Station hinzu und setzt alle direkt verbundenen Stationen.
-     * Updatet außerdem den Anfangsknoten für neue Fahrzeuge, falls nötig.
-     * Sortiert die Stationen in stations außerdem.
-     * @param station
-     */
-    public void addStationAndUpdateConnectedStations(Station station){
-        System.out.println("addStation called");
-        stations.add(station);
-
-        station.updateDirectlyConnectedStations();
-        setStartVertexAndStartStationForNewVehicles();
-        //sortStationsAsPathFromStartStationToLastStation();
-    }
-
-    /**
-     * Fügt diese verkehrslinie und die angegene verkehrslinie zu einer Verkehrslinie zusammen
-     * @param otherLine
-     */
-    public void mergeWithTrafficLine(TrafficLine otherLine){
-        if(!otherLine.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge lines " +
-                "of different trafficTypes");
-        System.out.println("Stations "+stations);
-        for(Station otherStation: otherLine.getStations()){
-            otherStation.setRoadTrafficLine(this);
-            otherStation.updateDirectlyConnectedStations();
-            stations.add(otherStation);
-        }
-        System.out.println("Stations "+stations);
-        desiredNumberOfVehicles += otherLine.getDesiredNumberOfVehicles();
-        vehicles.addAll(otherLine.getVehicles());
-        setStartVertexAndStartStationForNewVehicles();
-        sortStationsAsPathFromStartStationToLastStation();
-        System.out.println("Stations "+stations);
-    }
-
     /**
      * Setzt den Anfangsknoten aus dem Graph für neu hinzugefügte Fahrzeuge. Setzt außerdem die zugehörige Anfangsstation
      */
@@ -180,7 +129,7 @@ public class TrafficLine {
         // Finde den Knoten um das Auto zu platzieren
         for(Stop stop: startStation.getComponents()){
             if(stop.getTrafficType().equals(trafficType)){
-                startVertexForNewVehicles = stop.getVertices().get(0);
+                startVertexForNewVehicles = stop.getVertices().iterator().next();
                 break;
             }
         }
@@ -189,28 +138,43 @@ public class TrafficLine {
         //TODO eventuell unfertig?
     }
 
-    public void setStations(List<Station> stations) {
-        this.stations = stations;
+    public Vehicle getMissingVehicleOrNull(){
+        for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+            if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
-    public int getDesiredNumberOfVehicles() {
-        return desiredNumberOfVehicles;
+    private int getNumberOfVehicleInstances(String vehicleName){
+        int number = 0;
+        for(Vehicle v: vehicles){
+            if(v.getGraphic().equals(vehicleName)) number++;
+        }
+        return number;
     }
 
-    public void setDesiredNumberOfVehicles(int desiredNumberOfVehicles) {
-        this.desiredNumberOfVehicles = desiredNumberOfVehicles;
-    }
 
     public List<Station> getStations() {
         return stations;
     }
 
-    public BasicModel getModel() {
-        return model;
+    public void setStations(List<Station> stations) {
+        this.stations = stations;
     }
 
-    public void setModel(BasicModel model) {
-        this.model = model;
+    public Integer getDesiredNumberOfVehiclesForVehicle(Vehicle vehicle) {
+        return desiredNumbersOfVehicles.get(vehicle);
+    }
+
+    public void setDesiredNumbersOfVehicles(Map<Vehicle, Integer> desiredNumbersOfVehicles) {
+        this.desiredNumbersOfVehicles = desiredNumbersOfVehicles;
+        int total = 0;
+        for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+            total+=entry.getValue();
+        }
+        totalDesiredNumbersOfVehicles = total;
     }
 
     public List<Vehicle> getVehicles() {
@@ -227,5 +191,25 @@ public class TrafficLine {
 
     public void setTrafficType(TrafficType trafficType) {
         this.trafficType = trafficType;
+    }
+
+    public Vertex getStartVertexForNewVehicles() {
+        return startVertexForNewVehicles;
+    }
+
+    public void setStartVertexForNewVehicles(Vertex startVertexForNewVehicles) {
+        this.startVertexForNewVehicles = startVertexForNewVehicles;
+    }
+
+    public Station getStartStation() {
+        return startStation;
+    }
+
+    public void setStartStation(Station startStation) {
+        this.startStation = startStation;
+    }
+
+    public int getTotalDesiredNumbersOfVehicles() {
+        return totalDesiredNumbersOfVehicles;
     }
 }

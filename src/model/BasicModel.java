@@ -19,10 +19,10 @@ public class BasicModel {
     private List<Vehicle> vehiclesTypes = new ArrayList<>();
 
     // Die Verkehrslinien, die seit dem letzten Tag neu erstellt wurden oder nur eine Station haben und damit unfertig sind.
-    private Queue<TrafficLine> newCreatedOrIncompleteTrafficLines = new ArrayDeque<>();
+    private Queue<ConnectedTrafficPart> newCreatedOrIncompleteConnectedTrafficParts = new ArrayDeque<>();
 
     // Alle Verkehrslinien mit mehr als einer Station, die schon Verkehrsmittel auf sich fahren haben sollten
-    private List<TrafficLine> activeTrafficLines = new ArrayList<>();
+    private List<ConnectedTrafficPart> activeConnectedTrafficParts = new ArrayList<>();
 
     private Pathfinder pathfinder;
 
@@ -52,6 +52,7 @@ public class BasicModel {
      * @return eine Liste von Fahrzeugbewegungen des aktuellen Tags
      */
     public List<VehicleMovement> simulateOneDay(){
+        System.out.println("simulate day "+day);
 
         // runway platzieren (2x) -> Koordinaten speichern
         // gelbe Punkte platzieren (?)
@@ -63,45 +64,46 @@ public class BasicModel {
         // In der Zeit einer Runde, also seit dem letzten Aufruf dieser Methode, können Haltestellen platziert worden
         // sein, die zu neuen, unverbundenen Stationen führen. Eine unverbundene Station stellt erstmal eine neue
         // Verkehrslinie dar. Diese neue Verkehrslinie wurde der Queue newCreatedOrIncompleteTrafficLines hinzugefügt
-        List<TrafficLine> incompleteTrafficLines = new ArrayList<>();
-        while(!newCreatedOrIncompleteTrafficLines.isEmpty()){
-            TrafficLine newOrIncompleteTrafficLine = newCreatedOrIncompleteTrafficLines.remove();
+        List<ConnectedTrafficPart> incompleteConnectedTrafficParts = new ArrayList<>();
+        while(!newCreatedOrIncompleteConnectedTrafficParts.isEmpty()){
+            ConnectedTrafficPart newOrIncompleteConnectedTrafficPart = newCreatedOrIncompleteConnectedTrafficParts.remove();
 
-            if(newOrIncompleteTrafficLine.checkIfMoreThanOneStation()){
-                if(newOrIncompleteTrafficLine.getTrafficType().equals(TrafficType.ROAD)){
-                    activeTrafficLines.add(newOrIncompleteTrafficLine);
+            if(newOrIncompleteConnectedTrafficPart.checkIfMoreThanOneStation()){
+                if(newOrIncompleteConnectedTrafficPart.getTrafficType().equals(TrafficType.ROAD)){
+                    activeConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
 
                     //TODO Andere TrafficTypes fehlen noch
                 }
-                if(newOrIncompleteTrafficLine.getTrafficType().equals(TrafficType.AIR)){
-                    activeTrafficLines.add(newOrIncompleteTrafficLine);
+                if(newOrIncompleteConnectedTrafficPart.getTrafficType().equals(TrafficType.AIR)){
+                    activeConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
                 }
             }
             // Eine Station, die nur eine Station hat, ist eine unfertige Verkehrslinie
             else {
-                incompleteTrafficLines.add(newOrIncompleteTrafficLine);
+                incompleteConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
             }
 
 
         }
-        newCreatedOrIncompleteTrafficLines.addAll(incompleteTrafficLines);
+        newCreatedOrIncompleteConnectedTrafficParts.addAll(incompleteConnectedTrafficParts);
 
         //TODO Es funktioniert, wenn eine Station direkt an eine Verkehrslinie gebaut wird. Es funkltioniert noch nicht,
         // wenn eine existierende Station so erweitert wird, dass sie an eine existierende TrafficLine anschließt
 
         List<Vehicle> activeVehicles = new ArrayList<>();
-        for(TrafficLine activeLine: activeTrafficLines){
+        for(ConnectedTrafficPart activePart: activeConnectedTrafficParts){
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
-
-            if(activeLine.getDesiredNumberOfVehicles() > activeLine.getVehicles().size()){
-                activeLine.addNewVehicle();
+            for(TrafficLine trafficLine : activePart.getTrafficLines()){
+                if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
+                    Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
+                    trafficLine.addNewVehicle(newVehicle);
+                }
+                // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
+                activeVehicles.addAll(trafficLine.getVehicles()); //TODO
             }
-            // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
-            activeVehicles.addAll(activeLine.getVehicles()); //TODO
         }
-        System.out.println("activeTrafficLines "+activeTrafficLines);
-        System.out.println("newOrIncompleteTrafficLines "+newCreatedOrIncompleteTrafficLines);
+
         //newCreatedOrIncompleteTrafficLines.peek().get
 
         //VehicleMovement airplaneMovement = new VehicleMovement(new PositionOnTilemap());
@@ -294,12 +296,12 @@ public class BasicModel {
         this.map = map;
     }
 
-    public Queue<TrafficLine> getNewCreatedOrIncompleteTrafficLines() {
-        return newCreatedOrIncompleteTrafficLines;
+    public Queue<ConnectedTrafficPart> getNewCreatedOrIncompleteTrafficParts() {
+        return newCreatedOrIncompleteConnectedTrafficParts;
     }
 
-    public void setNewCreatedOrIncompleteTrafficLines(Queue<TrafficLine> newCreatedOrIncompleteTrafficLines) {
-        this.newCreatedOrIncompleteTrafficLines = newCreatedOrIncompleteTrafficLines;
+    public void setNewCreatedOrIncompleteTrafficLines(Queue<ConnectedTrafficPart> newCreatedOrIncompleteConnectedTrafficParts) {
+        this.newCreatedOrIncompleteConnectedTrafficParts = newCreatedOrIncompleteConnectedTrafficParts;
     }
 
 
@@ -339,8 +341,8 @@ public class BasicModel {
         return map.getTileGrid();
     }
 
-    public List<TrafficLine> getActiveTrafficLines() {
-        return activeTrafficLines;
+    public List<ConnectedTrafficPart> getActiveTrafficParts() {
+        return activeConnectedTrafficParts;
     }
 
     public void printModelAttributes() {

@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Road extends Building implements PartOfTrafficGraph{
@@ -13,7 +10,9 @@ public class Road extends Building implements PartOfTrafficGraph{
     private List<List<String>> roads = new ArrayList<>();
     // optional
     private Map<String, String> combines = new HashMap<>();
-    private List<Vertex> vertices = new ArrayList<>();
+    private Set<Vertex> vertices = new HashSet<>();
+    private ConnectedTrafficPart associatedPartOfTraffic;
+
 
     @Override
     public Road getNewInstance(){
@@ -50,16 +49,25 @@ public class Road extends Building implements PartOfTrafficGraph{
         return roads;
     }
 
-    public List<Vertex> getVertices() {
+    public Set<Vertex> getVertices() {
         return vertices;
     }
 
-    public void setVertices(List<Vertex> vertices) {
+    public void setVertices(Set<Vertex> vertices) {
         this.vertices = vertices;
     }
 
     public Map<String, String> getCombines() {
         return combines;
+    }
+
+    @Override
+    public ConnectedTrafficPart getAssociatedPartOfTraffic() {
+        return associatedPartOfTraffic;
+    }
+
+    public void setAssociatedPartOfTraffic(ConnectedTrafficPart associatedPartOfTraffic) {
+        this.associatedPartOfTraffic = associatedPartOfTraffic;
     }
 
     @Override
