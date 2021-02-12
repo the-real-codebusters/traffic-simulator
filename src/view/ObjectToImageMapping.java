@@ -93,6 +93,8 @@ public class ObjectToImageMapping {
         mapping.put("0001", "ground_heights/Slope_W");
         mapping.put("0111", "ground_heights/Slope_WSE");
 
+        mapping.put("flat", "ground_heights/Slope_Flat");
+
     }
 
     public Collection<String> getImageNames(){

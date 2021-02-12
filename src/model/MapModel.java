@@ -97,7 +97,6 @@ public class MapModel {
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = tileGrid[r][c];
-//                if(tile.getHeight() < 0) return false;
                 // TODO Wenn Höhe nicht passt, return false
 
                 if(tile.getBuilding() instanceof Road) {
@@ -117,7 +116,8 @@ public class MapModel {
                 }
 
                 // Auf Graßfelder soll wieder gebaut werden dürfen
-                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")){
+                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")
+                    || tile.getBuilding().getBuildingName().equals("flat")){
                     return true;
                 }
 

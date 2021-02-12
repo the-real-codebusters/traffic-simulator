@@ -226,7 +226,6 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Tiles
      */
     public void drawMap() {
-//        numberOfDrawPol = 0;
         final String grass1 = "file:grass.png";
         Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
@@ -243,7 +242,7 @@ public class View {
         int startCol = 0;
         int endCol = 0;
 
-//        rowColToCanvasCoordinates.clear();
+        rowColToCanvasCoordinates.clear();
 
         // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
@@ -300,7 +299,8 @@ public class View {
                         }
                         else {
 
-                            if(building.getBuildingName().equals("ground")) {
+                            if(building.getBuildingName().equals("ground") || building.getBuildingName().equals("flat")
+                                    || building.getBuildingName().equals("grass")) {
 
                                 String absoluteTileHeight = controller.getTileOfMapTileGrid(row, col).absoluteHeigtToRelativeHeight(cornerHeights);
 
@@ -522,18 +522,11 @@ public class View {
         double heightAboveTile = image.getHeight() - tileImageHeight;
 
         double xCoordOnCanvas = drawOrigin.getX();
-        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile ;
+//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile ;
 
 //        double xCoordOnCanvas = drawOrigin.getX();
         // nehme cornerS als Referenzpunkt (bei allen Tiles wird immer cornerS als Höhenreferenz genommen)
-//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightOffset * cornerHeights.get("cornerS");
-
-//        double yCoordOnCanvas;
-//        if(cornerHeights.get("cornerS") == 0) {
-//            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
-//        } else {
-//            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset * cornerHeights.get("cornerS");
-//        }
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile - heightOffset * cornerHeights.get("cornerS");
 
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
@@ -542,12 +535,13 @@ public class View {
     }
 
     public void drawTileImage(int row, int column, Image image, boolean transparent) {
-
+        Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
         double heightAboveTile = image.getHeight() - tileImageHeight;
 
         Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
-        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile - heightOffset * cornerHeights.get("cornerS");
+
 
         if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
@@ -682,39 +676,6 @@ public class View {
         }
     }
 
-//
-//    public Image getGroundImage(int column, int row, Tile[][] fields) {
-//        String name;
-//        String buildingName;
-//
-//                Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
-//                System.out.println(row + " " + column + " " + cornerHeights);
-//                String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
-//                System.out.println(row + " " + column + " " + absoluteTileHeight);
-////
-////                Map<String, Integer> heightMap = new HashMap<>();
-////                heightMap.put("cornerN", 0);
-////                heightMap.put("cornerE", 0);
-////                heightMap.put("cornerS", 0);
-////                heightMap.put("cornerW", 0);
-////
-////                Building ground = new Building();
-////                controller.getTileOfMapTileGrid(row, column).setCornerHeights(cornerHeights);
-//                ground.setBuildingName(absoluteTileHeight);
-//                ground.setWidth(1);
-//                ground.setDepth(1);
-//                controller.getTileOfMapTileGrid(row, column).setBuilding(ground);
-//                buildingName = field.getBuilding().getBuildingName();
-//
-//            name = objectToImageMapping.getImageNameForObjectName(buildingName);
-//
-//
-//        System.out.println(imageNameToImageRatio);
-//        double ratio = imageNameToImageRatio.get(name);
-//
-//        return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
-//
-//    }
 
     /**
      * Gibt ein Image für die geforderte Stelle in der Tile-Map zurück in der Breite eines Tiles
@@ -742,8 +703,8 @@ public class View {
                         String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
 
                         buildingName = absoluteTileHeight;
-                System.out.println("Buildingname: " + buildingName);
-
+                    } else if (field.getBuilding().getBuildingName().equals("flat")) {
+                        buildingName = "0000";
 
                     } else {
                         buildingName = field.getBuilding().getBuildingName();
@@ -836,7 +797,7 @@ public class View {
             mousePosLabel.setText(mouseCoords);
 
             // Findet isometrische Koordinaten der Mouseposition
-            Point2D isoCoord = findTileCoord(mouseX, mouseY);
+//            Point2D isoCoord = findTileCoord(mouseX, mouseY);
 
             Point2D newIsoCoord = findTileCoordNew(mouseX, mouseY);
 
@@ -847,8 +808,8 @@ public class View {
 
 
             Map<String, Integer> cornerHeights;
-            if(isoCoord.getX() >= 0 && isoCoord.getX() < mapWidth && isoCoord.getY() >= 0 && isoCoord.getY() < mapDepth) {
-                Tile tile = controller.getTileOfMapTileGrid((int) isoCoord.getX(), (int) isoCoord.getY());
+            if(newIsoCoord.getX() >= 0 && newIsoCoord.getX() < mapWidth && newIsoCoord.getY() >= 0 && newIsoCoord.getY() < mapDepth) {
+                Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
                 cornerHeights = tile.getCornerHeights();
                 cornerLabel.setText(cornerHeights.toString());
             } else {
