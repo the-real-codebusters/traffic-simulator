@@ -70,6 +70,15 @@ public class MapModel {
                 //checke, ob man zwei TrafficLines mergen sollte
                 mergeTrafficPartsIfNeccessary(addedPoints.get(0));
             }
+            if(instance instanceof Runway){
+                if(createdNewStation){
+                    ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
+                    instance.setTrafficLine(connectedTrafficPart);
+                }
+                //checke, ob man zwei TrafficLines mergen sollte
+                mergeTrafficAirPartsIfNeccessary(addedPoints.get(0));
+                return instance;
+            }
         }
 
 
@@ -162,7 +171,6 @@ public class MapModel {
      * @param newAddedVertex
      */
     private void mergeTrafficPartsIfNeccessary(Vertex newAddedVertex){
-
         List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex);
         Set<ConnectedTrafficPart> differentLines = new HashSet<>();
         for(Station station: nearStations){
@@ -178,6 +186,27 @@ public class MapModel {
         }
     }
 
+    private void mergeTrafficAirPartsIfNeccessary(Vertex newAddedVertex){
+        List<Station> nearStations = new ArrayList<>();
+        for (Station s :stations) {
+            nearStations.add(s);
+        }
+
+//        List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex);
+        Set<ConnectedTrafficPart> differentLines = new HashSet<>();
+        for(Station station: nearStations){
+            differentLines.add(station.getAirTrafficPart());
+            //TODO Wann wird TrafficPart in Station gesetzt?
+        }
+        int numberOfNearTrafficLines = differentLines.size();
+        System.out.println(numberOfNearTrafficLines);
+        if(numberOfNearTrafficLines > 1){
+            System.out.println("tried to merge trafficLines");
+            System.out.println("found lines "+numberOfNearTrafficLines);
+            mergeTrafficAirParts(new ArrayList<>(differentLines));
+        }
+    }
+
     /**
      * Fügt die angegebenen Verkehrsteile zu einem zusammen
      * @param parts
@@ -187,6 +216,17 @@ public class MapModel {
         System.out.println("firstPart "+firstPart.getStations().size());
         for(int i=1; i<parts.size(); i++){
             firstPart.mergeWithTrafficPart(parts.get(i));
+            model.getActiveTrafficParts().remove(parts.get(i));
+            model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
+        }
+        System.out.println("firstPart after merge "+firstPart.getStations().size());
+    }
+
+    private void mergeTrafficAirParts(List<ConnectedTrafficPart> parts){
+        ConnectedTrafficPart firstPart = parts.get(0);
+        System.out.println("firstPart "+firstPart.getStations().size());
+        for(int i=1; i<parts.size(); i++){
+            firstPart.mergeWithAirTrafficPart(parts.get(i));
             model.getActiveTrafficParts().remove(parts.get(i));
             model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
         }
