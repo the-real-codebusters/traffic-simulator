@@ -115,7 +115,8 @@ public class Controller {
 
         double mouseX = event.getX();
         double mouseY = event.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
+        if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
         List<Vertex> addedVertices;
@@ -175,6 +176,7 @@ public class Controller {
             if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
                 System.out.println("Size of incompleteTrafficLines "+model.getNewCreatedOrIncompleteTrafficLines().size());
             }
+        }
         }
     }
 

@@ -94,16 +94,18 @@ public class MapGenerator {
                     String absoluteTileHeight = mapFieldGrid[row][col].absoluteHeigtToRelativeHeight(cornerHeights);
 
                 Building building = null;
-                if(absoluteTileHeight.equals("0000") && cornerHeights.get("cornerS") >= 0){
+                if(absoluteTileHeight.equals("0000") && cornerHeights.get("cornerS") >= 0) {
                     generateNature(row, col);
+
+                } else if(absoluteTileHeight.equals("0000") && cornerHeights.get("cornerS") < 0){
+                    building = new Building(1, 1, "water");
+                    System.out.println(cornerHeights);
+                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
 
                 } else {
 //
-                    building = new Building();
+                    building = new Building(1, 1, "ground");
                     mapFieldGrid[row][col].setCornerHeights(cornerHeights);
-                    building.setBuildingName("ground");
-                    building.setWidth(1);
-                    building.setDepth(1);
                     mapFieldGrid[row][col].setBuilding(building);
 //                }
                 }
@@ -187,10 +189,8 @@ public class MapGenerator {
         int cornerE = generateHeightForCorner(cornerN);
 
         if (Math.abs(cornerS - cornerE) > 1) {
-//            int digit = new Random().nextInt(1) + 1;
             int digit = 1;
             if (Math.abs(cornerS - cornerE) > 2) {
-//                System.out.println("diff > 2 " + cornerS + " " + cornerE);
                 digit = 2;
             }
             if (cornerS > cornerE) cornerE = cornerE + digit;

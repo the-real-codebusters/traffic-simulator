@@ -32,6 +32,9 @@ public class ObjectToImageMapping {
         mapping.put("sand pit", "factories/sandPit");
 
         mapping.put("tree", "ground/trees");
+        // wird momentan noch nicht benutzt
+        mapping.put("tree_no_ground", "ground/trees_no_ground");
+
         mapping.put("stone", "ground/stones");
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
