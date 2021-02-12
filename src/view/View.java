@@ -12,7 +12,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -31,7 +30,7 @@ public class View {
     private double tileImageWidthHalf = tileImageWidth / 2;
     private double tileImageHeight = 64;
     private double tileImageHeightHalf = tileImageHeight / 2;
-    double tilePlacingOffset = 16;
+    double heightOffset = 16;
     private int mapWidth;
     private int mapDepth;
 
@@ -117,7 +116,7 @@ public class View {
             tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
             tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
 
-            tilePlacingOffset = tilePlacingOffset * zoomFactor;
+            heightOffset = heightOffset * zoomFactor;
 
             drawMap();
 
@@ -273,7 +272,7 @@ public class View {
                             for(int i = col; i <= col + building.getDepth()-1; i++) {
                                 // Obere Kante vom Gebäude mit Grassfläche übermalen
                                 Image image = getGrassImage(i, row);
-                                drawTileImage(drawOrigin, image, false);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
                             }
                             drawBuildingOverMoreTiles(field, building, row, col);
                         }
@@ -286,7 +285,7 @@ public class View {
                             for(int i = row; i <= startRow; i++) {
                                 // Rechte Kante vom Gebäude mit Grassfläche übermalen
                                 Image image = getGrassImage(col, i);
-                                drawTileImage(drawOrigin, image, false);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
                             }
 
                         }
@@ -297,30 +296,37 @@ public class View {
                         if (row == startRow && col >= startCol && col <= endCol) {
                             // und muss daher als Grass gezeichnet werden
                             Image image = getGrassImage(col, row);
-                            drawTileImage(drawOrigin, image, false);
+                            drawTileImage(drawOrigin, image, false, cornerHeights);
                         }
                         else {
 
-                            String absoluteTileHeight = controller.getTileOfMapTileGrid(row, col).absoluteHeigtToRelativeHeight(cornerHeights);
+                            if(building.getBuildingName().equals("ground")) {
 
-                            String buildingName = absoluteTileHeight;
+                                String absoluteTileHeight = controller.getTileOfMapTileGrid(row, col).absoluteHeigtToRelativeHeight(cornerHeights);
 
-                            Image image = getSingleFieldImage(col, row, fields);
-                            String imageName = objectToImageMapping.getImageNameForObjectName(buildingName);
+                                String buildingName = absoluteTileHeight;
 
-                            Image r = getResourceForImageName(imageName);
-                            double ratio = r.getHeight() / r.getWidth();
+                                Image image = getSingleFieldImage(col, row, fields);
+                                String imageName = objectToImageMapping.getImageNameForObjectName(buildingName);
+
+                                Image r = getResourceForImageName(imageName);
+                                double ratio = r.getHeight() / r.getWidth();
 //                            System.out.println("Ratio: " + ratio);
 
-                            // TODO: verbessern
-                            if(ratio != 0.484375){
-                                drawGroundOverMoreTiles(buildingName, row, col, image, cornerHeights);
-                            } else {
+                                // Wenn das Verhältnis zwischen Breite und Höhe nicht 2:1 ist
+                                if (ratio != 0.5) {
+                                    drawGroundOverMoreTiles(drawOrigin, buildingName, image, cornerHeights);
+
+                                } else {
 //                                drawTileImage(drawOrigin, image, false, cornerHeights);
-                                drawGroundInOneTile(drawOrigin, image, false, cornerHeights);
+                                    drawGroundInOneTile(drawOrigin, image, cornerHeights);
+                                }
+                            }
+                            else {
+                                Image image = getSingleFieldImage(col, row, fields);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
                             }
 
-//                            System.out.println(row + " " + col + " " + cornerHeights);
                             //TODO Polygone mit Wasser oder Gras Tiles zu zeichnen, je nach Höhe
                             Tile tile = fields[row][col];
                             int cornerHeightSouth = tile.getCornerHeights().get("cornerS");
@@ -384,9 +390,6 @@ public class View {
 
         double[] xCoords = {xCoordWest, xCoordSouth, xCoordEast, xCoordNorth};
         double[] yCoords = {yCoordWest, yCoordSouth, yCoordEast, yCoordNorth};
-//
-//        double[] xCoords = {100, 200, 100, 200};
-//        double[] yCoords = {100, 200, 200, 100};
 
         Point2D west = new Point2D(xCoordWest, yCoordWest);
         Point2D north = new Point2D(xCoordNorth, yCoordNorth);
@@ -495,29 +498,16 @@ public class View {
             offsetY = tileImageHeightHalf / tileImageHeight;
         }
 
-//        double changedHeight = tileImageHeight + tileImageHeight/10;
-
         double x = Math.floor((mouseX / tileImageWidth + mouseY / tileImageHeight) - canvasCenterHeight / tileImageHeight
                 - (canvasCenterWidth / tileImageWidth) + (mapWidth / 2) + offsetX + cameraOffsetX / tileImageWidth +
                 cameraOffsetY / tileImageHeight);
-
-//        double heightShift = tileImageHeight/10;
-//        double x = Math.floor((mouseX / tileImageWidth + mouseY / changedHeight) - canvasCenterHeight / changedHeight
-//                - (canvasCenterWidth / tileImageWidth) + (mapWidth / 2) + offsetX + cameraOffsetX / tileImageWidth +
-//                cameraOffsetY / changedHeight);
-
 
         double y = Math.floor((mouseX / tileImageWidth - mouseY / tileImageHeight) + canvasCenterHeight / tileImageHeight
                 - (canvasCenterWidth / tileImageWidth) + (mapDepth / 2) + offsetY - cameraOffsetY / tileImageHeight +
                 cameraOffsetX / tileImageWidth);
 
-//        double y = Math.floor((mouseX / tileImageWidth - mouseY / changedHeight) + canvasCenterHeight / changedHeight
-//                - (canvasCenterWidth / tileImageWidth) + (mapDepth / 2) + offsetY - cameraOffsetY / changedHeight +
-//                cameraOffsetX / tileImageWidth);
         return new Point2D(x, y);
     }
-
-
 
 
     /**
@@ -527,14 +517,16 @@ public class View {
      * @param image
      * @param transparent
      */
-    public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent) {
+    public void drawTileImage(Point2D drawOrigin, Image image, boolean transparent, Map<String, Integer> cornerHeights) {
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
 
-//        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
-//        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
-        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile;
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile ;
+
+//        double xCoordOnCanvas = drawOrigin.getX();
+        // nehme cornerS als Referenzpunkt (bei allen Tiles wird immer cornerS als Höhenreferenz genommen)
+//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightOffset * cornerHeights.get("cornerS");
 
 //        double yCoordOnCanvas;
 //        if(cornerHeights.get("cornerS") == 0) {
@@ -578,61 +570,61 @@ public class View {
     }
 
     /**
-     * Zeichnet das Bild in ein Feld an der angegebenen Stelle
-     //     * @param column
-     //     * @param row
-     * @param image
-     * @param transparent
+     * Zeichnet das Bild für ein Bodenfeld dessen Grafik ein Verhältnis von 2:1 zwischen Breite und Höhe hat und
+     * Berücksichtigt zur Platzierung die Höhe an der unteren Ecke (cornerS)
+     * @param image die Graphik für das zu zeichnende Bodenfeld
      */
-    public void drawGroundInOneTile(Point2D drawOrigin, Image image, boolean transparent, Map<String, Integer> cornerHeights) {
+    public void drawGroundInOneTile(Point2D drawOrigin, Image image, Map<String, Integer> cornerHeights) {
 
-        double heightAboveTile = image.getHeight() - tileImageHeight;
-//        System.out.println(drawOrigin.getX() + " " + drawOrigin.getY() + "Height above tile: " + heightAboveTile);
-
-//        Point2D drawOrigin = moveCoordinates(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
-//        double yCoordOnCanvas = drawOrigin.getY() - heightAboveTile - tileImageHeightHalf;
-//        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightAboveTile;
 
-        double yCoordOnCanvas;
-        if(cornerHeights.get("cornerS") == 0) {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf ;
-        } else {
-            yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset * cornerHeights.get("cornerS");
-        }
+        // nehme cornerS als Referenzpunkt (bei allen Tiles wird immer cornerS als Höhenreferenz genommen)
+        double yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - heightOffset * cornerHeights.get("cornerS");
 
 
-        if (transparent) canvas.getGraphicsContext2D().setGlobalAlpha(0.7);
         canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
         canvas.getGraphicsContext2D().setGlobalAlpha(1);
     }
 
-    public void drawGroundOverMoreTiles(String name, int row, int column, Image image, Map<String, Integer> cornerHeights) {
+
+    /**
+     * Zeichnet das Bild für ein Bodenfeld dessen Grafik NICHT das "normale" Verhältnis von 2:1 zwischen Breite
+     * und Höhe hat und Berücksichtigt zur Platzierung die Höhe an der unteren Ecke (cornerS) sowie die Höhenabweichung
+     * von der "Standardhöhe"
+     * @param image die Graphik für das zu zeichnende Bodenfeld
+     */
+    public void drawGroundOverMoreTiles(Point2D drawOrigin, String name, Image image, Map<String, Integer> cornerHeights) {
 
         double heightAboveTile = image.getHeight() - tileImageHeight;
 
-        Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, column);
         double xCoordOnCanvas = drawOrigin.getX();
-        double yCoordOnCanvas;
+        double yCoordOnCanvas = drawOrigin.getY();
 
+        // heightOffset gibt die Verschiebung in Pixel pro Höheneinheit an.
+        // Z.B: Wenn ein Tile an der unteren Ecke (cornerS) eine Höhe von 2 hat, wird die Position
+        // um 2*heightOffset verschoben
 
-        // TODO: Kommentieren was hier gemacht wurde
+        // Wenn die zu zeichnende Grafik höher ist, als die eine Grafik mit "normaler" Höhe
         if(heightAboveTile > 0){
-            // hohes Tile
+            // Tile bei dem die obere Ecke 2 Einheiten höher ist als die untere Ecke. In diesem Fall, ist
+            // die Grafik besonders hoch
             if(name.equals("2101")) {
-                yCoordOnCanvas = drawOrigin.getY() - tileImageHeight - tilePlacingOffset * cornerHeights.get("cornerS");
+                yCoordOnCanvas += - tileImageHeight - heightOffset * cornerHeights.get("cornerS");
             } else {
-                yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf - tilePlacingOffset - tilePlacingOffset * cornerHeights.get("cornerS");
+                yCoordOnCanvas += - tileImageHeight + heightOffset - heightOffset * cornerHeights.get("cornerS");
             }
-        } else {
-            // schmales Tile
-                if(name.equals("0121")) {
-                    yCoordOnCanvas = drawOrigin.getY() - tilePlacingOffset * cornerHeights.get("cornerS");
 
-                } else{
-                    yCoordOnCanvas = drawOrigin.getY() - tileImageHeightHalf + tilePlacingOffset -tilePlacingOffset * cornerHeights.get("cornerS");
-                }
+        // Wenn die zu zeichnende Grafik niedriger ist, als die eine Grafik mit "normaler" Höhe
+        } else {
+            // Tile bei dem die untere Ecke 2 Einheiten höher ist als die obere Ecke. In diesem Fall, ist
+            // die Grafik besonders flach
+            if(name.equals("0121")) {
+                yCoordOnCanvas += - heightOffset * cornerHeights.get("cornerS");
+
+            } else{
+                yCoordOnCanvas += - heightOffset - heightOffset * cornerHeights.get("cornerS");
             }
+        }
 
         canvas.getGraphicsContext2D().drawImage(image, xCoordOnCanvas, yCoordOnCanvas);
     }
@@ -742,15 +734,21 @@ public class View {
             } else
                 if (field.getBuilding() == null) {
                 throw new RuntimeException("Das muss man sich nochmal anschauen: kann ein Field ohne Building existieren?");
-            } else {
+                } else {
 
-                Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
-                String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
+                    if (field.getBuilding().getBuildingName().equals("ground")) {
 
-                buildingName = absoluteTileHeight;
-//                System.out.println("Buildingname: " + buildingName);
+                        Map<String, Integer> cornerHeights = controller.getTileOfMapTileGrid(row, column).getCornerHeights();
+                        String absoluteTileHeight = controller.getTileOfMapTileGrid(row, column).absoluteHeigtToRelativeHeight(cornerHeights);
 
-            }
+                        buildingName = absoluteTileHeight;
+                System.out.println("Buildingname: " + buildingName);
+
+
+                    } else {
+                        buildingName = field.getBuilding().getBuildingName();
+                    }
+                }
             name = objectToImageMapping.getImageNameForObjectName(buildingName);
         }
         double ratio = 0;
@@ -760,7 +758,7 @@ public class View {
             return getResourceForImageName(name, tileImageWidth, tileImageWidth * ratio);
         }
         else {
-//            System.out.println("invalid name: + " + name);
+            System.out.println("invalid name: + " + name);
             throw new RuntimeException("invalid building name");
         }
 

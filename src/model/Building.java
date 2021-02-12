@@ -12,6 +12,16 @@ public class Building {
     private TrafficType trafficType;
     private TrafficLine trafficLine;
 
+
+    public Building(int width, int depth, String buildingName) {
+        this.width = width;
+        this.depth = depth;
+        this.buildingName = buildingName;
+    }
+
+    public Building(){};
+
+
     public int getOriginColumn() {
         return originColumn;
     }

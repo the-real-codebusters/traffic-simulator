@@ -5,10 +5,12 @@ import java.util.*;
 public class MapGenerator {
     private String generatorName;
     private MapModel mapModel;
+    private BasicModel basicModel;
 
-    public MapGenerator(String generatorName, MapModel mapModel) {
+    public MapGenerator(String generatorName, MapModel mapModel, BasicModel basicModel) {
         this.generatorName = generatorName;
         this.mapModel = mapModel;
+        this.basicModel = basicModel;
     }
 
     public Tile[][] generateMap(BasicModel basicModel) {
@@ -17,9 +19,10 @@ public class MapGenerator {
         int mapDepth = mapModel.getDepth();
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
-        generateNature(mapWidth, mapDepth, basicModel);
-        generateFactories(mapWidth, mapDepth, basicModel);
         generateHeightMap();
+//        generateNature(mapWidth, mapDepth, basicModel);
+        generateFactories(mapWidth, mapDepth, basicModel);
+
 
         return mapFieldGrid;
     }
@@ -34,7 +37,7 @@ public class MapGenerator {
         List<Special> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
         Random randomGenerator = new Random();
         for (Building factory : factoryBuildings) {
-            int maxNumberOfPlacements = ((mapDepth * mapWidth) / (factory.getDepth() * factory.getWidth())) / 100;
+            int maxNumberOfPlacements = ((mapDepth * mapWidth) / (factory.getDepth() * factory.getWidth())) / 250;
             int numberOfPlacements;
             if (maxNumberOfPlacements == 0) numberOfPlacements = 1;
             else numberOfPlacements = randomGenerator.nextInt(maxNumberOfPlacements) + 1;
@@ -62,55 +65,55 @@ public class MapGenerator {
      * @param mapDepth
      * @param basicModel
      */
-    private void generateNature(int mapWidth, int mapDepth, BasicModel basicModel) {
-        List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
-
-        Tile[][] mapFieldGrid = mapModel.getTileGrid();
-
-        //TODO Hier steht teilweise veralteter Code
-
-        for (int row = 0; row < mapDepth; row++) {
-            for (int col = 0; col < mapWidth; col++) {
-//                //propability für Wasser
-//                int probWater = 1;
-//                if (row > 1 && col > 1) {
-//                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
-//                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
-//                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
-//                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
-//                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
+//    private void generateNature(int mapWidth, int mapDepth, BasicModel basicModel) {
+//        List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
+//
+//        Tile[][] mapFieldGrid = mapModel.getTileGrid();
+//
+//        //TODO Hier steht teilweise veralteter Code
+//
+//        for (int row = 0; row < mapDepth; row++) {
+//            for (int col = 0; col < mapWidth; col++) {
+////                //propability für Wasser
+////                int probWater = 1;
+////                if (row > 1 && col > 1) {
+////                    //Wahrscheinlichkeit für das Erscheinen von Wasser neben Wasser erhöhen
+////                    if (mapFieldGrid[row - 1][col].isWater()) probWater += 345;
+////                    if (mapFieldGrid[row][col - 1].isWater()) probWater += 500;
+////                    if (mapFieldGrid[row - 2][col].isWater()) probWater += 90;
+////                    if (mapFieldGrid[row][col - 2].isWater()) probWater += 50;
+////                }
+////
+////
+//                Building building = null;
+////                int heightRandom = new Random().nextInt(1000);
+////                if (heightRandom <= probWater ) {
+////                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
+////                    cornerHeights.put("cornerN", -1);
+////                    cornerHeights.put("cornerE", -1);
+////                    cornerHeights.put("cornerS", -1);
+////                    cornerHeights.put("cornerW", -1);
+////                    //TODO && false löschen
+////
+////                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
+////                }
+////
+////                else {
+//
+//                    //Wenn kein Wasser gesetzt ist, andere Höhen setzen
+//                    int buildingRandom = new Random().nextInt(natureBuildings.size());
+//                    building = natureBuildings.get(buildingRandom).getNewInstance();
+//                    Map<String, Integer> heightMap = new HashMap<>();
+//                    heightMap.put("cornerN", 0);
+//                    heightMap.put("cornerE", 0);
+//                    heightMap.put("cornerS", 0);
+//                    heightMap.put("cornerW", 0);
+//                    mapFieldGrid[row][col] = new Tile(building, heightMap, false);
+//
 //                }
-//
-//
-                Building building = null;
-//                int heightRandom = new Random().nextInt(1000);
-//                if (heightRandom <= probWater ) {
-//                    Map<String, Integer> cornerHeights = new LinkedHashMap<>();
-//                    cornerHeights.put("cornerN", -1);
-//                    cornerHeights.put("cornerE", -1);
-//                    cornerHeights.put("cornerS", -1);
-//                    cornerHeights.put("cornerW", -1);
-//                    //TODO && false löschen
-//
-//                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
-//                }
-//
-//                else {
-
-                    //Wenn kein Wasser gesetzt ist, andere Höhen setzen
-                    int buildingRandom = new Random().nextInt(natureBuildings.size());
-                    building = natureBuildings.get(buildingRandom).getNewInstance();
-                    Map<String, Integer> heightMap = new HashMap<>();
-                    heightMap.put("cornerN", 0);
-                    heightMap.put("cornerE", 0);
-                    heightMap.put("cornerS", 0);
-                    heightMap.put("cornerW", 0);
-                    mapFieldGrid[row][col] = new Tile(building, heightMap, false);
-
-                }
-            }
-//        }
-    }
+//            }
+////        }
+//    }
 
 
     /**
@@ -134,6 +137,7 @@ public class MapGenerator {
                         map.put("cornerE", 0);
                         map.put("cornerS", 0);
                         map.put("cornerW", 0);
+                        mapFieldGrid[row][col] = new Tile(null, map, false);
                         mapFieldGrid[row][col].setCornerHeights(map);
 //                        System.out.println("row: " + row + " col: " + col + " " + map);
 
@@ -144,30 +148,110 @@ public class MapGenerator {
                         int heightOfCornerECol = mapFieldGrid[row - 1][col].getCornerHeights().get("cornerE");
 
                         Map<String, Integer> map = generateTileHeightMiddle(heightOfCornerN, heightOfCornerECol, heightOfCornerERow);
+                        mapFieldGrid[row][col] = new Tile(null, map, false);
                         mapFieldGrid[row][col].setCornerHeights(map);
                     System.out.println("row: " + row + " col: " +  col + " " + map);
                     }
-//                    Map<String, Integer> cornerHeights = mapFieldGrid[row][col].getCornerHeights();
+                    Map<String, Integer> cornerHeights = mapFieldGrid[row][col].getCornerHeights();
 //                    System.out.println(row + " " + col + " " + cornerHeights);
-//                    String absoluteTileHeight = mapFieldGrid[row][col].absoluteHeigtToRelativeHeight(cornerHeights);
+                    String absoluteTileHeight = mapFieldGrid[row][col].absoluteHeigtToRelativeHeight(cornerHeights);
 //                    System.out.println(row + " " + col + " " + absoluteTileHeight);
+
+                Building building = null;
+                if(absoluteTileHeight.equals("0000") && cornerHeights.get("cornerS") == 0){
+                    generateNature(row, col);
+
+                } else {
 //
-//                    Map<String, Integer> heightMap = new HashMap<>();
-//                    heightMap.put("cornerN", 0);
-//                    heightMap.put("cornerE", 0);
-//                    heightMap.put("cornerS", 0);
-//                    heightMap.put("cornerW", 0);
-//
-//                    Building ground = new Building();
-//                    mapFieldGrid[row][col].setCornerHeights(cornerHeights);
-//                    ground.setBuildingName("ground");
-//                    ground.setWidth(1);
-//                    ground.setDepth(1);
-//                    mapFieldGrid[row][col].setBuilding(ground);
+                    building = new Building();
+                    mapFieldGrid[row][col].setCornerHeights(cornerHeights);
+                    building.setBuildingName("ground");
+                    building.setWidth(1);
+                    building.setDepth(1);
+                    mapFieldGrid[row][col].setBuilding(building);
 //                }
+                }
             }
         }
     }
+
+
+    public void generateNature(int row, int col){
+//        List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
+//        Building building;
+//        Map<String, Integer> cornerHeights = mapModel.getTileGrid()[row][col].getCornerHeights();
+//
+//
+//        int buildingRandom = new Random().nextInt(natureBuildings.size() +1);
+//        if(buildingRandom < natureBuildings.size()){
+//            building = natureBuildings.get(buildingRandom).getNewInstance();
+//        } else {
+//            building = new Building();
+//            mapModel.getTileGrid()[row][col].setCornerHeights(cornerHeights);
+//            building.setBuildingName("ground");
+//            building.setWidth(1);
+//            building.setDepth(1);
+//            mapModel.getTileGrid()[row][col].setBuilding(building);
+//        }
+
+
+//        mapModel.getTileGrid()[row][col] = new Tile(building, cornerHeights, false);
+
+        List<Special> natureBuildings = basicModel.getBuildingsForSpecialUse("nature");
+
+        Tile[][] mapFieldGrid = mapModel.getTileGrid();
+
+        Map<String, Integer> cornerHeights = mapModel.getTileGrid()[row][col].getCornerHeights();
+
+        HashMap<Building, Integer> natureStartProbabilities = new HashMap<>();
+        for(Building nature: natureBuildings){
+            natureStartProbabilities.put(nature, 3/natureBuildings.size()>=1?3/natureBuildings.size():1);
+        }
+
+        int percentPointsIfEqualNatureBuildingNear = 25;
+        Map<Building, Integer> natureProbabilities = new HashMap<>();
+        natureProbabilities.putAll(natureStartProbabilities);
+        if(row > 0){
+            Building rowNearBuilding = mapFieldGrid[row-1][col].getBuilding();
+            if(natureProbabilities.containsKey(rowNearBuilding)){
+                natureProbabilities.replace(rowNearBuilding, natureProbabilities.get(rowNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+            }
+        }
+        if(col > 0){
+            Building colNearBuilding = mapFieldGrid[row][col-1].getBuilding();
+            if(natureProbabilities.containsKey(colNearBuilding)){
+                natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+            }
+        }
+        if(col > 0 && row>0){
+            Building colNearBuilding = mapFieldGrid[row-1][col-1].getBuilding();
+            if(natureProbabilities.containsKey(colNearBuilding)){
+                natureProbabilities.replace(colNearBuilding, natureProbabilities.get(colNearBuilding)+percentPointsIfEqualNatureBuildingNear);
+            }
+        }
+        int probCounter = 0;
+        int random = new Random().nextInt(99)+1;
+        Building building = new Building(1, 1, "grass");
+            mapModel.getTileGrid()[row][col].setCornerHeights(cornerHeights);
+            mapModel.getTileGrid()[row][col].setBuilding(building);
+        for (Map.Entry<Building, Integer> entry : natureProbabilities.entrySet()) {
+            probCounter+=entry.getValue();
+            if(random <= probCounter){
+                building = entry.getKey();
+                break;
+            }
+        }
+
+        Map <String, Integer> heightMap = new HashMap<>();
+        heightMap.put("cornerN", 0);
+        heightMap.put("cornerE", 0);
+        heightMap.put("cornerS", 0);
+        heightMap.put("cornerW", 0);
+        mapFieldGrid[row][col] = new Tile(building, cornerHeights, false);
+
+
+
+}
 
 
     /**

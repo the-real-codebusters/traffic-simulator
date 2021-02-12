@@ -30,7 +30,7 @@ public class Controller {
 //        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
-        MapGenerator generator = new MapGenerator(map.getMapgen(), map);
+        MapGenerator generator = new MapGenerator(map.getMapgen(), map, model);
         Tile[][] generatedMap = generator.generateMap(model);
         map.setTileGrid(generatedMap);
 
