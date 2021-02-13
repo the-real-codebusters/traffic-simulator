@@ -292,11 +292,11 @@ public class View {
                         } else {
                             // diese Zelle wurde vorher als Zelle neben einem Gebäude identifiziert
                             // zeichnet neben Gebäude, um Problem der Überlappung zu lösen
-                            if (row == startRow && col >= startCol && col <= endCol) {
-                                // und muss daher als Grass gezeichnet werden
-                                Image image = getGrassImage(col, row);
-                                drawTileImage(drawOrigin, image, false, cornerHeights);
-                            } else {
+//                            if (row == startRow && col >= startCol && col <= endCol) {
+//                                // und muss daher als Grass gezeichnet werden
+//                                Image image = getGrassImage(col, row);
+//                                drawTileImage(drawOrigin, image, false, cornerHeights);
+//                            } else {
 
                                 if (building != null) {
                                     if (building.getBuildingName().equals("ground") || building.getBuildingName().equals("flat")
@@ -333,7 +333,7 @@ public class View {
                                 calculatePolygonCoordsOnCanvas(row, col, drawOrigin);
                             }
                         }
-                    }
+//                    }
                 }
             }
         }

@@ -29,13 +29,15 @@ public class ObjectToImageMapping {
         mapping.put("silicone factory", "factories/siliconeFactory");
         mapping.put("chemical plant", "factories/chemicalPlant");
         mapping.put("submerged-arc furnace", "factories/furnace");
-        mapping.put("sand pit", "factories/sandPit");
+//        mapping.put("sand pit", "factories/sandPit");
+        mapping.put("sand pit", "factories/sandPit_test");
 
         mapping.put("tree", "ground/trees");
         // wird momentan noch nicht benutzt
         mapping.put("tree_no_ground", "ground/trees_no_ground");
 
-        mapping.put("stone", "ground/stones");
+//        mapping.put("stone", "ground/stones");
+        mapping.put("stone", "ground/stones_test");
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
@@ -66,7 +68,8 @@ public class ObjectToImageMapping {
         mapping.put("car_se", "road/car_se");
         mapping.put("car_sw", "road/car_sw");
 //        mapping.put("grass", "ground/grass");
-        mapping.put("grass", "ground/grass_tile");
+//        mapping.put("grass", "ground/grass_tile");
+        mapping.put("grass", "ground/grass_tile_test");
 //                mapping.put("water", "ground/water");
         mapping.put("water", "ground/water_tile");
 

@@ -97,16 +97,12 @@ public class MapGenerator {
                     generateNature(row, col);
 
                 // In diesem Fall wird Wasser erzeugt
-                } else if (absoluteTileHeight.equals("0000") && cornerHeights.get("cornerS") < 0) {
-
-                    mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
-                    // TODO es soll viel mehr Wasser erzeugt werden
-
                 } else if( cornerHeights.get("cornerS") < 0 &&  cornerHeights.get("cornerN") < 0
                 &&  cornerHeights.get("cornerW") < 0 &&  cornerHeights.get("cornerE") < 0){
                     mapFieldGrid[row][col] = new Tile(null, cornerHeights, true);
-                } else {
 
+                // Ansonsten wird ein Feld mit Höhenunterschied erzeugt
+                } else {
                     Building building = new Building(1, 1, "ground");
                     mapFieldGrid[row][col].setCornerHeights(cornerHeights);
                     mapFieldGrid[row][col].setBuilding(building);
@@ -249,7 +245,7 @@ public class MapGenerator {
             // Wenn die vorherige Ecke < 0 war, ist die Wahrscheinlichkeit höher, dass auch die nächste Ecke diesen
             // Wert bekommt, damit mehr Wasserfelder entstehen können
         } else if (heightOfEdgeBefore < 0) {
-            int probabilityMaxHeight = 80;
+            int probabilityMaxHeight = 75;
             int randomNumber = r.nextInt(100) + 1;
             if (randomNumber < probabilityMaxHeight) {
                 heightOfNextCorner = heightOfEdgeBefore;
@@ -257,7 +253,7 @@ public class MapGenerator {
                 heightOfNextCorner = r.nextInt(maxHeight - minHeight + 1) + minHeight;
             }
         } else {
-            int probabilityNullHeight = 90;
+            int probabilityNullHeight = 95;
             int randomNumber = r.nextInt(100) + 1;
             if (randomNumber < probabilityNullHeight) {
                 heightOfNextCorner = 0;
