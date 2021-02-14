@@ -41,6 +41,14 @@ public class Tile {
         return absoluteHeight;
     }
 
+    public Map <String, Integer> updateCornerHeight(String key, int heightShift){
+        Map <String, Integer> heights = this.getCornerHeights();
+
+        // Werte der angegebenen Ecke um 1 erhöhen
+        heights.put(key, heights.get(key)+heightShift);
+        return heights;
+    }
+
 
     public int findMaxCorner(Map<String, Integer> cornerHeights){
 

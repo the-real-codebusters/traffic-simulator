@@ -4,8 +4,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -163,12 +161,15 @@ public class Controller {
                 }
             }
 
-            if (selectedBuilding.getBuildingName().equals("height_up")){
-                System.out.println("height up placed");
+            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
                 selectedBuilding = null;
-                liftTerrain(mouseX, mouseY);
+                changeGroundHeight(mouseX, mouseY, 1);
             }
 
+            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_down")){
+                selectedBuilding = null;
+                changeGroundHeight(mouseX, mouseY, -1);
+            }
 
 
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
@@ -190,7 +191,7 @@ public class Controller {
         }
     }
 
-    public void liftTerrain(double mouseX, double mouseY) {
+    public void changeGroundHeight(double mouseX, double mouseY, int heightShift) {
         Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
 
         if (isoCoord != null) {
@@ -199,46 +200,39 @@ public class Controller {
 
             Tile[][] grid = model.getMap().getTileGrid();
 
-            Tile tileS = grid[xCoord][yCoord];
-            Tile tileW = grid[xCoord-1][yCoord];
-            Tile tileN = grid[xCoord-1][yCoord+1];
-            Tile tileE = grid[xCoord][yCoord+1];
+            Tile tileN = grid[xCoord][yCoord];
+            Tile tileW = grid[xCoord][yCoord-1];
+            Tile tileS = grid[xCoord+1][yCoord-1];
+            Tile tileE = grid[xCoord+1][yCoord];
 
 
-            Map <String, Integer> updatedHeights = updateCornerHeight(tileS, "cornerN", 1);
+            Map <String, Integer> updatedHeights;
+            Building ground = new Building(1, 1, "ground");
+            String absoluteTileHeight;
+            boolean isWater;
 
-            grid[xCoord][yCoord] = new Tile(null, updatedHeights, false);
-            Building buildingS = new Building(1, 1, "ground");
-            grid[xCoord][yCoord].setCornerHeights(updatedHeights);
-            grid[xCoord][yCoord].setBuilding(buildingS);
 
-            updatedHeights = updateCornerHeight(tileW, "cornerE", 1);
-            grid[xCoord-1][yCoord] = new Tile(null, updatedHeights, false);
-            Building buildingW = new Building(1, 1, "ground");
-            grid[xCoord-1][yCoord].setCornerHeights(updatedHeights);
-            grid[xCoord-1][yCoord].setBuilding(buildingW);
+            updatedHeights = tileS.updateCornerHeight("cornerN", heightShift);
+            absoluteTileHeight = tileS.absoluteHeigtToRelativeHeight(updatedHeights);
+            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+            grid[xCoord+1][yCoord-1] = new Tile(ground, updatedHeights, isWater);
 
-            updatedHeights = updateCornerHeight(tileN, "cornerS", 1);
-            grid[xCoord-1][yCoord+1] = new Tile(null, updatedHeights, false);
-            Building buildingN = new Building(1, 1, "ground");
-            grid[xCoord-1][yCoord+1].setCornerHeights(updatedHeights);
-            grid[xCoord-1][yCoord+1].setBuilding(buildingN);
+            updatedHeights = tileW.updateCornerHeight("cornerE", heightShift);
+            absoluteTileHeight = tileW.absoluteHeigtToRelativeHeight(updatedHeights);
+            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+            grid[xCoord][yCoord-1] = new Tile(ground, updatedHeights, isWater);
 
-            updatedHeights = updateCornerHeight(tileE, "cornerW", 1);
-            grid[xCoord][yCoord+1] = new Tile(null, updatedHeights, false);
-            Building buildingE = new Building(1, 1, "ground");
-            grid[xCoord][yCoord+1].setCornerHeights(updatedHeights);
-            grid[xCoord][yCoord+1].setBuilding(buildingE);
+            updatedHeights = tileN.updateCornerHeight("cornerS", heightShift);
+            absoluteTileHeight = tileN.absoluteHeigtToRelativeHeight(updatedHeights);
+            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+            grid[xCoord][yCoord] = new Tile(ground, updatedHeights, isWater);
+
+            updatedHeights = tileE.updateCornerHeight("cornerW", heightShift);
+            absoluteTileHeight = tileE.absoluteHeigtToRelativeHeight(updatedHeights);
+            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+            grid[xCoord+1][yCoord] = new Tile(ground, updatedHeights, isWater);
 
         }
-    }
-
-    public Map <String, Integer> updateCornerHeight(Tile tile, String key, int heightShift){
-        Map <String, Integer> heights = tile.getCornerHeights();
-
-        // Werte der angegebenen Ecke um 1 erhöhen
-        heights.put(key, heights.get(key)+heightShift);
-        return heights;
     }
 
 
