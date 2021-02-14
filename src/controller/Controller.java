@@ -163,11 +163,21 @@ public class Controller {
                 }
             }
 
+            if (selectedBuilding.getBuildingName().equals("height_up")){
+                System.out.println("height up placed");
+                selectedBuilding = null;
+                liftTerrain(mouseX, mouseY);
+            }
+
+
+
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
 
-            Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            if(selectedBuilding != null) {
+                Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            }
 
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
@@ -179,6 +189,61 @@ public class Controller {
         }
         }
     }
+
+    public void liftTerrain(double mouseX, double mouseY) {
+        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
+
+        if (isoCoord != null) {
+            int xCoord = (int) isoCoord.getX();
+            int yCoord = (int) isoCoord.getY();
+
+            Tile[][] grid = model.getMap().getTileGrid();
+
+            Tile tileS = grid[xCoord][yCoord];
+            Tile tileW = grid[xCoord-1][yCoord];
+            Tile tileN = grid[xCoord-1][yCoord+1];
+            Tile tileE = grid[xCoord][yCoord+1];
+
+
+            Map <String, Integer> updatedHeights = updateCornerHeight(tileS, "cornerN", 1);
+
+            grid[xCoord][yCoord] = new Tile(null, updatedHeights, false);
+            Building buildingS = new Building(1, 1, "ground");
+            grid[xCoord][yCoord].setCornerHeights(updatedHeights);
+            grid[xCoord][yCoord].setBuilding(buildingS);
+
+            updatedHeights = updateCornerHeight(tileW, "cornerE", 1);
+            grid[xCoord-1][yCoord] = new Tile(null, updatedHeights, false);
+            Building buildingW = new Building(1, 1, "ground");
+            grid[xCoord-1][yCoord].setCornerHeights(updatedHeights);
+            grid[xCoord-1][yCoord].setBuilding(buildingW);
+
+            updatedHeights = updateCornerHeight(tileN, "cornerS", 1);
+            grid[xCoord-1][yCoord+1] = new Tile(null, updatedHeights, false);
+            Building buildingN = new Building(1, 1, "ground");
+            grid[xCoord-1][yCoord+1].setCornerHeights(updatedHeights);
+            grid[xCoord-1][yCoord+1].setBuilding(buildingN);
+
+            updatedHeights = updateCornerHeight(tileE, "cornerW", 1);
+            grid[xCoord][yCoord+1] = new Tile(null, updatedHeights, false);
+            Building buildingE = new Building(1, 1, "ground");
+            grid[xCoord][yCoord+1].setCornerHeights(updatedHeights);
+            grid[xCoord][yCoord+1].setBuilding(buildingE);
+
+        }
+    }
+
+    public Map <String, Integer> updateCornerHeight(Tile tile, String key, int heightShift){
+        Map <String, Integer> heights = tile.getCornerHeights();
+
+        // Werte der angegebenen Ecke um 1 erhöhen
+        heights.put(key, heights.get(key)+heightShift);
+        return heights;
+    }
+
+
+
+
 
     // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
     // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
