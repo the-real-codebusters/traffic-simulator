@@ -32,7 +32,7 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
-        System.out.println("place building "+instance.getBuildingName()+" with TrafficType "+instance.getTrafficType());
+//        System.out.println("place building "+instance.getBuildingName()+" with TrafficType "+instance.getTrafficType());
 //        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){

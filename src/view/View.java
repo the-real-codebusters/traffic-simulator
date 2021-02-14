@@ -4,6 +4,7 @@ import controller.Controller;
 import javafx.animation.*;
 import javafx.beans.property.*;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -14,6 +15,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
@@ -39,6 +41,11 @@ public class View {
     // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
+
+    Screen screen = Screen.getPrimary();
+    Rectangle2D bounds = screen.getVisualBounds();
+
+//    private Canvas canvas = new Canvas(bounds.getWidth(), bounds.getHeight()-210);
     private Canvas canvas = new Canvas(1200, 600);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
@@ -161,6 +168,7 @@ public class View {
 //        return value;
 //    }
 
+    // TODO was ist das überhaupt?
     public double getQuadraticTileWidthOrDepth(){
         return Math.sqrt(Math.pow(tileImageWidth/2, 2) + Math.pow(tileImageHeight/2, 2));
     }
@@ -292,11 +300,11 @@ public class View {
                         } else {
                             // diese Zelle wurde vorher als Zelle neben einem Gebäude identifiziert
                             // zeichnet neben Gebäude, um Problem der Überlappung zu lösen
-//                            if (row == startRow && col >= startCol && col <= endCol) {
-//                                // und muss daher als Grass gezeichnet werden
-//                                Image image = getGrassImage(col, row);
-//                                drawTileImage(drawOrigin, image, false, cornerHeights);
-//                            } else {
+                            if (row == startRow && col >= startCol && col <= endCol) {
+                                // und muss daher als Grass gezeichnet werden
+                                Image image = getGrassImage(col, row);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
+                            } else {
 
                                 if (building != null) {
                                     if (building.getBuildingName().equals("ground") || building.getBuildingName().equals("flat")
@@ -329,11 +337,10 @@ public class View {
                                     Image image = getSingleFieldImage(col, row, fields);
                                     drawTileImage(drawOrigin, image, false, cornerHeights);
                                 }
-
-                                calculatePolygonCoordsOnCanvas(row, col, drawOrigin);
                             }
                         }
-//                    }
+                        calculatePolygonCoordsOnCanvas(row, col, drawOrigin);
+                    }
                 }
             }
         }
