@@ -1,9 +1,7 @@
 package model;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Tile {
 
@@ -20,7 +18,15 @@ public class Tile {
         if(isWater) this.building = null;
     }
 
-
+    /**
+     * Die Höhen der Ecken werden in relative Höhen umgerechnet, so dass jedes Tile einen zugeordneten String
+     * erhalten kann, der aus einer 4-stelligen Zahlenkombination aus den Ziffern 0, 1 und 2 besteht.
+     * Diese Zahlenkombination wird später für die Zuordnung der korrekten Grafik entsprechend den Höhenverhältnissen
+     * benötigt.
+     * Beispiel: Absolute Höhe = 3454 -> Relative Höhe = 0121.
+     * @param cornerHeights
+     * @return
+     */
     public String absoluteHeigtToRelativeHeight(Map<String, Integer> cornerHeights){
         // Eine Kopie der Map wird erzeugt, damit die ursprüngliche Map nicht verändert wird
         Map<String, Integer> absoluteCornerHeights = new LinkedHashMap<>();
@@ -37,15 +43,23 @@ public class Tile {
             entry.setValue(Math.abs(entry.getValue() - minHeight));
             absoluteHeight += entry.getValue();
         }
-//        System.out.println( absoluteHeight + " absoluteHeigtToRelativeHeight");
         return absoluteHeight;
     }
 
+    /**
+     * Der Value wird um den durch heightShift angegebenen Wert verändert, sofern der Value dadurch nicht einen Wert
+     * annimt, der < -1 ist
+     * @param key Ecke dessen Höhe verändert werden soll
+     * @param heightShift Wert, um den die Höhe der Ecke verändert werden soll
+     * @return Map mit verändertem Wert
+     */
     public Map <String, Integer> updateCornerHeight(String key, int heightShift){
         Map <String, Integer> heights = this.getCornerHeights();
 
-        // Werte der angegebenen Ecke um 1 erhöhen
-        heights.put(key, heights.get(key)+heightShift);
+        // Wenn durch die Änderung, der Höhenwert nicht unter -1 senken würde
+        if(heights.get(key)+heightShift >= -1){
+            heights.put(key, heights.get(key)+heightShift);
+        }
         return heights;
     }
 

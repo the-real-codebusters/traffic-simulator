@@ -131,7 +131,8 @@ public class MapModel {
 
                 // Auf Graßfelder soll wieder gebaut werden dürfen
                 if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")
-                    || tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("flat")){
+                    || tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("flat")
+                        || tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("ground")){
                     return true;
                 }
 

@@ -12,6 +12,7 @@ import view.MenuPane;
 import view.View;
 
 
+import javax.swing.plaf.IconUIResource;
 import java.util.*;
 
 
@@ -172,6 +173,7 @@ public class Controller {
             }
 
 
+
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
@@ -191,6 +193,12 @@ public class Controller {
         }
     }
 
+    /**
+     * Verändert die Höhe des Bodens an den angeklickten Koordinaten um einen gegebenen Wert
+     * @param mouseX
+     * @param mouseY
+     * @param heightShift
+     */
     public void changeGroundHeight(double mouseX, double mouseY, int heightShift) {
         Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
 
@@ -210,7 +218,6 @@ public class Controller {
             Building ground = new Building(1, 1, "ground");
             String absoluteTileHeight;
             boolean isWater;
-
 
             updatedHeights = tileS.updateCornerHeight("cornerN", heightShift);
             absoluteTileHeight = tileS.absoluteHeigtToRelativeHeight(updatedHeights);
