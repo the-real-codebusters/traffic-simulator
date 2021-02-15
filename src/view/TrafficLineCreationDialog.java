@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import model.TrafficType;
 import model.Vehicle;
 
@@ -109,6 +110,28 @@ public class TrafficLineCreationDialog {
                         };
                     }
                 });
+
+        dropdown.setConverter(new StringConverter<Map<String, Object>>() {
+            @Override
+            public String toString(Map<String, Object> map) {
+                if (map == null){
+                    return null;
+                } else {
+                    return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().getUrl();
+                }
+            }
+
+            @Override
+            public Map<String, Object> fromString(String string) {
+                HashMap<String, Object> map = new HashMap<>();
+                String[] parts = string.split(";");
+
+                map.put("text", parts[0]);
+                map.put("image", "bildchen");
+                return map;
+
+            }
+        });
     }
 
 

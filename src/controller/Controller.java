@@ -51,6 +51,7 @@ public class Controller {
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
 
+        new TrafficLineCreationDialog(view);
         simulateOneDay();
     }
 
