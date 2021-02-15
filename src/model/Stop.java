@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Ein Teil einer Haltestelle
@@ -12,7 +9,9 @@ public class Stop extends Special implements PartOfTrafficGraph{
     protected Map<String, List<Double>> points = new HashMap<>();
     protected List<List<String>> transportations = new ArrayList<>();
     private Station station;
-    private List<Vertex> vertices = new ArrayList<>();
+    private Set<Vertex> vertices = new HashSet<>();
+    private ConnectedTrafficPart associatedPartOfTraffic;
+
 
     @Override
     public Stop getNewInstance(){
@@ -37,7 +36,8 @@ public class Stop extends Special implements PartOfTrafficGraph{
         this.transportations = roads;
     }
 
-    public List<Vertex> getVertices() {
+    @Override
+    public Set<Vertex> getVertices() {
         return vertices;
     }
 
@@ -52,6 +52,15 @@ public class Stop extends Special implements PartOfTrafficGraph{
 
     public void setStation(Station station) {
         this.station = station;
+    }
+
+    @Override
+    public ConnectedTrafficPart getAssociatedPartOfTraffic() {
+        return associatedPartOfTraffic;
+    }
+
+    public void setAssociatedPartOfTraffic(ConnectedTrafficPart associatedPartOfTraffic) {
+        this.associatedPartOfTraffic = associatedPartOfTraffic;
     }
 
     @Override

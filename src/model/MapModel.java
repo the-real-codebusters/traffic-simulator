@@ -36,7 +36,7 @@ public class MapModel {
 //        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
+                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights());
                 else tileGrid[r][c].setBuilding(instance);
             }
         }
@@ -55,7 +55,7 @@ public class MapModel {
                 station = nextStation;
                 System.out.println("Nachbar für Stop gefunden");
             } else {
-                station = new Station(model, null, null, null, model.getPathfinder());
+                station = new Station(model, null, null, null, model.getPathfinder(), null);
                 stations.add(station);
                 System.out.println("Station neu erzeugt");
                 createdNewStation = true;
@@ -68,14 +68,14 @@ public class MapModel {
             List<Vertex> addedPoints = model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
             if(instance instanceof Road){
                 //checke, ob man zwei TrafficLines mergen sollte
-                mergeTrafficLinesIfNeccessary(addedPoints.get(0));
+                mergeTrafficPartsIfNeccessary(addedPoints.get(0));
             }
         }
 
 
         if(createdNewStation){
-            TrafficLine trafficLine = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
-            instance.setTrafficLine(trafficLine);
+            ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
+            instance.setTrafficLine(connectedTrafficPart);
         }
 
         return instance;
@@ -93,6 +93,10 @@ public class MapModel {
     public boolean canPlaceBuilding(int row, int column, Building building){
         if((row+building.getWidth()) >= depth) return  false;
         if((column+building.getDepth()) >= width) return  false;
+
+        if(building.getBuildingName().equals("remove")
+                && !tileGrid[row][column].isWater()
+                && !(tileGrid[row][column].getBuilding() instanceof Factory)) return true;
 
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
@@ -113,34 +117,28 @@ public class MapModel {
 
                 // TODO Wenn Höhe nicht passt, return false
 
+                //Auf Wasserfeldern darf nicht gebaut werden
+                if(tile.isWater()) return false;
+
                 if(tile.getBuilding() instanceof Road) {
-                    // TODO Mache es allgemeiner, indem es auch für Rail implementiert wird
                     boolean canCombine = model.checkCombines(row, column, building) != building;
                     // Wenn eine strasse abgerissen werden soll, soll ebenfalls true zurückgegeben werden
-                    if(canCombine || building.getBuildingName().equals("remove")){
-                        return true;
-                    }
+                    if(! canCombine) return false;
                 }
-
-                if(tile.getBuilding() instanceof Rail) {
+                else if (tile.getBuilding() instanceof Rail){
                     boolean canCombine = model.checkCombines(row, column, building) != building;
-                    if(canCombine || building.getBuildingName().equals("remove")){
-                        return true;
-                    }
+                    if(! canCombine) return false;
                 }
 
-                // Auf Graßfelder soll wieder gebaut werden dürfen
-                if(tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("grass")
-                    || tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("flat")
-                        || tile.getBuilding() != null && tile.getBuilding().getBuildingName().equals("ground")){
-                    return true;
+                else {
+                    // Auf Graßfelder soll wieder gebaut werden dürfen
+                    if(! ((tile.getBuilding() instanceof Nature) ||
+                            tile.getBuilding().getBuildingName().equals("grass"))) return false;
                 }
-
-                if(tile.getBuilding() instanceof Stop && building.getBuildingName().equals("remove")) return true;
-
-                if(! (tile.getBuilding() instanceof Nature)) return false;
             }
         }
+
+        //TODO Runways werden beim platzieren abgeschnitten
 
         if(building instanceof Stop){
             adjacentStationId = -1L;
@@ -172,40 +170,40 @@ public class MapModel {
     //TODO Funktioniert momentan nur für ROAD
 
     /**
-     * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrslinien verbunden wurden. Wenn das der Fall ist,
-     * fügt es die beiden Verkehrlinien zu einer zusammen.
+     * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrsteile verbunden wurden. Wenn das der Fall ist,
+     * fügt es die beiden Verkehrsteile zu einer zusammen.
      * @param newAddedVertex
      */
-    private void mergeTrafficLinesIfNeccessary(Vertex newAddedVertex){
-        System.out.println("mergeTrafficLinesIfNeccessary called");
+    private void mergeTrafficPartsIfNeccessary(Vertex newAddedVertex){
 
         List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex);
-        Set<TrafficLine> differentLines = new HashSet<>();
+        Set<ConnectedTrafficPart> differentLines = new HashSet<>();
         for(Station station: nearStations){
-            differentLines.add(station.getRoadTrafficLine());
+            differentLines.add(station.getRoadTrafficPart());
+            //TODO Wann wird TrafficPart in Station gesetzt?
         }
         int numberOfNearTrafficLines = differentLines.size();
         System.out.println(numberOfNearTrafficLines);
         if(numberOfNearTrafficLines > 1){
             System.out.println("tried to merge trafficLines");
             System.out.println("found lines "+numberOfNearTrafficLines);
-            mergeTrafficLines(new ArrayList<>(differentLines));
+            mergeTrafficParts(new ArrayList<>(differentLines));
         }
     }
 
     /**
-     * Fügt die angegebenen Verkehrslinien zu einer zusammen
-     * @param lines
+     * Fügt die angegebenen Verkehrsteile zu einem zusammen
+     * @param parts
      */
-    private void mergeTrafficLines(List<TrafficLine> lines){
-        TrafficLine firstLine = lines.get(0);
-        System.out.println("firstLine "+firstLine.getStations().size());
-        for(int i=1; i<lines.size(); i++){
-            firstLine.mergeWithTrafficLine(lines.get(i));
-            model.getActiveTrafficLines().remove(lines.get(i));
-            model.getNewCreatedOrIncompleteTrafficLines().remove(lines.get(i));
+    private void mergeTrafficParts(List<ConnectedTrafficPart> parts){
+        ConnectedTrafficPart firstPart = parts.get(0);
+        System.out.println("firstPart "+firstPart.getStations().size());
+        for(int i=1; i<parts.size(); i++){
+            firstPart.mergeWithTrafficPart(parts.get(i));
+            model.getActiveTrafficParts().remove(parts.get(i));
+            model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
         }
-        System.out.println("firstLine after merge "+firstLine.getStations().size());
+        System.out.println("firstPart after merge "+firstPart.getStations().size());
     }
 
     /**
@@ -273,15 +271,19 @@ public class MapModel {
             trafficGraph = this.rawRoadGraph;
         }
         else {
+            if(building.getTrafficType().equals(TrafficType.AIR)) {
+                trafficGraph = this.rawRoadGraph;
+            }
             //TODO rails
-            //TODO Air ?
 
             //Vielleicht sollte man für Flugzeuge eine eigene globale Variable von TrafficGraph erstellen, der die Punkte der
             // Flugverbindungen abspeichert. Dann müssten auch im Pathfinder unterschiedliche Graphen benutzt werden,
             // je nach TrafficType, und die Methode addNewStationToTrafficLineOrCreateNewTrafficLine() mit Sicherheit auch
 
-            throw new RuntimeException("Unfertiger Code");
-        };
+            else {
+                throw new RuntimeException("Unfertiger Code");
+            }
+        }
 
         // TODO Vertex zusammenführen überprüfen
 
@@ -335,8 +337,9 @@ public class MapModel {
                 addedVertices.add(j);
             }
         }
-        if(isPointPartOfStation){
-            ((Stop) building).getVertices().addAll(addedVertices);
+        building.getVertices().addAll(addedVertices);
+        for(Vertex addedV: addedVertices){
+            addedV.setBuilding(building);
         }
         return addedVertices;
     }
@@ -348,8 +351,16 @@ public class MapModel {
      * @param trafficType
      * @return
      */
-    private TrafficLine addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
-        List<Vertex> pathToStation = model.getPathfinder().findPathToNextStation(newStation);
+    private ConnectedTrafficPart addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
+        List<Vertex> pathToStation;
+        if (trafficType == TrafficType.AIR && stations.size() > 1) {
+            Vertex startVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
+            Vertex endVertex = newStation.getComponents().get(0).getVertices().iterator().next();
+            pathToStation = model.getPathfinder().findPathForPlane(startVertex, endVertex);
+        }
+        else {
+            pathToStation = model.getPathfinder().findPathToNextStation(newStation);
+        }
 
         boolean anotherStationFindable = false;
         if (pathToStation.size() > 0) anotherStationFindable = true;
@@ -358,20 +369,36 @@ public class MapModel {
             Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
             Station nextStation = lastVertex.getStation();
             if (trafficType.equals(TrafficType.ROAD)) {
-                nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
-                newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
-                return nextStation.getRoadTrafficLine();
-            } else ; //TODO Andere Verkehrstypen
+                nextStation.getRoadTrafficPart().addStationAndUpdateConnectedStations(newStation);
+                newStation.setRoadTrafficPart(nextStation.getRoadTrafficPart());
+                return nextStation.getRoadTrafficPart();
+            }
+            else if (trafficType.equals(TrafficType.AIR)) {
+                ConnectedTrafficPart trafficPart = new ConnectedTrafficPart(model, TrafficType.AIR, stations.get(0));
+                nextStation.setAirTrafficPart(trafficPart);
+                nextStation.getAirTrafficPart().addStationAndUpdateConnectedStations(newStation);
+                // TODO: hack:  erste Station löschen
+                model.getNewCreatedOrIncompleteTrafficParts().remove();
+                model.getNewCreatedOrIncompleteTrafficParts().add(nextStation.getAirTrafficPart());
+
+                //stations.get(0).setAirTrafficLine(nextStation.getAirTrafficLine());
+               // nextStation.getRoadTrafficLine().addStationAndUpdateConnectedStations(newStation);
+               // newStation.setRoadTrafficLine(nextStation.getRoadTrafficLine());
+                return nextStation.getAirTrafficPart();
+            }
+            else ; //TODO Andere Verkehrstypen
         } else {
-            TrafficLine trafficLine = null;
+            ConnectedTrafficPart connectedTrafficPart = null;
             switch (trafficType) {
                 case AIR:
+                    connectedTrafficPart = new ConnectedTrafficPart(model, TrafficType.AIR, newStation);
+                    newStation.setAirTrafficPart(connectedTrafficPart);
                     break;
                 case RAIL:
                     break;
                 case ROAD:
-                    trafficLine = new TrafficLine(2, model, TrafficType.ROAD, newStation);
-                    newStation.setRoadTrafficLine(trafficLine);
+                    connectedTrafficPart = new ConnectedTrafficPart(model, TrafficType.ROAD, newStation);
+                    newStation.setRoadTrafficPart(connectedTrafficPart);
                     break;
                 default:
                     break;
@@ -379,8 +406,8 @@ public class MapModel {
             // TODO AIR, RAIL, desiredNumber
             // Es crasht hier manchmal, weil Rails noch nicht umgesetzt ist
 
-            model.getNewCreatedOrIncompleteTrafficLines().add(trafficLine);
-            return trafficLine;
+            model.getNewCreatedOrIncompleteTrafficParts().add(connectedTrafficPart);
+            return connectedTrafficPart;
         }
         throw new RuntimeException("Unfertiger Code");
     }

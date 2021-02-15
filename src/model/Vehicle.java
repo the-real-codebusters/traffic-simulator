@@ -1,6 +1,5 @@
 package model;
 
-import javafx.geometry.Point2D;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -50,6 +49,7 @@ public class Vehicle {
         TrafficLine line = nextStation.getTrafficLineForTrafficType(kind);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
+
 
     /**
      * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Entfernt die abgefahrenen Knoten aus

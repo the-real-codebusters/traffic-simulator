@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
+        System.out.println("Program started");
         JSONParser parser = new JSONParser();
         BasicModel model = new BasicModel();
 

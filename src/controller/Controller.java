@@ -120,6 +120,7 @@ public class Controller {
         int yCoord = (int) isoCoord.getY();
         List<Vertex> addedVertices;
 
+
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
 
@@ -146,6 +147,7 @@ public class Controller {
                             model.getMap().getRawRoadGraph().removeVertex(v.getName());
                         }
                     }
+
                     // TODO so anpassen, dass es auch für rails funktioniert
 
                     Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
@@ -186,8 +188,8 @@ public class Controller {
             // Wenn nein, dann neu erstellen
 
             view.drawMap();
-            if(model.getNewCreatedOrIncompleteTrafficLines().size() > 0) {
-                System.out.println("Size of incompleteTrafficLines "+model.getNewCreatedOrIncompleteTrafficLines().size());
+            if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {
+                System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
             }
         }
         }
@@ -295,6 +297,23 @@ public class Controller {
 
     public boolean canPlaceBuildingAtPlaceInMapGrid(int row, int column, Building building){
         return model.getMap().canPlaceBuilding(row, column, building);
+    }
+
+    public void showTrafficPartInView(MouseEvent event){
+        double mouseX = event.getX();
+        double mouseY = event.getY();
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
+
+        Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
+        if(building instanceof PartOfTrafficGraph){
+            ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
+            if(trafficPart != null){
+                view.getMenuPane().showTrafficPart(trafficPart);
+            }
+        }
+
     }
 
     public Tile getTileOfMapTileGrid(int row, int column){

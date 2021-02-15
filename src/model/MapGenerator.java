@@ -63,6 +63,8 @@ public class MapGenerator {
         int mapDepth = mapModel.getDepth();
         Tile[][] mapFieldGrid = mapModel.getTileGrid();
 
+        System.out.println("generate height map called");
+
         for (int row = 0; row < mapDepth; row++) {
             for (int col = 0; col < mapWidth; col++) {
 
