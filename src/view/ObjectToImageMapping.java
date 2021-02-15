@@ -55,10 +55,26 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-sw", "road/road-nw-sw");
         mapping.put("road-se-sw", "road/road-se-sw");
 
-        mapping.put("car_ne", "road/car_ne");
-        mapping.put("car_nw", "road/car_nw");
-        mapping.put("car_se", "road/car_se");
-        mapping.put("car_sw", "road/car_sw");
+        mapping.put("panel_transporter-ne", "vehicles/road/panel-ne");
+        mapping.put("panel_transporter-nw", "vehicles/road/panel-nw");
+        mapping.put("panel_transporter-se", "vehicles/road/panel-se");
+        mapping.put("panel_transporter-sw", "vehicles/road/panel-sw");
+
+        mapping.put("bulk_truck-ne", "vehicles/road/bulk_ne");
+        mapping.put("bulk_truck-nw", "vehicles/road/bulk_nw");
+        mapping.put("bulk_truck-se", "vehicles/road/bulk_se");
+        mapping.put("bulk_truck-sw", "vehicles/road/bulk_sw");
+
+        mapping.put("hazmat_truck-ne", "vehicles/road/car_ne");
+        mapping.put("hazmat_truck-nw", "vehicles/road/car_nw");
+        mapping.put("hazmat_truck-se", "vehicles/road/car_se");
+        mapping.put("hazmat_truck-sw", "vehicles/road/car_sw");
+
+        mapping.put("silicone_truck-ne", "vehicles/road/silicone-ne");
+        mapping.put("silicone_truck-nw", "vehicles/road/silicone-nw");
+        mapping.put("silicone_truck-se", "vehicles/road/silicone-se");
+        mapping.put("silicone_truck-sw", "vehicles/road/silicone-sw");
+
 //        mapping.put("grass", "ground/grass");
         mapping.put("grass", "ground/grass_tile");
 //                mapping.put("water", "ground/water");

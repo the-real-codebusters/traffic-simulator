@@ -74,6 +74,7 @@ public class MenuPane extends AnchorPane {
             addTab(tabNames.get(i), tabContents.get(i), false);
         }
         createTrafficpartTab();
+
     }
 
     private void createTrafficpartTab(){
@@ -422,7 +423,7 @@ public class MenuPane extends AnchorPane {
         selectTrafficLineStationsMode = true;
 
         // create a popup
-        trafficLinePopup = new TrafficLinePopup(view.getStage());
+        trafficLinePopup = new TrafficLinePopup(view);
     }
 
 

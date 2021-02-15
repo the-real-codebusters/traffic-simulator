@@ -774,17 +774,17 @@ public class View {
      */
     private String getImageNameForCar(Point2D start, Point2D end) {
 
-        String carName = null;
+        String carName = "panel_transporter";
         if (start.getX() < end.getX()) {
             //nach rechts oben fahren
             //System.out.print("nach rechts");
             if (start.getY() > end.getY()) {
                 //System.out.println(" oben");
-                carName = "car_ne";
+                carName+="-ne";
             }
             else {
                 //System.out.println(" unten");
-                carName = "car_se";
+                carName+="-se";
             }
         }
         else  if (start.getX() > end.getX()){
@@ -792,11 +792,11 @@ public class View {
             //System.out.print("nach links");
             if (start.getY() < end.getY()) {
                 //System.out.println(" unten");
-                carName = "car_sw";
+                carName +="-sw";
             }
             else {
                 //System.out.println(" oben");
-                carName = "car_nw";
+                carName +="-nw";
             }
         }
         return objectToImageMapping.getImageNameForObjectName(carName);
@@ -1010,8 +1010,11 @@ public class View {
         return menuPane;
     }
 
+    public ObjectToImageMapping getObjectToImageMapping() {
+        return objectToImageMapping;
+    }
 
-//    public Map<List<Point2D>, Point2D> getRowColToCanvasCoordinates() {
+    //    public Map<List<Point2D>, Point2D> getRowColToCanvasCoordinates() {
 //        return rowColToCanvasCoordinates;
 //    }
 

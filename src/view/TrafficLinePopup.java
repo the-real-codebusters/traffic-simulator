@@ -20,7 +20,8 @@ public class TrafficLinePopup extends Popup {
     private Button readyButton = new Button("ready");
 
 
-    public TrafficLinePopup(Stage stage){
+    public TrafficLinePopup(View view){
+        Stage stage = view.getStage();
 
 //        Label message = new Label("Wähle alle Stationen aus, die zu der Verkehrslinie gehören sollen");
 //        // set background
@@ -33,7 +34,7 @@ public class TrafficLinePopup extends Popup {
 //        getContent().add(message);
         readyButton.setOnAction( e -> {
             hide();
-            new TrafficLineCreationDialog();
+            new TrafficLineCreationDialog(view);
         });
         setAnchorX(stage.getWidth()+stage.getX());
         setAnchorY(stage.getY());

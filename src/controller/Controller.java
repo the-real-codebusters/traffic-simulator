@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
+import view.TrafficLineCreationDialog;
 import view.View;
 
 
@@ -77,6 +78,10 @@ public class Controller {
         List<Vertex> vertexes = new ArrayList<>();
         vertexes.addAll(model.getMap().getRawRoadGraph().getMapOfVertexes().values());
         return vertexes;
+    }
+
+    public List<Vehicle> getVehicleTypesForTrafficType(TrafficType type){
+        return model.getVehicleTypesForTrafficType(type);
     }
 
     /**
