@@ -32,7 +32,7 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building){
 
         Building instance = building.getNewInstance();
-        System.out.println("place building "+instance.getBuildingName()+" with TrafficType "+instance.getTrafficType());
+//        System.out.println("place building "+instance.getBuildingName()+" with TrafficType "+instance.getTrafficType());
 //        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
@@ -101,7 +101,20 @@ public class MapModel {
         for(int r=row; r<row+building.getWidth(); r++){
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = tileGrid[r][c];
-//                if(tile.getHeight() < 0) return false;
+
+
+//                List<Special> factoryBuildings = model.getBuildingsForSpecialUse("factory");
+//                if(tile.getBuilding() instanceof Special){
+//                        Tile tileUnderFactory = tileGrid[r][c];
+//                        System.out.println((r) + " " + (c) + " " + building.getBuildingName());
+//                        Map<String, Integer> cornerHeights = tileUnderFactory.getCornerHeights();
+//                        String absoluteTileHeight = tileUnderFactory.absoluteHeigtToRelativeHeight(cornerHeights);
+//                        if(!absoluteTileHeight.equals("0000")) {
+//                            return false;
+//                    }
+//                }
+
+
                 // TODO Wenn Höhe nicht passt, return false
 
                 //Auf Wasserfeldern darf nicht gebaut werden

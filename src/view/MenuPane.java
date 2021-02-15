@@ -193,15 +193,9 @@ public class MenuPane extends AnchorPane {
             }
 
             if (name.equals("height")) {
-                Building height_up = new Building();
-                height_up.setBuildingName("height_up");
-                height_up.setWidth(1);
-                height_up.setDepth(1);
+                Building height_up = new Building(1, 1, "height_up");
                 ImageView imageViewUp = imageViewWithLayout(height_up);
-                Building height_down = new Building();
-                height_down.setBuildingName("height_down");
-                height_down.setWidth(1);
-                height_down.setDepth(1);
+                Building height_down = new Building(1, 1, "height_down");
                 ImageView imageViewDown = imageViewWithLayout(height_down);
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }
@@ -228,10 +222,7 @@ public class MenuPane extends AnchorPane {
 
 
                 if (name.equals("remove")) {
-                    Building remove = new Building();
-                    remove.setBuildingName("remove");
-                    remove.setWidth(1);
-                    remove.setDepth(1);
+                    Building remove = new Building(1, 1, "remove");
                     ImageView imageView = imageViewWithLayout(remove);
                     container.getChildren().add(imageView);
                 }
@@ -281,31 +272,32 @@ public class MenuPane extends AnchorPane {
     public Point2D drawHoveredImage(MouseEvent mouseEvent, boolean transparent) {
         double mouseX = mouseEvent.getX();
         double mouseY = mouseEvent.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-//        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
-        int xCoord = (int) isoCoord.getX();
-        int yCoord = (int) isoCoord.getY();
+        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
 
-        if (xCoord < 0 || yCoord < 0) {
-            // Tu erstmal nichts
-            return isoCoord;
-        }
-        if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
-            String imageName = mapping.getImageNameForObjectName(selectedBuilding.getBuildingName());
-            if(selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1){
-                Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
-                tile.setBuildingOrigin(true);
-                view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
-                tile.setBuildingOrigin(false);
+        if(isoCoord != null) {
+            int xCoord = (int) isoCoord.getX();
+            int yCoord = (int) isoCoord.getY();
+
+            if (xCoord < 0 || yCoord < 0) {
+                // Tu erstmal nichts
+                return isoCoord;
             }
-            else {
-                double ratio = view.getImageNameToImageRatio().get(imageName);
-                double tileWidth = view.getTileImageWidth();
-                Image image = view.getResourceForImageName(imageName, tileWidth, tileWidth * ratio);
-                view.drawTileImage(xCoord, yCoord, image, transparent);
-            }
-            return isoCoord;
-        } else return null;
+            if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
+                String imageName = mapping.getImageNameForObjectName(selectedBuilding.getBuildingName());
+                if (selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1) {
+                    Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
+                    tile.setBuildingOrigin(true);
+                    view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
+                    tile.setBuildingOrigin(false);
+                } else {
+                    double ratio = view.getImageNameToImageRatio().get(imageName);
+                    double tileWidth = view.getTileImageWidth();
+                    Image image = view.getResourceForImageName(imageName, tileWidth, tileWidth * ratio);
+                    view.drawTileImage(xCoord, yCoord, image, transparent);
+                }
+                return isoCoord;
+            } else return null;
+        } return null;
     }
 
     public void showTrafficPart(ConnectedTrafficPart part){

@@ -12,6 +12,7 @@ import view.MenuPane;
 import view.View;
 
 
+import javax.swing.plaf.IconUIResource;
 import java.util.*;
 
 
@@ -28,7 +29,7 @@ public class Controller {
 //        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
-        MapGenerator generator = new MapGenerator(map.getMapgen(), map);
+        MapGenerator generator = new MapGenerator(map.getMapgen(), map, model);
         Tile[][] generatedMap = generator.generateMap(model);
         map.setTileGrid(generatedMap);
 
@@ -113,7 +114,8 @@ public class Controller {
 
         double mouseX = event.getX();
         double mouseY = event.getY();
-        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
+        if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
         List<Vertex> addedVertices;
@@ -162,11 +164,25 @@ public class Controller {
                 }
             }
 
+            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
+                selectedBuilding = null;
+                changeGroundHeight(xCoord, yCoord, 1);
+            }
+
+            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_down")){
+                selectedBuilding = null;
+                changeGroundHeight(xCoord, yCoord, -1);
+            }
+
+
+
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
 
-            Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            if(selectedBuilding != null) {
+                Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            }
 
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
@@ -176,7 +192,55 @@ public class Controller {
                 System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
             }
         }
+        }
     }
+
+    /**
+     * Verändert die Höhe des Bodens an den angeklickten Koordinaten um einen gegebenen Wert
+     * @param xCoord
+     * @param yCoord
+     * @param heightShift
+     */
+    public void changeGroundHeight(int xCoord, int yCoord, int heightShift) {
+
+        Tile[][] grid = model.getMap().getTileGrid();
+
+        Tile tileN = grid[xCoord][yCoord];
+        Tile tileW = grid[xCoord][yCoord-1];
+        Tile tileS = grid[xCoord+1][yCoord-1];
+        Tile tileE = grid[xCoord+1][yCoord];
+
+
+        Map <String, Integer> updatedHeights;
+        Building ground = new Building(1, 1, "ground");
+        String absoluteTileHeight;
+        boolean isWater;
+
+        updatedHeights = tileS.updateCornerHeight("cornerN", heightShift);
+        absoluteTileHeight = tileS.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord+1][yCoord-1] = new Tile(ground, updatedHeights, isWater);
+
+        updatedHeights = tileW.updateCornerHeight("cornerE", heightShift);
+        absoluteTileHeight = tileW.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord][yCoord-1] = new Tile(ground, updatedHeights, isWater);
+
+        updatedHeights = tileN.updateCornerHeight("cornerS", heightShift);
+        absoluteTileHeight = tileN.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord][yCoord] = new Tile(ground, updatedHeights, isWater);
+
+        updatedHeights = tileE.updateCornerHeight("cornerW", heightShift);
+        absoluteTileHeight = tileE.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord+1][yCoord] = new Tile(ground, updatedHeights, isWater);
+
+    }
+
+
+
+
 
     // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
     // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
