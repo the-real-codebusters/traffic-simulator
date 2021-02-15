@@ -11,10 +11,11 @@ public class Tile {
     boolean isBuildingOrigin;
 
 
-    public Tile(Building building, Map<String, Integer> cornerHeights) {
+    public Tile(Building building, Map<String, Integer> cornerHeights, boolean isWater) {
         this.building = building;
         this.cornerHeights = cornerHeights;
         this.building = building;
+        this.isWater = isWater;
     }
 
     /**
@@ -85,6 +86,10 @@ public class Tile {
 
     public Map<String, Integer> getCornerHeights() {
         return cornerHeights;
+    }
+
+    public void setCornerHeights(Map<String, Integer> cornerHeights) {
+        this.cornerHeights = cornerHeights;
     }
 
     public void setCornerHeightsAndUpdateIsWater(Map<String, Integer> cornerHeights) {

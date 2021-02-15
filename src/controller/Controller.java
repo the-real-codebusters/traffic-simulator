@@ -114,7 +114,7 @@ public class Controller {
 
         double mouseX = event.getX();
         double mouseY = event.getY();
-        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
+        Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
@@ -303,14 +303,16 @@ public class Controller {
         double mouseX = event.getX();
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-        int xCoord = (int) isoCoord.getX();
-        int yCoord = (int) isoCoord.getY();
+        if(isoCoord != null){
+            int xCoord = (int) isoCoord.getX();
+            int yCoord = (int) isoCoord.getY();
 
-        Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
-        if(building instanceof PartOfTrafficGraph){
-            ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
-            if(trafficPart != null){
-                view.getMenuPane().showTrafficPart(trafficPart);
+            Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
+            if(building instanceof PartOfTrafficGraph){
+                ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
+                if(trafficPart != null){
+                    view.getMenuPane().showTrafficPart(trafficPart);
+                }
             }
         }
 

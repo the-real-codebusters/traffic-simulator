@@ -12,14 +12,6 @@ public class Building {
     private TrafficType trafficType;
     private ConnectedTrafficPart connectedTrafficPart;
 
-    public Building(int width, int depth, String buildingName) {
-        this.width = width;
-        this.depth = depth;
-        this.buildingName = buildingName;
-    }
-
-    public Building(){};
-
 
     public Building(int width, int depth, String buildingName) {
         this.width = width;

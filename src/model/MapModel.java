@@ -36,7 +36,7 @@ public class MapModel {
 //        if(instance instanceof PartOfTrafficGraph) System.out.println("points "+((PartOfTrafficGraph) instance).getPoints());
         for(int r=row; r<row+instance.getWidth(); r++){
             for(int c=column; c<column+instance.getDepth(); c++){
-                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights());
+                if(tileGrid[r][c] == null) tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
                 else tileGrid[r][c].setBuilding(instance);
             }
         }
@@ -133,7 +133,9 @@ public class MapModel {
                 else {
                     // Auf Graßfelder soll wieder gebaut werden dürfen
                     if(! ((tile.getBuilding() instanceof Nature) ||
-                            tile.getBuilding().getBuildingName().equals("grass"))) return false;
+                            tile.getBuilding().getBuildingName().equals("grass") ||
+                            tile.getBuilding().getBuildingName().equals("ground")
+                    )) return false;
                 }
             }
         }
