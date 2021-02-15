@@ -164,12 +164,12 @@ public class Controller {
 
             if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
                 selectedBuilding = null;
-                changeGroundHeight(mouseX, mouseY, 1);
+                changeGroundHeight(xCoord, yCoord, 1);
             }
 
             if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_down")){
                 selectedBuilding = null;
-                changeGroundHeight(mouseX, mouseY, -1);
+                changeGroundHeight(xCoord, yCoord, -1);
             }
 
 
@@ -195,51 +195,45 @@ public class Controller {
 
     /**
      * Verändert die Höhe des Bodens an den angeklickten Koordinaten um einen gegebenen Wert
-     * @param mouseX
-     * @param mouseY
+     * @param xCoord
+     * @param yCoord
      * @param heightShift
      */
-    public void changeGroundHeight(double mouseX, double mouseY, int heightShift) {
-        Point2D isoCoord = view.findTileCoordNew(mouseX, mouseY);
+    public void changeGroundHeight(int xCoord, int yCoord, int heightShift) {
 
-        if (isoCoord != null) {
-            int xCoord = (int) isoCoord.getX();
-            int yCoord = (int) isoCoord.getY();
+        Tile[][] grid = model.getMap().getTileGrid();
 
-            Tile[][] grid = model.getMap().getTileGrid();
-
-            Tile tileN = grid[xCoord][yCoord];
-            Tile tileW = grid[xCoord][yCoord-1];
-            Tile tileS = grid[xCoord+1][yCoord-1];
-            Tile tileE = grid[xCoord+1][yCoord];
+        Tile tileN = grid[xCoord][yCoord];
+        Tile tileW = grid[xCoord][yCoord-1];
+        Tile tileS = grid[xCoord+1][yCoord-1];
+        Tile tileE = grid[xCoord+1][yCoord];
 
 
-            Map <String, Integer> updatedHeights;
-            Building ground = new Building(1, 1, "ground");
-            String absoluteTileHeight;
-            boolean isWater;
+        Map <String, Integer> updatedHeights;
+        Building ground = new Building(1, 1, "ground");
+        String absoluteTileHeight;
+        boolean isWater;
 
-            updatedHeights = tileS.updateCornerHeight("cornerN", heightShift);
-            absoluteTileHeight = tileS.absoluteHeigtToRelativeHeight(updatedHeights);
-            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
-            grid[xCoord+1][yCoord-1] = new Tile(ground, updatedHeights, isWater);
+        updatedHeights = tileS.updateCornerHeight("cornerN", heightShift);
+        absoluteTileHeight = tileS.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord+1][yCoord-1] = new Tile(ground, updatedHeights, isWater);
 
-            updatedHeights = tileW.updateCornerHeight("cornerE", heightShift);
-            absoluteTileHeight = tileW.absoluteHeigtToRelativeHeight(updatedHeights);
-            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
-            grid[xCoord][yCoord-1] = new Tile(ground, updatedHeights, isWater);
+        updatedHeights = tileW.updateCornerHeight("cornerE", heightShift);
+        absoluteTileHeight = tileW.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord][yCoord-1] = new Tile(ground, updatedHeights, isWater);
 
-            updatedHeights = tileN.updateCornerHeight("cornerS", heightShift);
-            absoluteTileHeight = tileN.absoluteHeigtToRelativeHeight(updatedHeights);
-            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
-            grid[xCoord][yCoord] = new Tile(ground, updatedHeights, isWater);
+        updatedHeights = tileN.updateCornerHeight("cornerS", heightShift);
+        absoluteTileHeight = tileN.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord][yCoord] = new Tile(ground, updatedHeights, isWater);
 
-            updatedHeights = tileE.updateCornerHeight("cornerW", heightShift);
-            absoluteTileHeight = tileE.absoluteHeigtToRelativeHeight(updatedHeights);
-            isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
-            grid[xCoord+1][yCoord] = new Tile(ground, updatedHeights, isWater);
+        updatedHeights = tileE.updateCornerHeight("cornerW", heightShift);
+        absoluteTileHeight = tileE.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        grid[xCoord+1][yCoord] = new Tile(ground, updatedHeights, isWater);
 
-        }
     }
 
 
