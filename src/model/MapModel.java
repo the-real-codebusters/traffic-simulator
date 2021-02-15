@@ -111,17 +111,13 @@ public class MapModel {
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = tileGrid[r][c];
 
-
-//                List<Special> factoryBuildings = model.getBuildingsForSpecialUse("factory");
-//                if(tile.getBuilding() instanceof Special){
-//                        Tile tileUnderFactory = tileGrid[r][c];
-//                        System.out.println((r) + " " + (c) + " " + building.getBuildingName());
-//                        Map<String, Integer> cornerHeights = tileUnderFactory.getCornerHeights();
-//                        String absoluteTileHeight = tileUnderFactory.absoluteHeigtToRelativeHeight(cornerHeights);
-//                        if(!absoluteTileHeight.equals("0000")) {
-//                            return false;
-//                    }
-//                }
+                // Fabriken werden beim erzeugen der Map nur auf komplett ebene Flächen platziert
+                if (building instanceof Factory && tile.getBuilding() != null){
+                    if(! ((tile.getBuilding() instanceof Nature) ||
+                            tile.getBuilding().getBuildingName().equals("grass") ||
+                            tile.getBuilding().getBuildingName().equals("0000") && tile.getCornerHeights().get("cornerS") > 0
+                    )) return false;
+                }
 
 
                 // TODO Wenn Höhe nicht passt, return false
