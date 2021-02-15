@@ -986,6 +986,10 @@ public class View {
         return previousMouseY;
     }
 
+    public TrafficLinePopup getTrafficLinePopup(){
+        return menuPane.getTrafficLinePopup();
+    }
+
     public Stage getStage() {
         return stage;
     }

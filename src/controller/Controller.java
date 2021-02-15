@@ -20,6 +20,8 @@ public class Controller {
     private BasicModel model;
     private Pathfinder pathfinder;
 
+    private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
+
     public Controller(View view, BasicModel model) {
         this.view = view;
         this.model = model;
@@ -236,6 +238,31 @@ public class Controller {
     }
 
     public void showTrafficPartInView(MouseEvent event){
+        Building building = getBuildingForMouseEvent(event);
+        if(building instanceof PartOfTrafficGraph){
+            ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
+            if(trafficPart != null){
+                view.getMenuPane().showTrafficPart(trafficPart);
+            }
+        }
+    }
+
+    public void selectStationsForTrafficLine(MouseEvent event){
+        Building building = getBuildingForMouseEvent(event);
+        if(building instanceof Stop){
+            Station station = ((Stop) building).getStation();
+            if(stationsOfPlannedTrafficLine.contains(station)){
+                stationsOfPlannedTrafficLine.remove(station);
+            }
+            else {
+                stationsOfPlannedTrafficLine.add(station);
+            }
+            System.out.println(stationsOfPlannedTrafficLine);
+            view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
+        }
+    }
+
+    private Building getBuildingForMouseEvent(MouseEvent event){
         double mouseX = event.getX();
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
@@ -243,13 +270,7 @@ public class Controller {
         int yCoord = (int) isoCoord.getY();
 
         Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
-        if(building instanceof PartOfTrafficGraph){
-            ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
-            if(trafficPart != null){
-                view.getMenuPane().showTrafficPart(trafficPart);
-            }
-        }
-
+        return building;
     }
 
     public Tile getTileOfMapTileGrid(int row, int column){
