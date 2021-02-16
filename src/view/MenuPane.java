@@ -388,8 +388,9 @@ public class MenuPane extends AnchorPane {
         // Wenn die Maus mit einem Rechtsklick über mehrere Felder gezogen wird, werden mehrere Gebäude platziert
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, dragEvent -> {
 
-            if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
-                    selectedBuilding != null) {
+            if (dragEvent.getButton().compareTo(MouseButton.PRIMARY) == 0 && selectedBuilding != null
+                    && !(selectedBuilding.getBuildingName().equals("height_up"))
+                    && !(selectedBuilding.getBuildingName().equals("height_down"))) {
                 controller.managePlacement(dragEvent);
             }
         });
