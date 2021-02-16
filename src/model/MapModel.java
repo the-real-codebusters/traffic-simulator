@@ -1,5 +1,7 @@
 package model;
 
+import javafx.geometry.Point2D;
+
 import java.util.*;
 
 public class MapModel {
@@ -449,6 +451,334 @@ public class MapModel {
         }
         throw new RuntimeException("Unfertiger Code");
     }
+
+
+
+    /**
+     * Verändert die Höhe des Bodens ausgehend von den Koordinaten des angeklickten Tiles
+     * @param xCoord
+     * @param yCoord
+     * @param heightShift Wert, um den die Höhe verändert werden soll (kann +1 oder -1 sein)
+     */
+    public void changeGroundHeight(int xCoord, int yCoord, int heightShift) {
+        
+        // Tiles an der angeklickten Stelle
+        Tile tileN = tileGrid[xCoord][yCoord];
+        Tile tileW = tileGrid[xCoord][yCoord - 1];
+        Tile tileS = tileGrid[xCoord + 1][yCoord - 1];
+        Tile tileE = tileGrid[xCoord + 1][yCoord];
+
+        List<Tile> tilesToBeUpdated = new ArrayList<>();
+        tilesToBeUpdated.addAll(Arrays.asList(tileN, tileW, tileS, tileE));
+
+        // Höhe an der angeklickten Stelle vor der Bearbeitung
+        int startHeight = tileN.getCornerHeights().get("cornerS");
+
+
+        // ändere die Höhen der Tiles, die sich direkt um die angeklickte stelle herum befinden
+        updateFirstLevelHeights(xCoord, yCoord, heightShift);
+
+        // prüfe, ob durch geänderte Höhen Anpassungen an den vier Start-Tiles nötig sind und passe ggf. an
+        if (!heightConstraintsMetForAllTiles(tilesToBeUpdated)) {
+            for (Tile tile : tilesToBeUpdated) {
+                updateHeightIfNecessary(tile);
+            }
+        }
+
+        // Map, die ein Tile auf seine isometrischen Koordinaten im Spielfeld abbildet
+        Map<Tile, Point2D> tileToPositionInGrid = new LinkedHashMap<>();
+        tileToPositionInGrid.put(tileN, new Point2D(xCoord, yCoord));
+        tileToPositionInGrid.put(tileW, new Point2D(xCoord, yCoord - 1));
+        tileToPositionInGrid.put(tileS, new Point2D(xCoord + 1, yCoord - 1));
+        tileToPositionInGrid.put(tileE, new Point2D(xCoord + 1, yCoord));
+
+        // solange der Wert von startHeight > 0 ist, müssen die Nachbarn der veränderten Tiles ebenfalls geprüft werden
+        while (startHeight > 0) {
+            checkNeighbors(tileToPositionInGrid);
+            startHeight--;
+        }
+    }
+
+
+    /**
+     * Ändert die Höhen der Tiles, die sich um die angegebenen Koordinaten befinden um einen angegebenen Wert
+     * @param xCoord
+     * @param yCoord
+     * @param heightShift Höhe, um die die angegebene Stelle geändert werden soll
+     */
+    public void updateFirstLevelHeights(int xCoord, int yCoord, int heightShift){
+
+        //tiles um die angeklickte stelle
+        Tile tileN = tileGrid[xCoord][yCoord];
+        Tile tileW = tileGrid[xCoord][yCoord-1];
+        Tile tileS = tileGrid[xCoord+1][yCoord-1];
+        Tile tileE = tileGrid[xCoord+1][yCoord];
+
+
+        Map<String, Integer> updatedHeights;
+        Building ground = new Building(1, 1, "ground");
+        String absoluteTileHeight;
+        boolean isWater;
+
+
+        updatedHeights = tileS.updateCornerHeight("cornerN", heightShift);
+        absoluteTileHeight = tileS.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        tileGrid[xCoord + 1][yCoord - 1] = new Tile(ground, updatedHeights, isWater);
+
+        updatedHeights = tileW.updateCornerHeight("cornerE", heightShift);
+        absoluteTileHeight = tileW.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        tileGrid[xCoord][yCoord - 1] = new Tile(ground, updatedHeights, isWater);
+
+        updatedHeights = tileN.updateCornerHeight("cornerS", heightShift);
+        absoluteTileHeight = tileN.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        tileGrid[xCoord][yCoord] = new Tile(ground, updatedHeights, isWater);
+
+        updatedHeights = tileE.updateCornerHeight("cornerW", heightShift);
+        absoluteTileHeight = tileE.absoluteHeigtToRelativeHeight(updatedHeights);
+        isWater = absoluteTileHeight.equals("0000") && updatedHeights.get("cornerS") < 0;
+        tileGrid[xCoord + 1][yCoord] = new Tile(ground, updatedHeights, isWater);
+    }
+
+
+    /**
+     * Prüft für ein gegebenes Tile, ob die Höhen-Constraints eingehalten werden und ändert deren werte, falls sie
+     * nicht eingehalten werden
+     * @param tile
+     */
+    private void updateHeightIfNecessary(Tile tile){
+        // reihenfolge der corners in getCornerHeights: N-E-S-W
+
+        // Werte aus cornerHeights als String aus 4 Zeichen
+        String heights = "";
+        for (Integer corner : tile.getCornerHeights().values()){
+            heights += corner;
+        }
+
+        if (!heightConstraintsMetInTile(tile)) {
+
+            int maxCorner = tile.findMaxCorner(tile.getCornerHeights());
+            String maxCornerString = String.valueOf(maxCorner);
+            int indexOfMaxCorner = heights.indexOf(maxCornerString);
+
+            // Wenn sich die Ecke mit dem höchsten Wert an der ersten Stelle im String befindet
+            if (indexOfMaxCorner == 0){
+                updateHeightsForTile(tile, "cornerW", 3, "cornerE", 1, "cornerS", 2);
+
+                // Wenn die Ecke mit dem höchsten Wert an der zweiten Stelle im String befindet
+            } else if (indexOfMaxCorner == 1) {
+                updateHeightsForTile(tile, "cornerN", 0, "cornerS", 2, "cornerW", 3);
+
+                // Wenn die Ecke mit dem höchsten Wert an der dritten Stelle im String befindet
+            } else if (indexOfMaxCorner == 2){
+                updateHeightsForTile(tile, "cornerE", 1, "cornerW", 3, "cornerN", 0);
+
+                // Wenn die Ecke mit dem höchsten Wert an der letzten Stelle im String befindet
+            } else {
+                updateHeightsForTile(tile, "cornerS", 2, "cornerN", 0, "cornerE", 1);
+            }
+        }
+    }
+
+
+    /**
+     * Ändert die Höhen an den Ecken des Tiles, so dass die Höhen-Constraints wieder eingehalten werden.
+     * Reihenfolge der Ecken: N-E-S-W
+     * @param tile Tile, dessen Höhen angepasst werden müssen
+     * @param prev Name der Vorgänger-Ecke
+     * @param indexPrev Index der Vorgänger Ecke
+     * @param next Name der Nachfolger-Ecke
+     * @param indexNext Index der Nachfolger Ecke
+     * @param opposite Name der gegenüberliegenden Ecke
+     * @param indexOpposite Index der gegenüberliegenden Ecke
+     */
+    public void updateHeightsForTile(Tile tile, String prev, int indexPrev, String next, int indexNext, String opposite, int indexOpposite){
+
+        String heights = "";
+        for (Integer corner : tile.getCornerHeights().values()){
+            heights += corner;
+        }
+
+        int maxCorner = tile.findMaxCorner(tile.getCornerHeights());
+
+        int heightDiffToPrevious = maxCorner - Character.getNumericValue(heights.charAt(indexPrev));
+        if (Math.abs(heightDiffToPrevious) > 1) {
+            int newHeight =  (heightDiffToPrevious -1);
+            tile.updateCornerHeight(prev, newHeight);
+        }
+        int heightDiffToNext = maxCorner - Character.getNumericValue(heights.charAt(indexNext));
+        if (Math.abs(heightDiffToNext) > 1) {
+            int newHeight =  (heightDiffToNext -1);
+            tile.updateCornerHeight(next, newHeight);
+        }
+        int heightDiffToOpposite = maxCorner - Character.getNumericValue(heights.charAt(indexOpposite));
+        if (Math.abs(heightDiffToOpposite) > 2) {
+            int newHeight = (heightDiffToOpposite - 2);
+            tile.updateCornerHeight(opposite, newHeight);
+        }
+    }
+
+
+    /**
+     * Überprüft für die Nachbarn jedes Felds in der mitgegebenen Map, ob die Höhen-Constraints eingehalten werden
+     * und ändert ggf. deren Werte
+     * @param tileToPositionInGrid
+     */
+    public void checkNeighbors(Map<Tile, Point2D> tileToPositionInGrid){
+        Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
+
+        // Prüfe benachbarte Felder für jedes der zuvor veränderten Felder
+        for(Tile tile : tileToPositionInGrid.keySet()){
+            Map<String, Tile> neighbors = getNeighbors(tileToPositionInGrid.get(tile));
+            for (Map.Entry<String, Tile> neighbor : neighbors.entrySet()){
+
+                Point2D coordsOfNeighbor = checkNeighborHeight(tile, neighbor, tileToPositionInGrid.get(tile));
+
+                // Füge noch nicht geprüfte Nachbarn hinzu, damit diese im nächsten Schleifendurchlauf in
+                // changeGroundHeight ebenfalls berücksichtigt werden
+                if(!(tileToPositionInGrid.containsValue(coordsOfNeighbor))) {
+                    tileToPositionInGridNeighbors.put(neighbor.getValue(), coordsOfNeighbor);
+                }
+            }
+        }
+        tileToPositionInGrid.clear();
+        tileToPositionInGrid.putAll(tileToPositionInGridNeighbors);
+    }
+
+
+    /**
+     * Prüft für Nachbarfeld eines Tiles ob Höhen zueinander passen
+     * @param tile Tile dessen Nachbarn geprüft werden sollen
+     * @param neighbor Eines der Nachbarfelder des Tiles
+     * @param point Koordinaten des Tiles dessen Nachbar geprüft wird
+     * @return Koordinaten des geprüften Nachbarfelds
+     */
+    public Point2D checkNeighborHeight(Tile tile, Map.Entry<String, Tile> neighbor, Point2D point) {
+
+        Tile[][] grid = model.getMap().getTileGrid();
+        Building ground = new Building(1, 1, "ground");
+
+        int xCoord = (int) point.getX();
+        int yCoord = (int) point.getY();
+
+        if (neighbor.getKey().equals("tileNW")) {
+            if (!(neighbor.getValue().getCornerHeights().get("cornerS").equals(tile.getCornerHeights().get("cornerW")))) {
+                neighbor.getValue().setHeightForCorner("cornerS",tile.getCornerHeights().get("cornerW"));
+            }
+            if (!(neighbor.getValue().getCornerHeights().get("cornerE").equals(tile.getCornerHeights().get("cornerN")))) {
+                neighbor.getValue().setHeightForCorner("cornerE",tile.getCornerHeights().get("cornerN"));
+            }
+            xCoord = xCoord -1;
+
+
+        } else if (neighbor.getKey().equals("tileNE")) {
+            if (!(neighbor.getValue().getCornerHeights().get("cornerS").equals(tile.getCornerHeights().get("cornerE")))) {
+                neighbor.getValue().setHeightForCorner("cornerS",tile.getCornerHeights().get("cornerE"));
+            }
+            if (!(neighbor.getValue().getCornerHeights().get("cornerW").equals(tile.getCornerHeights().get("cornerN")))) {
+                neighbor.getValue().setHeightForCorner("cornerW",tile.getCornerHeights().get("cornerN"));
+            }
+            yCoord = yCoord+1;
+
+
+        } else if (neighbor.getKey().equals("tileSE")) {
+            if (!(neighbor.getValue().getCornerHeights().get("cornerN").equals(tile.getCornerHeights().get("cornerE")))) {
+                neighbor.getValue().setHeightForCorner("cornerN",tile.getCornerHeights().get("cornerE"));
+            }
+            if (!(neighbor.getValue().getCornerHeights().get("cornerW").equals(tile.getCornerHeights().get("cornerS")))) {
+                neighbor.getValue().setHeightForCorner("cornerW",tile.getCornerHeights().get("cornerS"));
+            }
+            xCoord = xCoord+1;
+
+
+        } else {
+            if (!(neighbor.getValue().getCornerHeights().get("cornerN").equals(tile.getCornerHeights().get("cornerW")))) {
+                neighbor.getValue().setHeightForCorner("cornerN",tile.getCornerHeights().get("cornerW"));
+            }
+            if (!(neighbor.getValue().getCornerHeights().get("cornerE").equals(tile.getCornerHeights().get("cornerS")))) {
+                neighbor.getValue().setHeightForCorner("cornerE",tile.getCornerHeights().get("cornerS"));
+            }
+            yCoord = yCoord-1;
+
+        }
+
+        if (heightConstraintsMetInTile(neighbor.getValue())){
+            grid[xCoord][yCoord] = new Tile(ground, neighbor.getValue().getCornerHeights(), false);
+        }
+        else {
+            updateHeightIfNecessary(neighbor.getValue());
+            System.out.println(xCoord + " " + yCoord + " " + neighbor.getValue().getCornerHeights() + " " + neighbor.getKey());
+        }
+
+        return new Point2D(xCoord, yCoord);
+    }
+
+
+    /**
+     * Sucht die Nachbarn der Feldes mit den übergebenen Koordinaten und liefert diese als Map zurück
+     * @param coords Koorinaten des Feldes, dessen Nachbarn gesucht werden sollen
+     * @return eine Map, die die Position des Nachbarn im Verhältnis zum Ursprungsteil auf das NachbarTile abbildet
+     */
+    private Map <String, Tile> getNeighbors(Point2D coords){
+        int xCoord = (int) coords.getX();
+        int yCoord = (int) coords.getY();
+
+        Tile[][] grid = model.getMap().getTileGrid();
+        Tile tileNW = grid[xCoord-1][yCoord];     // NW
+        Tile tileNE = grid[xCoord][yCoord+1];     // NE
+        Tile tileSE = grid[xCoord+1][yCoord];     // SE
+        Tile tileSW = grid[xCoord][yCoord-1];     // SW
+
+        Map <String, Tile> neighbors = new LinkedHashMap<>();
+        neighbors.put("tileNW", tileNW);
+        neighbors.put("tileNE", tileNE);
+        neighbors.put("tileSE", tileSE);
+        neighbors.put("tileSW", tileSW);
+
+        return neighbors;
+    }
+
+
+    /**
+     * Prüft ob für alle in der mitgegebenen Liste von Tiles die Höhen-Constraints eingehalten werden
+     * @param tilesToBeUpdated
+     * @return
+     */
+    private boolean heightConstraintsMetForAllTiles(List<Tile> tilesToBeUpdated){
+        List<String> validHeights = new ArrayList<>();
+        validHeights.addAll(Arrays.asList("0100", "1101", "0101", "0000", "1000", "1100", "1010", "1001", "1011",
+                "0010", "0110", "1110", "1210", "2101", "0121", "1012", "0011", "0001", "0111"));
+
+        for (Tile tile : tilesToBeUpdated){
+            String nameOfAssociatedImage = tile.absoluteHeigtToRelativeHeight(tile.getCornerHeights());
+            if (!validHeights.contains(nameOfAssociatedImage)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Prüft ob die Höhen-Constraints im angegebenen Tile eingehalten werden
+     * @param tile
+     * @return
+     */
+    private boolean heightConstraintsMetInTile(Tile tile){
+        List<String> validHeights = new ArrayList<>();
+        validHeights.addAll(Arrays.asList("0100", "1101", "0101", "0000", "1000", "1100", "1010", "1001", "1011",
+                "0010", "0110", "1110", "1210", "2101", "0121", "1012", "0011", "0001", "0111"));
+
+        String nameOfAssociatedImage = tile.absoluteHeigtToRelativeHeight(tile.getCornerHeights());
+
+        return validHeights.contains(nameOfAssociatedImage);
+
+    }
+
+
+
 
 
     public String getMapgen() { return mapgen; }
