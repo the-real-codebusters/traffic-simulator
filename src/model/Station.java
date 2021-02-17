@@ -74,6 +74,17 @@ public class Station {
         setDirectlyConnectedStations(nextStations);
     }
 
+    public void updateDirectlyConnectedStationsForRunway(Station start){
+        // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
+        List<Station> nextStations = pathfinder.findPathForPlane(start, this);
+        System.out.println("Connected Stations for Station "+this.getId());
+        for(Station n: nextStations){
+            System.out.println("Next Station "+n.getId());
+            n.getDirectlyConnectedStations().add(this);
+        }
+        setDirectlyConnectedStations(nextStations);
+    }
+
     /**
      * Fügt der Station eine Haltestelle hinzu und setzt in der Haltestelle diese Station
      * @param building

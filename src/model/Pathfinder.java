@@ -512,4 +512,8 @@ public class Pathfinder {
     public List<Vertex> findPathForPlane(Vertex startVertex, Vertex destinationVertex){
         return Arrays.asList(startVertex, destinationVertex);
     }
+
+    public List<Station> findPathForPlane(Station startStation, Station destinationStation){
+        return Arrays.asList(startStation, destinationStation);
+    }
 }

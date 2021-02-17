@@ -19,6 +19,7 @@ public class Controller {
     private View view;
     private BasicModel model;
     private Pathfinder pathfinder;
+    private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
 
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
@@ -31,7 +32,7 @@ public class Controller {
 //        model.printModelAttributes();
 
         // Ein generator wird erzeugt, der eine Map generiert (im Model)
-        MapGenerator generator = new MapGenerator(map.getMapgen(), map);
+        MapGenerator generator = new MapGenerator(map.getMapgen(), map, model);
         Tile[][] generatedMap = generator.generateMap(model);
         map.setTileGrid(generatedMap);
 
@@ -122,6 +123,7 @@ public class Controller {
         double mouseX = event.getX();
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
         List<Vertex> addedVertices;
@@ -170,11 +172,25 @@ public class Controller {
                 }
             }
 
+            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
+                selectedBuilding = null;
+                model.getMap().changeGroundHeight(xCoord, yCoord, 1);
+            }
+
+            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_down")){
+                selectedBuilding = null;
+                model.getMap().changeGroundHeight(xCoord, yCoord, -1);
+            }
+
+
+
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
 
-            Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            if(selectedBuilding != null) {
+                Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
+            }
 
             // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
             // Wenn nein, dann neu erstellen
@@ -184,7 +200,12 @@ public class Controller {
                 System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
             }
         }
+        }
     }
+
+
+
+
 
     // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
     // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
@@ -286,6 +307,7 @@ public class Controller {
         Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
         return building;
     }
+
 
     public void createNewTrafficLine(Map<String, Integer> desiredNumbersOfVehicleNames,
                                      TrafficType trafficType, String name){

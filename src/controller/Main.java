@@ -18,6 +18,8 @@ public class Main extends Application {
             View view = new View(stage, model);
             stage.setTitle("Planverkehr");
             Controller controller = new Controller(view, model);
+
+//            stage.setMaximized(true);
             stage.show();
         }
     }
