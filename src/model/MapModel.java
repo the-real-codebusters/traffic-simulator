@@ -757,7 +757,6 @@ public class MapModel {
             grid[xCoord][yCoord] = new Tile(ground, neighbor.getValue().getCornerHeights(), false);
         }
         else {
-            System.out.println(xCoord + " " + yCoord + " " + neighbor.getValue().getCornerHeights() + " " + neighbor.getKey());
             updateHeightIfNecessary(neighbor.getValue());
         }
 
