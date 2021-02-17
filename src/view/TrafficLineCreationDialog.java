@@ -5,12 +5,15 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -27,6 +30,11 @@ import java.util.Map;
 
 public class TrafficLineCreationDialog {
 
+    private TableView<VehicleTypeRow> tableView;
+    private ComboBox<Map<String, Object>> dropdown = new ComboBox<>();
+    private TextField numberVehiclesField;
+    private final int iconWidth = 30;
+
     public TrafficLineCreationDialog(View view){
 
         BorderPane pane = new BorderPane();
@@ -35,9 +43,7 @@ public class TrafficLineCreationDialog {
         Label message = new Label("     Create a new Traffic Line");
         listBox.getChildren().add(message);
 
-        listBox.getChildren().add(new Label(""));
-
-        pane.setPrefWidth(500);
+        pane.setPrefWidth(550);
         pane.setPrefHeight(600);
 
         Insets insets = new Insets(10);
@@ -49,13 +55,14 @@ public class TrafficLineCreationDialog {
         pane.setTop(listBox);
 
         VBox centerBox = new VBox();
+        centerBox.setSpacing(10);
         BorderPane.setMargin(centerBox, insets);
-        Label m2 = new Label("     Select Vehicles:");
+        Label m2 = new Label("     Select vehicle type and desired number of vehicles:");
         centerBox.getChildren().add(m2);
 
         TrafficType type = TrafficType.ROAD;
 
-        ComboBox<Map<String, Object>> dropdown = new ComboBox<>();
+        dropdown.setMaxWidth(400);
 
         List<Map<String, Object>> dropdownLabels = new ArrayList<>();
         List<Vehicle> vehicleTypes = view.getController().getVehicleTypesForTrafficType(type);
@@ -67,17 +74,27 @@ public class TrafficLineCreationDialog {
             }
 //            Label txtImg = new Label(info);
             String imageName = view.getObjectToImageMapping().getImageNameForObjectName(v.getGraphic()+"-nw");
-            Image img = view.getResourceForImageName(imageName, 30, view.getImageNameToImageRatio().get(imageName)*30);
+            Image img = view.getResourceForImageName(imageName, iconWidth, view.getImageNameToImageRatio().get(imageName)*30);
 //            txtImg.setGraphic(new ImageView(img));
             Map<String, Object> map = new HashMap<>();
             map.put("text", info);
-            map.put("image", new ImageView(img));
+            map.put("image", img);
             dropdownLabels.add(map);
         }
         dropdown.setEditable(false);
         dropdown.setItems(FXCollections.observableList(dropdownLabels));
         setDropdownCellfactory(dropdown);
-        centerBox.getChildren().add(dropdown);
+        HBox vehiclesHbox = new HBox();
+//        vehiclesHbox.setPadding(new Insets(0, 10, 0, 10));
+        vehiclesHbox.setSpacing(5);
+        vehiclesHbox.getChildren().add(dropdown);
+        numberVehiclesField = getIntegerFormattedTextField();
+        vehiclesHbox.getChildren().add(numberVehiclesField);
+        vehiclesHbox.getChildren().add(getAddVehicleButton());
+        centerBox.getChildren().add(vehiclesHbox);
+
+        tableView = getVehicleTableView();
+        centerBox.getChildren().add(tableView);
         pane.setCenter(centerBox);
         Scene scene = new Scene(pane);
 
@@ -122,6 +139,60 @@ public class TrafficLineCreationDialog {
         dropdown.setButtonCell(new IconListCell());
     }
 
+    private TextField getIntegerFormattedTextField(){
+        TextField textField = new TextField();
+        textField.setMaxWidth(30);
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            int from = 1;
+            int to = 20;
+            if (newValue != null && !newValue.equals("")) {
+                try {
+                    int number = Integer.parseInt(newValue);
+                    if (number < from || number > to) {
+                        throw new NumberFormatException();
+                    }
+                } catch (NumberFormatException ignored) {
+                    textField.setText(oldValue);
+                }
+            }
+        });
+        return  textField;
+    }
+
+    private Button getAddVehicleButton(){
+        Button button = new Button("add");
+        button.setOnAction( (actionEvent -> {
+            Map<String, Object> selected = dropdown.getSelectionModel().getSelectedItem();
+            Image image = (Image) selected.get("image");
+            String infos = (String) selected.get("text");
+            Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
+            VehicleTypeRow row = new VehicleTypeRow(infos, image, numberOfDesiredVehicles);
+            tableView.getItems().removeIf(n -> (n.getInformation().equals(infos)));
+            tableView.getItems().add(row);
+
+        }));
+        return button;
+    }
+
+    private TableView<VehicleTypeRow> getVehicleTableView(){
+        TableView<VehicleTypeRow> tableView = new TableView();
+
+        TableColumn<VehicleTypeRow, ImageView> column1 = new TableColumn<>("Icon");
+        column1.setCellValueFactory(new PropertyValueFactory<>("image"));
+        column1.setPrefWidth(iconWidth+10);
+
+        TableColumn<VehicleTypeRow, String> column2 = new TableColumn<>("Information");
+        column2.setCellValueFactory(new PropertyValueFactory<>("information"));
+        column2.setPrefWidth(350);
+
+        TableColumn<VehicleTypeRow, Integer> column3 = new TableColumn<>("Desired Number");
+        column3.setCellValueFactory(new PropertyValueFactory<>("desiredNumber"));
+        column3.setPrefWidth(120);
+
+        tableView.getColumns().addAll(column1, column2, column3);
+
+        return tableView;
+    }
 
 }
 
@@ -140,7 +211,7 @@ private final Label lbl;
         setGraphic(null);
         } else {
         lbl.setText((java.lang.String) item.get("text"));
-        lbl.setGraphic(new ImageView(((ImageView) item.get("image")).getImage()));
+        lbl.setGraphic(new ImageView((Image)item.get("image")));
         setGraphic(lbl);
         }
         }
