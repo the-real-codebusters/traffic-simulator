@@ -462,19 +462,19 @@ public class MapModel {
      */
     public void changeGroundHeight(int xCoord, int yCoord, int heightShift) {
 
-            // Tiles an der angeklickten Stelle
-            Tile tileN = tileGrid[xCoord][yCoord];
-            Tile tileW = tileGrid[xCoord][yCoord - 1];
-            Tile tileS = tileGrid[xCoord + 1][yCoord - 1];
-            Tile tileE = tileGrid[xCoord + 1][yCoord];
+        // Tiles an der angeklickten Stelle
+        Tile tileN = tileGrid[xCoord][yCoord];
+        Tile tileW = tileGrid[xCoord][yCoord - 1];
+        Tile tileS = tileGrid[xCoord + 1][yCoord - 1];
+        Tile tileE = tileGrid[xCoord + 1][yCoord];
 
-            List<Tile> tilesToBeUpdated = new ArrayList<>();
-            tilesToBeUpdated.addAll(Arrays.asList(tileN, tileW, tileS, tileE));
+        List<Tile> tilesToBeUpdated = new ArrayList<>();
+        tilesToBeUpdated.addAll(Arrays.asList(tileN, tileW, tileS, tileE));
 
-            // Höhe an der angeklickten Stelle vor der Bearbeitung
-            int startHeight = tileN.getCornerHeights().get("cornerS");
+        // Höhe an der angeklickten Stelle vor der Bearbeitung
+        int startHeight = tileN.getCornerHeights().get("cornerS");
 
-        if (canChangeHeight(xCoord, yCoord, startHeight+1)) {
+        if (canChangeHeight(xCoord, yCoord, startHeight, heightShift)) {
 
             // ändere die Höhen der Tiles, die sich direkt um die angeklickte stelle herum befinden
             updateFirstLevelHeights(xCoord, yCoord, heightShift);
@@ -493,10 +493,17 @@ public class MapModel {
             tileToPositionInGrid.put(tileS, new Point2D(xCoord + 1, yCoord - 1));
             tileToPositionInGrid.put(tileE, new Point2D(xCoord + 1, yCoord));
 
+            if(heightShift > 0){
             // solange der Wert von startHeight > 0 ist, müssen die Nachbarn der veränderten Tiles ebenfalls geprüft werden
-            while (startHeight > 0) {
-                checkNeighbors(tileToPositionInGrid);
-                startHeight--;
+                while (startHeight >= 0) {
+                    checkNeighbors(tileToPositionInGrid);
+                    startHeight--;
+                }
+            } else {
+                while (startHeight > 0) {
+                    checkNeighbors(tileToPositionInGrid);
+                    startHeight--;
+                }
             }
         }
     }
@@ -510,14 +517,30 @@ public class MapModel {
      * @param startHeight
      * @return
      */
-    private boolean canChangeHeight(int xCoord, int yCoord, int startHeight){
+    private boolean canChangeHeight(int xCoord, int yCoord, int startHeight, int heightShift){
 
-        for (int row = xCoord- startHeight ; row <= xCoord + startHeight; row++){
-            for (int col = yCoord - startHeight; col <= yCoord + startHeight; col++){
-                if (!(tileGrid[row][col].isWater() || tileGrid[row][col].getBuilding() instanceof Nature
-                        || tileGrid[row][col].getBuilding().getBuildingName().equals("ground")
-                        || tileGrid[row][col].getBuilding().getBuildingName().equals("grass"))){
-                    return false;
+        if(heightShift >= 0) {
+
+            startHeight += 1;
+            for (int row = xCoord - startHeight-1; row <= xCoord + startHeight+1; row++) {
+                for (int col = yCoord - startHeight-1; col <= yCoord + startHeight+1; col++) {
+                    if (!(tileGrid[row][col].isWater() || tileGrid[row][col].getBuilding() instanceof Nature
+                            || tileGrid[row][col].getBuilding().getBuildingName().equals("ground")
+                            || tileGrid[row][col].getBuilding().getBuildingName().equals("grass"))) {
+                        return false;
+                    }
+                }
+            }
+        } else {
+
+            startHeight -= 1;
+            for (int row = xCoord + startHeight; row <= xCoord - startHeight; row++) {
+                for (int col = yCoord + startHeight; col <= yCoord - startHeight; col++) {
+                    if (!(tileGrid[row][col].isWater() || tileGrid[row][col].getBuilding() instanceof Nature
+                            || tileGrid[row][col].getBuilding().getBuildingName().equals("ground")
+                            || tileGrid[row][col].getBuilding().getBuildingName().equals("grass"))) {
+                        return false;
+                    }
                 }
             }
         }
