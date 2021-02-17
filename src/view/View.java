@@ -639,11 +639,17 @@ public class View {
                     if (field.getBuilding().getBuildingName().equals("ground")) {
 
                         Map<String, Integer> cornerHeights = fields[row][column].getCornerHeights();
-                        String absoluteTileHeight = fields[row][column].absoluteHeigtToRelativeHeight(cornerHeights);
-                        buildingName = absoluteTileHeight;
+                        buildingName = fields[row][column].absoluteHeigtToRelativeHeight(cornerHeights);
 
-                    } else if (field.getBuilding().getBuildingName().equals("flat")) {
-                        buildingName = "0000";
+                    } else if(field.getBuilding().getBuildingName().contains("road")){
+                        // Wenn es sich um ein Straßen-Tile mit Höhenunterschied handelt
+                        if(!(field.absoluteHeigtToRelativeHeight(field.getCornerHeights()).equals("0000"))){
+                            Map<String, Integer> cornerHeights = fields[row][column].getCornerHeights();
+                            String heights = fields[row][column].absoluteHeigtToRelativeHeight(cornerHeights);
+                            buildingName = field.getBuilding().getBuildingName() + heights;
+                        } else {
+                            buildingName = field.getBuilding().getBuildingName();
+                        }
 
                     } else {
                         buildingName = field.getBuilding().getBuildingName();

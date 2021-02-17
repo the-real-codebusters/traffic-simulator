@@ -151,7 +151,6 @@ public class MapGenerator {
         int probCounter = 0;
         int random = new Random().nextInt(99) + 1;
         Building building = new Building(1, 1, "grass");
-//        Building building = new Building(1, 1, "flat");
         mapModel.getTileGrid()[row][col].setCornerHeights(cornerHeights);
         mapModel.getTileGrid()[row][col].setBuilding(building);
         for (Map.Entry<Building, Integer> entry : natureProbabilities.entrySet()) {
