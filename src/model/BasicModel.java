@@ -91,9 +91,44 @@ public class BasicModel {
         // wenn eine existierende Station so erweitert wird, dass sie an eine existierende TrafficLine anschließt
 
         List<Vehicle> activeVehicles = new ArrayList<>();
+        List<VehicleMovement> airMovements = new ArrayList<>();
         for(ConnectedTrafficPart activePart: activeConnectedTrafficParts){
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
+            if (activePart.getTrafficType() == TrafficType.AIR) {
+                Iterator<Vertex> iter = activePart.getStations().get(0).getComponents().get(0).getVertices().iterator();
+                int counter = 0;
+                Vertex firstStart = null;
+                Vertex firstEnd = null;
+                while(iter.hasNext()) {
+                    Vertex current = iter.next();
+                    if (counter == 2) {
+                        firstStart = current;
+                    }
+                    if (counter == 6) {
+                        firstEnd = current;
+                    }
+                    counter++;
+                }
+               // Vertex firstStart = activePart.getStations().get(0).getComponents().get(0).getVertices().iterator().next();
+                // Vertex firstEnd = activePart.getStations().get(0).getComponents().get(7).getVertices().iterator().next();
+                VehicleMovement vmFirst = new VehicleMovement(firstStart, "cargo_plane");
+                double distanceToNextVertex = firstStart.getDistanceToPosition(firstEnd);
+                vmFirst.appendPairOfPositionAndDistance(firstEnd, distanceToNextVertex);
+                airMovements.add(vmFirst);
+                /*Vertex secondStart = activePart.getStations().get(1).getComponents().get(0).getVertices().iterator().next();
+                Vertex secondEnd = activePart.getStations().get(1).getComponents().get(7).getVertices().iterator().next();
+                VehicleMovement vmSecond = new VehicleMovement(secondStart, activePart.getModel().getVehiclesTypes().get(0).getGraphic());
+                distanceToNextVertex = secondStart.getDistanceToPosition(secondEnd);
+                vmSecond.appendPairOfPositionAndDistance(secondEnd, distanceToNextVertex);
+                airMovements.add(vmSecond);*/
+
+                return airMovements;
+            }
+
+
+
+
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
                 System.out.println("active traffic Line "+trafficLine.getName());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
