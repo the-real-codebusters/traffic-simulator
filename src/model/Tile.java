@@ -64,6 +64,21 @@ public class Tile {
     }
 
 
+    /**
+     * Die Höhe einer Ecke wird auf die angegebene Höhe gesetzt
+     * @param key Ecke dessen Höhe verändert werden soll
+     * @param height Neuer Höhenwert für den gegebenen Key
+     * @return Map mit verändertem Wert
+     */
+    public Map <String, Integer> setHeightForCorner(String key, int height){
+        Map <String, Integer> heights = this.getCornerHeights();
+
+        heights.replace(key, height);
+
+        return heights;
+    }
+
+
     public int findMaxCorner(Map<String, Integer> cornerHeights){
 
         int maxHeight = Integer.MIN_VALUE;

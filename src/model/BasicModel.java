@@ -52,7 +52,7 @@ public class BasicModel {
      * @return eine Liste von Fahrzeugbewegungen des aktuellen Tags
      */
     public List<VehicleMovement> simulateOneDay(){
-        System.out.println("simulate day "+day);
+//        System.out.println("simulate day "+day);
 
         // runway platzieren (2x) -> Koordinaten speichern
         // gelbe Punkte platzieren (?)

@@ -44,6 +44,7 @@ public class ObjectToImageMapping {
         mapping.put("railstation-nw-se", "stations/rail/railstation");
         mapping.put("busstop-nw-se", "stations/road/busstop");
 
+        // Flache Straßen-Tiles
         mapping.put("road-ne", "road/road-ne");
         mapping.put("road-nw", "road/road-nw");
         mapping.put("road-se", "road/road-se");
@@ -75,7 +76,7 @@ public class ObjectToImageMapping {
 
         mapping.put("remove", "remove");
 
-
+        // Grasfelder mit verschiedenen Höhen
         mapping.put("0100", "ground_heights/Slope_E");
         mapping.put("1101", "ground_heights/Slope_ENW");
         mapping.put("0101", "ground_heights/Slope_EW");
@@ -96,7 +97,21 @@ public class ObjectToImageMapping {
         mapping.put("0001", "ground_heights/Slope_W");
         mapping.put("0111", "ground_heights/Slope_WSE");
 
-        mapping.put("flat", "ground_heights/Slope_Flat");
+        // Straßen-Tiles mit Höhenunterschied
+//        mapping.put("road-ne-sw1100", "road/road_ne-sw_Slope_NE");
+//        mapping.put("road-ne-sw1001", "road/road_ne-sw_Slope_NW");
+//        mapping.put("road-ne-sw0110", "road/road_ne-sw_Slope_SE");
+//        mapping.put("road-ne-sw0011", "road/road_ne-sw_Slope_SW");
+
+        mapping.put("road-ne1100", "road/road_ne-sw_Slope_NE");
+        mapping.put("road-ne1001", "road/road_ne-sw_Slope_NW");
+        mapping.put("road-ne0110", "road/road_ne-sw_Slope_SE");
+        mapping.put("road-ne0011", "road/road_ne-sw_Slope_SW");
+
+        mapping.put("road-nw-se1100", "road/road_nw-se_Slope_NE");
+        mapping.put("road-nw-se1001", "road/road_nw-se_Slope_NW");
+        mapping.put("road-nw-se0110", "road/road_nw-se_Slope_SE");
+        mapping.put("road-nw-se0011", "road/road_nw-se_Slope_SW");
 
     }
 
