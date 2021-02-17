@@ -514,8 +514,7 @@ public class MapModel {
 
         for (int row = xCoord- startHeight ; row <= xCoord + startHeight; row++){
             for (int col = yCoord - startHeight; col <= yCoord + startHeight; col++){
-                System.out.println(row + " " + col + " " + tileGrid[row][col].getBuilding().getBuildingName());
-                if (!(tileGrid[row][col].getBuilding() instanceof Nature
+                if (!(tileGrid[row][col].isWater() || tileGrid[row][col].getBuilding() instanceof Nature
                         || tileGrid[row][col].getBuilding().getBuildingName().equals("ground")
                         || tileGrid[row][col].getBuilding().getBuildingName().equals("grass"))){
                     return false;
