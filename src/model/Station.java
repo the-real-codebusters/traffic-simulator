@@ -88,6 +88,16 @@ public class Station {
         return components.add(building);
     }
 
+    public boolean hasPartOfTrafficType(TrafficType trafficType){
+        return getTrafficPartForTrafficType(trafficType) != null;
+    }
+
+    public ConnectedTrafficPart getTrafficPartForTrafficType(TrafficType trafficType){
+        if(trafficType.equals(TrafficType.AIR)) return airTrafficPart;
+        else if(trafficType.equals(TrafficType.ROAD)) return roadTrafficPart;
+        return null;
+    }
+
     //Die Methoden equals() und hashCode() gehen davon aus, dass die id einer Station unique ist
     @Override
     public boolean equals(Object o) {

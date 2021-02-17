@@ -51,7 +51,7 @@ public class Controller {
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
 
-        new TrafficLineCreationDialog(view);
+//        new TrafficLineCreationDialog(view);
         simulateOneDay();
     }
 
@@ -257,14 +257,15 @@ public class Controller {
         Building building = getBuildingForMouseEvent(event);
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
-            if(stationsOfPlannedTrafficLine.contains(station)){
-                stationsOfPlannedTrafficLine.remove(station);
+            if(station.hasPartOfTrafficType(view.getTrafficLinePopup().getTrafficType())){
+                if(stationsOfPlannedTrafficLine.contains(station)){
+                    stationsOfPlannedTrafficLine.remove(station);
+                }
+                else {
+                    stationsOfPlannedTrafficLine.add(station);
+                }
+                view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
             }
-            else {
-                stationsOfPlannedTrafficLine.add(station);
-            }
-            System.out.println(stationsOfPlannedTrafficLine);
-            view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
         }
     }
 

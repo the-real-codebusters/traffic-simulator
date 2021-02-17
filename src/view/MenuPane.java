@@ -422,8 +422,13 @@ public class MenuPane extends AnchorPane {
 
         selectTrafficLineStationsMode = true;
 
-        // create a popup
-        trafficLinePopup = new TrafficLinePopup(view);
+
+        ChoiceDialog<TrafficType> trafficLineChoice = new ChoiceDialog<TrafficType>(TrafficType.ROAD, TrafficType.values());
+        trafficLineChoice.showAndWait();
+        if(!trafficLineChoice.getSelectedItem().equals(TrafficType.NONE)){
+            // create a popup
+            trafficLinePopup = new TrafficLinePopup(view, trafficLineChoice.getSelectedItem());
+        }
     }
 
 

@@ -35,7 +35,7 @@ public class TrafficLineCreationDialog {
     private TextField numberVehiclesField;
     private final int iconWidth = 30;
 
-    public TrafficLineCreationDialog(View view){
+    public TrafficLineCreationDialog(View view, ListView stations){
 
         BorderPane pane = new BorderPane();
         VBox listBox = new VBox();
@@ -43,7 +43,7 @@ public class TrafficLineCreationDialog {
         Label message = new Label("     Create a new Traffic Line");
         listBox.getChildren().add(message);
 
-        pane.setPrefWidth(550);
+        pane.setPrefWidth(750);
         pane.setPrefHeight(600);
 
         Insets insets = new Insets(10);
@@ -96,6 +96,9 @@ public class TrafficLineCreationDialog {
         tableView = getVehicleTableView();
         centerBox.getChildren().add(tableView);
         pane.setCenter(centerBox);
+
+        pane.setLeft(stations);
+
         Scene scene = new Scene(pane);
 
         Stage window = new Stage();
@@ -143,7 +146,7 @@ public class TrafficLineCreationDialog {
         TextField textField = new TextField();
         textField.setMaxWidth(30);
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            int from = 1;
+            int from = 0;
             int to = 20;
             if (newValue != null && !newValue.equals("")) {
                 try {
@@ -168,7 +171,9 @@ public class TrafficLineCreationDialog {
             Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
             VehicleTypeRow row = new VehicleTypeRow(infos, image, numberOfDesiredVehicles);
             tableView.getItems().removeIf(n -> (n.getInformation().equals(infos)));
-            tableView.getItems().add(row);
+            if(numberOfDesiredVehicles > 0){
+                tableView.getItems().add(row);
+            }
 
         }));
         return button;
@@ -176,6 +181,7 @@ public class TrafficLineCreationDialog {
 
     private TableView<VehicleTypeRow> getVehicleTableView(){
         TableView<VehicleTypeRow> tableView = new TableView();
+        tableView.setPrefHeight(500);
 
         TableColumn<VehicleTypeRow, ImageView> column1 = new TableColumn<>("Icon");
         column1.setCellValueFactory(new PropertyValueFactory<>("image"));
@@ -193,6 +199,10 @@ public class TrafficLineCreationDialog {
 
         return tableView;
     }
+
+//    private ListView getStationsListView(){
+//
+//    }
 
 }
 
