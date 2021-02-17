@@ -461,42 +461,68 @@ public class MapModel {
      * @param heightShift Wert, um den die Höhe verändert werden soll (kann +1 oder -1 sein)
      */
     public void changeGroundHeight(int xCoord, int yCoord, int heightShift) {
-        
-        // Tiles an der angeklickten Stelle
-        Tile tileN = tileGrid[xCoord][yCoord];
-        Tile tileW = tileGrid[xCoord][yCoord - 1];
-        Tile tileS = tileGrid[xCoord + 1][yCoord - 1];
-        Tile tileE = tileGrid[xCoord + 1][yCoord];
 
-        List<Tile> tilesToBeUpdated = new ArrayList<>();
-        tilesToBeUpdated.addAll(Arrays.asList(tileN, tileW, tileS, tileE));
+            // Tiles an der angeklickten Stelle
+            Tile tileN = tileGrid[xCoord][yCoord];
+            Tile tileW = tileGrid[xCoord][yCoord - 1];
+            Tile tileS = tileGrid[xCoord + 1][yCoord - 1];
+            Tile tileE = tileGrid[xCoord + 1][yCoord];
 
-        // Höhe an der angeklickten Stelle vor der Bearbeitung
-        int startHeight = tileN.getCornerHeights().get("cornerS");
+            List<Tile> tilesToBeUpdated = new ArrayList<>();
+            tilesToBeUpdated.addAll(Arrays.asList(tileN, tileW, tileS, tileE));
 
+            // Höhe an der angeklickten Stelle vor der Bearbeitung
+            int startHeight = tileN.getCornerHeights().get("cornerS");
 
-        // ändere die Höhen der Tiles, die sich direkt um die angeklickte stelle herum befinden
-        updateFirstLevelHeights(xCoord, yCoord, heightShift);
+        if (canChangeHeight(xCoord, yCoord, startHeight+1)) {
 
-        // prüfe, ob durch geänderte Höhen Anpassungen an den vier Start-Tiles nötig sind und passe ggf. an
-        if (!heightConstraintsMetForAllTiles(tilesToBeUpdated)) {
-            for (Tile tile : tilesToBeUpdated) {
-                updateHeightIfNecessary(tile);
+            // ändere die Höhen der Tiles, die sich direkt um die angeklickte stelle herum befinden
+            updateFirstLevelHeights(xCoord, yCoord, heightShift);
+
+            // prüfe, ob durch geänderte Höhen Anpassungen an den vier Start-Tiles nötig sind und passe ggf. an
+            if (!heightConstraintsMetForAllTiles(tilesToBeUpdated)) {
+                for (Tile tile : tilesToBeUpdated) {
+                    updateHeightIfNecessary(tile);
+                }
+            }
+
+            // Map, die ein Tile auf seine isometrischen Koordinaten im Spielfeld abbildet
+            Map<Tile, Point2D> tileToPositionInGrid = new LinkedHashMap<>();
+            tileToPositionInGrid.put(tileN, new Point2D(xCoord, yCoord));
+            tileToPositionInGrid.put(tileW, new Point2D(xCoord, yCoord - 1));
+            tileToPositionInGrid.put(tileS, new Point2D(xCoord + 1, yCoord - 1));
+            tileToPositionInGrid.put(tileE, new Point2D(xCoord + 1, yCoord));
+
+            // solange der Wert von startHeight > 0 ist, müssen die Nachbarn der veränderten Tiles ebenfalls geprüft werden
+            while (startHeight > 0) {
+                checkNeighbors(tileToPositionInGrid);
+                startHeight--;
             }
         }
+    }
 
-        // Map, die ein Tile auf seine isometrischen Koordinaten im Spielfeld abbildet
-        Map<Tile, Point2D> tileToPositionInGrid = new LinkedHashMap<>();
-        tileToPositionInGrid.put(tileN, new Point2D(xCoord, yCoord));
-        tileToPositionInGrid.put(tileW, new Point2D(xCoord, yCoord - 1));
-        tileToPositionInGrid.put(tileS, new Point2D(xCoord + 1, yCoord - 1));
-        tileToPositionInGrid.put(tileE, new Point2D(xCoord + 1, yCoord));
 
-        // solange der Wert von startHeight > 0 ist, müssen die Nachbarn der veränderten Tiles ebenfalls geprüft werden
-        while (startHeight > 0) {
-            checkNeighbors(tileToPositionInGrid);
-            startHeight--;
+    /**
+     * Prüft den Bereich der Map ab, der durch die Höhenverschiebung geändert werden würde und gibt false zurück,
+     * falls eine Fabrik oder ein Element eines Verkehrsnetzes im Weg ist.
+     * @param xCoord
+     * @param yCoord
+     * @param startHeight
+     * @return
+     */
+    private boolean canChangeHeight(int xCoord, int yCoord, int startHeight){
+
+        for (int row = xCoord- startHeight ; row <= xCoord + startHeight; row++){
+            for (int col = yCoord - startHeight; col <= yCoord + startHeight; col++){
+                System.out.println(row + " " + col + " " + tileGrid[row][col].getBuilding().getBuildingName());
+                if (!(tileGrid[row][col].getBuilding() instanceof Nature
+                        || tileGrid[row][col].getBuilding().getBuildingName().equals("ground")
+                        || tileGrid[row][col].getBuilding().getBuildingName().equals("grass"))){
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
 
@@ -543,44 +569,44 @@ public class MapModel {
     }
 
 
+
     /**
      * Prüft für ein gegebenes Tile, ob die Höhen-Constraints eingehalten werden und ändert deren werte, falls sie
      * nicht eingehalten werden
      * @param tile
      */
     private void updateHeightIfNecessary(Tile tile){
-        // reihenfolge der corners in getCornerHeights: N-E-S-W
+        // Reihenfolge der corners in getCornerHeights: N-E-S-W
 
-        // Werte aus cornerHeights als String aus 4 Zeichen
-        String heights = "";
+        List<Integer> corners = new ArrayList<>();
         for (Integer corner : tile.getCornerHeights().values()){
-            heights += corner;
+            corners.add(corner);
         }
 
         if (!heightConstraintsMetInTile(tile)) {
 
             int maxCorner = tile.findMaxCorner(tile.getCornerHeights());
-            String maxCornerString = String.valueOf(maxCorner);
-            int indexOfMaxCorner = heights.indexOf(maxCornerString);
+            int indexOfMaxCorner = corners.indexOf(maxCorner);
 
-            // Wenn sich die Ecke mit dem höchsten Wert an der ersten Stelle im String befindet
+            // Wenn sich die höchste Ecke cornerN ist
             if (indexOfMaxCorner == 0){
                 updateHeightsForTile(tile, "cornerW", 3, "cornerE", 1, "cornerS", 2);
 
-                // Wenn die Ecke mit dem höchsten Wert an der zweiten Stelle im String befindet
+                // Wenn sich die höchste Ecke cornerE ist
             } else if (indexOfMaxCorner == 1) {
                 updateHeightsForTile(tile, "cornerN", 0, "cornerS", 2, "cornerW", 3);
 
-                // Wenn die Ecke mit dem höchsten Wert an der dritten Stelle im String befindet
+                // Wenn sich die höchste Ecke cornerS ist
             } else if (indexOfMaxCorner == 2){
                 updateHeightsForTile(tile, "cornerE", 1, "cornerW", 3, "cornerN", 0);
 
-                // Wenn die Ecke mit dem höchsten Wert an der letzten Stelle im String befindet
+                // Wenn sich die höchste Ecke cornerW ist
             } else {
                 updateHeightsForTile(tile, "cornerS", 2, "cornerN", 0, "cornerE", 1);
             }
         }
     }
+
 
 
     /**
@@ -596,24 +622,24 @@ public class MapModel {
      */
     public void updateHeightsForTile(Tile tile, String prev, int indexPrev, String next, int indexNext, String opposite, int indexOpposite){
 
-        String heights = "";
+        List<Integer> corners = new ArrayList<>();
         for (Integer corner : tile.getCornerHeights().values()){
-            heights += corner;
+            corners.add(corner);
         }
 
         int maxCorner = tile.findMaxCorner(tile.getCornerHeights());
 
-        int heightDiffToPrevious = maxCorner - Character.getNumericValue(heights.charAt(indexPrev));
+        int heightDiffToPrevious = maxCorner - corners.get(indexPrev);
         if (Math.abs(heightDiffToPrevious) > 1) {
             int newHeight =  (heightDiffToPrevious -1);
             tile.updateCornerHeight(prev, newHeight);
         }
-        int heightDiffToNext = maxCorner - Character.getNumericValue(heights.charAt(indexNext));
+        int heightDiffToNext = maxCorner - corners.get(indexNext);
         if (Math.abs(heightDiffToNext) > 1) {
             int newHeight =  (heightDiffToNext -1);
             tile.updateCornerHeight(next, newHeight);
         }
-        int heightDiffToOpposite = maxCorner - Character.getNumericValue(heights.charAt(indexOpposite));
+        int heightDiffToOpposite = maxCorner - corners.get(indexOpposite);
         if (Math.abs(heightDiffToOpposite) > 2) {
             int newHeight = (heightDiffToOpposite - 2);
             tile.updateCornerHeight(opposite, newHeight);
@@ -630,21 +656,22 @@ public class MapModel {
         Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
 
         // Prüfe benachbarte Felder für jedes der zuvor veränderten Felder
-        for(Tile tile : tileToPositionInGrid.keySet()){
+        for(Tile tile : tileToPositionInGrid.keySet()) {
             Map<String, Tile> neighbors = getNeighbors(tileToPositionInGrid.get(tile));
-            for (Map.Entry<String, Tile> neighbor : neighbors.entrySet()){
+                for (Map.Entry<String, Tile> neighbor : neighbors.entrySet()) {
 
-                Point2D coordsOfNeighbor = checkNeighborHeight(tile, neighbor, tileToPositionInGrid.get(tile));
+                    Point2D coordsOfNeighbor = checkNeighborHeight(tile, neighbor, tileToPositionInGrid.get(tile));
 
-                // Füge noch nicht geprüfte Nachbarn hinzu, damit diese im nächsten Schleifendurchlauf in
-                // changeGroundHeight ebenfalls berücksichtigt werden
-                if(!(tileToPositionInGrid.containsValue(coordsOfNeighbor))) {
-                    tileToPositionInGridNeighbors.put(neighbor.getValue(), coordsOfNeighbor);
+                    // Füge noch nicht geprüfte Nachbarn hinzu, damit diese im nächsten Schleifendurchlauf in
+                    // changeGroundHeight ebenfalls berücksichtigt werden
+                    if (!(tileToPositionInGrid.containsValue(coordsOfNeighbor)) &&
+                            !(tileToPositionInGridNeighbors.containsValue(coordsOfNeighbor))) {
+                        tileToPositionInGridNeighbors.put(neighbor.getValue(), coordsOfNeighbor);
+                    }
                 }
             }
-        }
-        tileToPositionInGrid.clear();
-        tileToPositionInGrid.putAll(tileToPositionInGridNeighbors);
+//        tileToPositionInGrid.clear();
+            tileToPositionInGrid.putAll(tileToPositionInGridNeighbors);
     }
 
 
@@ -708,8 +735,8 @@ public class MapModel {
             grid[xCoord][yCoord] = new Tile(ground, neighbor.getValue().getCornerHeights(), false);
         }
         else {
-            updateHeightIfNecessary(neighbor.getValue());
             System.out.println(xCoord + " " + yCoord + " " + neighbor.getValue().getCornerHeights() + " " + neighbor.getKey());
+            updateHeightIfNecessary(neighbor.getValue());
         }
 
         return new Point2D(xCoord, yCoord);
