@@ -5,17 +5,21 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import model.TrafficType;
 import model.Vehicle;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,25 +93,7 @@ public class TrafficLineCreationDialog {
         dropdown.setCellFactory(
                 new Callback<ListView<Map<String, Object>>, ListCell<Map<String, Object>>>() {
                     @Override public ListCell<Map<String, Object>> call(ListView<Map<String, Object>> p) {
-                        return new ListCell<Map<String, Object>>() {
-                            private final Label lbl;
-                            {
-//                                setContentDisplay(ContentDisplay.CENTER);
-                                lbl = new Label();
-                            }
-
-                            @Override protected void updateItem(Map<String, Object> item, boolean empty) {
-                                super.updateItem(item, empty);
-
-                                if (item == null || empty) {
-                                    setGraphic(null);
-                                } else {
-                                    lbl.setText((String) item.get("text"));
-                                    lbl.setGraphic((ImageView) item.get("image"));
-                                    setGraphic(lbl);
-                                }
-                            }
-                        };
+                        return new IconListCell();
                     }
                 });
 
@@ -132,7 +118,30 @@ public class TrafficLineCreationDialog {
 
             }
         });
+
+        dropdown.setButtonCell(new IconListCell());
     }
 
 
 }
+
+class IconListCell extends ListCell<Map<String, Object>>{
+private final Label lbl;
+        {
+//                                setContentDisplay(ContentDisplay.CENTER);
+        lbl = new Label();
+        lbl.setTextFill(Color.BLACK);
+        }
+
+@Override public void updateItem(Map<String, Object> item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if (item == null || empty) {
+        setGraphic(null);
+        } else {
+        lbl.setText((java.lang.String) item.get("text"));
+        lbl.setGraphic(new ImageView(((ImageView) item.get("image")).getImage()));
+        setGraphic(lbl);
+        }
+        }
+        };
