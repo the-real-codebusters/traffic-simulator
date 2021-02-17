@@ -424,13 +424,14 @@ public class MenuPane extends AnchorPane {
 
 
         ChoiceDialog<TrafficType> trafficLineChoice = new ChoiceDialog<TrafficType>(TrafficType.ROAD, TrafficType.values());
+        trafficLineChoice.setHeaderText("Traffic Type");
+        trafficLineChoice.setContentText("Set the Traffic Type of the new Traffic Line");
         trafficLineChoice.showAndWait();
         if(!trafficLineChoice.getSelectedItem().equals(TrafficType.NONE)){
             // create a popup
             trafficLinePopup = new TrafficLinePopup(view, trafficLineChoice.getSelectedItem());
         }
     }
-
 
     public void setController(Controller controller) {
         this.controller = controller;
@@ -454,5 +455,13 @@ public class MenuPane extends AnchorPane {
 
     public void setTrafficLinePopup(TrafficLinePopup trafficLinePopup) {
         this.trafficLinePopup = trafficLinePopup;
+    }
+
+    public boolean isSelectTrafficLineStationsMode() {
+        return selectTrafficLineStationsMode;
+    }
+
+    public void setSelectTrafficLineStationsMode(boolean selectTrafficLineStationsMode) {
+        this.selectTrafficLineStationsMode = selectTrafficLineStationsMode;
     }
 }

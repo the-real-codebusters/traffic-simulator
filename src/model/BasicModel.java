@@ -95,6 +95,7 @@ public class BasicModel {
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
+                System.out.println("active traffic Line "+trafficLine.getName());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
                     trafficLine.addNewVehicle(newVehicle);
@@ -127,7 +128,7 @@ public class BasicModel {
      * @param type
      * @return
      */
-    public List<Vehicle> getVehicleTypesForTrafficType(TrafficType type){
+    public List<Vehicle> getVehicleTypesForName(TrafficType type){
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
             //TODO hier wird manchmal eine exception geworfen. Warum?
@@ -137,6 +138,20 @@ public class BasicModel {
             }
         }
         return desiredVehicles;
+    }
+
+    /**
+     * Gibt ein Vehicle-Objekt zurück, das zu dem angegebenen Name passt. Aus diesen Vehicle-Objekt können
+     * dann Instanzen über getNewInstance() erzeugt werden.
+     * @return
+     */
+    public Vehicle getVehicleTypesForName(String name){
+        for(Vehicle v: vehiclesTypes){
+            if(v.getGraphic().equals(name)){
+                return v;
+            }
+        }
+        return null;
     }
 
     /**

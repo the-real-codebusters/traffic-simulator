@@ -70,6 +70,11 @@ public class ConnectedTrafficPart {
         setAssociatedTrafficPartInEveryBuilding();
     }
 
+    public void addTrafficLine(TrafficLine trafficLine){
+        trafficLines.add(trafficLine);
+        trafficLine.setStartVertexAndStartStationForNewVehicles();
+    }
+
     public void setStations(List<Station> stations) {
         this.stations = stations;
     }

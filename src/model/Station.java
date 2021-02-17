@@ -147,4 +147,28 @@ public class Station {
     public void setRoadTrafficPart(ConnectedTrafficPart roadTrafficPart) {
         this.roadTrafficPart = roadTrafficPart;
     }
+
+    public TrafficLine getRoadTrafficLine() {
+        return roadTrafficLine;
+    }
+
+    public void setRoadTrafficLine(TrafficLine roadTrafficLine) {
+        this.roadTrafficLine = roadTrafficLine;
+    }
+
+    public TrafficLine getRailTrafficLine() {
+        return railTrafficLine;
+    }
+
+    public void setRailTrafficLine(TrafficLine railTrafficLine) {
+        this.railTrafficLine = railTrafficLine;
+    }
+
+    public TrafficLine getAirTrafficLine() {
+        return airTrafficLine;
+    }
+
+    public void setAirTrafficLine(TrafficLine airTrafficLine) {
+        this.airTrafficLine = airTrafficLine;
+    }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 public class TrafficLinePopup extends Popup {
 
     private ListView listView = new ListView();
-    private String message = "Select all stations for the Traffic Line";
+    private String message;
     private Button readyButton = new Button("ready");
     private TrafficType trafficType;
 
@@ -35,14 +35,16 @@ public class TrafficLinePopup extends Popup {
 //        // add the label
 //        getContent().add(message);
         this.trafficType = trafficType;
+        message = "Select all stations for the Traffic Line of type "+trafficType.name();
         readyButton.setOnAction( e -> {
             hide();
+            view.getMenuPane().setSelectTrafficLineStationsMode(false);
             ObservableList list = listView.getItems();
             list.remove(list.size()-1);
             list.remove(0);
             list.add(0, "Stations of the Traffic Line:");
             listView.setMaxWidth(200);
-            new TrafficLineCreationDialog(view, listView);
+            new TrafficLineCreationDialog(view, listView, trafficType);
         });
         setAnchorX(stage.getWidth()+stage.getX());
         setAnchorY(stage.getY());
@@ -50,6 +52,10 @@ public class TrafficLinePopup extends Popup {
 
         listView.setEditable(false);
         showList(new ArrayList<>());
+
+//        setOnCloseRequest((event) -> {
+//        });
+
         show(stage);
     }
 
@@ -66,7 +72,9 @@ public class TrafficLinePopup extends Popup {
             listView.getItems().add(displayed);
         }
         listView.getItems().add(readyButton);
-        getContent().add(listView);
+        if(!getContent().contains(listView)){
+            getContent().add(listView);
+        }
     }
 
     public TrafficType getTrafficType() {

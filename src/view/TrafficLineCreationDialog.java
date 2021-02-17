@@ -19,14 +19,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import model.Station;
 import model.TrafficType;
 import model.Vehicle;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class TrafficLineCreationDialog {
 
@@ -34,14 +33,19 @@ public class TrafficLineCreationDialog {
     private ComboBox<Map<String, Object>> dropdown = new ComboBox<>();
     private TextField numberVehiclesField;
     private final int iconWidth = 30;
+    private Stage window;
 
-    public TrafficLineCreationDialog(View view, ListView stations){
+    public TrafficLineCreationDialog(View view, ListView stations, TrafficType trafficType){
 
         BorderPane pane = new BorderPane();
         VBox listBox = new VBox();
+        listBox.setSpacing(5);
 
-        Label message = new Label("     Create a new Traffic Line");
+        Label message = new Label("Create a new Traffic Line");
         listBox.getChildren().add(message);
+
+        Label type = new Label("Traffic Type: "+trafficType.name());
+        listBox.getChildren().add(type);
 
         pane.setPrefWidth(750);
         pane.setPrefHeight(600);
@@ -60,12 +64,10 @@ public class TrafficLineCreationDialog {
         Label m2 = new Label("     Select vehicle type and desired number of vehicles:");
         centerBox.getChildren().add(m2);
 
-        TrafficType type = TrafficType.ROAD;
-
         dropdown.setMaxWidth(400);
 
         List<Map<String, Object>> dropdownLabels = new ArrayList<>();
-        List<Vehicle> vehicleTypes = view.getController().getVehicleTypesForTrafficType(type);
+        List<Vehicle> vehicleTypes = view.getController().getVehicleTypesForTrafficType(trafficType);
         for(Vehicle v : vehicleTypes){
             String info = "name: "+v.getGraphic()+"   speed: "+v.getSpeed()+"   cargo: ";
             Map<String, Integer> cargos = v.getStorage().getMaxima();
@@ -95,13 +97,26 @@ public class TrafficLineCreationDialog {
 
         tableView = getVehicleTableView();
         centerBox.getChildren().add(tableView);
+
+        Button createButton = new Button("create traffic line");
+        createButton.setOnAction( (e) -> {
+            Map<String, Integer> mapDesiredNumbers = new HashMap<>();
+            for(VehicleTypeRow row: tableView.getItems()){
+                String name = row.getInformation().split("name: ")[1].split(" ")[0];
+                mapDesiredNumbers.put(name, row.getDesiredNumber());
+            }
+            view.getController().createNewTrafficLine(mapDesiredNumbers, trafficType, textField.getText());
+            window.close();
+        });
+        centerBox.getChildren().add(createButton);
+
         pane.setCenter(centerBox);
 
         pane.setLeft(stations);
 
         Scene scene = new Scene(pane);
 
-        Stage window = new Stage();
+        window = new Stage();
         window.setScene(scene);
 
         window.setTitle("New Traffic Line");
@@ -168,13 +183,15 @@ public class TrafficLineCreationDialog {
             Map<String, Object> selected = dropdown.getSelectionModel().getSelectedItem();
             Image image = (Image) selected.get("image");
             String infos = (String) selected.get("text");
-            Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
-            VehicleTypeRow row = new VehicleTypeRow(infos, image, numberOfDesiredVehicles);
-            tableView.getItems().removeIf(n -> (n.getInformation().equals(infos)));
-            if(numberOfDesiredVehicles > 0){
-                tableView.getItems().add(row);
+            String textNumberInput = numberVehiclesField.getText();
+            if(textNumberInput != null && !textNumberInput.equals("")){
+                Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
+                VehicleTypeRow row = new VehicleTypeRow(infos, image, numberOfDesiredVehicles);
+                tableView.getItems().removeIf(n -> (n.getInformation().equals(infos)));
+                if(numberOfDesiredVehicles > 0){
+                    tableView.getItems().add(row);
+                }
             }
-
         }));
         return button;
     }

@@ -9,7 +9,6 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
-import view.TrafficLineCreationDialog;
 import view.View;
 
 
@@ -22,6 +21,7 @@ public class Controller {
     private Pathfinder pathfinder;
 
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
+    private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
     public Controller(View view, BasicModel model) {
         this.view = view;
@@ -82,7 +82,7 @@ public class Controller {
     }
 
     public List<Vehicle> getVehicleTypesForTrafficType(TrafficType type){
-        return model.getVehicleTypesForTrafficType(type);
+        return model.getVehicleTypesForName(type);
     }
 
     /**
@@ -257,7 +257,14 @@ public class Controller {
         Building building = getBuildingForMouseEvent(event);
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
-            if(station.hasPartOfTrafficType(view.getTrafficLinePopup().getTrafficType())){
+            TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
+
+            if(stationsOfPlannedTrafficLine.size() == 0){
+                trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
+            }
+            if(station.hasPartOfTrafficType(trafficType) &&
+                trafficPartOfPlannedTrafficLine.getStations().contains(station)
+            ){
                 if(stationsOfPlannedTrafficLine.contains(station)){
                     stationsOfPlannedTrafficLine.remove(station);
                 }
@@ -278,6 +285,20 @@ public class Controller {
 
         Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
         return building;
+    }
+
+    public void createNewTrafficLine(Map<String, Integer> desiredNumbersOfVehicleNames,
+                                     TrafficType trafficType, String name){
+        Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
+            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
+            mapDesiredNumbers.put(vehicle, entry.getValue());
+        }
+        List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
+        trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+        stationsOfPlannedTrafficLine.clear();
+        trafficPartOfPlannedTrafficLine = null;
     }
 
     public Tile getTileOfMapTileGrid(int row, int column){

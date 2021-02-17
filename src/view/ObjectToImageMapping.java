@@ -65,10 +65,10 @@ public class ObjectToImageMapping {
         mapping.put("bulk_truck-se", "vehicles/road/bulk_se");
         mapping.put("bulk_truck-sw", "vehicles/road/bulk_sw");
 
-        mapping.put("hazmat_truck-ne", "vehicles/road/car_ne");
-        mapping.put("hazmat_truck-nw", "vehicles/road/car_nw");
-        mapping.put("hazmat_truck-se", "vehicles/road/car_se");
-        mapping.put("hazmat_truck-sw", "vehicles/road/car_sw");
+        mapping.put("hazmat_truck-ne", "vehicles/road/car_small-ne");
+        mapping.put("hazmat_truck-nw", "vehicles/road/car_small-nw");
+        mapping.put("hazmat_truck-se", "vehicles/road/car_small-se");
+        mapping.put("hazmat_truck-sw", "vehicles/road/car_small-sw");
 
         mapping.put("silicone_truck-ne", "vehicles/road/silicone-ne");
         mapping.put("silicone_truck-nw", "vehicles/road/silicone-nw");
