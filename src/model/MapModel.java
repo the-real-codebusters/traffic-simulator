@@ -216,7 +216,9 @@ public class MapModel {
         if(numberOfNearTrafficLines > 1){
             System.out.println("tried to merge trafficLines");
             System.out.println("found lines "+numberOfNearTrafficLines);
-            mergeTrafficAirParts(new ArrayList<>(differentLines));
+
+            //mergeTrafficAirParts(new ArrayList<>(differentLines));
+            //TODO Einkommentieren bzw ändern
         }
     }
 
@@ -235,16 +237,16 @@ public class MapModel {
         System.out.println("firstPart after merge "+firstPart.getStations().size());
     }
 
-    private void mergeTrafficAirParts(List<ConnectedTrafficPart> parts){
-        ConnectedTrafficPart firstPart = parts.get(0);
-        System.out.println("firstPart "+firstPart.getStations().size());
-        for(int i=1; i<parts.size(); i++){
-            firstPart.mergeWithAirTrafficPart(parts.get(i));
-            model.getActiveTrafficParts().remove(parts.get(i));
-            model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
-        }
-        System.out.println("firstPart after merge "+firstPart.getStations().size());
-    }
+//    private void mergeTrafficAirParts(List<ConnectedTrafficPart> parts){
+//        ConnectedTrafficPart firstPart = parts.get(0);
+//        System.out.println("firstPart "+firstPart.getStations().size());
+//        for(int i=1; i<parts.size(); i++){
+//            firstPart.mergeWithAirTrafficPart(parts.get(i));
+//            model.getActiveTrafficParts().remove(parts.get(i));
+//            model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
+//        }
+//        System.out.println("firstPart after merge "+firstPart.getStations().size());
+//    }
 
     /**
      * Gibt die Station zurück, die direkt neben der Haltestelle in x- oder y-Richtung steht. Wenn keine Station angrenzt,

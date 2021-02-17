@@ -50,7 +50,6 @@ public class Vehicle {
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
 
-
     /**
      * Gibt die Positionen des Fahrzeugs innerhalb des nächsten Tags zurück. Entfernt die abgefahrenen Knoten aus
      * pathToNextStation
@@ -61,7 +60,7 @@ public class Vehicle {
         double wayToGo = speed;
         // Die Bewegung startet an der aktuellen Position
         PositionOnTilemap currentPosition = position;
-        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition);
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic);
         double distanceToNextVertex = 0;
         // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
         // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen

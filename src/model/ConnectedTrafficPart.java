@@ -70,31 +70,36 @@ public class ConnectedTrafficPart {
         setAssociatedTrafficPartInEveryBuilding();
     }
 
-    public void mergeWithAirTrafficPart(ConnectedTrafficPart otherPart){
-        if(!otherPart.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge parts " +
-                "of different trafficTypes");
-        System.out.println("Stations "+stations);
-        for(Station otherStation: otherPart.getStations()){
-            //TODO: gleiche Stationen nicht miteinander verbinden
-            if (otherPart.getStations().size() > this.getStations().size()) {
-                if (otherStation != this.getStations().get(0)) {
-                    otherStation.setAirTrafficPart(this);
-                    otherStation.updateDirectlyConnectedStationsForRunway(this.getStations().get(0));
-                }
-            }
-            else {
-                otherStation.setAirTrafficPart(this);
-                otherStation.updateDirectlyConnectedStationsForRunway(this.getStations().get(1));
-            }
-
-            //stations.add(otherStation);
-
-        }
-        otherPart.getTrafficLines().add(new TrafficLine(model, TrafficType.AIR));
-        System.out.println("Stations "+stations);
-        trafficLines.addAll(otherPart.getTrafficLines());
-        setAssociatedTrafficPartInEveryBuilding();
+    public void addTrafficLine(TrafficLine trafficLine) {
+        trafficLines.add(trafficLine);
+        trafficLine.setStartVertexAndStartStationForNewVehicles();
     }
+//=======
+//    public void mergeWithAirTrafficPart(ConnectedTrafficPart otherPart){
+//        if(!otherPart.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge parts " +
+//                "of different trafficTypes");
+//        System.out.println("Stations "+stations);
+//        for(Station otherStation: otherPart.getStations()){
+//            //TODO: gleiche Stationen nicht miteinander verbinden
+//            if (otherPart.getStations().size() > this.getStations().size()) {
+//                if (otherStation != this.getStations().get(0)) {
+//                    otherStation.setAirTrafficPart(this);
+//                    otherStation.updateDirectlyConnectedStationsForRunway(this.getStations().get(0));
+//                }
+//            }
+//            else {
+//                otherStation.setAirTrafficPart(this);
+//                otherStation.updateDirectlyConnectedStationsForRunway(this.getStations().get(1));
+//            }
+//
+//            //stations.add(otherStation);
+//
+//        }
+//        otherPart.getTrafficLines().add(new TrafficLine(model, TrafficType.AIR));
+//        System.out.println("Stations "+stations);
+//        trafficLines.addAll(otherPart.getTrafficLines());
+//        setAssociatedTrafficPartInEveryBuilding();
+//>>>>>>> master
 
     public void setStations(List<Station> stations) {
         this.stations = stations;

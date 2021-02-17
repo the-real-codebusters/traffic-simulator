@@ -813,19 +813,19 @@ public class View {
      * @param start
      * @param end
      */
-    private String getImageNameForCar(Point2D start, Point2D end) {
+    private String getImageNameForCar(Point2D start, Point2D end, String vehicleName) {
 
-        String carName = null;
+        String carName = vehicleName;
         if (start.getX() < end.getX()) {
             //nach rechts oben fahren
             //System.out.print("nach rechts");
             if (start.getY() > end.getY()) {
                 //System.out.println(" oben");
-                carName = "car_ne";
+                carName+="-ne";
             }
             else {
                 //System.out.println(" unten");
-                carName = "car_se";
+                carName+="-se";
             }
         }
         else  if (start.getX() > end.getX()){
@@ -833,11 +833,11 @@ public class View {
             //System.out.print("nach links");
             if (start.getY() < end.getY()) {
                 //System.out.println(" unten");
-                carName = "car_sw";
+                carName +="-sw";
             }
             else {
                 //System.out.println(" oben");
-                carName = "car_nw";
+                carName +="-nw";
             }
         }
         return objectToImageMapping.getImageNameForObjectName(carName);
@@ -901,8 +901,8 @@ public class View {
 
                         if(imageName==null) throw new RuntimeException("imageName was null");
 
-                        Image carImage = getResourceForImageName(imageName, tileImageHeightHalf,
-                                imageNameToImageRatio.get(imageName)*tileImageHeightHalf);
+                        Image carImage = getResourceForImageName(imageName, tileImageHeight,
+                                imageNameToImageRatio.get(imageName)*tileImageHeight);
 
                         //Zeichnet das Bild auf das Canvas. xShift und yShift sind nur bei einer Verschiebung der Karte
                         //während der Animation nicht 0. Die Verschiebung von -15 in y-Richtung sind willkürlich
@@ -946,7 +946,7 @@ public class View {
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
         Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
-        String startImageName = getImageNameForCar(startPoint, secondPoint);
+        String startImageName = getImageNameForCar(startPoint, secondPoint, movement.getVehicleName());
 
         // Ein KeyFrame gibt den Zustand einer Animation zu einer bestimmten Zeit an. Hier wird der Zustand zu Beginn
         // angegeben. Ein KeyFrame hat momentan 3 Variablen: Die x-Coordinate des fahrzeugs, die y-Coordinate des
@@ -971,7 +971,7 @@ public class View {
             if(i!=movement.getNumberOfPoints()-1){
                 // Bestimme das Bild des Fahrzeugs aus der aktuellen Position und der nächsten Position (deswegen i+1)
                 Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
-                actualImageName = getImageNameForCar(point, nextPoint);
+                actualImageName = getImageNameForCar(point, nextPoint, movement.getVehicleName());
             }
             else {
                 // Wenn der aktuelle Punkt der letzte Punkt der Liste ist, kann i+1 nicht verwendet werden. Also wird
@@ -979,7 +979,7 @@ public class View {
                 Point2D lastPoint;
                 if(i==0) lastPoint = startPoint;
                 else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
-                actualImageName = getImageNameForCar(lastPoint, point);
+                actualImageName = getImageNameForCar(lastPoint, point, movement.getVehicleName());
             }
             KeyFrame frame = new KeyFrame(
                     Duration.seconds(time),
@@ -1027,6 +1027,10 @@ public class View {
         return previousMouseY;
     }
 
+    public TrafficLinePopup getTrafficLinePopup(){
+        return menuPane.getTrafficLinePopup();
+    }
+
     public Stage getStage() {
         return stage;
     }
@@ -1045,6 +1049,10 @@ public class View {
 
     public MenuPane getMenuPane() {
         return menuPane;
+    }
+
+    public ObjectToImageMapping getObjectToImageMapping() {
+        return objectToImageMapping;
     }
 
     public ParallelTransition getParallelTransition() {
