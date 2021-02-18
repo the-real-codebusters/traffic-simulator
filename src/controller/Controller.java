@@ -56,6 +56,7 @@ public class Controller {
 
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
+        view.getMenuPane().setDayLabel(model.getDay());
         if(movements.size() > 0){
             view.translateVehicles(movements);
         }
@@ -273,6 +274,10 @@ public class Controller {
             }
         }
 
+    }
+
+    public int getDayFromModel(){
+        return model.getDay();
     }
 
     public Tile getTileOfMapTileGrid(int row, int column){
