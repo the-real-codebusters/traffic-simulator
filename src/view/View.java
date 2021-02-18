@@ -901,15 +901,17 @@ public class View {
 
                         if(imageName==null) throw new RuntimeException("imageName was null");
 
-                        Image carImage = getResourceForImageName(imageName, tileImageHeight,
+                        Image carImage = getResourceForImageName(imageName, tileImageHeight*0.85,
                                 imageNameToImageRatio.get(imageName)*tileImageHeight);
+
+                        int directionShift = getYShiftForImageName(imageName);
 
                         //Zeichnet das Bild auf das Canvas. xShift und yShift sind nur bei einer Verschiebung der Karte
                         //während der Animation nicht 0. Die Verschiebung von -15 in y-Richtung sind willkürlich
                         //und müssen nochmal angeschaut und verbessert werden. Es wurde dadurch versucht die Autos auf
                         //verschiedenen Straßenseiten anzuzeigen, geht aber noch nicht ganz.
                         gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift,
-                                animation.getyCoordProperty().doubleValue()-15+yShift);
+                                animation.getyCoordProperty().doubleValue()+yShift+directionShift);
                     }
                 }
             }
@@ -932,6 +934,24 @@ public class View {
 
         timer.start();
         parallelTransition.play();
+    }
+
+    private int getYShiftForImageName(String imageName){
+        String ending = imageName.substring(imageName.length()-2);
+        int shift = 0;
+        if(ending.equals("ne")){
+            shift = -27;
+        }
+        else if(ending.equals("nw")){
+            shift = -30;
+        }
+        else if(ending.equals("se")){
+            shift = -5;
+        }
+        else if(ending.equals("sw")){
+            shift = -65;
+        }
+        return shift;
     }
 
     /**
