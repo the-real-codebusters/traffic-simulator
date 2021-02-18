@@ -384,6 +384,37 @@ public class MapModel {
         return addedVertices;
     }
 
+
+    public List<Vertex> getVerticesOnTile(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile){
+        TrafficGraph trafficGraph;
+        if(building instanceof PartOfTrafficGraph) {
+            trafficGraph = this.rawRoadGraph;
+        }
+        else {
+            return new ArrayList<>();
+            //TODO rails und air
+        };
+
+        List<Vertex> addedVertices = new ArrayList<>();
+
+        Map<String, List<Double>> points = building.getPoints();
+        for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
+
+
+            String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
+            String vertexName = identifier + entry.getKey();
+
+            for (Vertex v : trafficGraph.getMapOfVertexes().values()){
+                if (v.getName().equals(vertexName)){
+                    addedVertices.add(v);
+                    System.out.println("name of connected vertex: " + v.getName());
+                }
+            }
+        }
+
+        return addedVertices;
+    }
+
     /**
      * Wenn keine andere Station im Straßengraphen findbar, fügt es dem Straßengraph eine neue Verkehrslinie hinzu. Wenn eine andere Station
      * findbar, wird der verkehrslinie der gefundenen Station die angegebene Station hinzugefügt

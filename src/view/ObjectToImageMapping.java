@@ -23,26 +23,32 @@ public class ObjectToImageMapping {
     }
 
     private void createPlanverkehrMapping(){
+
+        // Fabriken
         mapping.put("construction yard", "factories/constructionYard");
         mapping.put("glassworks", "factories/glassworks");
         mapping.put("photovoltaic factory", "factories/photovoltaicFactory");
         mapping.put("silicone factory", "factories/siliconeFactory");
         mapping.put("chemical plant", "factories/chemicalPlant");
         mapping.put("submerged-arc furnace", "factories/furnace");
-//        mapping.put("sand pit", "factories/sandPit");
-        mapping.put("sand pit", "factories/sandPit_test");
+        mapping.put("sand pit", "factories/sandPit");
 
+
+        // Natur
+        mapping.put("grass", "ground/grass");
+        mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
-        // wird momentan noch nicht benutzt
-        mapping.put("tree_no_ground", "ground/trees_no_ground");
-
-//        mapping.put("stone", "ground/stones");
         mapping.put("stone", "ground/stones_test");
+//        mapping.put("tree_no_ground", "ground/trees_no_ground");
+//        mapping.put("stone", "ground/stones");
+
+
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
         mapping.put("railstation-nw-se", "stations/rail/railstation");
         mapping.put("busstop-nw-se", "stations/road/busstop");
+
 
         // Flache Straßen-Tiles
         mapping.put("road-ne", "road/road-ne");
@@ -61,26 +67,25 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-sw", "road/road-nw-sw");
         mapping.put("road-se-sw", "road/road-se-sw");
 
+
+        // Fahrzeuge
         mapping.put("car_ne", "road/car_ne");
         mapping.put("car_nw", "road/car_nw");
         mapping.put("car_se", "road/car_se");
         mapping.put("car_sw", "road/car_sw");
-//        mapping.put("grass", "ground/grass");
-//        mapping.put("grass", "ground/grass_tile");
-        mapping.put("grass", "ground/grass_tile_test");
-//                mapping.put("water", "ground/water");
-        mapping.put("water", "ground/water_tile");
+
 
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
 
         mapping.put("remove", "remove");
 
+
         // Grasfelder mit verschiedenen Höhen
+        mapping.put("0000", "ground/grass");
         mapping.put("0100", "ground_heights/Slope_E");
         mapping.put("1101", "ground_heights/Slope_ENW");
         mapping.put("0101", "ground_heights/Slope_EW");
-        mapping.put("0000", "ground_heights/Slope_Flat");
         mapping.put("1000", "ground_heights/Slope_N");
         mapping.put("1100", "ground_heights/Slope_NE");
         mapping.put("1010", "ground_heights/Slope_NS");
@@ -97,8 +102,8 @@ public class ObjectToImageMapping {
         mapping.put("0001", "ground_heights/Slope_W");
         mapping.put("0111", "ground_heights/Slope_WSE");
 
-        // Straßen-Tiles mit Höhenunterschied
 
+        // Straßen-Tiles mit Höhenunterschied
         mapping.put("road-ne1100", "road/road_ne-sw_Slope_NE");
         mapping.put("road-ne1001", "road/road_ne-sw_Slope_NW");
         mapping.put("road-ne0110", "road/road_ne-sw_Slope_SE");

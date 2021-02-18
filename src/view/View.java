@@ -235,8 +235,8 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Tiles
      */
     public void drawMap() {
-        final String grass1 = "file:grass.png";
-        Image grass = new Image(grass1);
+//        final String grass1 = "file:grass.png";
+//        Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());

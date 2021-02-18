@@ -130,7 +130,7 @@ public class Controller {
             // Wenn ein Gebäude entfernt werden soll
             if(selectedBuilding.getBuildingName().equals("remove")){
                 selectedBuilding = new Building();
-                selectedBuilding.setBuildingName("grass");
+                selectedBuilding.setBuildingName("ground");
                 selectedBuilding.setWidth(1);
                 selectedBuilding.setDepth(1);
 
@@ -141,7 +141,8 @@ public class Controller {
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
                     PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
-                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+//                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
+                    addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
 
                     for(Vertex v : addedVertices){
                         if(v.getName().contains("c")) {
@@ -158,7 +159,6 @@ public class Controller {
                         List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
                         if(connections.size()== 0) {
                             iterator.remove();
-                            continue;
                         }
                     }
                     model.getMap().getRawRoadGraph().printGraph();
