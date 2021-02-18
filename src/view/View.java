@@ -116,7 +116,7 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            double zoomFactor = Math.exp(scrollDelta * 0.01);
+            zoomFactor = Math.exp(scrollDelta * 0.01);
             tileImageWidth = tileImageWidth * zoomFactor;
             tileImageHeight = tileImageHeight * zoomFactor;
 
@@ -901,17 +901,17 @@ public class View {
 
                         if(imageName==null) throw new RuntimeException("imageName was null");
 
-                        Image carImage = getResourceForImageName(imageName, tileImageHeight*0.85,
+                        Image carImage = getResourceForImageName(imageName, tileImageHeight*0.75,
                                 imageNameToImageRatio.get(imageName)*tileImageHeight);
 
-                        int directionShift = getYShiftForImageName(imageName);
+                        double[] directionShift = getShiftForImageName(imageName);
 
                         //Zeichnet das Bild auf das Canvas. xShift und yShift sind nur bei einer Verschiebung der Karte
                         //während der Animation nicht 0. Die Verschiebung von -15 in y-Richtung sind willkürlich
                         //und müssen nochmal angeschaut und verbessert werden. Es wurde dadurch versucht die Autos auf
                         //verschiedenen Straßenseiten anzuzeigen, geht aber noch nicht ganz.
-                        gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift,
-                                animation.getyCoordProperty().doubleValue()+yShift+directionShift);
+                        gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift+directionShift[0],
+                                animation.getyCoordProperty().doubleValue()+yShift+directionShift[1]);
                     }
                 }
             }
@@ -936,22 +936,35 @@ public class View {
         parallelTransition.play();
     }
 
-    private int getYShiftForImageName(String imageName){
+    private double[] getShiftForImageName(String imageName){
         String ending = imageName.substring(imageName.length()-2);
-        int shift = 0;
+        double yshift = 0;
+        double xshift = 0;
+        double ratio = 0.75/0.85;
         if(ending.equals("ne")){
-            shift = -27;
+            yshift = -0.3*tileImageHeight;
+            xshift = -0.3*tileImageHeight; //-27
+            //Zu weit außerhalb der Straße
         }
         else if(ending.equals("nw")){
-            shift = -30;
+            yshift = -0.35*tileImageHeight;
+            xshift = 0.35*tileImageHeight; //-30
+            //passt
         }
         else if(ending.equals("se")){
-            shift = -5;
+            yshift = -0.05*tileImageHeight;
+            xshift = 0.05*tileImageHeight; //-5
+            //passt
         }
         else if(ending.equals("sw")){
-            shift = -65;
+            yshift = -0.65*tileImageHeight;
+            xshift = -0.65*tileImageHeight; //-65
+            //passt
         }
-        return shift;
+//        shift *= zoomFactor;
+        xshift*=ratio;
+        yshift*=ratio;
+        return new double[] {xshift, yshift};
     }
 
     /**
