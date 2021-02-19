@@ -113,6 +113,15 @@ public class MapModel {
             for(int c=column; c<column+building.getDepth(); c++){
                 Tile tile = tileGrid[r][c];
 
+                // Wenn der dz Wert des Gebäudes nicht zu dem Tile passt, auf dem platziert werden soll,
+                // soll false zurückgegeben werden
+//                Tile tilet = tileGrid[row][column];
+                Map<String, Integer> cornerHeights = tile.getCornerHeights();
+                int heightShift = Math.abs(tile.findMinCorner(cornerHeights) - tile.findMaxCorner(cornerHeights));
+                if(building.getDz() < heightShift) return false;
+
+
+
                 // Fabriken werden beim erzeugen der Map nur auf komplett ebene Flächen platziert
                 if (building instanceof Factory && tile.getBuilding() != null){
                     if(! ((tile.getBuilding() instanceof Nature) ||
@@ -385,6 +394,72 @@ public class MapModel {
         }
         return addedVertices;
     }
+
+
+    /**
+     * Gibt Vertexes zurück, die zu dem mitgegebenen Building gehören und bereits im Graph eingetragen sind
+     * @param building
+     * @param xCoordOfTile
+     * @param yCoordOfTile
+     * @return
+     */
+    public List<Vertex> getVerticesOnTile(PartOfTrafficGraph building, int xCoordOfTile, int yCoordOfTile){
+        TrafficGraph trafficGraph;
+        if(building.getTrafficType().equals(TrafficType.ROAD)) {
+            trafficGraph = this.rawRoadGraph;
+        }
+        else {
+            return new ArrayList<>();
+            //TODO rails und air
+        };
+
+        List<Vertex> verticesOnTile = new ArrayList<>();
+
+        Map<String, List<Double>> points = building.getPoints();
+        for (Map.Entry<String, List<Double>> entry : points.entrySet()) {
+
+            String identifier = xCoordOfTile + "-" + yCoordOfTile + "-";
+            String vertexName = identifier + entry.getKey();
+
+            for (Vertex v : trafficGraph.getMapOfVertexes().values()){
+                if (v.getName().equals(vertexName)){
+                    verticesOnTile.add(v);
+                    System.out.println("name of connected vertex: " + v.getName());
+                }
+            }
+        }
+
+        return verticesOnTile;
+    }
+
+
+    public void removePointsOnTile(Building buildingOnSelectedTile, int xCoord, int yCoord){
+        PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
+        List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
+
+        if (partOfGraph instanceof Road || partOfGraph instanceof Stop) {
+
+            for (Vertex v : addedVertices) {
+                if (v.getName().contains("c")) {
+                    model.getMap().getRawRoadGraph().removeVertex(v.getName());
+                }
+            }
+
+            Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
+            Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Vertex> vertex = iterator.next();
+                List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
+                if (connections.size() == 0) {
+                    iterator.remove();
+                }
+            }
+            model.getMap().getRawRoadGraph().printGraph();
+        }
+        // TODO so anpassen, dass es auch für rails funktioniert
+    }
+
+
 
     /**
      * Wenn keine andere Station im Straßengraphen findbar, fügt es dem Straßengraph eine neue Verkehrslinie hinzu. Wenn eine andere Station

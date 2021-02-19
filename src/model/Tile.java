@@ -91,6 +91,18 @@ public class Tile {
     }
 
 
+    public int findMinCorner(Map<String, Integer> cornerHeights){
+
+        int minHeight = Integer.MAX_VALUE;
+        for (Integer corner : cornerHeights.values()){
+            if (corner < minHeight){
+                minHeight = corner;
+            }
+        }
+        return minHeight;
+    }
+
+
     public Building getBuilding() {
         return building;
     }
