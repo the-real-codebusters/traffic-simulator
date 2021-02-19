@@ -38,47 +38,44 @@ public class ObjectToImageMapping {
         mapping.put("grass", "ground/grass");
         mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
-        mapping.put("stone", "ground/stones_test");
+        mapping.put("stone", "ground/stones");
 //        mapping.put("tree_no_ground", "ground/trees_no_ground");
-//        mapping.put("stone", "ground/stones");
 
 
+        // Verschiedenes
         mapping.put("runway", "airport/runway");
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
         mapping.put("railstation-nw-se", "stations/rail/railstation");
         mapping.put("busstop-nw-se", "stations/road/busstop");
+        mapping.put("height_up" , "height_up");
+        mapping.put("height_down" , "height_down");
+        mapping.put("remove", "remove");
 
 
         // Flache Straßen-Tiles
-        mapping.put("road-ne", "road/road-ne");
-        mapping.put("road-nw", "road/road-nw");
-        mapping.put("road-se", "road/road-se");
-        mapping.put("road-sw", "road/road-sw");
-        mapping.put("road-ne-nw-se-sw", "road/road-ne-nw-se-sw");
-        mapping.put("road-ne-nw-se", "road/road-ne-nw-se");
-        mapping.put("road-ne-nw-sw", "road/road-ne-nw-sw");
-        mapping.put("road-ne-nw", "road/road-ne-nw");
-        mapping.put("road-ne-se-sw", "road/road-ne-se-sw");
-        mapping.put("road-ne-se", "road/road-ne-se");
-        mapping.put("road-ne-sw", "road/road-ne-sw");
-        mapping.put("road-nw-se-sw", "road/road-nw-se-sw");
-        mapping.put("road-nw-se", "road/road-nw-se");
-        mapping.put("road-nw-sw", "road/road-nw-sw");
-        mapping.put("road-se-sw", "road/road-se-sw");
+        mapping.put("road-ne", "road/flat/road-ne");
+        mapping.put("road-nw", "road/flat/road-nw");
+        mapping.put("road-se", "road/flat/road-se");
+        mapping.put("road-sw", "road/flat/road-sw");
+        mapping.put("road-ne-nw-se-sw", "road/flat/road-ne-nw-se-sw");
+        mapping.put("road-ne-nw-se", "road/flat/road-ne-nw-se");
+        mapping.put("road-ne-nw-sw", "road/flat/road-ne-nw-sw");
+        mapping.put("road-ne-nw", "road/flat/road-ne-nw");
+        mapping.put("road-ne-se-sw", "road/flat/road-ne-se-sw");
+        mapping.put("road-ne-se", "road/flat/road-ne-se");
+        mapping.put("road-ne-sw", "road/flat/road-ne-sw");
+        mapping.put("road-nw-se-sw", "road/flat/road-nw-se-sw");
+        mapping.put("road-nw-se", "road/flat/road-nw-se");
+        mapping.put("road-nw-sw", "road/flat/road-nw-sw");
+        mapping.put("road-se-sw", "road/flat/road-se-sw");
 
 
         // Fahrzeuge
-        mapping.put("car_ne", "road/car_ne");
-        mapping.put("car_nw", "road/car_nw");
-        mapping.put("car_se", "road/car_se");
-        mapping.put("car_sw", "road/car_sw");
-
-
-        mapping.put("height_up" , "height_up");
-        mapping.put("height_down" , "height_down");
-
-        mapping.put("remove", "remove");
+        mapping.put("car_ne", "road_vehicles/car_ne");
+        mapping.put("car_nw", "road_vehicles/car_nw");
+        mapping.put("car_se", "road_vehicles/car_se");
+        mapping.put("car_sw", "road_vehicles/car_sw");
 
 
         // Grasfelder mit verschiedenen Höhen
@@ -103,134 +100,121 @@ public class ObjectToImageMapping {
         mapping.put("0111", "ground_heights/Slope_WSE");
 
 
-        // Straßen-Tiles mit Höhenunterschied
-        mapping.put("road-ne1100", "road/road_ne-sw_Slope_NE");
-        mapping.put("road-ne1001", "road/road_ne-sw_Slope_NW");
-        mapping.put("road-ne0110", "road/road_ne-sw_Slope_SE");
-        mapping.put("road-ne0011", "road/road_ne-sw_Slope_SW");
+        // StraßenTiles mit Höhe: slope ne-sw
+        mapping.put("road-ne-sw0100", "road/slope_ne_sw/road_Slope_ne-sw_E");
+        mapping.put("road-ne0100", "road/slope_ne_sw/road_Slope_ne-sw_E");
+        mapping.put("road-sw0100", "road/slope_ne_sw/road_Slope_ne-sw_E");
 
-        mapping.put("road-sw1100", "road/road_ne-sw_Slope_NE");
-        mapping.put("road-sw1001", "road/road_ne-sw_Slope_NW");
-        mapping.put("road-sw0110", "road/road_ne-sw_Slope_SE");
-        mapping.put("road-sw0011", "road/road_ne-sw_Slope_SW");
+        mapping.put("road-ne-sw1101", "road/slope_ne_sw/road_Slope_ne-sw_ENW");
+        mapping.put("road-ne1101", "road/slope_ne_sw/road_Slope_ne-sw_ENW");
+        mapping.put("road-sw1101", "road/slope_ne_sw/road_Slope_ne-sw_ENW");
 
-        // se - nw funktionieren noch nicht
-        mapping.put("road-se1100", "road/road_nw-se_Slope_NE");
-        mapping.put("road-se1001", "road/road_nw-se_Slope_NW");
-        mapping.put("road-se0110", "road/road_nw-se_Slope_SE");
-        mapping.put("road-se0011", "road/road_nw-se_Slope_SW");
+        mapping.put("road-ne-sw0101", "road/slope_ne_sw/road_Slope_ne-sw_EW");
+        mapping.put("road-ne0101", "road/slope_ne_sw/road_Slope_ne-sw_EW");
+        mapping.put("road-sw0101", "road/slope_ne_sw/road_Slope_ne-sw_EW");
 
-        mapping.put("road-nw1100", "road/road_nw-se_Slope_NE");
-        mapping.put("road-nw1001", "road/road_nw-se_Slope_NW");
-        mapping.put("road-nw0110", "road/road_nw-se_Slope_SE");
-        mapping.put("road-nw0011", "road/road_nw-se_Slope_SW");
+        mapping.put("road-ne-sw1000", "road/slope_ne_sw/road_Slope_ne-sw_N");
+        mapping.put("road-ne1000", "road/slope_ne_sw/road_Slope_ne-sw_N");
+        mapping.put("road-sw1000", "road/slope_ne_sw/road_Slope_ne-sw_N");
 
+        mapping.put("road-ne-sw1100", "road/slope_ne_sw/road_Slope_ne-sw_NE");
+        mapping.put("road-ne1100", "road/slope_ne_sw/road_Slope_ne-sw_NE");
+        mapping.put("road-sw1100", "road/slope_ne_sw/road_Slope_ne-sw_NE");
 
-        mapping.put("road-ne-sw1100", "road/road_ne-sw_Slope_NE");
-        mapping.put("road-ne-sw1001", "road/road_ne-sw_Slope_NW");
-        mapping.put("road-ne-sw0110", "road/road_ne-sw_Slope_SE");
-        mapping.put("road-ne-sw0011", "road/road_ne-sw_Slope_SW");
+        mapping.put("road-ne-sw1010", "road/slope_ne_sw/road_Slope_ne-sw_NS");
+        mapping.put("road-ne1010", "road/slope_ne_sw/road_Slope_ne-sw_NS");
+        mapping.put("road-sw1010", "road/slope_ne_sw/road_Slope_ne-sw_NS");
 
+        mapping.put("road-ne-sw1001", "road/slope_ne_sw/road_Slope_ne-sw_NW");
+        mapping.put("road-ne1001", "road/slope_ne_sw/road_Slope_ne-sw_NW");
+        mapping.put("road-sw1001", "road/slope_ne_sw/road_Slope_ne-sw_NW");
 
+        mapping.put("road-ne-sw1011", "road/slope_ne_sw/road_Slope_ne-sw_NWS");
+        mapping.put("road-ne1011", "road/slope_ne_sw/road_Slope_ne-sw_NWS");
+        mapping.put("road-sw1011", "road/slope_ne_sw/road_Slope_ne-sw_NWS");
 
+        mapping.put("road-ne-sw0010", "road/slope_ne_sw/road_Slope_ne-sw_S");
+        mapping.put("road-ne0010", "road/slope_ne_sw/road_Slope_ne-sw_S");
+        mapping.put("road-sw0010", "road/slope_ne_sw/road_Slope_ne-sw_S");
 
+        mapping.put("road-ne-sw0110", "road/slope_ne_sw/road_Slope_ne-sw_SE");
+        mapping.put("road-ne0110", "road/slope_ne_sw/road_Slope_ne-sw_SE");
+        mapping.put("road-sw0110", "road/slope_ne_sw/road_Slope_ne-sw_SE");
 
-        mapping.put("road-ne-sw0100", "road/road_ne-sw_Slope_E");
-        mapping.put("road-nw-se0100", "road/road_nw-se_Slope_E");
+        mapping.put("road-ne-sw1110", "road/slope_ne_sw/road_Slope_ne-sw_SEN");
+        mapping.put("road-ne1110", "road/slope_ne_sw/road_Slope_ne-sw_SEN");
+        mapping.put("road-sw1110", "road/slope_ne_sw/road_Slope_ne-sw_SEN");
 
-        mapping.put("road-ne-sw1101", "road/road_ne-sw_Slope_ENW");
-        mapping.put("road-nw-se1101", "road/road_nw-se_Slope_ENW");
+        mapping.put("road-ne-sw0011", "road/slope_ne_sw/road_Slope_ne-sw_SW");
+        mapping.put("road-ne0011", "road/slope_ne_sw/road_Slope_ne-sw_SW");
+        mapping.put("road-sw0011", "road/slope_ne_sw/road_Slope_ne-sw_SW");
 
-        mapping.put("road-nw-se0101", "road/road_nw-se_Slope_EW");
-        mapping.put("road-ne-sw0101", "road/road_ne-sw_Slope_EW");
+        mapping.put("road-ne-sw0001", "road/slope_ne_sw/road_Slope_ne-sw_W");
+        mapping.put("road-ne0001", "road/slope_ne_sw/road_Slope_ne-sw_W");
+        mapping.put("road-sw0001", "road/slope_ne_sw/road_Slope_ne-sw_W");
 
-        mapping.put("road-nw-se1000", "road/road_nw-se_Slope_N");
-        mapping.put("road-ne-sw1000", "road/road_ne-sw_Slope_N");
-
-        mapping.put("road-nw-se1010", "road/road_nw-se_Slope_NS");
-        mapping.put("road-ne-sw1010", "road/road_ne-sw_Slope_NS");
-
-        mapping.put("road-nw-se1011", "road/road_nw-se_Slope_NWS");
-        mapping.put("road-ne-sw1011", "road/road_ne-sw_Slope_NWS");
-
-        mapping.put("road-nw-se0010", "road/road_nw-se_Slope_S");
-        mapping.put("road-ne-sw0010", "road/road_ne-sw_Slope_S");
-
-        mapping.put("road-nw-se1110", "road/road_nw-se_Slope_SEN");
-        mapping.put("road-ne-sw1110", "road/road_ne-sw_Slope_SEN");
-
-        mapping.put("road-nw-se0001", "road/road_nw-se_Slope_W");
-        mapping.put("road-ne-sw0001", "road/road_ne-sw_Slope_W");
-
-        mapping.put("road-nw-se0111", "road/road_nw-se_Slope_WSE");
-        mapping.put("road-ne-sw0111", "road/road_ne-sw_Slope_WSE");
+        mapping.put("road-ne-sw0111", "road/slope_ne_sw/road_Slope_ne-sw_WSE");
+        mapping.put("road-ne0111", "road/slope_ne_sw/road_Slope_ne-sw_WSE");
+        mapping.put("road-sw0111", "road/slope_ne_sw/road_Slope_ne-sw_WSE");
 
 
+        // StraßenTiles mit Höhe: slope nw-se
+        mapping.put("road-nw-se0100", "road/slope_nw_se/road_Slope_nw-se_E");
+        mapping.put("road-nw0100", "road/slope_nw_se/road_Slope_nw-se_E");
+        mapping.put("road-se0100", "road/slope_nw_se/road_Slope_nw-se_E");
 
+        mapping.put("road-nw-se1101", "road/slope_nw_se/road_Slope_nw-se_ENW");
+        mapping.put("road-nw1101", "road/slope_nw_se/road_Slope_nw-se_ENW");
+        mapping.put("road-se1101", "road/slope_nw_se/road_Slope_nw-se_ENW");
 
-//        // ne nw
-        mapping.put("road-ne0100", "road/road_ne-sw_Slope_E");
-        mapping.put("road-nw0100", "road/road_nw-se_Slope_E");
+        mapping.put("road-nw-se0101", "road/slope_nw_se/road_Slope_nw-se_EW");
+        mapping.put("road-nw0101", "road/slope_nw_se/road_Slope_nw-se_EW");
+        mapping.put("road-se0101", "road/slope_nw_se/road_Slope_nw-se_EW");
 
-        mapping.put("road-ne1101", "road/road_ne-sw_Slope_ENW");
-        mapping.put("road-nw1101", "road/road_nw-se_Slope_ENW");
+        mapping.put("road-nw-se1000", "road/slope_nw_se/road_Slope_nw-se_N");
+        mapping.put("road-nw1000", "road/slope_nw_se/road_Slope_nw-se_N");
+        mapping.put("road-se1000", "road/slope_nw_se/road_Slope_nw-se_N");
 
-        mapping.put("road-nw0101", "road/road_nw-se_Slope_EW");
-        mapping.put("road-ne0101", "road/road_ne-sw_Slope_EW");
+        mapping.put("road-nw-se1100", "road/slope_nw_se/road_Slope_nw-se_NE");
+        mapping.put("road-nw1100", "road/slope_nw_se/road_Slope_nw-se_NE");
+        mapping.put("road-se1100", "road/slope_nw_se/road_Slope_nw-se_NE");
 
-        mapping.put("road-nw1000", "road/road_nw-se_Slope_N");
-        mapping.put("road-ne1000", "road/road_ne-sw_Slope_N");
+        mapping.put("road-nw-se1010", "road/slope_nw_se/road_Slope_nw-se_NS");
+        mapping.put("road-nw1010", "road/slope_nw_se/road_Slope_nw-se_NS");
+        mapping.put("road-se1010", "road/slope_nw_se/road_Slope_nw-se_NS");
 
-        mapping.put("road-nw1010", "road/road_nw-se_Slope_NS");
-        mapping.put("road-ne1010", "road/road_ne-sw_Slope_NS");
+        mapping.put("road-nw-se1001", "road/slope_nw_se/road_Slope_nw-se_NW");
+        mapping.put("road-nw1001", "road/slope_nw_se/road_Slope_nw-se_NW");
+        mapping.put("road-se1001", "road/slope_nw_se/road_Slope_nw-se_NW");
 
-        mapping.put("road-nw1011", "road/road_nw-se_Slope_NWS");
-        mapping.put("road-ne1011", "road/road_ne-sw_Slope_NWS");
+        mapping.put("road-nw-se1011", "road/slope_nw_se/road_Slope_nw-se_NWS");
+        mapping.put("road-nw1011", "road/slope_nw_se/road_Slope_nw-se_NWS");
+        mapping.put("road-se1011", "road/slope_nw_se/road_Slope_nw-se_NWS");
 
-        mapping.put("road-nw0010", "road/road_nw-se_Slope_S");
-        mapping.put("road-ne0010", "road/road_ne-sw_Slope_S");
+        mapping.put("road-nw-se0010", "road/slope_nw_se/road_Slope_nw-se_S");
+        mapping.put("road-nw0010", "road/slope_nw_se/road_Slope_nw-se_S");
+        mapping.put("road-se0010", "road/slope_nw_se/road_Slope_nw-se_S");
 
-        mapping.put("road-nw1110", "road/road_nw-se_Slope_SEN");
-        mapping.put("road-ne1110", "road/road_ne-sw_Slope_SEN");
+        mapping.put("road-nw-se0110", "road/slope_nw_se/road_Slope_nw-se_SE");
+        mapping.put("road-nw0110", "road/slope_nw_se/road_Slope_nw-se_SE");
+        mapping.put("road-se0110", "road/slope_nw_se/road_Slope_nw-se_SE");
 
-        mapping.put("road-nw0001", "road/road_nw-se_Slope_W");
-        mapping.put("road-ne0001", "road/road_ne-sw_Slope_W");
+        mapping.put("road-nw-se1110", "road/slope_nw_se/road_Slope_nw-se_SEN");
+        mapping.put("road-nw1110", "road/slope_nw_se/road_Slope_nw-se_SEN");
+        mapping.put("road-se1110", "road/slope_nw_se/road_Slope_nw-se_SEN");
 
-        mapping.put("road-nw0111", "road/road_nw-se_Slope_WSE");
-        mapping.put("road-ne0111", "road/road_ne-sw_Slope_WSE");
+        mapping.put("road-nw-se0011", "road/slope_nw_se/road_Slope_nw-se_SW");
+        mapping.put("road-nw0011", "road/slope_nw_se/road_Slope_nw-se_SW");
+        mapping.put("road-se0011", "road/slope_nw_se/road_Slope_nw-se_SW");
 
+        mapping.put("road-nw-se0001", "road/slope_nw_se/road_Slope_nw-se_W");
+        mapping.put("road-nw0001", "road/slope_nw_se/road_Slope_nw-se_W");
+        mapping.put("road-se0001", "road/slope_nw_se/road_Slope_nw-se_W");
 
+        mapping.put("road-nw-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
+        mapping.put("road-nw0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
+        mapping.put("road-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
 
-        // se sw
-        mapping.put("road-sw0100", "road/road_ne-sw_Slope_E");
-        mapping.put("road-se0100", "road/road_nw-se_Slope_E");
-
-        mapping.put("road-sw1101", "road/road_ne-sw_Slope_ENW");
-        mapping.put("road-se1101", "road/road_nw-se_Slope_ENW");
-
-        mapping.put("road-se0101", "road/road_nw-se_Slope_EW");
-        mapping.put("road-sw0101", "road/road_ne-sw_Slope_EW");
-
-        mapping.put("road-se1000", "road/road_nw-se_Slope_N");
-        mapping.put("road-sw1000", "road/road_ne-sw_Slope_N");
-
-        mapping.put("road-se1010", "road/road_nw-se_Slope_NS");
-        mapping.put("road-sw1010", "road/road_ne-sw_Slope_NS");
-
-        mapping.put("road-se1011", "road/road_nw-se_Slope_NWS");
-        mapping.put("road-sw1011", "road/road_ne-sw_Slope_NWS");
-
-        mapping.put("road-se0010", "road/road_nw-se_Slope_S");
-        mapping.put("road-sw0010", "road/road_ne-sw_Slope_S");
-
-        mapping.put("road-se1110", "road/road_nw-se_Slope_SEN");
-        mapping.put("road-sw1110", "road/road_ne-sw_Slope_SEN");
-
-        mapping.put("road-se0001", "road/road_nw-se_Slope_W");
-        mapping.put("road-sw0001", "road/road_ne-sw_Slope_W");
-
-        mapping.put("road-se0111", "road/road_nw-se_Slope_WSE");
-        mapping.put("road-sw0111", "road/road_ne-sw_Slope_WSE");
 
     }
 
