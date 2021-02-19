@@ -202,8 +202,10 @@ public class MenuPane extends AnchorPane {
 
             if (name.equals("height")) {
                 Building height_up = new Building(1, 1, "height_up");
+                height_up.setDz(2);
                 ImageView imageViewUp = imageViewWithLayout(height_up);
                 Building height_down = new Building(1, 1, "height_down");
+                height_down.setDz(2);
                 ImageView imageViewDown = imageViewWithLayout(height_down);
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }

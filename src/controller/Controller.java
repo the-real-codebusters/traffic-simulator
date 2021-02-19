@@ -119,7 +119,6 @@ public class Controller {
         if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
-        List<Vertex> addedVertices;
 
 
         MenuPane menuPane = view.getMenuPane();
@@ -140,28 +139,7 @@ public class Controller {
                 // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
-                    PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
-//                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
-                    addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
-
-                    for(Vertex v : addedVertices){
-                        if(v.getName().contains("c")) {
-                            model.getMap().getRawRoadGraph().removeVertex(v.getName());
-                        }
-                    }
-
-                    // TODO so anpassen, dass es auch für rails funktioniert
-
-                    Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
-                    Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry<String, Vertex> vertex = iterator.next();
-                        List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
-                        if(connections.size()== 0) {
-                            iterator.remove();
-                        }
-                    }
-                    model.getMap().getRawRoadGraph().printGraph();
+                    model.getMap().removePointsOnTile(buildingOnSelectedTile, xCoord, yCoord);
                 }
             }
 
