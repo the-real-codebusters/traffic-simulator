@@ -14,7 +14,7 @@ public class ObjectToImageMapping {
             createPlanverkehrMapping();
         }
         else {
-
+                //TODO
         }
     }
 
@@ -32,7 +32,6 @@ public class ObjectToImageMapping {
         mapping.put("chemical plant", "factories/chemicalPlant");
         mapping.put("submerged-arc furnace", "factories/furnace");
         mapping.put("sand pit", "factories/sandPit");
-
 
         // Natur
         mapping.put("grass", "ground/grass");
@@ -58,30 +57,11 @@ public class ObjectToImageMapping {
 //        mapping.put("railswitch-se-n", "rail/railswitch-se-n");
 //        mapping.put("railswitch-sw-n", "rail/railswitch-sw-n");
 
-
-
         // Verschiedenes
         mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
         mapping.put("busstop-nw-se", "stations/road/busstop");
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
-
-        // Flache Straßen-Tiles
-        mapping.put("road-ne", "road/road-ne");
-        mapping.put("road-nw", "road/road-nw");
-        mapping.put("road-se", "road/road-se");
-        mapping.put("road-sw", "road/road-sw");
-        mapping.put("road-ne-nw-se-sw", "road/road-ne-nw-se-sw");
-        mapping.put("road-ne-nw-se", "road/road-ne-nw-se");
-        mapping.put("road-ne-nw-sw", "road/road-ne-nw-sw");
-        mapping.put("road-ne-nw", "road/road-ne-nw");
-        mapping.put("road-ne-se-sw", "road/road-ne-se-sw");
-        mapping.put("road-ne-se", "road/road-ne-se");
-        mapping.put("road-ne-sw", "road/road-ne-sw");
-        mapping.put("road-nw-se-sw", "road/road-nw-se-sw");
-        mapping.put("road-nw-se", "road/road-nw-se");
-        mapping.put("road-nw-sw", "road/road-nw-sw");
-        mapping.put("road-se-sw", "road/road-se-sw");
 
         mapping.put("panel_transporter-ne", "vehicles/road/panel-ne");
         mapping.put("panel_transporter-nw", "vehicles/road/panel-nw");
@@ -102,12 +82,6 @@ public class ObjectToImageMapping {
         mapping.put("silicone_truck-nw", "vehicles/road/silicone-nw");
         mapping.put("silicone_truck-se", "vehicles/road/silicone-se");
         mapping.put("silicone_truck-sw", "vehicles/road/silicone-sw");
-
-//        mapping.put("grass", "ground/grass");
-//        mapping.put("grass", "ground/grass_tile");
-        mapping.put("grass", "ground/grass_tile_test");
-//                mapping.put("water", "ground/water");
-        mapping.put("water", "ground/water_tile");
 
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
@@ -130,13 +104,6 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-se", "road/flat/road-nw-se");
         mapping.put("road-nw-sw", "road/flat/road-nw-sw");
         mapping.put("road-se-sw", "road/flat/road-se-sw");
-
-
-        // Fahrzeuge
-        mapping.put("car_ne", "road_vehicles/car_ne");
-        mapping.put("car_nw", "road_vehicles/car_nw");
-        mapping.put("car_se", "road_vehicles/car_se");
-        mapping.put("car_sw", "road_vehicles/car_sw");
 
 
         // Grasfelder mit verschiedenen Höhen

@@ -812,6 +812,7 @@ public class View {
         }
 
         String gamemode = controller.getGamemode();
+        System.out.println("imageName "+imageName);
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
         return image;
