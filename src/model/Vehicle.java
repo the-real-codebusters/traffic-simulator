@@ -19,11 +19,13 @@ public class Vehicle {
     private List<Vertex> pathToNextStationBeforeMovement;
 
     // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
-    boolean movementInTrafficLineGoesForward = true;
+    private boolean movementInTrafficLineGoesForward = true;
 
     // Die nächste Station, zu der das fahrzeug fahren will. Sozusagen das aktuelle Ziel
     private Station nextStation;
     private Pathfinder pathfinder;
+
+    private boolean hasWaitedInLastRound;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -228,5 +230,13 @@ public class Vehicle {
 
     public void setNextStation(Station nextStation) {
         this.nextStation = nextStation;
+    }
+
+    public boolean isHasWaitedInLastRound() {
+        return hasWaitedInLastRound;
+    }
+
+    public void setHasWaitedInLastRound(boolean hasWaitedInLastRound) {
+        this.hasWaitedInLastRound = hasWaitedInLastRound;
     }
 }

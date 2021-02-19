@@ -1,6 +1,7 @@
 package model;
 
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 
 import java.util.*;
 
@@ -114,31 +115,54 @@ public class BasicModel {
         List<VehicleMovement> movements = new ArrayList<>();
 
         Collections.sort(activeVehicles, (v1, v2) -> {
+            if(v1.isHasWaitedInLastRound() && !v2.isHasWaitedInLastRound()){
+                return -1;
+            }
             // -1 - less than, 1 - greater than, 0 - equal
             return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
         });
         System.out.println("activeVehicles: "+activeVehicles);
-        List<Point2D> reservedTiles = new ArrayList<>();
+        List<InstantReservation> reservations = new ArrayList<>();
         for(int i=0; i<activeVehicles.size(); i++){
             Vehicle vehicle = activeVehicles.get(i);
             // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
             VehicleMovement movement = vehicle.getMovementForNextDay();
-            PositionOnTilemap lastPosition = movement.getLastPair().getKey();
-
-            Point2D lastTile = new Point2D(lastPosition.getxCoordinateInGameMap(), lastPosition.getyCoordinateInGameMap());
-            movements.add(movement);
-            if(!reservedTiles.contains(lastTile)){
-                reservedTiles.add(lastTile);
-                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
-                vehicle.setPosition(movement.getLastPair().getKey());
+//            PositionOnTilemap lastPosition = movement.getLastPair().getKey();
+            Set<InstantReservation> newRes = new HashSet<>();
+            List<PositionOnTilemap> allPositions = movement.getAllPositions();
+            for(PositionOnTilemap pos: allPositions){
+                newRes.add(new InstantReservation(pos.getxCoordinateInGameMap(), pos.getyCoordinateInGameMap(), movement));
             }
-            else {
-                // TODO Problem lösen, dass es nicht wartet wenn entgegengesetzte Richtung
-                //Dann soll sich das Auto nicht bewegen, da das Tile schon besetzt ist
+            movements.add(movement);
+            int numberOfAddedReservations = 0;
+            boolean shouldWait = false;
+            for(InstantReservation res : newRes){
+                if(reservations.contains(res)){
+                    VehicleMovement movementThatReservedTile = reservations.get(reservations.indexOf(res)).getMovement();
+                    boolean directionsContrawise = checkIfDirectionsContrawise(movementThatReservedTile.getDirectionOfLastMove(),
+                            movement.getDirectionOfLastMove());
+                    if(!directionsContrawise){
+                        //Dann soll sich das Auto nicht bewegen, da das Tile schon besetzt ist
+                        shouldWait = true;
+                    }
+                    else{
+                        System.out.println("############Bewegung in entgegengesetzte Richtung entdeckt##########");
+                    }
+                }
+            }
+            if(shouldWait){
+                PositionOnTilemap startPos = movement.getStartPosition();
+                reservations.add(new InstantReservation(startPos.getxCoordinateInGameMap(), startPos.getyCoordinateInGameMap(), movement));
                 vehicle.revertMovementForNextDay();
                 movement.setWait(true);
+                vehicle.setHasWaitedInLastRound(true);
             }
-
+            else {
+                reservations.addAll(newRes);
+                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+                vehicle.setPosition(movement.getLastPair().getKey());
+                vehicle.setHasWaitedInLastRound(false);
+            }
         }
 
         day++;
@@ -161,6 +185,18 @@ public class BasicModel {
             }
         }
         return desiredVehicles;
+    }
+
+    private boolean checkIfDirectionsContrawise(int[] d1, int[] d2){
+        boolean contrawise = false;
+        if(d1[0] == d2[0] && d1[0] == 0){
+            if(Math.abs(d1[1] - d2[1]) == 2) contrawise = true;
+        }
+        else if(Math.abs(d1[0] - d2[0]) == 2){
+            if(d1[1] == d2[1] && d1[1] == 0) contrawise = true;
+        }
+        System.out.println("checkIfDirectionsContrawise "+contrawise);
+        return contrawise;
     }
 
     /**

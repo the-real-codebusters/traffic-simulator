@@ -74,10 +74,21 @@ public class VehicleMovement {
     }
 
     public int[] getDirectionOfLastMove(){
-        Point2D lastPosition = getLastPair().getKey().coordsRelativeToMapOrigin();
-        Point2D secondLastPosition = positionsOnMap.get(positionsOnMap.size()-2).coordsRelativeToMapOrigin();
+        Point2D lastPosition;
+        Point2D secondLastPosition;
+        if(positionsOnMap.size()>1){
+            lastPosition = getLastPair().getKey().coordsRelativeToMapOrigin();
+            secondLastPosition = positionsOnMap.get(positionsOnMap.size()-2).coordsRelativeToMapOrigin();
+        }
+        else {
+            secondLastPosition = startPosition.coordsRelativeToMapOrigin();
+            lastPosition = getLastPair().getKey().coordsRelativeToMapOrigin();
+        }
         //x, y
-        int[] direction = new int[2];
+        System.out.println("getDirectionOfLastMove: secondLastPositionX:"+secondLastPosition.getX()+" lastPositionX: "+lastPosition.getX());
+        System.out.println("getDirectionOfLastMove: secondLastPositionY:"+secondLastPosition.getY()+" lastPositionY: "+lastPosition.getY());
+
+        int[] direction = new int[] {0,0};
         if (secondLastPosition.getX() == lastPosition.getX()) {
             if (secondLastPosition.getY() > lastPosition.getY()) {
                 direction[1] = -1;
@@ -96,7 +107,14 @@ public class VehicleMovement {
                 direction[0] = 1;
             }
         }
+        System.out.println("getDirectionOfLastMove "+direction[0] +"   "+direction[1]);
         return direction;
+    }
+
+    public List<PositionOnTilemap> getAllPositions(){
+        List<PositionOnTilemap> pos = new ArrayList<>(positionsOnMap);
+        pos.add(startPosition);
+        return pos;
     }
 
     public String getVehicleName() {
