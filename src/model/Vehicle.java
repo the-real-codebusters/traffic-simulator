@@ -16,12 +16,16 @@ public class Vehicle {
     private PositionOnTilemap position;
     private List<Vertex> pathToNextStation = new ArrayList<>();
 
+    private List<Vertex> pathToNextStationBeforeMovement;
+
     // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
-    boolean movementInTrafficLineGoesForward = true;
+    private boolean movementInTrafficLineGoesForward = true;
 
     // Die nächste Station, zu der das fahrzeug fahren will. Sozusagen das aktuelle Ziel
     private Station nextStation;
     private Pathfinder pathfinder;
+
+    private boolean hasWaitedInLastRound;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -56,11 +60,12 @@ public class Vehicle {
      * @return Ein VehicleMovement Objekt
      */
     public VehicleMovement getMovementForNextDay(){
+        pathToNextStationBeforeMovement = new ArrayList<>(pathToNextStation);
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
         double wayToGo = speed;
         // Die Bewegung startet an der aktuellen Position
         PositionOnTilemap currentPosition = position;
-        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic);
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false);
         double distanceToNextVertex = 0;
         // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
         // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
@@ -104,6 +109,10 @@ public class Vehicle {
 
         vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
         return vehicleMovement;
+    }
+
+    public void revertMovementForNextDay(){
+        pathToNextStation = pathToNextStationBeforeMovement;
     }
 
     /**
@@ -221,5 +230,13 @@ public class Vehicle {
 
     public void setNextStation(Station nextStation) {
         this.nextStation = nextStation;
+    }
+
+    public boolean isHasWaitedInLastRound() {
+        return hasWaitedInLastRound;
+    }
+
+    public void setHasWaitedInLastRound(boolean hasWaitedInLastRound) {
+        this.hasWaitedInLastRound = hasWaitedInLastRound;
     }
 }
