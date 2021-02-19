@@ -42,12 +42,28 @@ public class ObjectToImageMapping {
 //        mapping.put("tree_no_ground", "ground/trees_no_ground");
 
 
-        // Verschiedenes
-        mapping.put("runway", "airport/runway");
+        // Flache Rails (unvollständig)
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
-        mapping.put("railstation-nw-se", "stations/rail/railstation");
+//        mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
+//        mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
+//        mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
+//        mapping.put("railcurve-nw-s", "rail/railcurve-nw-s");
+//        mapping.put("railcurve-se-n", "rail/railcurve-se-n");
+//        mapping.put("railcurve-se-w", "rail/railcurve-se-w");
+//        mapping.put("railcurve-sw-e", "rail/railcurve-sw-e");
+//        mapping.put("railcurve-sw-n", "rail/railcurve-sw-n");
+//        mapping.put("railswitch-ne-s", "rail/railswitch-ne-s");
+//        mapping.put("railswitch-nw-s", "rail/railswitch-nw-s");
+//        mapping.put("railswitch-se-n", "rail/railswitch-se-n");
+//        mapping.put("railswitch-sw-n", "rail/railswitch-sw-n");
+
+
+
+        // Verschiedenes
+        mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
         mapping.put("busstop-nw-se", "stations/road/busstop");
+        mapping.put("runway", "airport/runway");
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
         mapping.put("remove", "remove");

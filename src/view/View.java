@@ -301,7 +301,7 @@ public class View {
 //                            } else {
 
                                 if (building != null) {
-                                    if (building.getBuildingName().equals("ground") || building.getBuildingName().equals("flat")
+                                    if (building.getBuildingName().equals("ground")
                                             || building.getBuildingName().equals("grass")) {
 
                                         String absoluteTileHeight = field.absoluteHeigtToRelativeHeight(cornerHeights);
@@ -648,7 +648,14 @@ public class View {
                         if(!(field.absoluteHeigtToRelativeHeight(field.getCornerHeights()).equals("0000"))){
                             Map<String, Integer> cornerHeights = fields[row][column].getCornerHeights();
                             String heights = fields[row][column].absoluteHeigtToRelativeHeight(cornerHeights);
-                            buildingName = field.getBuilding().getBuildingName() + heights;
+                            buildingName = field.getBuilding().getBuildingName();
+
+                            // Wenn es sich um eine Kurve handelt, sollen noch keine höhen mit in den Namen
+                            // übernommen werden, da momentan noch keine Grafiken/Aufschüttung
+                            if(!(buildingName.contains("ne-se") || buildingName.contains("nw-sw")
+                                || buildingName.contains("se-sw") || buildingName.contains("ne-nw"))){
+                                buildingName = buildingName + heights;
+                            }
                         } else {
                             buildingName = field.getBuilding().getBuildingName();
                         }
