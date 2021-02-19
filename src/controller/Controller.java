@@ -258,6 +258,8 @@ public class Controller {
         return model.getDay();
     }
 
+    public Tile[][] getFields() { return model.getFieldGridOfMap(); }
+
     public Tile getTileOfMapTileGrid(int row, int column){
         return model.getMap().getTileGrid()[row][column];
     }

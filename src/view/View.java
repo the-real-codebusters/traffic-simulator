@@ -80,7 +80,6 @@ public class View {
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         objectToImageMapping = new ObjectToImageMapping(model.getGamemode());
-        fields = model.getFieldGridOfMap();
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -235,6 +234,7 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Tiles
      */
     public void drawMap() {
+        fields = controller.getFields();
 //        final String grass1 = "file:grass.png";
 //        Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
@@ -262,7 +262,6 @@ public class View {
                         && drawOrigin.getY() > -tileImageHeightHalf * 4
                         && drawOrigin.getY() < canvas.getHeight() + tileImageHeightHalf * 4) {
 
-                    //TODO fields von Controller holen, da mvc-model
 
                     // Row und Column müssen innerhalb des 2d-Arrays liegen
                     if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
@@ -274,11 +273,11 @@ public class View {
 
                             //Hier gab es mal if-Bedingung ob field origin ist
 
-                            for(int i = col; i <= col + building.getDepth()-1; i++) {
-                                    // Obere Kante vom Gebäude mit Grassfläche übermalen
-                                    Image image = getGrassImage(i, row);
-                                    drawTileImage(drawOrigin, image, false, cornerHeights);
-                                }
+//                            for(int i = col; i <= col + building.getDepth()-1; i++) {
+//                                    // Obere Kante vom Gebäude mit Grassfläche übermalen
+//                                    Image image = getGrassImage(i, row);
+//                                    drawTileImage(drawOrigin, image, false, cornerHeights);
+//                                }
                                 drawBuildingOverMoreTiles(field, building, row, col);
                                 // obere ecke ist ein gebäude
                                 if (row == building.getStartRow()-1 && col == building.getStartColumn()) {
@@ -403,6 +402,8 @@ public class View {
 
     /**
      * Berechnet ob sich ein Punkt innerhalb der Fläche eines Polygons befindet.
+     * Idee: Ein Punkt liegt innerhalb des Polygons, wenn eine Gerade in der Ebene eine ungerade Anzahl an
+     * Schnittpunkten mit den Kanten des Polygons hat, ansonsten liegt der Punkt außerhalb.
      * @param mouseX
      * @param mouseY
      * @param coordsOnCanvas die Koordinaten der vier Ecken eines Polygons
@@ -410,19 +411,20 @@ public class View {
      */
     public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
 
-        double x = mouseX;
-        double y = mouseY;
-
         boolean inside = false;
-        for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
 
-            double xi = coordsOnCanvas.get(i).getX();
-            double yi = coordsOnCanvas.get(i).getY();
+        // start und end sind Start- und Endpunkte der vier Kanten des Polygons
+        for (int start = 0, end = coordsOnCanvas.size() - 1; start < coordsOnCanvas.size(); end = start++) {
 
-            double xj = coordsOnCanvas.get(j).getX();
-            double yj = coordsOnCanvas.get(j).getY();
+            double xStart = coordsOnCanvas.get(start).getX();
+            double yStart = coordsOnCanvas.get(start).getY();
 
-            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            double xEnd = coordsOnCanvas.get(end).getX();
+            double yEnd = coordsOnCanvas.get(end).getY();
+
+            // prüft Anzahl an Schnittpunkten zwischen einer virtuellen Gerade und den Kanten des Polygons
+            boolean intersect = ((yStart > mouseY) != (yEnd > mouseY)) &&
+                    (mouseX < (xEnd - xStart) * (mouseY - yStart) / (yEnd - yStart) + xStart);
             if (intersect) inside = !inside;
         }
 
