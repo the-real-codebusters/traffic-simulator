@@ -99,6 +99,16 @@ public class Station {
         return components.add(building);
     }
 
+    public boolean hasPartOfTrafficType(TrafficType trafficType){
+        return getTrafficPartForTrafficType(trafficType) != null;
+    }
+
+    public ConnectedTrafficPart getTrafficPartForTrafficType(TrafficType trafficType){
+        if(trafficType.equals(TrafficType.AIR)) return airTrafficPart;
+        else if(trafficType.equals(TrafficType.ROAD)) return roadTrafficPart;
+        return null;
+    }
+
     //Die Methoden equals() und hashCode() gehen davon aus, dass die id einer Station unique ist
     @Override
     public boolean equals(Object o) {
@@ -147,5 +157,29 @@ public class Station {
 
     public void setRoadTrafficPart(ConnectedTrafficPart roadTrafficPart) {
         this.roadTrafficPart = roadTrafficPart;
+    }
+
+    public TrafficLine getRoadTrafficLine() {
+        return roadTrafficLine;
+    }
+
+    public void setRoadTrafficLine(TrafficLine roadTrafficLine) {
+        this.roadTrafficLine = roadTrafficLine;
+    }
+
+    public TrafficLine getRailTrafficLine() {
+        return railTrafficLine;
+    }
+
+    public void setRailTrafficLine(TrafficLine railTrafficLine) {
+        this.railTrafficLine = railTrafficLine;
+    }
+
+    public TrafficLine getAirTrafficLine() {
+        return airTrafficLine;
+    }
+
+    public void setAirTrafficLine(TrafficLine airTrafficLine) {
+        this.airTrafficLine = airTrafficLine;
     }
 }

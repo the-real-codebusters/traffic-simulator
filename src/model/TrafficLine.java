@@ -13,15 +13,36 @@ public class TrafficLine {
     private List<Vehicle> vehicles = new ArrayList<>();
     private BasicModel model;
     private TrafficType trafficType;
+    private String name;
 
     // Der Knoten an dem neue Fahrzeuge starten
     private Vertex startVertexForNewVehicles;
     // Die Station an der neue Fahrzeuge starten
     private Station startStation;
 
-    public TrafficLine(BasicModel model, TrafficType trafficType) {
+    public TrafficLine(BasicModel model, TrafficType trafficType, List<Station> stations,
+                       Map<Vehicle, Integer> desiredNumbersOfVehicles, String name) {
         this.model = model;
         this.trafficType = trafficType;
+        this.stations = stations;
+        this.name = name;
+        setDesiredNumbersOfVehicles(desiredNumbersOfVehicles);
+
+        System.out.println("Stations in TrafficLine: "+stations);
+
+        if(trafficType.equals(TrafficType.ROAD)){
+            for(Station station : stations){
+                station.setRoadTrafficLine(this);
+            }
+        }
+        else if(trafficType.equals(TrafficType.AIR)){
+            for(Station station : stations){
+                station.setAirTrafficLine(this);
+            }
+        }
+
+        //TODO Rail
+
     }
 
     /**
@@ -141,6 +162,7 @@ public class TrafficLine {
     public Vehicle getMissingVehicleOrNull(){
         for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
             if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
+                System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
                 return entry.getKey();
             }
         }
@@ -211,5 +233,13 @@ public class TrafficLine {
 
     public int getTotalDesiredNumbersOfVehicles() {
         return totalDesiredNumbersOfVehicles;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -3,12 +3,11 @@ package view;
 import controller.Controller;
 import javafx.animation.ParallelTransition;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -20,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
@@ -30,7 +30,6 @@ import java.util.Set;
 
 
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 
 public class MenuPane extends AnchorPane {
 
@@ -44,6 +43,9 @@ public class MenuPane extends AnchorPane {
     private MouseEvent hoveredEvent;
     private int result;
     private HBox trafficPartTabContent;
+
+    private boolean selectTrafficLineStationsMode = false;
+    private TrafficLinePopup trafficLinePopup;
 
     // Wenn null, ist kein Bauwerk ausgewählt
     private Building selectedBuilding;
@@ -74,6 +76,7 @@ public class MenuPane extends AnchorPane {
             addTab(tabNames.get(i), tabContents.get(i), false);
         }
         createTrafficpartTab();
+
     }
 
     private void createTrafficpartTab(){
@@ -347,6 +350,15 @@ public class MenuPane extends AnchorPane {
             box = vbox;
         }
         Button newTrafficLine = new Button("new Traffic Line");
+        // action event
+        EventHandler<ActionEvent> event =
+                new EventHandler<ActionEvent>() {
+                    public void handle(ActionEvent e)
+                    {
+                        showTrafficLineDialog();
+                    }
+                };
+        newTrafficLine.setOnAction(event);
         trafficPartTabContent.getChildren().addAll(type, box, newTrafficLine);
         int index = tabContents.indexOf(trafficPartTabContent);
         tabPane.getSelectionModel().select(index);
@@ -393,7 +405,10 @@ public class MenuPane extends AnchorPane {
             else if (
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding == null) {
-                controller.showTrafficPartInView(event);
+                if(selectTrafficLineStationsMode){
+                    controller.selectStationsForTrafficLine(event);
+                }
+                else controller.showTrafficPartInView(event);
             }
         });
 
@@ -408,13 +423,20 @@ public class MenuPane extends AnchorPane {
         });
     }
 
+    private void showTrafficLineDialog(){
+
+        selectTrafficLineStationsMode = true;
 
 
-
-
-
-
-
+        ChoiceDialog<TrafficType> trafficLineChoice = new ChoiceDialog<TrafficType>(TrafficType.ROAD, TrafficType.values());
+        trafficLineChoice.setHeaderText("Traffic Type");
+        trafficLineChoice.setContentText("Set the Traffic Type of the new Traffic Line");
+        trafficLineChoice.showAndWait();
+        if(!trafficLineChoice.getSelectedItem().equals(TrafficType.NONE)){
+            // create a popup
+            trafficLinePopup = new TrafficLinePopup(view, trafficLineChoice.getSelectedItem());
+        }
+    }
 
     public void setController(Controller controller) {
         this.controller = controller;
@@ -430,5 +452,21 @@ public class MenuPane extends AnchorPane {
 
     public Button getAnimationButton() {
         return animationButton;
+    }
+
+    public TrafficLinePopup getTrafficLinePopup() {
+        return trafficLinePopup;
+    }
+
+    public void setTrafficLinePopup(TrafficLinePopup trafficLinePopup) {
+        this.trafficLinePopup = trafficLinePopup;
+    }
+
+    public boolean isSelectTrafficLineStationsMode() {
+        return selectTrafficLineStationsMode;
+    }
+
+    public void setSelectTrafficLineStationsMode(boolean selectTrafficLineStationsMode) {
+        this.selectTrafficLineStationsMode = selectTrafficLineStationsMode;
     }
 }

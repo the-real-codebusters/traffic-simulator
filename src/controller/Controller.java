@@ -21,6 +21,9 @@ public class Controller {
     private Pathfinder pathfinder;
     private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
 
+    private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
+    private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
+
     public Controller(View view, BasicModel model) {
         this.view = view;
         this.model = model;
@@ -49,6 +52,7 @@ public class Controller {
         pathfinder = new Pathfinder(graph);
         model.setPathfinder(pathfinder);
 
+//        new TrafficLineCreationDialog(view);
         simulateOneDay();
     }
 
@@ -77,6 +81,10 @@ public class Controller {
         List<Vertex> vertexes = new ArrayList<>();
         vertexes.addAll(model.getMap().getRawRoadGraph().getMapOfVertexes().values());
         return vertexes;
+    }
+
+    public List<Vehicle> getVehicleTypesForTrafficType(TrafficType type){
+        return model.getVehicleTypesForName(type);
     }
 
     /**
@@ -236,22 +244,62 @@ public class Controller {
     }
 
     public void showTrafficPartInView(MouseEvent event){
+        Building building = getBuildingForMouseEvent(event);
+        if(building instanceof PartOfTrafficGraph){
+            ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
+            if(trafficPart != null){
+                view.getMenuPane().showTrafficPart(trafficPart);
+            }
+        }
+    }
+
+    public void selectStationsForTrafficLine(MouseEvent event){
+        Building building = getBuildingForMouseEvent(event);
+        if(building instanceof Stop){
+            Station station = ((Stop) building).getStation();
+            TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
+
+            if(stationsOfPlannedTrafficLine.size() == 0){
+                trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
+            }
+            if(station.hasPartOfTrafficType(trafficType) &&
+                trafficPartOfPlannedTrafficLine.getStations().contains(station)
+            ){
+                if(stationsOfPlannedTrafficLine.contains(station)){
+                    stationsOfPlannedTrafficLine.remove(station);
+                }
+                else {
+                    stationsOfPlannedTrafficLine.add(station);
+                }
+                view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
+            }
+        }
+    }
+
+    private Building getBuildingForMouseEvent(MouseEvent event){
         double mouseX = event.getX();
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
-        if(isoCoord != null){
-            int xCoord = (int) isoCoord.getX();
-            int yCoord = (int) isoCoord.getY();
+        int xCoord = (int) isoCoord.getX();
+        int yCoord = (int) isoCoord.getY();
 
-            Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
-            if(building instanceof PartOfTrafficGraph){
-                ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
-                if(trafficPart != null){
-                    view.getMenuPane().showTrafficPart(trafficPart);
-                }
-            }
+        Building building = model.getMap().getTileGrid()[xCoord][yCoord].getBuilding();
+        return building;
+    }
+
+
+    public void createNewTrafficLine(Map<String, Integer> desiredNumbersOfVehicleNames,
+                                     TrafficType trafficType, String name){
+        Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
+            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
+            mapDesiredNumbers.put(vehicle, entry.getValue());
         }
-
+        List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
+        trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+        stationsOfPlannedTrafficLine.clear();
+        trafficPartOfPlannedTrafficLine = null;
     }
 
     public int getDayFromModel(){

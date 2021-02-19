@@ -14,6 +14,12 @@ public class VehicleMovement {
     private PositionOnTilemap startPosition;
     private List<PositionOnTilemap> positionsOnMap = new ArrayList<>();
     private List<Double> travelDistances = new ArrayList<>();
+    private String vehicleName;
+
+    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName) {
+        this.vehicleName = vehicleName;
+        this.startPosition = startPosition;
+    }
 
     public Pair<PositionOnTilemap, Double> getPairOfPositionAndDistance(int i){
         return new Pair<PositionOnTilemap, Double>(positionsOnMap.get(i), travelDistances.get(i));
@@ -23,9 +29,6 @@ public class VehicleMovement {
         return startPosition;
     }
 
-    public VehicleMovement(PositionOnTilemap startPosition) {
-        this.startPosition = startPosition;
-    }
 
     public void appendPairOfPositionAndDistance(PositionOnTilemap positionOnTilemap, Double distance){
         positionsOnMap.add(positionOnTilemap);
@@ -60,4 +63,11 @@ public class VehicleMovement {
         return distance;
     }
 
+    public String getVehicleName() {
+        return vehicleName;
+    }
+
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
 }
