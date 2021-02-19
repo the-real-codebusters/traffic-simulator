@@ -840,6 +840,10 @@ public class View {
                 carName +="-nw";
             }
         }
+        else {
+            //TODO
+            carName +="-nw";
+        }
         return objectToImageMapping.getImageNameForObjectName(carName);
     }
 
@@ -852,8 +856,15 @@ public class View {
         List<VehicleAnimation> animations = new ArrayList<>();
         // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
         for(VehicleMovement movement : movements){
-            Point2D endPosition = translateTileCoordsToCanvasCoords(movement.getLastPair().getKey().coordsRelativeToMapOrigin());
+
             Point2D startPosition = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
+            Point2D endPosition;
+            if(movement.hasMoreThanOnePoint()){
+                endPosition = translateTileCoordsToCanvasCoords(movement.getLastPair().getKey().coordsRelativeToMapOrigin());
+            }
+            else {
+                endPosition = startPosition;
+            }
             if((endPosition.getX() < 0 || endPosition.getX() > canvas.getWidth() || endPosition.getY() < 0 || endPosition.getY() > canvas.getHeight())
                     &&
                     (startPosition.getX() < 0 || startPosition.getX() > canvas.getWidth() || startPosition.getY() < 0 || startPosition.getY() > canvas.getHeight())
@@ -944,24 +955,19 @@ public class View {
         if(ending.equals("ne")){
             yshift = -0.3*tileImageHeight;
             xshift = -0.3*tileImageHeight; //-27
-            //Zu weit außerhalb der Straße
         }
         else if(ending.equals("nw")){
-            yshift = -0.35*tileImageHeight;
-            xshift = 0.35*tileImageHeight; //-30
-            //passt
+            yshift = -0.65*tileImageHeight;
+            xshift = -0.05*tileImageHeight; //-30
         }
         else if(ending.equals("se")){
-            yshift = -0.05*tileImageHeight;
-            xshift = 0.05*tileImageHeight; //-5
-            //passt
+            yshift = -0.25*tileImageHeight;
+            xshift = -0.25*tileImageHeight; //-5
         }
         else if(ending.equals("sw")){
             yshift = -0.65*tileImageHeight;
             xshift = -0.65*tileImageHeight; //-65
-            //passt
         }
-//        shift *= zoomFactor;
         xshift*=ratio;
         yshift*=ratio;
         return new double[] {xshift, yshift};
@@ -978,49 +984,70 @@ public class View {
         StringProperty imageName  = new SimpleStringProperty();
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
-        Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
+        Point2D secondPoint;
+        if(movement.hasMoreThanOnePoint()){
+            secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
+        }
+        else {
+            secondPoint = startPoint;
+        }
         String startImageName = getImageNameForCar(startPoint, secondPoint, movement.getVehicleName());
+        System.out.println("image Name "+startImageName);
+        imageName.setValue(startImageName);
 
         // Ein KeyFrame gibt den Zustand einer Animation zu einer bestimmten Zeit an. Hier wird der Zustand zu Beginn
         // angegeben. Ein KeyFrame hat momentan 3 Variablen: Die x-Coordinate des fahrzeugs, die y-Coordinate des
         // Fahrzeugs und das passende Bild
         KeyFrame start = new KeyFrame(
-                Duration.seconds(0.0), new KeyValue(x, startPoint.getX()),
+                Duration.seconds(0.0),
+                new KeyValue(x, startPoint.getX()),
                 new KeyValue(y, startPoint.getY()),
                 new KeyValue(imageName, startImageName));
 
         Timeline timeline = new Timeline(start);
-        double wholeDistance = movement.getWholeDistance();
 
-        double time = 0.0;
-        for(int i=0; i<movement.getNumberOfPoints(); i++){
-            Pair<PositionOnTilemap, Double> pair = movement.getPairOfPositionAndDistance(i);
-            double distanceToPosition = pair.getValue();
-            // time gibt den Zeitpunkt des neuen KeyFrames an. Dabei wird anteilig der aktuell animierten Distanz zu der
-            // gesamten Distanz hinzugefügt.
-            time += ( distanceToPosition / wholeDistance) * tickDuration;
-            Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
-            String actualImageName;
-            if(i!=movement.getNumberOfPoints()-1){
-                // Bestimme das Bild des Fahrzeugs aus der aktuellen Position und der nächsten Position (deswegen i+1)
-                Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
-                actualImageName = getImageNameForCar(point, nextPoint, movement.getVehicleName());
-            }
-            else {
-                // Wenn der aktuelle Punkt der letzte Punkt der Liste ist, kann i+1 nicht verwendet werden. Also wird
-                // stattdessen der vorherige Punkt (i-1) benutzt, um das Bild zu bestimmen
-                Point2D lastPoint;
-                if(i==0) lastPoint = startPoint;
-                else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
-                actualImageName = getImageNameForCar(lastPoint, point, movement.getVehicleName());
-            }
+        if(movement.isWait()){
             KeyFrame frame = new KeyFrame(
-                    Duration.seconds(time),
-                    new KeyValue(x, point.getX()),
-                    new KeyValue(y, point.getY()),
-                    new KeyValue(imageName, actualImageName)
-                    );
+                    Duration.seconds(tickDuration),
+                    new KeyValue(x, startPoint.getX()),
+                    new KeyValue(y, startPoint.getY()),
+                    new KeyValue(imageName, startImageName)
+            );
             timeline.getKeyFrames().add(frame);
+        }
+        else {
+            double wholeDistance = movement.getWholeDistance();
+
+            double time = 0.0;
+            for(int i=0; i<movement.getNumberOfPoints(); i++){
+                Pair<PositionOnTilemap, Double> pair = movement.getPairOfPositionAndDistance(i);
+                double distanceToPosition = pair.getValue();
+                // time gibt den Zeitpunkt des neuen KeyFrames an. Dabei wird anteilig der aktuell animierten Distanz zu der
+                // gesamten Distanz hinzugefügt.
+                time += ( distanceToPosition / wholeDistance) * tickDuration;
+                Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
+                String actualImageName;
+                if(i!=movement.getNumberOfPoints()-1){
+                    // Bestimme das Bild des Fahrzeugs aus der aktuellen Position und der nächsten Position (deswegen i+1)
+                    Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
+                    actualImageName = getImageNameForCar(point, nextPoint, movement.getVehicleName());
+                }
+                else {
+                    // Wenn der aktuelle Punkt der letzte Punkt der Liste ist, kann i+1 nicht verwendet werden. Also wird
+                    // stattdessen der vorherige Punkt (i-1) benutzt, um das Bild zu bestimmen
+                    Point2D lastPoint;
+                    if(i==0) lastPoint = startPoint;
+                    else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
+                    actualImageName = getImageNameForCar(lastPoint, point, movement.getVehicleName());
+                }
+                KeyFrame frame = new KeyFrame(
+                        Duration.seconds(time),
+                        new KeyValue(x, point.getX()),
+                        new KeyValue(y, point.getY()),
+                        new KeyValue(imageName, actualImageName)
+                );
+                timeline.getKeyFrames().add(frame);
+            }
         }
 
         VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName);

@@ -1,5 +1,6 @@
 package model;
 
+import javafx.geometry.Point2D;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -15,10 +16,12 @@ public class VehicleMovement {
     private List<PositionOnTilemap> positionsOnMap = new ArrayList<>();
     private List<Double> travelDistances = new ArrayList<>();
     private String vehicleName;
+    private boolean wait;
 
-    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName) {
+    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName, boolean wait) {
         this.vehicleName = vehicleName;
         this.startPosition = startPosition;
+        this.wait = wait;
     }
 
     public Pair<PositionOnTilemap, Double> getPairOfPositionAndDistance(int i){
@@ -54,7 +57,10 @@ public class VehicleMovement {
                     "same length");
         }
 
-        return new Pair(positionsOnMap.get(last), travelDistances.get(last));
+        if(positionsOnMap.size() == 0){
+            return new Pair(startPosition, 0.0);
+        }
+        else return new Pair(positionsOnMap.get(last), travelDistances.get(last));
     }
 
     public double getWholeDistance(){
@@ -63,11 +69,49 @@ public class VehicleMovement {
         return distance;
     }
 
+    public boolean hasMoreThanOnePoint(){
+        return positionsOnMap.size() > 0;
+    }
+
+    public int[] getDirectionOfLastMove(){
+        Point2D lastPosition = getLastPair().getKey().coordsRelativeToMapOrigin();
+        Point2D secondLastPosition = positionsOnMap.get(positionsOnMap.size()-2).coordsRelativeToMapOrigin();
+        //x, y
+        int[] direction = new int[2];
+        if (secondLastPosition.getX() == lastPosition.getX()) {
+            if (secondLastPosition.getY() > lastPosition.getY()) {
+                direction[1] = -1;
+            }
+            else {
+                direction[1] = 1;
+            }
+        }
+        else{
+            // nach link oben fahren
+            //System.out.print("nach links");
+            if (secondLastPosition.getX() > lastPosition.getX()) {
+                direction[0] = -1;
+            }
+            else {
+                direction[0] = 1;
+            }
+        }
+        return direction;
+    }
+
     public String getVehicleName() {
         return vehicleName;
     }
 
     public void setVehicleName(String vehicleName) {
         this.vehicleName = vehicleName;
+    }
+
+    public boolean isWait() {
+        return wait;
+    }
+
+    public void setWait(boolean wait) {
+        this.wait = wait;
     }
 }

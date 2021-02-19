@@ -1,5 +1,7 @@
 package model;
 
+import javafx.geometry.Point2D;
+
 import java.util.*;
 
 public class BasicModel {
@@ -110,12 +112,33 @@ public class BasicModel {
         //VehicleMovement airplaneMovement = new VehicleMovement(new PositionOnTilemap());
 
         List<VehicleMovement> movements = new ArrayList<>();
-        for(Vehicle vehicle : activeVehicles){
+
+        Collections.sort(activeVehicles, (v1, v2) -> {
+            // -1 - less than, 1 - greater than, 0 - equal
+            return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
+        });
+        System.out.println("activeVehicles: "+activeVehicles);
+        List<Point2D> reservedTiles = new ArrayList<>();
+        for(int i=0; i<activeVehicles.size(); i++){
+            Vehicle vehicle = activeVehicles.get(i);
             // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
             VehicleMovement movement = vehicle.getMovementForNextDay();
+            PositionOnTilemap lastPosition = movement.getLastPair().getKey();
+
+            Point2D lastTile = new Point2D(lastPosition.getxCoordinateInGameMap(), lastPosition.getyCoordinateInGameMap());
             movements.add(movement);
-            // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
-            vehicle.setPosition(movement.getLastPair().getKey());
+            if(!reservedTiles.contains(lastTile)){
+                reservedTiles.add(lastTile);
+                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+                vehicle.setPosition(movement.getLastPair().getKey());
+            }
+            else {
+                // TODO Problem lösen, dass es nicht wartet wenn entgegengesetzte Richtung
+                //Dann soll sich das Auto nicht bewegen, da das Tile schon besetzt ist
+                vehicle.revertMovementForNextDay();
+                movement.setWait(true);
+            }
+
         }
 
         day++;
