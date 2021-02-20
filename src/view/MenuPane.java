@@ -18,7 +18,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Popup;
+import javafx.scene.text.Font;
+
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
@@ -54,6 +55,7 @@ public class MenuPane extends AnchorPane {
     private boolean run = true;
     private Button animationButton;
     private Slider slider;
+    private Label dayLabel = new Label();
 
     public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
@@ -163,6 +165,12 @@ public class MenuPane extends AnchorPane {
         });
     }
 
+
+    public void setDayLabel(int day){
+        dayLabel.setText("Current day: " + day);
+        dayLabel.setFont(new Font("Arial", 15));
+    }
+
     /**
      * Erstellt die Inhalte der Tabs in der tabPane nach den buildmenus in der JSONDatei und zusätzlich height und
      * vehicles
@@ -197,8 +205,10 @@ public class MenuPane extends AnchorPane {
 
             if (name.equals("height")) {
                 Building height_up = new Building(1, 1, "height_up");
+                height_up.setDz(2);
                 ImageView imageViewUp = imageViewWithLayout(height_up);
                 Building height_down = new Building(1, 1, "height_down");
+                height_down.setDz(2);
                 ImageView imageViewDown = imageViewWithLayout(height_down);
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }
@@ -214,13 +224,15 @@ public class MenuPane extends AnchorPane {
 
                         }
                     });
-                    container.getChildren().add(standardSpeedButton);
+                    container.getChildren().addAll(standardSpeedButton, dayLabel);
+
                     // erzeuge einen Button zum Starten/Pausieren von Simulation
                     createAnimationButton();
                     // erzeuge SLider
                     createTickSlider();
                     container.getChildren().add(0, animationButton);
                     container.getChildren().add(1, slider);
+                    container.setPadding(new Insets(20,20,20,20));
                 }
 
 

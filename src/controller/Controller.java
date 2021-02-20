@@ -60,6 +60,7 @@ public class Controller {
 
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
+        view.getMenuPane().setDayLabel(model.getDay());
         if(movements.size() > 0){
             view.translateVehicles(movements);
         }
@@ -126,7 +127,6 @@ public class Controller {
         if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
-        List<Vertex> addedVertices;
 
 
         MenuPane menuPane = view.getMenuPane();
@@ -137,7 +137,7 @@ public class Controller {
             // Wenn ein Gebäude entfernt werden soll
             if(selectedBuilding.getBuildingName().equals("remove")){
                 selectedBuilding = new Building();
-                selectedBuilding.setBuildingName("grass");
+                selectedBuilding.setBuildingName("ground");
                 selectedBuilding.setWidth(1);
                 selectedBuilding.setDepth(1);
 
@@ -147,28 +147,7 @@ public class Controller {
                 // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
-                    PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
-                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
-
-                    for(Vertex v : addedVertices){
-                        if(v.getName().contains("c")) {
-                            model.getMap().getRawRoadGraph().removeVertex(v.getName());
-                        }
-                    }
-
-                    // TODO so anpassen, dass es auch für rails funktioniert
-
-                    Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
-                    Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry<String, Vertex> vertex = iterator.next();
-                        List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
-                        if(connections.size()== 0) {
-                            iterator.remove();
-                            continue;
-                        }
-                    }
-                    model.getMap().getRawRoadGraph().printGraph();
+                    model.getMap().removePointsOnTile(buildingOnSelectedTile, xCoord, yCoord);
                 }
             }
 
@@ -322,6 +301,12 @@ public class Controller {
         stationsOfPlannedTrafficLine.clear();
         trafficPartOfPlannedTrafficLine = null;
     }
+
+    public int getDayFromModel(){
+        return model.getDay();
+    }
+
+    public Tile[][] getFields() { return model.getFieldGridOfMap(); }
 
     public Tile getTileOfMapTileGrid(int row, int column){
         return model.getMap().getTileGrid()[row][column];
