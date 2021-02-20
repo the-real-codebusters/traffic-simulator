@@ -96,38 +96,30 @@ public class BasicModel {
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
             if (activePart.getTrafficType() == TrafficType.AIR) {
-                Iterator<Vertex> iter = activePart.getStations().get(0).getComponents().get(0).getVertices().iterator();
                 int counter = 0;
-                Vertex firstStart = null;
-                Vertex firstEnd = null;
-                while(iter.hasNext()) {
-                    Vertex current = iter.next();
-                    if (counter == 2) {
-                        firstStart = current;
+                for (Station station: activePart.getStations()) {
+                    if (!station.isVisited()) {
+                        // runway durchlaufen
+                        moveOnRunway(station, airMovements);
+                        return airMovements;
                     }
-                    if (counter == 6) {
-                        firstEnd = current;
+                    else {
+                        if (station.getLast() != null) {
+                            if (counter == activePart.getStations().size()-1) {
+                                // alle runways besucht, kehre zum Ursprung zurueck
+                                moveBackToOriginRunway(activePart, station, airMovements);
+                            }
+                            else {
+                                // bewegung zum nächsten runway, wenn es den gibt
+                                flyToNextRunway(activePart, station, airMovements, counter);
+                            }
+                            return airMovements;
+                        }
                     }
                     counter++;
                 }
-               // Vertex firstStart = activePart.getStations().get(0).getComponents().get(0).getVertices().iterator().next();
-                // Vertex firstEnd = activePart.getStations().get(0).getComponents().get(7).getVertices().iterator().next();
-                VehicleMovement vmFirst = new VehicleMovement(firstStart, "cargo_plane");
-                double distanceToNextVertex = firstStart.getDistanceToPosition(firstEnd);
-                vmFirst.appendPairOfPositionAndDistance(firstEnd, distanceToNextVertex);
-                airMovements.add(vmFirst);
-                /*Vertex secondStart = activePart.getStations().get(1).getComponents().get(0).getVertices().iterator().next();
-                Vertex secondEnd = activePart.getStations().get(1).getComponents().get(7).getVertices().iterator().next();
-                VehicleMovement vmSecond = new VehicleMovement(secondStart, activePart.getModel().getVehiclesTypes().get(0).getGraphic());
-                distanceToNextVertex = secondStart.getDistanceToPosition(secondEnd);
-                vmSecond.appendPairOfPositionAndDistance(secondEnd, distanceToNextVertex);
-                airMovements.add(vmSecond);*/
 
-                return airMovements;
             }
-
-
-
 
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
                 System.out.println("active traffic Line "+trafficLine.getName());
@@ -155,6 +147,82 @@ public class BasicModel {
 
         day++;
         return movements;
+    }
+
+    /**
+     * Bewegt Flugzeug zum ersten Runway zurueck
+     * @param activePart
+     * @param station
+     * @param airMovements
+     */
+    private void moveBackToOriginRunway(ConnectedTrafficPart activePart, Station station, List<VehicleMovement> airMovements) {
+        Vertex first = station.getLast();
+        Vertex last = activePart.getStations().get(0).getFirst();
+
+        for (Station s: activePart.getStations()) {
+            s.setVisited(false);
+        }
+
+        VehicleMovement vmFirst = new VehicleMovement(first, "cargo_plane");
+        double distanceToNextVertex = first.getDistanceToPosition(last);
+        vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+        airMovements.add(vmFirst);
+    }
+
+    /**
+     * Bewegt Flugzeug zum nachfolgenden Runway
+     * @param activePart
+     * @param station
+     * @param airMovements
+     * @param counter
+     */
+    private void flyToNextRunway(ConnectedTrafficPart activePart, Station station, List<VehicleMovement> airMovements, int counter) {
+        // bewegung zwischen beiden runways
+        Vertex first = station.getLast();
+
+        Iterator<Vertex> iter = activePart.getStations().get(counter+1).getComponents().get(0).getVertices().iterator();
+        Vertex last = null;
+        while(iter.hasNext()) {
+            Vertex current = iter.next();
+            if (current.isFirst()) {
+                last = current;
+                break;
+            }
+        }
+
+        VehicleMovement vmFirst = new VehicleMovement(first, "cargo_plane");
+        double distanceToNextVertex = first.getDistanceToPosition(last);
+        vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+        airMovements.add(vmFirst);
+        station.setLast(null);
+    }
+
+    /**
+     * Bewegt Flugzeug auf dem Runway
+     * @param station
+     * @param airMovements
+     */
+    private void moveOnRunway(Station station, List<VehicleMovement> airMovements) {
+        Iterator<Vertex> iter = station.getComponents().get(0).getVertices().iterator();
+        Vertex first = null;
+        Vertex last = null;
+        while(iter.hasNext()) {
+            Vertex current = iter.next();
+            if (current.isFirst()) {
+                first = current;
+            }
+            if (current.isLast()) {
+                last = current;
+            }
+        }
+
+        VehicleMovement vmFirst = new VehicleMovement(first, "cargo_plane");
+        double distanceToNextVertex = first.getDistanceToPosition(last);
+        vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+        airMovements.add(vmFirst);
+        station.setVisited(true);
+        station.setFirst(first);
+        station.setLast(last);
     }
 
     /**

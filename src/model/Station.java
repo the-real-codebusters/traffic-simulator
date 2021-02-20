@@ -26,6 +26,11 @@ public class Station {
     private Set<Station> directlyConnectedStations = new HashSet<>();
     private Pathfinder pathfinder;
 
+    // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
+    private boolean visited;
+    private Vertex first;
+    private Vertex last;
+
 
     public Station(BasicModel model, TrafficLine roadTrafficLine, TrafficLine railTrafficLine,
                    TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart trafficPart) {
@@ -181,5 +186,29 @@ public class Station {
 
     public void setAirTrafficLine(TrafficLine airTrafficLine) {
         this.airTrafficLine = airTrafficLine;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
+
+    public Vertex getLast() {
+        return last;
+    }
+
+    public void setLast(Vertex last) {
+        this.last = last;
+    }
+
+    public Vertex getFirst() {
+        return first;
+    }
+
+    public void setFirst(Vertex first) {
+        this.first = first;
     }
 }
