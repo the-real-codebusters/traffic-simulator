@@ -48,8 +48,10 @@ public class Controller {
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
 
-        TrafficGraph graph = model.getMap().getRawRoadGraph();
-        pathfinder = new Pathfinder(graph);
+        TrafficGraph roadGraph = model.getMap().getRoadGraph();
+        TrafficGraph railGraph = model.getMap().getRailGraph();
+
+        pathfinder = new Pathfinder(roadGraph, railGraph);
         model.setPathfinder(pathfinder);
 
 //        new TrafficLineCreationDialog(view);
@@ -77,9 +79,11 @@ public class Controller {
         timeline.play();
     }
 
-    public List<Vertex> getVertexesOfGraph(){
+    public List<Vertex> getVertexesOfGraphs(){
         List<Vertex> vertexes = new ArrayList<>();
-        vertexes.addAll(model.getMap().getRawRoadGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getRoadGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getRailGraph().getMapOfVertexes().values());
+
         return vertexes;
     }
 
@@ -93,7 +97,7 @@ public class Controller {
      */
     public void drawVertexesOfGraph(){
         Canvas canvas = view.getCanvas();
-        List<Vertex> vertexes = getVertexesOfGraph();
+        List<Vertex> vertexes = getVertexesOfGraphs();
         for(Vertex vertex: vertexes){
             Point2D pointOnCanvas = view.translateTileCoordsToCanvasCoords(vertex.getxCoordinateInGameMap(), vertex.getyCoordinateInGameMap());
             // pointOnCanvas ist an der Stelle der linken Ecke des Tiles
@@ -181,63 +185,6 @@ public class Controller {
         }
         }
     }
-
-
-
-
-
-    // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
-    // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
-//    public int indexOfStart = 0;
-//    public int indexOfNext = indexOfStart + 1;
-//    public List<Vertex> path;
-//    public boolean notDone = true;
-
-//    /**
-//     * Bewegt ein Bild des Autos von Knoten v1 zu Knoten v2
-//     */
-//    public void moveCarFromPointToPoint(Vertex v1, Vertex v2){
-//
-//        Point2D startPointOnCanvas = view.translateTileCoordsToCanvasCoords(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-//        startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
-//                v1.getxCoordinateRelativeToTileOrigin(),
-//                v1.getyCoordinateRelativeToTileOrigin());
-//
-//        Point2D nextPointOnCanvas = view.translateTileCoordsToCanvasCoords(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-//        nextPointOnCanvas = view.changePointByTiles(nextPointOnCanvas,
-//                v2.getxCoordinateRelativeToTileOrigin(),
-//                v2.getyCoordinateRelativeToTileOrigin());
-//
-//        view.translateVehicle(startPointOnCanvas, nextPointOnCanvas);
-//    }
-
-
-//    /**
-//     * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
-//     * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
-//     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden.
-//     * Die Animation beginnt bei 10 platzierten verbundenen Knoten.
-//     */
-//    public void startCarMovement(){
-//        List<Vertex> vertexes = getVertexesOfGraph();
-//        if(vertexes.size() >= 10) {
-//
-//            Vertex startVertex = vertexes.get(indexOfStart);
-//            Vertex targetVertex = vertexes.get(vertexes.size()-1);
-//            if(notDone) path = pathfinder.findPathForRoadVehicle(startVertex, targetVertex);
-//
-//            for(Vertex v : path){
-//                System.out.print(v.getName() + " -> ");
-//            }
-//            System.out.println();
-//
-//            if(path.size() >= 10 && notDone) {
-//                System.out.println("path "+path.size());
-//                moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
-//                notDone = false;
-//            }
-//        }
-//    }
 
     public boolean canPlaceBuildingAtPlaceInMapGrid(int row, int column, Building building){
         return model.getMap().canPlaceBuilding(row, column, building);

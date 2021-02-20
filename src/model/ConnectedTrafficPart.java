@@ -34,7 +34,7 @@ public class ConnectedTrafficPart {
     public void addStationAndUpdateConnectedStations(Station station){
         System.out.println("addStation called");
         stations.add(station);
-        station.updateDirectlyConnectedStations();
+        station.updateDirectlyConnectedStations(trafficType);
         setAssociatedTrafficPartInEveryBuilding();
     }
 
@@ -44,7 +44,7 @@ public class ConnectedTrafficPart {
     public void setAssociatedTrafficPartInEveryBuilding(){
         System.out.println("setAssociatedTrafficPartInEveryBuilding() called" );
         Vertex someVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
-        Set<PartOfTrafficGraph> associatedBuildings = model.getPathfinder().findAllConnectedBuildings(someVertex);
+        Set<PartOfTrafficGraph> associatedBuildings = model.getPathfinder().findAllConnectedBuildings(someVertex, trafficType);
         System.out.println("associatedBuildings "+associatedBuildings);
         for(PartOfTrafficGraph aB: associatedBuildings){
             aB.setAssociatedPartOfTraffic(this);
@@ -62,7 +62,7 @@ public class ConnectedTrafficPart {
         System.out.println("Stations "+stations);
         for(Station otherStation: otherPart.getStations()){
             otherStation.setRoadTrafficPart(this);
-            otherStation.updateDirectlyConnectedStations();
+            otherStation.updateDirectlyConnectedStations(trafficType);
             stations.add(otherStation);
         }
         System.out.println("Stations "+stations);

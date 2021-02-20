@@ -83,7 +83,7 @@ public class TrafficLine {
 
         for(int i=0; i<sortedStations.size(); i++){
             for(Station unsorted : stations){
-                if(sortedStations.get(i).isDirectlyConnectedTo(unsorted)){
+                if(sortedStations.get(i).isDirectlyConnectedTo(unsorted, trafficType)){
                     if(! sortedStations.contains(unsorted)){
                         sortedStations.add(unsorted);
                     }
@@ -136,7 +136,7 @@ public class TrafficLine {
         int minimalNumberOfConnectedStations = Integer.MAX_VALUE;
         // Finde die Station, die am wenigsten Verbindungen hat
         for(Station station: stations){
-            int numberOfConnectedStations = station.getDirectlyConnectedStations().size();
+            int numberOfConnectedStations = station.getDirectlyConnectedStations(trafficType).size();
             // Wenn die Station nur eine direkt verbundene Station hat bzw diese Zahl minimal ist, dann kann sie als Start taugen
             if( numberOfConnectedStations < minimalNumberOfConnectedStations){
                 startStation = station;
