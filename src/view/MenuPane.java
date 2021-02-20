@@ -414,6 +414,7 @@ public class MenuPane extends AnchorPane {
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding == null) {
                 if(selectTrafficLineStationsMode){
+                    System.out.println("selectTrafficLineStationsMode "+selectTrafficLineStationsMode);
                     controller.selectStationsForTrafficLine(event);
                 }
                 else controller.showTrafficPartInView(event);

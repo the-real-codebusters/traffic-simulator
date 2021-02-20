@@ -195,7 +195,7 @@ public class Station {
         else if(type.equals(TrafficType.AIR)){
             directlyAirConnectedStations = new HashSet<>(directlyConnectedStations);
         }
-        throw new IllegalArgumentException("traffic type was "+type);
+        else throw new IllegalArgumentException("traffic type was "+type);
     }
 
     public ConnectedTrafficPart getRoadTrafficPart() {

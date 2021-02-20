@@ -21,6 +21,8 @@ public class Controller {
     private Pathfinder pathfinder;
     private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
 
+    //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
+    //zu dieser Liste hinzugefügt werden
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
@@ -205,19 +207,25 @@ public class Controller {
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
             TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
+            System.out.println("trafficType in selectStationsForTrafficLine "+trafficType);
 
             if(stationsOfPlannedTrafficLine.size() == 0){
                 trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
             }
+
+            //True, wenn Station Teil eines Verkehrsteils mit dem angegebenen typ ist und wenn die Station Teil des
+            //konkret angeklickten Verkehrsteils ist
             if(station.hasPartOfTrafficType(trafficType) &&
                 trafficPartOfPlannedTrafficLine.getStations().contains(station)
             ){
+                // Benutzer kann Stationen aus geplanter Liste mit nochmaligem Klick löschen
                 if(stationsOfPlannedTrafficLine.contains(station)){
                     stationsOfPlannedTrafficLine.remove(station);
                 }
                 else {
                     stationsOfPlannedTrafficLine.add(station);
                 }
+                //Zeigt Liste in Popup an
                 view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
             }
         }
