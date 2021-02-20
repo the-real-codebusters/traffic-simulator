@@ -190,6 +190,12 @@ public class MenuPane extends AnchorPane {
         }
 
         for (String name : tabNames) {
+            ScrollPane scroll = new ScrollPane();
+            scroll.setPrefViewportWidth(canvas.getWidth());
+            scroll.setContent(hBox);
+
+//            scroll.setFitToWidth(true);
+            scroll.setPannable(true);
             HBox container = boxWithLayout();
             List<Building> buildings = controller.getBuildingsByBuildmenu(name);
             for (Building building : buildings) {
@@ -243,7 +249,7 @@ public class MenuPane extends AnchorPane {
                 }
 
 
-                tabContents.set(tabNames.indexOf(name), container);
+                tabContents.set(tabNames.indexOf(name), scroll);
             }
 
     }
