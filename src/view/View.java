@@ -973,8 +973,8 @@ public class View {
     }
 
     private double[] getRailShiftForImageName(double imageWidth, double imageHeight){
-        double xshift = 0;
-        double yshift = -imageHeight/2;
+        double xshift = -imageWidth/2;
+        double yshift = -imageHeight*0.75;
 
         return new double[] {xshift, yshift};
     }
