@@ -17,11 +17,14 @@ public class VehicleMovement {
     private List<Double> travelDistances = new ArrayList<>();
     private String vehicleName;
     private boolean wait;
+    private TrafficType trafficType;
 
-    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName, boolean wait) {
+
+    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName, boolean wait, TrafficType trafficType) {
         this.vehicleName = vehicleName;
         this.startPosition = startPosition;
         this.wait = wait;
+        this.trafficType = trafficType;
     }
 
     public Pair<PositionOnTilemap, Double> getPairOfPositionAndDistance(int i){
@@ -131,5 +134,9 @@ public class VehicleMovement {
 
     public void setWait(boolean wait) {
         this.wait = wait;
+    }
+
+    public TrafficType getTrafficType() {
+        return trafficType;
     }
 }

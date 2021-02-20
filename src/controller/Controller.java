@@ -71,7 +71,6 @@ public class Controller {
         else {
             waitForOneDay();
         }
-
     }
 
     public void waitForOneDay(){
@@ -225,6 +224,8 @@ public class Controller {
                 else {
                     stationsOfPlannedTrafficLine.add(station);
                 }
+                System.out.println("stationsOfPlannedTrafficLine in controller: ");
+                stationsOfPlannedTrafficLine.forEach((x) -> System.out.println("Station id: "+x.getId()));
                 //Zeigt Liste in Popup an
                 view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
             }
@@ -245,16 +246,22 @@ public class Controller {
 
     public void createNewTrafficLine(Map<String, Integer> desiredNumbersOfVehicleNames,
                                      TrafficType trafficType, String name){
+
         Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
         for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
             Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
+            System.out.println("vehicle in createNewTrafficLine "+vehicle.getGraphic());
             mapDesiredNumbers.put(vehicle, entry.getValue());
         }
-        List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
-        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
+        List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+        clearPlannedTrafficLine();
+    }
+
+    public void clearPlannedTrafficLine(){
         stationsOfPlannedTrafficLine.clear();
-        trafficPartOfPlannedTrafficLine = null;
+        this.trafficPartOfPlannedTrafficLine = null;
     }
 
     public int getDayFromModel(){
@@ -278,5 +285,7 @@ public class Controller {
     public List<Building> getBuildingsByBuildmenu(String buildmenu){
         return model.getBuildingsForBuildmenu(buildmenu);
     }
+
+
 
 }

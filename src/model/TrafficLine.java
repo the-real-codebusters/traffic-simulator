@@ -3,7 +3,6 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class TrafficLine {
 
@@ -41,9 +40,14 @@ public class TrafficLine {
             }
         }
 
-        //TODO Rail
-
+        else if(trafficType.equals(TrafficType.RAIL)){
+            for(Station station : stations){
+                station.setRailTrafficLine(this);
+            }
+        }
     }
+
+    //TODO Wenn Vehicles kurz vor der station sind, werden sie schneller. Was ist da los?
 
     /**
      * Soll eine neues Fahrzeug zu der Liste der Fahzeuge hinzufügen. Gibt das erstellte fahrzeug zurück
@@ -69,7 +73,7 @@ public class TrafficLine {
         vehicle.savePathToNextStation(startVertexForNewVehicles);
 
         vehicles.add(vehicle);
-        System.out.println(vehicle.getKind());
+        System.out.println(vehicle.getTrafficType());
         System.out.println("Speed of new vehicle"+vehicle.getSpeed());
         return vehicle;
     }

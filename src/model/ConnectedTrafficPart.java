@@ -61,7 +61,7 @@ public class ConnectedTrafficPart {
                 "of different trafficTypes");
         System.out.println("Stations "+stations);
         for(Station otherStation: otherPart.getStations()){
-            otherStation.setRoadTrafficPart(this);
+            otherStation.setTrafficPartForTrafficType(this, trafficType);
             otherStation.updateDirectlyConnectedStations(trafficType);
             stations.add(otherStation);
         }

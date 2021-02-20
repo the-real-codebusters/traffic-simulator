@@ -3,11 +3,12 @@ package model;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Vehicle {
-    private TrafficType kind;
+    private TrafficType trafficType;
     private boolean canTransportCargo;
     private double speed;
     private String graphic;
@@ -33,24 +34,26 @@ public class Vehicle {
      */
     public Vehicle getNewInstance(){
         Vehicle instance = new Vehicle();
-        instance.setKind(kind);
+        instance.setTrafficType(trafficType);
         instance.setCanTransportCargo(canTransportCargo);
         instance.setSpeed(speed);
         instance.setGraphic(graphic);
-        instance.setStorage(storage.getNewInstance());
+        if(!graphic.equals("the_engine")){
+            instance.setStorage(storage.getNewInstance());
+        }
         return instance;
     }
 
     /**
-     * Speichert den Weg zur nächsten Station ab. Momentan nur für Straßen
+     * Speichert den Weg zur nächsten Station ab
      * @param startVertex
      */
     public void savePathToNextStation(Vertex startVertex){
-        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex);
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
     }
 
     public void updateNextStation() {
-        TrafficLine line = nextStation.getTrafficLineForTrafficType(kind);
+        TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
 
@@ -65,7 +68,7 @@ public class Vehicle {
         double wayToGo = speed;
         // Die Bewegung startet an der aktuellen Position
         PositionOnTilemap currentPosition = position;
-        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false);
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType);
         double distanceToNextVertex = 0;
         // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
         // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
@@ -164,12 +167,12 @@ public class Vehicle {
         }
     }
 
-    public TrafficType getKind() {
-        return kind;
+    public TrafficType getTrafficType() {
+        return trafficType;
     }
 
-    public void setKind(TrafficType kind) {
-        this.kind = kind;
+    public void setTrafficType(TrafficType trafficType) {
+        this.trafficType = trafficType;
     }
 
     public boolean isCanTransportCargo() {
@@ -197,6 +200,10 @@ public class Vehicle {
     }
 
     public Storage getStorage() {
+        if (graphic.equals("the_engine")) {
+            Map<String, Integer> cargoEmpty = new HashMap<>();
+            return new Storage(cargoEmpty);
+        }
         return storage;
     }
 

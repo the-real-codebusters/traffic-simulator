@@ -368,7 +368,18 @@ public class Pathfinder {
      * @param desiredStation Die Station, zu der der Weg gefunden werden soll
      * @return Liste des Wegs vom Startknoten zum Zielknoten, exklusive des Startknotens
      */
-    public List<Vertex> findPathToDesiredStation(Station desiredStation, Vertex startVertex){
+    public List<Vertex> findPathToDesiredStation(Station desiredStation, Vertex startVertex, TrafficType trafficType){
+
+        TrafficGraph graph;
+        if(trafficType.equals(TrafficType.ROAD)){
+            graph = roadGraph;
+        }
+        else if(trafficType.equals(TrafficType.RAIL)){
+            graph = railGraph;
+        }
+        else {
+            throw new IllegalArgumentException("Unfertiger Code");
+        }
 
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
@@ -424,10 +435,10 @@ public class Pathfinder {
                 List<Vertex> childs = new ArrayList<>();
                 System.out.println("current Node in pathfinder "+currentNode.getName());
 
-                if(roadGraph.getAdjacencyMap().get(currentNode.getName())==null) throw new NullPointerException("" +
+                if(graph.getAdjacencyMap().get(currentNode.getName())==null) throw new NullPointerException("" +
                         "ein Name eines Vertexes in der Adjazenzliste war nicht auffindbar. Das kann doch nicht sein");
 
-                childs.addAll(roadGraph.getAdjacencyMap().get(currentNode.getName()));
+                childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
                 System.out.println("childs in pathfinder "+childs);
 
 

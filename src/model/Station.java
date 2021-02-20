@@ -138,6 +138,12 @@ public class Station {
         return null;
     }
 
+    public void setTrafficPartForTrafficType(ConnectedTrafficPart trafficPart, TrafficType trafficType){
+        if(trafficType.equals(TrafficType.AIR)) airTrafficPart = trafficPart;
+        else if(trafficType.equals(TrafficType.ROAD)) roadTrafficPart = trafficPart;
+        else if (trafficType.equals(TrafficType.RAIL)) railTrafficPart = trafficPart;
+    }
+
     //Die Methoden equals() und hashCode() gehen davon aus, dass die id einer Station unique ist
     @Override
     public boolean equals(Object o) {

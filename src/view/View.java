@@ -863,9 +863,7 @@ public class View {
     public void translateVehicles(List<VehicleMovement> movements){
 
         List<VehicleAnimation> animations = new ArrayList<>();
-        // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
         for(VehicleMovement movement : movements){
-
             Point2D startPosition = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
             Point2D endPosition;
             if(movement.hasMoreThanOnePoint()){
@@ -874,6 +872,7 @@ public class View {
             else {
                 endPosition = startPosition;
             }
+            //Prüfe ob Bewegung auf Canvas
             if((endPosition.getX() < 0 || endPosition.getX() > canvas.getWidth() || endPosition.getY() < 0 || endPosition.getY() > canvas.getHeight())
                     &&
                     (startPosition.getX() < 0 || startPosition.getX() > canvas.getWidth() || startPosition.getY() < 0 || startPosition.getY() > canvas.getHeight())
@@ -881,6 +880,8 @@ public class View {
                 //Dann liegt die Bewegung nicht auf dem sichtbaren Bereich. Tue also nichts
             }
             else {
+                //Dann liegt Bewegung auf Canvas
+                // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
                 animations.add(getAnimationForMovement(movement));
             }
         }
@@ -921,16 +922,20 @@ public class View {
 
                         if(imageName==null) throw new RuntimeException("imageName was null");
 
-                        Image carImage = getResourceForImageName(imageName, tileImageHeight*0.75,
-                                imageNameToImageRatio.get(imageName)*tileImageHeight);
+                        double ratio = imageNameToImageRatio.get(imageName);
+                        double imageWidth = tileImageWidthHalf;
+                        double imageHeight = imageWidth *ratio;
 
-                        double[] directionShift = getShiftForImageName(imageName);
+                        Image vehicleImage = getResourceForImageName(imageName, imageWidth, imageHeight);
+
+                        double[] directionShift =
+                                getShiftForTrafficType(animation.getTrafficType(), imageName, imageWidth, imageHeight);
 
                         //Zeichnet das Bild auf das Canvas. xShift und yShift sind nur bei einer Verschiebung der Karte
                         //während der Animation nicht 0. Die Verschiebung von -15 in y-Richtung sind willkürlich
                         //und müssen nochmal angeschaut und verbessert werden. Es wurde dadurch versucht die Autos auf
                         //verschiedenen Straßenseiten anzuzeigen, geht aber noch nicht ganz.
-                        gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift+directionShift[0],
+                        gc.drawImage(vehicleImage, animation.getxCoordProperty().doubleValue()+xShift+directionShift[0],
                                 animation.getyCoordProperty().doubleValue()+yShift+directionShift[1]);
                     }
                 }
@@ -956,7 +961,26 @@ public class View {
         parallelTransition.play();
     }
 
-    private double[] getShiftForImageName(String imageName){
+    private double[] getShiftForTrafficType(TrafficType type, String imageName, double imageWidth, double imageHeight){
+        double[] directionShift = new double[] {0,0};
+        if(type.equals(TrafficType.ROAD)){
+            directionShift = getRoadShiftForImageName(imageName);
+        }
+        else if(type.equals(TrafficType.RAIL)){
+            directionShift = getRailShiftForImageName(imageWidth, imageHeight);
+        }
+        return  directionShift;
+    }
+
+    private double[] getRailShiftForImageName(double imageWidth, double imageHeight){
+        double xshift = 0;
+        double yshift = -imageHeight/2;
+
+        return new double[] {xshift, yshift};
+    }
+
+    private double[] getRoadShiftForImageName(String imageName){
+        //TODO refactoring
         String ending = imageName.substring(imageName.length()-2);
         double yshift = 0;
         double xshift = 0;
@@ -1059,7 +1083,7 @@ public class View {
             }
         }
 
-        VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName);
+        VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName, movement.getTrafficType());
         return animation;
     }
 

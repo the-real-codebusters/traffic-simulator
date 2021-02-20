@@ -68,6 +68,8 @@ public class TrafficLineCreationDialog {
 
         List<Map<String, Object>> dropdownLabels = new ArrayList<>();
         List<Vehicle> vehicleTypes = view.getController().getVehicleTypesForTrafficType(trafficType);
+        System.out.println("Vehicle Types für den TrafficType "+trafficType);
+        vehicleTypes.forEach((x) -> System.out.println(x.getGraphic()));
         for(Vehicle v : vehicleTypes){
             String info = "name: "+v.getGraphic()+"   speed: "+v.getSpeed()+"   cargo: ";
             Map<String, Integer> cargos = v.getStorage().getMaxima();
@@ -105,6 +107,7 @@ public class TrafficLineCreationDialog {
                 String name = row.getInformation().split("name: ")[1].split(" ")[0];
                 mapDesiredNumbers.put(name, row.getDesiredNumber());
             }
+            System.out.println(mapDesiredNumbers);
             view.getController().createNewTrafficLine(mapDesiredNumbers, trafficType, textField.getText());
             window.close();
         });
@@ -120,6 +123,10 @@ public class TrafficLineCreationDialog {
         window.setScene(scene);
 
         window.setTitle("New Traffic Line");
+
+        window.setOnCloseRequest((event) -> {
+            view.getController().clearPlannedTrafficLine();
+        });
 
         window.show();
     }

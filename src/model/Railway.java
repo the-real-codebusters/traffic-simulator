@@ -20,7 +20,7 @@ public class Railway extends Vehicle {
     }
 
     public void addWagon(Vehicle wagon){
-        if(! wagon.getKind().equals("wagon") ) throw new IllegalArgumentException("Attribute was not of kind wagon");
+        if(! wagon.getTrafficType().equals("wagon") ) throw new IllegalArgumentException("Attribute was not of kind wagon");
 
         if(wagon.getSpeed() < this.getSpeed()) setSpeed(wagon.getSpeed());
 
@@ -28,7 +28,7 @@ public class Railway extends Vehicle {
     }
 
     public void setEngine(Vehicle engine){
-        if(! engine.getKind().equals("engine") ) throw new IllegalArgumentException("Attribute was not of kind engine");
+        if(! engine.getTrafficType().equals("engine") ) throw new IllegalArgumentException("Attribute was not of kind engine");
 
         if(engine.getSpeed() < this.getSpeed()) setSpeed(engine.getSpeed());
 

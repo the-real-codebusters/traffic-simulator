@@ -64,6 +64,11 @@ public class ObjectToImageMapping {
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
 
+        mapping.put("height_up" , "height_up");
+        mapping.put("height_down" , "height_down");
+        mapping.put("remove", "remove");
+
+        //Fahrzeuge
         mapping.put("panel_transporter-ne", "vehicles/road/panel-ne");
         mapping.put("panel_transporter-nw", "vehicles/road/panel-nw");
         mapping.put("panel_transporter-se", "vehicles/road/panel-se");
@@ -84,9 +89,25 @@ public class ObjectToImageMapping {
         mapping.put("silicone_truck-se", "vehicles/road/silicone-se");
         mapping.put("silicone_truck-sw", "vehicles/road/silicone-sw");
 
-        mapping.put("height_up" , "height_up");
-        mapping.put("height_down" , "height_down");
-        mapping.put("remove", "remove");
+        mapping.put("bulk_wagon-ne", "vehicles/rail/bulk_wagon_ne");
+        mapping.put("bulk_wagon-nw", "vehicles/rail/bulk_wagon_nw");
+        mapping.put("bulk_wagon-se", "vehicles/rail/bulk_wagon_se");
+        mapping.put("bulk_wagon-sw", "vehicles/rail/bulk_wagon_sw");
+
+        mapping.put("hazmat_wagon-ne", "vehicles/rail/hazmat_wagon_ne");
+        mapping.put("hazmat_wagon-nw", "vehicles/rail/hazmat_wagon_nw");
+        mapping.put("hazmat_wagon-se", "vehicles/rail/hazmat_wagon_se");
+        mapping.put("hazmat_wagon-sw", "vehicles/rail/hazmat_wagon_sw");
+
+        mapping.put("panel_wagon-ne", "vehicles/rail/panel_wagon_ne");
+        mapping.put("panel_wagon-nw", "vehicles/rail/panel_wagon_nw");
+        mapping.put("panel_wagon-se", "vehicles/rail/panel_wagon_se");
+        mapping.put("panel_wagon-sw", "vehicles/rail/panel_wagon_sw");
+
+        mapping.put("the_engine-ne", "vehicles/rail/the_engine_ne");
+        mapping.put("the_engine-nw", "vehicles/rail/the_engine_nw");
+        mapping.put("the_engine-se", "vehicles/rail/the_engine_se");
+        mapping.put("the_engine-sw", "vehicles/rail/the_engine_sw");
 
 
         // Flache Straßen-Tiles
