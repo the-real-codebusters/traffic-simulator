@@ -17,9 +17,20 @@ public class Vertex extends PositionOnTilemap {
 
     private PartOfTrafficGraph building;
     private int actualSearchLevel;
+    // Knotennamen (sw, r0, ...)
+    private String direction;
 
     public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
-        int xCoordinateInGameMap, int yCoordinateInGameMap) {
+        int xCoordinateInGameMap, int yCoordinateInGameMap, String direction) {
+
+        super(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin, xCoordinateInGameMap,
+                yCoordinateInGameMap);
+        this.name = name;
+        this.direction = direction;
+    }
+
+    public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
+                  int xCoordinateInGameMap, int yCoordinateInGameMap) {
 
         super(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin, xCoordinateInGameMap,
                 yCoordinateInGameMap);
@@ -60,6 +71,18 @@ public class Vertex extends PositionOnTilemap {
 
     public void setBuilding(PartOfTrafficGraph building) {
         this.building = building;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public boolean isFirst() {
+        return direction.equals("r0");
+    }
+
+    public boolean isLast() {
+        return direction.equals("se");
     }
 
     @Override

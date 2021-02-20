@@ -344,7 +344,7 @@ public class MapModel {
                     double xCoordOfPoint = entry.getValue().get(0);
                     double yCoordOfPoint = entry.getValue().get(1);
 
-                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
+                    Vertex v = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile, entry.getKey());
                     v.setPointOfStation(isPointPartOfStation);
                     if(isPointPartOfStation) {
                         v.setStation(((Stop) building).getStation());
