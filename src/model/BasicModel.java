@@ -92,7 +92,15 @@ public class BasicModel {
 
         List<Vehicle> activeVehicles = new ArrayList<>();
         List<VehicleMovement> airMovements = new ArrayList<>();
+        int index = 0;
         for(ConnectedTrafficPart activePart: activeConnectedTrafficParts){
+
+            // TODO: erste immer ignorieren
+            if (index == 0) {
+                index++;
+                continue;
+            }
+
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
             if (activePart.getTrafficType() == TrafficType.AIR) {
@@ -118,7 +126,6 @@ public class BasicModel {
                     }
                     counter++;
                 }
-
             }
 
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
@@ -130,6 +137,8 @@ public class BasicModel {
                 // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
                 activeVehicles.addAll(trafficLine.getVehicles()); //TODO
             }
+
+
         }
 
         //newCreatedOrIncompleteTrafficLines.peek().get
@@ -156,17 +165,22 @@ public class BasicModel {
      * @param airMovements
      */
     private void moveBackToOriginRunway(ConnectedTrafficPart activePart, Station station, List<VehicleMovement> airMovements) {
-        Vertex first = station.getLast();
-        Vertex last = activePart.getStations().get(0).getFirst();
+        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+                Vertex first = station.getLast();
+                Vertex last = activePart.getStations().get(0).getFirst();
 
-        for (Station s: activePart.getStations()) {
-            s.setVisited(false);
+                for (Station s: activePart.getStations()) {
+                    s.setVisited(false);
+                }
+                //TODO: geschwindigkeit berücksichtigen
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                double distanceToNextVertex = first.getDistanceToPosition(last);
+                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+                airMovements.add(vmFirst);
+            }
         }
 
-        VehicleMovement vmFirst = new VehicleMovement(first, "cargo_plane");
-        double distanceToNextVertex = first.getDistanceToPosition(last);
-        vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
-        airMovements.add(vmFirst);
     }
 
     /**
@@ -177,24 +191,29 @@ public class BasicModel {
      * @param counter
      */
     private void flyToNextRunway(ConnectedTrafficPart activePart, Station station, List<VehicleMovement> airMovements, int counter) {
-        // bewegung zwischen beiden runways
-        Vertex first = station.getLast();
+        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+                // bewegung zwischen beiden runways
+                Vertex first = station.getLast();
 
-        Iterator<Vertex> iter = activePart.getStations().get(counter+1).getComponents().get(0).getVertices().iterator();
-        Vertex last = null;
-        while(iter.hasNext()) {
-            Vertex current = iter.next();
-            if (current.isFirst()) {
-                last = current;
-                break;
+                Iterator<Vertex> iter = activePart.getStations().get(counter + 1).getComponents().get(0).getVertices().iterator();
+                Vertex last = null;
+                while (iter.hasNext()) {
+                    Vertex current = iter.next();
+                    if (current.isFirst()) {
+                        last = current;
+                        break;
+                    }
+                }
+                //TODO: geschwindigkeit berücksichtigen
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                double distanceToNextVertex = first.getDistanceToPosition(last);
+                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+                airMovements.add(vmFirst);
+                station.setLast(null);
             }
         }
 
-        VehicleMovement vmFirst = new VehicleMovement(first, "cargo_plane");
-        double distanceToNextVertex = first.getDistanceToPosition(last);
-        vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
-        airMovements.add(vmFirst);
-        station.setLast(null);
     }
 
     /**
@@ -203,26 +222,39 @@ public class BasicModel {
      * @param airMovements
      */
     private void moveOnRunway(Station station, List<VehicleMovement> airMovements) {
-        Iterator<Vertex> iter = station.getComponents().get(0).getVertices().iterator();
-        Vertex first = null;
-        Vertex last = null;
-        while(iter.hasNext()) {
-            Vertex current = iter.next();
-            if (current.isFirst()) {
-                first = current;
-            }
-            if (current.isLast()) {
-                last = current;
+        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+                Iterator<Vertex> iter = station.getComponents().get(0).getVertices().iterator();
+                Vertex first = null;
+                Vertex last = null;
+                while (iter.hasNext()) {
+                    Vertex current = iter.next();
+                    if (i == 1) {
+                        if (current.getDirection().equals("r1")) {
+                            first = current;
+                        }
+                        if (current.getDirection().equals("nw")) {
+                            last = current;
+                        }
+                    }
+                    if (current.isFirst()) {
+                        first = current;
+                    }
+                    if (current.isLast()) {
+                        last = current;
+                    }
+                }
+                //TODO: geschwindigkeit berücksichtigen
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                double distanceToNextVertex = first.getDistanceToPosition(last);
+                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+                airMovements.add(vmFirst);
+                station.setVisited(true);
+                station.setFirst(first);
+                station.setLast(last);
             }
         }
 
-        VehicleMovement vmFirst = new VehicleMovement(first, "cargo_plane");
-        double distanceToNextVertex = first.getDistanceToPosition(last);
-        vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
-        airMovements.add(vmFirst);
-        station.setVisited(true);
-        station.setFirst(first);
-        station.setLast(last);
     }
 
     /**

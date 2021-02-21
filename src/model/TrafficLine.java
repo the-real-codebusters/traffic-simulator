@@ -199,6 +199,10 @@ public class TrafficLine {
         totalDesiredNumbersOfVehicles = total;
     }
 
+    public Map<Vehicle, Integer> getDesiredNumbersOfVehicles() {
+        return desiredNumbersOfVehicles;
+    }
+
     public List<Vehicle> getVehicles() {
         return vehicles;
     }

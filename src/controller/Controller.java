@@ -318,9 +318,16 @@ public class Controller {
         }
         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
-        trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
-        stationsOfPlannedTrafficLine.clear();
-        trafficPartOfPlannedTrafficLine = null;
+
+        if (trafficType == TrafficType.AIR) {
+            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+            model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
+        }
+        else {
+            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+            stationsOfPlannedTrafficLine.clear();
+            trafficPartOfPlannedTrafficLine = null;
+        }
     }
 
     public Tile getTileOfMapTileGrid(int row, int column){
