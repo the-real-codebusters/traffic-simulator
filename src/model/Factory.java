@@ -15,8 +15,15 @@ public class Factory extends Special {
     public Factory getNewInstance(){
         Factory instance = new Factory();
         setInstanceStandardAttributes(instance);
-        instance.setConsume(Map.copyOf(consume));
-        instance.setProduce(Map.copyOf(produce));
+
+        // it was before 21.02.2021
+        // instance.setConsume(Map.copyOf(consume));
+        instance.setConsume(new HashMap<>(consume));
+
+        // it was before 21.02.2021
+        // instance.setProduce(Map.copyOf(produce));
+        instance.setProduce(new HashMap<>(produce));
+
         instance.setSpecial(getSpecial());
         setTrafficType(TrafficType.NONE);
         return instance;

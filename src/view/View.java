@@ -22,10 +22,17 @@ import javafx.util.Pair;
 import model.*;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 
 public class View {
+
+    // just an absolute path of my resources folder
+    String my_resources_path = "C:/Users/alexx/IdeaProjects/codebusters/resources";
+
     private Stage stage;
 
     private double tileImageWidth = 128;
@@ -789,12 +796,17 @@ public class View {
         }
 
         String gamemode = controller.getGamemode();
-        Image image = new Image(
-                "/" + gamemode + "/" + imageName + ".png",
-                widthAsInt,
-                heightAsInt,
-                false,
-                true);
+        Image image = null;
+        try {
+            image = new Image(
+                    new FileInputStream(my_resources_path + "/" + gamemode + "/" + imageName + ".png"),
+                    widthAsInt,
+                    heightAsInt,
+                    false,
+                    true);
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
         imageCache.put(imageName + widthAsInt + heightAsInt, image);
         return image;
     }
@@ -812,7 +824,15 @@ public class View {
         }
 
         String gamemode = controller.getGamemode();
-        Image image = new Image("/" + gamemode + "/" + imageName + ".png");
+        String url = "/" + gamemode + "/" + imageName + ".png";
+
+        // System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+        Image image = null;
+        try {
+           image  = new Image(new FileInputStream(my_resources_path + url));
+        } catch (FileNotFoundException ex){
+            ex.printStackTrace();
+        }
         imageCache.put(imageName + "raw", image);
         return image;
     }

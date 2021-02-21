@@ -12,9 +12,17 @@ public class Runway extends Stop {
     public Runway getNewInstance(){
         Runway instance = new Runway();
         setInstanceStandardAttributes(instance);
-        instance.setPoints(Map.copyOf(points));
+
+        // it was before 21.02.2021
+        // instance.setPoints(Map.copyOf(points));
+        instance.setPoints(new HashMap<>(points));
+
         instance.setSpecial(getSpecial());
-        instance.setTransportations(List.copyOf(transportations));
+
+        // it was before 21.02.2021
+        // instance.setTransportations(List.copyOf(transportations));
+        instance.setTransportations(new ArrayList<>(transportations));
+
         instance.setEntry(entry);
         instance.setTrafficType(TrafficType.AIR);
         return instance;

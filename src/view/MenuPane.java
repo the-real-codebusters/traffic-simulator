@@ -23,10 +23,8 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
+import java.util.*;
 
 
 import javafx.scene.control.Button;
@@ -43,6 +41,7 @@ public class MenuPane extends AnchorPane {
     private MouseEvent hoveredEvent;
     private int result;
     private HBox trafficPartTabContent;
+    private HBox factoryTabContent;
 
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
@@ -77,6 +76,8 @@ public class MenuPane extends AnchorPane {
         }
         createTrafficpartTab();
 
+        createFactoryTab();
+
     }
 
     private void createTrafficpartTab(){
@@ -86,6 +87,15 @@ public class MenuPane extends AnchorPane {
         tabContents.add(box);
         addTab(name, box, false);
         trafficPartTabContent = box;
+    }
+
+    private void createFactoryTab(){
+        String name = "factory";
+        HBox box = boxWithLayout();
+        tabNames.add(name);
+        tabContents.add(box);
+        addTab(name, box, false);
+        factoryTabContent = box;
     }
 
     /**
@@ -180,9 +190,15 @@ public class MenuPane extends AnchorPane {
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
 
-        tabNames.addAll(List.of("speed"));
+        // it was before 21.02.2021
+        // tabNames.addAll(List.of("speed"));
+        tabNames.addAll(Collections.singletonList("speed"));
+
         tabNames.addAll(buildmenus);
-        tabNames.addAll(List.of("height", "vehicles", "remove"));
+
+        // it was before 21.02.2021
+        // tabNames.addAll(List.of("height", "vehicles", "remove"));
+        tabNames.addAll(Arrays.asList("height", "vehicles", "remove"));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
