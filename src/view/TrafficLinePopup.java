@@ -53,9 +53,6 @@ public class TrafficLinePopup extends Popup {
         listView.setEditable(false);
         showList(new ArrayList<>());
 
-//        setOnCloseRequest((event) -> {
-//        });
-
         show(stage);
     }
 
@@ -69,6 +66,7 @@ public class TrafficLinePopup extends Popup {
         clearListView();
         for(Station station: stations){
             String displayed = "Station: ID: "+station.getId()+" ";
+            System.out.println("displayed Station: "+displayed);
             listView.getItems().add(displayed);
         }
         listView.getItems().add(readyButton);

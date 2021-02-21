@@ -190,6 +190,14 @@ public class MenuPane extends AnchorPane {
         }
 
         for (String name : tabNames) {
+            ScrollPane scroll = new ScrollPane();
+            scroll.setPrefViewportWidth(canvas.getWidth());
+            scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+//            scroll.setFitToHeight(true);
+
+
+//            scroll.setFitToWidth(true);
+            scroll.setPannable(true);
             HBox container = boxWithLayout();
             List<Building> buildings = controller.getBuildingsByBuildmenu(name);
             for (Building building : buildings) {
@@ -242,8 +250,8 @@ public class MenuPane extends AnchorPane {
                     container.getChildren().add(imageView);
                 }
 
-
-                tabContents.set(tabNames.indexOf(name), container);
+                scroll.setContent(container);
+                tabContents.set(tabNames.indexOf(name), scroll);
             }
 
     }
@@ -254,7 +262,7 @@ public class MenuPane extends AnchorPane {
      */
     private HBox boxWithLayout() {
         HBox box = new HBox(10);
-        box.setPrefHeight(100);
+        box.setPrefHeight(120);
         box.setPadding(new Insets(5, 20, 5, 20));
         return box;
     }
@@ -406,6 +414,7 @@ public class MenuPane extends AnchorPane {
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding == null) {
                 if(selectTrafficLineStationsMode){
+                    System.out.println("selectTrafficLineStationsMode "+selectTrafficLineStationsMode);
                     controller.selectStationsForTrafficLine(event);
                 }
                 else controller.showTrafficPartInView(event);

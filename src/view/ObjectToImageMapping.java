@@ -44,25 +44,31 @@ public class ObjectToImageMapping {
         // Flache Rails (unvollständig)
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
-//        mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
-//        mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
-//        mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
-//        mapping.put("railcurve-nw-s", "rail/railcurve-nw-s");
-//        mapping.put("railcurve-se-n", "rail/railcurve-se-n");
-//        mapping.put("railcurve-se-w", "rail/railcurve-se-w");
-//        mapping.put("railcurve-sw-e", "rail/railcurve-sw-e");
-//        mapping.put("railcurve-sw-n", "rail/railcurve-sw-n");
-//        mapping.put("railswitch-ne-s", "rail/railswitch-ne-s");
-//        mapping.put("railswitch-nw-s", "rail/railswitch-nw-s");
-//        mapping.put("railswitch-se-n", "rail/railswitch-se-n");
-//        mapping.put("railswitch-sw-n", "rail/railswitch-sw-n");
+        mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
+        mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
+        mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
+        mapping.put("railcurve-nw-s", "rail/railcurve-nw-s");
+        mapping.put("railcurve-se-n", "rail/railcurve-se-n");
+        mapping.put("railcurve-se-w", "rail/railcurve-se-w");
+        mapping.put("railcurve-sw-e", "rail/railcurve-sw-e");
+        mapping.put("railcurve-sw-n", "rail/railcurve-sw-n");
+        mapping.put("railswitch-ne-s", "rail/railswitch-ne-s");
+        mapping.put("railswitch-nw-s", "rail/railswitch-nw-s");
+        mapping.put("railswitch-se-n", "rail/railswitch-se-n");
+        mapping.put("railswitch-sw-n", "rail/railswitch-sw-n");
 
         // Verschiedenes
         mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
+        mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
         mapping.put("busstop-nw-se", "stations/road/busstop");
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
 
+        mapping.put("height_up" , "height_up");
+        mapping.put("height_down" , "height_down");
+        mapping.put("remove", "remove");
+
+        //Fahrzeuge
         mapping.put("panel_transporter-ne", "vehicles/road/panel-ne");
         mapping.put("panel_transporter-nw", "vehicles/road/panel-nw");
         mapping.put("panel_transporter-se", "vehicles/road/panel-se");
@@ -83,9 +89,25 @@ public class ObjectToImageMapping {
         mapping.put("silicone_truck-se", "vehicles/road/silicone-se");
         mapping.put("silicone_truck-sw", "vehicles/road/silicone-sw");
 
-        mapping.put("height_up" , "height_up");
-        mapping.put("height_down" , "height_down");
-        mapping.put("remove", "remove");
+        mapping.put("bulk_wagon-ne", "vehicles/rail/bulk_wagon_ne");
+        mapping.put("bulk_wagon-nw", "vehicles/rail/bulk_wagon_nw");
+        mapping.put("bulk_wagon-se", "vehicles/rail/bulk_wagon_se");
+        mapping.put("bulk_wagon-sw", "vehicles/rail/bulk_wagon_sw");
+
+        mapping.put("hazmat_wagon-ne", "vehicles/rail/hazmat_wagon_ne");
+        mapping.put("hazmat_wagon-nw", "vehicles/rail/hazmat_wagon_nw");
+        mapping.put("hazmat_wagon-se", "vehicles/rail/hazmat_wagon_se");
+        mapping.put("hazmat_wagon-sw", "vehicles/rail/hazmat_wagon_sw");
+
+        mapping.put("panel_wagon-ne", "vehicles/rail/panel_wagon_ne");
+        mapping.put("panel_wagon-nw", "vehicles/rail/panel_wagon_nw");
+        mapping.put("panel_wagon-se", "vehicles/rail/panel_wagon_se");
+        mapping.put("panel_wagon-sw", "vehicles/rail/panel_wagon_sw");
+
+        mapping.put("the_engine-ne", "vehicles/rail/the_engine_ne");
+        mapping.put("the_engine-nw", "vehicles/rail/the_engine_nw");
+        mapping.put("the_engine-se", "vehicles/rail/the_engine_se");
+        mapping.put("the_engine-sw", "vehicles/rail/the_engine_sw");
 
 
         // Flache Straßen-Tiles
