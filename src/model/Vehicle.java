@@ -84,7 +84,7 @@ public class Vehicle {
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
         }
-        if(pathToNextStation.size() == 0){
+        if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
             savePathToNextStation((Vertex) currentPosition);
@@ -92,28 +92,32 @@ public class Vehicle {
         }
         // Ansonsten wurde die Zielstation nicht erreicht
 
-        // Da wayToGo dann vermutlich negativ ist, also nicht genug Weg bis zum nächsten Knoten vorhanden war, muss der
+        // Wenn wayToGo dann negativ ist, also nicht genug Weg bis zum nächsten Knoten vorhanden war, muss der
         // letzte Knoten aus dem VehicleMovement wieder entfernt werden und stattdessen eine Position anteilig des übrigen
         // Weges in Richtung des nächsten Knotens hinzugefügt werden
 
-        wayToGo+=distanceToNextVertex;
-        pathToNextStation.add(0, (Vertex) currentPosition);
-        vehicleMovement.removeLastPair();
+        if(wayToGo<0){
+            wayToGo+=distanceToNextVertex;
+            pathToNextStation.add(0, (Vertex) currentPosition);
+            vehicleMovement.removeLastPair();
 
-        PositionOnTilemap previouslyLastPosition;
-        if(vehicleMovement.getNumberOfPoints() == 0){
-            System.out.println("way to go "+wayToGo);
-            System.out.println("path to next station "+pathToNextStation);
-            previouslyLastPosition = vehicleMovement.getStartPosition();
+            PositionOnTilemap previouslyLastPosition;
+            if(vehicleMovement.getNumberOfPoints() == 0){
+                System.out.println("way to go "+wayToGo);
+                System.out.println("path to next station "+pathToNextStation);
+                previouslyLastPosition = vehicleMovement.getStartPosition();
+            }
+            else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
+            VehiclePosition lastPosition = previouslyLastPosition.
+                    getnewPositionShiftedTowardsGivenPointByGivenDistance(
+                            currentPosition.coordsRelativeToMapOrigin(), wayToGo);
+
+            vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
         }
-        else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
-        VehiclePosition lastPosition = previouslyLastPosition.
-                getnewPositionShiftedTowardsGivenPointByGivenDistance(
-                        currentPosition.coordsRelativeToMapOrigin(), wayToGo);
+        else if(wayToGo > 0){
+            throw new RuntimeException("wayToGo in getMovementForNextDay() was >0 : "+wayToGo);
+        }
 
-        //TODO Was wenn es genau am Ziel landet?
-
-        vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
         return vehicleMovement;
     }
 
