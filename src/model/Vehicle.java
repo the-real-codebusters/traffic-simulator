@@ -8,25 +8,27 @@ import java.util.List;
 import java.util.Map;
 
 public class Vehicle {
-    private TrafficType trafficType;
-    private boolean canTransportCargo;
-    private double speed;
-    private String graphic;
-    private Storage storage;
+    protected TrafficType trafficType;
+    protected boolean canTransportCargo;
+    protected double speed;
+    protected String graphic;
+    protected Storage storage;
 
-    private PositionOnTilemap position;
-    private List<Vertex> pathToNextStation = new ArrayList<>();
+    protected PositionOnTilemap position;
+    protected List<Vertex> pathToNextStation = new ArrayList<>();
 
-    private List<Vertex> pathToNextStationBeforeMovement;
+    protected List<Vertex> pathToNextStationBeforeMovement;
 
     // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
-    private boolean movementInTrafficLineGoesForward = true;
+    protected boolean movementInTrafficLineGoesForward = true;
 
     // Die nächste Station, zu der das fahrzeug fahren will. Sozusagen das aktuelle Ziel
-    private Station nextStation;
-    private Pathfinder pathfinder;
+    protected Station nextStation;
+    protected Pathfinder pathfinder;
 
-    private boolean hasWaitedInLastRound;
+    protected boolean hasWaitedInLastRound;
+
+    protected String kind;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -38,6 +40,7 @@ public class Vehicle {
         instance.setCanTransportCargo(canTransportCargo);
         instance.setSpeed(speed);
         instance.setGraphic(graphic);
+        instance.setKind(kind);
         if(!graphic.equals("the_engine")){
             instance.setStorage(storage.getNewInstance());
         }
@@ -245,5 +248,13 @@ public class Vehicle {
 
     public void setHasWaitedInLastRound(boolean hasWaitedInLastRound) {
         this.hasWaitedInLastRound = hasWaitedInLastRound;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 }
