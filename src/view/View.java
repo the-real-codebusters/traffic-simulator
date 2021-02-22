@@ -964,7 +964,7 @@ public class View {
     private double[] getShiftForTrafficType(TrafficType type, String imageName, double imageWidth, double imageHeight){
         double[] directionShift = new double[] {0,0};
         if(type.equals(TrafficType.ROAD)){
-            directionShift = getRoadShiftForImageName(imageName);
+            directionShift = getRoadShiftForImageName(imageName, imageWidth, imageHeight);
         }
         else if(type.equals(TrafficType.RAIL)){
             directionShift = getRailShiftForImageName(imageWidth, imageHeight);
@@ -979,30 +979,27 @@ public class View {
         return new double[] {xshift, yshift};
     }
 
-    private double[] getRoadShiftForImageName(String imageName){
-        //TODO refactoring
+    private double[] getRoadShiftForImageName(String imageName, double imageWidth, double imageHeight){
         String ending = imageName.substring(imageName.length()-2);
-        double yshift = 0;
-        double xshift = 0;
-        double ratio = 0.75/0.85;
+        double xshift = -imageWidth/2;
+        double yshift = -imageHeight*0.75;
         if(ending.equals("ne")){
-            yshift = -0.3*tileImageHeight;
-            xshift = -0.3*tileImageHeight; //-27
+            xshift += 0.225 * imageWidth;
+            yshift += 0.225 * imageHeight;
         }
         else if(ending.equals("nw")){
-            yshift = -0.65*tileImageHeight;
-            xshift = -0.05*tileImageHeight; //-30
+            xshift += 0.125 * imageWidth;
+            yshift -= 0.125 * imageHeight;
         }
         else if(ending.equals("se")){
-            yshift = -0.25*tileImageHeight;
-            xshift = -0.25*tileImageHeight; //-5
+            xshift -= 0.225 * imageWidth;
+            yshift += 0.225 * imageHeight;
         }
         else if(ending.equals("sw")){
-            yshift = -0.65*tileImageHeight;
-            xshift = -0.65*tileImageHeight; //-65
+            xshift -= 0.125 * imageWidth;
+            yshift -= 0.125 * imageHeight;
         }
-        xshift*=ratio;
-        yshift*=ratio;
+
         return new double[] {xshift, yshift};
     }
 
