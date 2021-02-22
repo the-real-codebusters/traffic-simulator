@@ -64,6 +64,13 @@ public class Controller {
 
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
+        System.out.println("Movements in controller");
+        for(VehicleMovement m : movements){
+            System.out.println("Movement: ");
+            for(PositionOnTilemap p: m.getAllPositions()){
+                System.out.println(p.coordsRelativeToMapOrigin());
+            }
+        }
         view.getMenuPane().setDayLabel(model.getDay());
         if(movements.size() > 0){
             view.translateVehicles(movements);

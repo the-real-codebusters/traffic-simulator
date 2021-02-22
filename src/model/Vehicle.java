@@ -76,18 +76,33 @@ public class Vehicle {
         // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
         // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
         // Knoten, und der Länge des Wegs zu diesem Knoten mitgegeben werden
-        while(wayToGo >= 0 && pathToNextStation.size() > 0){
+        while(wayToGo > 0 && pathToNextStation.size() > 0){
             Vertex nextVertex = pathToNextStation.remove(0);
             //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
             distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
+            System.out.println("pathToNextStation for vehicle "+graphic+" in while loop");
+            pathToNextStation.forEach((x) -> System.out.println(x.getName()));
         }
+
+        System.out.println("Movement after while loop: ");
+        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+            System.out.println(p.coordsRelativeToMapOrigin());
+        }
+
+        System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+
+
         if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
             savePathToNextStation((Vertex) currentPosition);
+            System.out.println("Movement after method at last vertex to next station: ");
+            for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+                System.out.println(p.coordsRelativeToMapOrigin());
+            }
             return vehicleMovement;
         }
         // Ansonsten wurde die Zielstation nicht erreicht
@@ -100,6 +115,8 @@ public class Vehicle {
             wayToGo+=distanceToNextVertex;
             pathToNextStation.add(0, (Vertex) currentPosition);
             vehicleMovement.removeLastPair();
+
+            System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
 
             PositionOnTilemap previouslyLastPosition;
             if(vehicleMovement.getNumberOfPoints() == 0){
@@ -118,6 +135,10 @@ public class Vehicle {
             throw new RuntimeException("wayToGo in getMovementForNextDay() was >0 : "+wayToGo);
         }
 
+        System.out.println("Movement after method: ");
+        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+            System.out.println(p.coordsRelativeToMapOrigin());
+        }
         return vehicleMovement;
     }
 
