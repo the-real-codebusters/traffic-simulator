@@ -779,13 +779,13 @@ public class View {
                 Building building = tile.getBuilding();
                 if (building instanceof Factory) {
                     Factory factory = (Factory) building;
-                    System.out.println("building = " + factory);
+                    // System.out.println("building = " + factory);
                     factoryNameLabel.setText("factory name: " + factory.getBuildingName());
                     StringBuilder production = new StringBuilder();
                     for(Map.Entry<String, Integer> entry : factory.getProduce().entrySet()){
                         production.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
                     }
-                    if(production.toString().equals("")){
+                    if(production.toString().equals("")) {
                         production = new StringBuilder("nothing");
                     }
                     productionLabel.setText("production: " + production);
@@ -793,7 +793,7 @@ public class View {
                     for(Map.Entry<String, Integer> entry : factory.getConsume().entrySet()){
                         consumption.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
                     }
-                    if(consumption.toString().equals("")){
+                    if(consumption.toString().equals("")) {
                         consumption = new StringBuilder("nothing");
                     }
                     consumptionLabel.setText("consumption: " + consumption);
