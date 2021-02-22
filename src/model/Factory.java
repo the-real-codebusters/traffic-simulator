@@ -29,6 +29,10 @@ public class Factory extends Special {
         return instance;
     }
 
+    public Map<String, Integer> getProduce(){ return produce; }
+
+    public Map<String, Integer> getConsume(){ return consume; }
+
     public void setProduce(Map<String, Integer> produce) {
         this.produce = produce;
     }

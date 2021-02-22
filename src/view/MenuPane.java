@@ -3,7 +3,6 @@ package view;
 import controller.Controller;
 import javafx.animation.ParallelTransition;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -41,7 +40,7 @@ public class MenuPane extends AnchorPane {
     private MouseEvent hoveredEvent;
     private int result;
     private HBox trafficPartTabContent;
-    private HBox factoryTabContent;
+    private VBox factoryTabContent;
 
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
@@ -89,13 +88,28 @@ public class MenuPane extends AnchorPane {
         trafficPartTabContent = box;
     }
 
-    private void createFactoryTab(){
+    private void createFactoryTab() {
         String name = "factory";
-        HBox box = boxWithLayout();
+        VBox box = new VBox(10);
+        box.setPrefHeight(120);
+        box.setPadding(new Insets(5, 20, 5, 20));
         tabNames.add(name);
         tabContents.add(box);
         addTab(name, box, false);
         factoryTabContent = box;
+        Label factoryNameLabel = new Label();
+        Label productionLabel = new Label();
+        Label consumptionLabel = new Label();
+        factoryNameLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(factoryNameLabel);
+        productionLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(productionLabel);
+        consumptionLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(consumptionLabel);
+        factoryNameLabel.setText("factory name: not selected");
+        productionLabel.setText("production: nothing");
+        consumptionLabel.setText("consumption: nothing");
+        view.setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
     }
 
     /**
