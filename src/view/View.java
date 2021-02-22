@@ -272,34 +272,11 @@ public class View {
                         if(building != null && (building.getWidth() > 1 || building.getDepth() > 1)){
 
                             //Hier gab es mal if-Bedingung ob field origin ist
-
-//                            for(int i = col; i <= col + building.getDepth()-1; i++) {
-//                                    // Obere Kante vom Gebäude mit Grassfläche übermalen
-//                                    Image image = getGrassImage(i, row);
-//                                    drawTileImage(drawOrigin, image, false, cornerHeights);
-//                                }
+                            if(field.isBuildingOrigin()){
                                 drawBuildingOverMoreTiles(field, building, row, col);
-                                // obere ecke ist ein gebäude
-                                if (row == building.getStartRow()-1 && col == building.getStartColumn()) {
-                                    // Startzeile und Start/Endespalte merken
-                                    startRow = row + building.getWidth();
-                                    endCol = col;
-                                    startCol = endCol - building.getDepth() + 2;
-                                    for (int i = row; i <= startRow; i++) {
-                                        // Rechte Kante vom Gebäude mit Grassfläche übermalen
-                                        Image image = getGrassImage(col, i);
-                                        drawTileImage(drawOrigin, image, false, cornerHeights);
-                                    }
-                                }
-                        } else {
-                            // diese Zelle wurde vorher als Zelle neben einem Gebäude identifiziert
-                            // zeichnet neben Gebäude, um Problem der Überlappung zu lösen
-//                            if (row == startRow && col >= startCol && col <= endCol) {
-//                                // und muss daher als Grass gezeichnet werden
-//                                Image image = getGrassImage(col, row);
-//                                drawTileImage(drawOrigin, image, false, cornerHeights);
-//                            } else {
-
+                            }
+                        }
+                        else {
                                 if (building != null) {
                                     if (building.getBuildingName().equals("ground")
                                             || building.getBuildingName().equals("grass")) {
