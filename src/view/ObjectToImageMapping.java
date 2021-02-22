@@ -63,6 +63,8 @@ public class ObjectToImageMapping {
         mapping.put("busstop-nw-se", "stations/road/busstop");
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
+        mapping.put("big tower", "airport/big tower");
+        mapping.put("tower", "airport/tower");
 
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
