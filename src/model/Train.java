@@ -1,18 +1,26 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Train extends Vehicle {
-    private List<Vehicle> wagons;
+    private List<Vehicle> wagons = new ArrayList<>();
     private Vehicle engine;
     private List<VehicleMovement> movementsOfLastDay = new ArrayList<>();
 
     public Train(List<Vehicle> wagons, Vehicle engine) {
-        this.wagons = wagons;
-        this.engine = engine;
+        trafficType = TrafficType.RAIL;
+        canTransportCargo = true;
+        speed = engine.getSpeed();
+        storage = new Storage(new HashMap<>());
         kind = "train";
+
+        for(Vehicle wagon: wagons){
+            addWagon(wagon);
+        }
+        setEngine(engine);
     }
 
     public List<VehicleMovement> getTrainMovementsForNextDay(){
@@ -127,5 +135,23 @@ public class Train extends Vehicle {
 
         this.engine = engine;
     }
+
+    /**
+     * Gibt eine neue Instanz des Fahrzeugs zurück
+     * @return
+     */
+    @Override
+    public Vehicle getNewInstance(){
+        //Vorsicht, hier wird eagons und engine einfach weiter verwendet
+        Train instance = new Train(wagons, engine);
+        instance.setTrafficType(trafficType);
+        instance.setCanTransportCargo(canTransportCargo);
+        instance.setSpeed(speed);
+        instance.setGraphic(graphic);
+        instance.setKind(kind);
+        instance.setStorage(storage.getNewInstance());
+        return instance;
+    }
+
 
 }

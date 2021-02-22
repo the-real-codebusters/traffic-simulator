@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -164,12 +165,12 @@ public class TrafficLine {
     }
 
     public Vehicle getMissingVehicleOrNull(){
-        for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
-            if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
-                System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
-                return entry.getKey();
+            for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+                if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
+                    System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
+                    return entry.getKey();
+                }
             }
-        }
         return null;
     }
 
@@ -195,12 +196,36 @@ public class TrafficLine {
     }
 
     public void setDesiredNumbersOfVehicles(Map<Vehicle, Integer> desiredNumbersOfVehicles) {
-        this.desiredNumbersOfVehicles = desiredNumbersOfVehicles;
-        int total = 0;
-        for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
-            total+=entry.getValue();
+
+        if(trafficType.equals(TrafficType.RAIL)){
+            totalDesiredNumbersOfVehicles = 1;
+            Vehicle engine = null;
+            List<Vehicle> wagons = new ArrayList<>();
+            for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+                Vehicle vehicle = entry.getKey();
+                if(vehicle.getKind().equals("engine")){
+                    engine = vehicle.getNewInstance();
+                }
+                else {
+                    for(int i=0; i<entry.getValue(); i++){
+                        wagons.add(vehicle.getNewInstance());
+                    }
+                }
+            }
+            if(engine == null) throw new RuntimeException("There was no engine in setDesiredNumbersOfVehicles");
+            Train train = new Train(wagons, engine);
+            Map<Vehicle, Integer> desiredVehicles = new HashMap<>();
+            desiredVehicles.put(train, 1);
+            this.desiredNumbersOfVehicles = desiredVehicles;
         }
-        totalDesiredNumbersOfVehicles = total;
+        else {
+            this.desiredNumbersOfVehicles = desiredNumbersOfVehicles;
+            int total = 0;
+            for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+                total += entry.getValue();
+            }
+            totalDesiredNumbersOfVehicles = total;
+        }
     }
 
     public List<Vehicle> getVehicles() {

@@ -244,19 +244,22 @@ public class Controller {
     }
 
 
-    public void createNewTrafficLine(Map<String, Integer> desiredNumbersOfVehicleNames,
+    public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
-
-        Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
-            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
-            System.out.println("vehicle in createNewTrafficLine "+vehicle.getGraphic());
-            mapDesiredNumbers.put(vehicle, entry.getValue());
-        }
         List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
         clearPlannedTrafficLine();
+    }
+
+    public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {
+        Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
+            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
+            System.out.println("vehicle in createNewTrafficLine " + vehicle.getGraphic());
+            mapDesiredNumbers.put(vehicle, entry.getValue());
+        }
+        return mapDesiredNumbers;
     }
 
     public void clearPlannedTrafficLine(){
