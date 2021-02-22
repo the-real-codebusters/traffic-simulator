@@ -1,5 +1,6 @@
 package view;
 
+import controller.Controller;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -103,13 +104,35 @@ public class TrafficLineCreationDialog {
         Button createButton = new Button("create traffic line");
         createButton.setOnAction( (e) -> {
             Map<String, Integer> mapDesiredNumbers = new HashMap<>();
+            Controller controller = view.getController();
             for(VehicleTypeRow row: tableView.getItems()){
                 String name = row.getInformation().split("name: ")[1].split(" ")[0];
                 mapDesiredNumbers.put(name, row.getDesiredNumber());
             }
             System.out.println(mapDesiredNumbers);
-            view.getController().createNewTrafficLine(mapDesiredNumbers, trafficType, textField.getText());
-            window.close();
+            Map<Vehicle, Integer> vehicleMapDesiredNumbers = controller.getVehicleMapOfDesiredNumbers(mapDesiredNumbers);
+            boolean isAcceptable = true;
+            if(trafficType.equals(TrafficType.RAIL)){
+                int numberOfEngines = 0;
+                for (Map.Entry<Vehicle, Integer> entry : vehicleMapDesiredNumbers.entrySet()) {
+                    if(entry.getKey().getKind().equals("engine")) {
+                        numberOfEngines += entry.getValue();
+                    }
+                }
+                if(numberOfEngines != 1){
+                    isAcceptable = false;
+                }
+            }
+
+            if(isAcceptable){
+                controller.createNewTrafficLine(vehicleMapDesiredNumbers, trafficType, textField.getText());
+                window.close();
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Die Auswahl der Fahrzeuge ist so nicht möglich. " +
+                        "Ein Zug vom Typ "+TrafficType.RAIL+" muss genau eine Lok (engine) besitzen)", ButtonType.OK);
+                alert.showAndWait();
+            }
         });
         centerBox.getChildren().add(createButton);
 

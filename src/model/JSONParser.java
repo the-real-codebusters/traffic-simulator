@@ -202,6 +202,7 @@ public class JSONParser {
                     vehicle.setSpeed(handleContentAsDouble(jsonVehicles, children[y], 0.0, null));
                 }  else if ("kind".equals(children[y])) {
                     kind = handleContentAsString(jsonVehicles, children[y]);
+                    vehicle.setKind(kind);
                     if(kind.equals("road vehicle")){
                         vehicle.setTrafficType(TrafficType.ROAD);
                     }
