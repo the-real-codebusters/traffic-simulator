@@ -143,6 +143,10 @@ public class Controller {
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
+        System.out.println(selectedBuilding.getBuildingName());
+            System.out.println("is a stop: " + (selectedBuilding instanceof Stop));
+
+        System.out.println("can place building: " + model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding));
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 

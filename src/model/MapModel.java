@@ -76,8 +76,7 @@ public class MapModel {
             if (instance instanceof Road) {
                 //checke, ob man zwei TrafficParts mergen sollte
                 mergeTrafficPartsIfNeccessary(addedPoints.get(0), TrafficType.ROAD);
-            }
-            else if (instance instanceof Rail) {
+            } else if (instance instanceof Rail) {
                 //checke, ob man zwei TrafficParts mergen sollte
                 mergeTrafficPartsIfNeccessary(addedPoints.get(0), TrafficType.RAIL);
             }
@@ -133,7 +132,8 @@ public class MapModel {
                 if (building instanceof Factory && tile.getBuilding() != null) {
                     if (!((tile.getBuilding() instanceof Nature) ||
                             tile.getBuilding().getBuildingName().equals("grass") ||
-                            tile.getBuilding().getBuildingName().equals("0000") && tile.getCornerHeights().get("cornerS") > 0
+                            tile.getBuilding().getBuildingName().equals("0000")
+                                    && tile.getCornerHeights().get("cornerS") > 0
                     )) return false;
                 }
 
@@ -142,6 +142,7 @@ public class MapModel {
 
                 //Auf Wasserfeldern darf nicht gebaut werden
                 if (tile.isWater()) return false;
+
 
                 if (tile.getBuilding() instanceof Road) {
                     boolean canCombine = model.checkCombines(row, column, building) != building;
@@ -163,6 +164,9 @@ public class MapModel {
         //TODO Runways werden beim platzieren abgeschnitten
 
         if (building instanceof Stop) {
+
+            if (isTooCloseToFactory(building, row, column)) return false;
+
             adjacentStationId = -1L;
             for (int r = row; r < row + building.getWidth(); r++) {
                 Building adjacentBuilding = tileGrid[r][column - 1].getBuilding();
@@ -187,6 +191,98 @@ public class MapModel {
             }
         }
         return true;
+    }
+
+
+    private boolean isTooCloseToFactory(Building building, int row, int column) {
+
+        // Wenn es sich um einen Busstop oder einen Bahnhof handelt, muss mindestens eine Zeile/Spalte
+        // Abstand zu einer Fabrik eingehalten werden
+        if (building.getBuildingName().contains("busstop") || building.getBuildingName().contains("railstation")) {
+            Point2D tileCoords = new Point2D(row, column);
+            List<Tile> neighbors = getAllNeighbors(tileCoords);
+            for (Tile neighbor : neighbors) {
+                if (neighbor.getBuilding() instanceof Factory) {
+                    return true;
+                }
+            }
+        }
+
+        // Wenn es sich um einen kleinen Tower handelt, müssen mindestens 2 Zeilen/Spalten
+        // Abstand zu einer Fabrik eingehalten werden
+        if (building.getBuildingName().equals("tower")) {
+            Point2D tileCoords = new Point2D(row, column);
+            List<Tile> neighbors = getAllNeighbors(tileCoords);
+            for (Tile neighbor : neighbors) {
+                if (neighbor.getBuilding() instanceof Factory) {
+                    return true;
+                }
+            }
+        }
+
+        // Wenn es sich um einen großen Tower handelt, müssen mindestens 3 Zeilen/Spalten
+        // Abstand zu einer Fabrik eingehalten werden
+        if (building.getBuildingName().equals("big tower")) {
+            Point2D tileCoords = new Point2D(row, column);
+            List<Tile> neighbors = getAllNeighbors(tileCoords);
+            for (Tile neighbor : neighbors) {
+                if (neighbor.getBuilding() instanceof Factory) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+
+    private List<Tile> getAllNeighbors(Point2D coords){
+        int xCoord = (int) coords.getX();
+        int yCoord = (int) coords.getY();
+
+
+        Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
+        Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
+        Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE
+        Tile tileSW = tileGrid[xCoord][yCoord - 1];     // SW
+
+        Tile tileN = tileGrid[xCoord - 1][yCoord +1];     // N
+        Tile tileE = tileGrid[xCoord +1][yCoord + 1];     // E
+        Tile tileS = tileGrid[xCoord + 1][yCoord -1];     // S
+        Tile tileW = tileGrid[xCoord-1][yCoord - 1];     // W
+
+        List<Tile> neighborTiles = new ArrayList<>();
+        neighborTiles.addAll(Arrays.asList(tileNW, tileNE, tileSE, tileSW,tileN, tileE, tileS , tileW));
+        List<Tile> tilesWithStop = new ArrayList<>();
+
+//        Iterator<Tile> tileIterator = neighborTiles.iterator();
+//        while (tileIterator.hasNext()){
+//            Tile tile = tileIterator.next();
+//            if(tile.getBuilding() instanceof Stop){
+//                tilesWithStop.add(tile);
+//                tileIterator.remove();
+//            }
+//        }
+//
+//        neighborTiles.addAll(tilesWithStop);
+
+
+
+        Point2D NW = new Point2D(xCoord - 1, yCoord );     // NW
+        Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
+        Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
+        Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
+
+        Point2D N = new Point2D(xCoord - 1, yCoord +1);     // N
+        Point2D E = new Point2D(xCoord +1, yCoord + 1);     // E
+        Point2D S = new Point2D(xCoord + 1, yCoord -1);     // S
+        Point2D W = new Point2D(xCoord-1, yCoord - 1);     // W
+
+        List<Point2D> neighbors = new ArrayList<>();
+        neighbors.addAll(Arrays.asList(NW, NE, SE, SW, N, E, S , W));
+
+        return neighborTiles;
     }
 
     //TODO Funktioniert momentan nur für ROAD

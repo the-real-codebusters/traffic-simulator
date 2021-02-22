@@ -724,17 +724,21 @@ public class View {
             String mouseCoords = "Mouse coordinates: x: " + mouseX + " y: " + mouseY;
             mousePosLabel.setText(mouseCoords);
 
+
             // Findet isometrische Koordinaten der Mouseposition
             Point2D newIsoCoord = findTileCoord(mouseX, mouseY);
             if(newIsoCoord != null) {
 
                 String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
                 isoCoordLabel.setText(tileCoords);
+                String buildingName = fields[(int)newIsoCoord.getX()][(int)newIsoCoord.getY()].getBuilding().getBuildingName();
+                        cornerLabel.setText(buildingName);
+
 
                 Map<String, Integer> cornerHeights;
                 Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
                 cornerHeights = tile.getCornerHeights();
-                cornerLabel.setText(cornerHeights.toString());
+//                cornerLabel.setText(cornerHeights.toString());
             } else {
                 isoCoordLabel.setText("Tile coordinates outside of map");
                 cornerLabel.setText("undefined corner heights for this coordinates");
