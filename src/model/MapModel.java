@@ -16,6 +16,7 @@ public class MapModel {
     private List<Station> stations = new ArrayList<>();
     private TrafficGraph roadGraph = new TrafficGraph();
     private TrafficGraph railGraph = new TrafficGraph();
+//    private TrafficGraph airGraph = new TrafficGraph();
 
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
@@ -1082,6 +1083,10 @@ public class MapModel {
     public TrafficGraph getRoadGraph() {
         return roadGraph;
     }
+
+//    public TrafficGraph getAirGraph() {
+//        return airGraph;
+//    }
 
     public void setRoadGraph(TrafficGraph roadGraph) {
         this.roadGraph = roadGraph;

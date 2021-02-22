@@ -6,6 +6,8 @@ import java.util.*;
 public class Pathfinder {
     private TrafficGraph roadGraph;
     private TrafficGraph railGraph;
+    // TODO airGraph
+//    private TrafficGraph airGraph;
 
     //TODO Klasse eventuell static machen?
 
@@ -15,6 +17,7 @@ public class Pathfinder {
     public Pathfinder(TrafficGraph roadGraph, TrafficGraph railGraph) {
         this.railGraph = railGraph;
         this.roadGraph = roadGraph;
+//        this.airGraph = airGraph;
     }
 
     /**
@@ -30,6 +33,9 @@ public class Pathfinder {
         else if(type.equals(TrafficType.RAIL)){
             graph = railGraph;
         }
+//        else if(type.equals(TrafficType.AIR)){
+//            graph = airGraph;
+//        }
         else {
             throw new IllegalArgumentException("Unfertiger Code");
         }
@@ -139,6 +145,9 @@ public class Pathfinder {
         else if(type.equals(TrafficType.RAIL)){
             graph = railGraph;
         }
+//        else if(type.equals(TrafficType.AIR)){
+//            graph = airGraph;
+//        }
         else {
             throw new IllegalArgumentException("Unfertiger Code");
         }
