@@ -194,52 +194,60 @@ public class MapModel {
     }
 
 
+    /**
+     * Prüft, ob die zu bauende Station zu nah an einer Fabrik ist.
+     * Alle Stationen müssen einen Mindestabstand von 1 Tile zur nächsten Fabrik einhalten. Der kleine Tower
+     * muss einen Abstand von mindestens 2 Tiles einhalten und der große Tower von mindestens 3 Tiles
+     * @param building die zu platzierende Haltestelle
+     * @param row
+     * @param column
+     * @return
+     */
     private boolean isTooCloseToFactory(Building building, int row, int column) {
 
-        // Wenn es sich um einen Busstop oder einen Bahnhof handelt, muss mindestens eine Zeile/Spalte
-        // Abstand zu einer Fabrik eingehalten werden
-        if (building.getBuildingName().contains("busstop") || building.getBuildingName().contains("railstation")) {
-            Point2D tileCoords = new Point2D(row, column);
-            List<Tile> neighbors = getAllNeighbors(tileCoords);
-            for (Tile neighbor : neighbors) {
-                if (neighbor.getBuilding() instanceof Factory) {
-                    return true;
+    // Wenn es sich um einen Busstop oder einen Bahnhof handelt, muss mindestens eine Zeile/Spalte
+    // Abstand zu einer Fabrik eingehalten werden
+        Point2D tileCoords = new Point2D(row, column);
+        Map<Tile, Point2D> neighbors = getAllNeighbors(tileCoords);
+        for (Tile neighbor : neighbors.keySet()) {
+            if (neighbor.getBuilding() instanceof Factory) {
+                return true;
+            }
+            // Wenn es sich um einen kleinen Tower handelt, müssen mindestens 2 Zeilen/Spalten
+            // Abstand zu einer Fabrik eingehalten werden
+            if (building.getBuildingName().contains("tower")) {
+                Map<Tile, Point2D> neighborsOfNeighbor = getAllNeighbors(neighbors.get(neighbor));
+                for (Tile neighborOfNeighbor : neighborsOfNeighbor.keySet()) {
+                    if (neighborOfNeighbor.getBuilding() instanceof Factory) {
+                        return true;
+                    }
+                    // Wenn es sich um einen großen Tower handelt, müssen mindestens 3 Zeilen/Spalten
+                    // Abstand zu einer Fabrik eingehalten werden
+                    if (building.getBuildingName().equals("big tower")) {
+                        Map<Tile, Point2D> thirdNeighbors = getAllNeighbors(neighborsOfNeighbor.get(neighborOfNeighbor));
+                        for (Tile thirdNeighbor : thirdNeighbors.keySet()) {
+                            if (thirdNeighbor.getBuilding() instanceof Factory) {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        // Wenn es sich um einen kleinen Tower handelt, müssen mindestens 2 Zeilen/Spalten
-        // Abstand zu einer Fabrik eingehalten werden
-        if (building.getBuildingName().equals("tower")) {
-            Point2D tileCoords = new Point2D(row, column);
-            List<Tile> neighbors = getAllNeighbors(tileCoords);
-            for (Tile neighbor : neighbors) {
-                if (neighbor.getBuilding() instanceof Factory) {
-                    return true;
-                }
-            }
-        }
-
-        // Wenn es sich um einen großen Tower handelt, müssen mindestens 3 Zeilen/Spalten
-        // Abstand zu einer Fabrik eingehalten werden
-        if (building.getBuildingName().equals("big tower")) {
-            Point2D tileCoords = new Point2D(row, column);
-            List<Tile> neighbors = getAllNeighbors(tileCoords);
-            for (Tile neighbor : neighbors) {
-                if (neighbor.getBuilding() instanceof Factory) {
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 
 
-
-    private List<Tile> getAllNeighbors(Point2D coords){
+    /**
+     * Erzeugt eine Map, die alle Nachbar-Tiles mit entsprechenden Koordinaten enthält
+     * @param coords Koordinaten des Tiles, dessen Nachbarn gesucht werden
+     * @return
+     */
+    private Map<Tile, Point2D> getAllNeighbors(Point2D coords){
         int xCoord = (int) coords.getX();
         int yCoord = (int) coords.getY();
+
+        Map<Tile, Point2D> neighbors = new LinkedHashMap<>();
 
 
         Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
@@ -252,23 +260,6 @@ public class MapModel {
         Tile tileS = tileGrid[xCoord + 1][yCoord -1];     // S
         Tile tileW = tileGrid[xCoord-1][yCoord - 1];     // W
 
-        List<Tile> neighborTiles = new ArrayList<>();
-        neighborTiles.addAll(Arrays.asList(tileNW, tileNE, tileSE, tileSW,tileN, tileE, tileS , tileW));
-        List<Tile> tilesWithStop = new ArrayList<>();
-
-//        Iterator<Tile> tileIterator = neighborTiles.iterator();
-//        while (tileIterator.hasNext()){
-//            Tile tile = tileIterator.next();
-//            if(tile.getBuilding() instanceof Stop){
-//                tilesWithStop.add(tile);
-//                tileIterator.remove();
-//            }
-//        }
-//
-//        neighborTiles.addAll(tilesWithStop);
-
-
-
         Point2D NW = new Point2D(xCoord - 1, yCoord );     // NW
         Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
         Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
@@ -279,10 +270,16 @@ public class MapModel {
         Point2D S = new Point2D(xCoord + 1, yCoord -1);     // S
         Point2D W = new Point2D(xCoord-1, yCoord - 1);     // W
 
-        List<Point2D> neighbors = new ArrayList<>();
-        neighbors.addAll(Arrays.asList(NW, NE, SE, SW, N, E, S , W));
+        neighbors.put(tileNW, NW);
+        neighbors.put(tileNE, NE);
+        neighbors.put(tileSE, SE);
+        neighbors.put(tileSW, SW);
+        neighbors.put(tileN, N);
+        neighbors.put(tileE, E);
+        neighbors.put(tileS, S);
+        neighbors.put(tileW, W);
 
-        return neighborTiles;
+        return neighbors;
     }
 
     //TODO Funktioniert momentan nur für ROAD
