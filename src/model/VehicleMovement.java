@@ -120,6 +120,18 @@ public class VehicleMovement {
         return pos;
     }
 
+    public VehicleMovement getNewShiftedMovement(double shift, int direction[], String vehicleName){
+        Point2D shiftedPoint = startPosition.coordsRelativeToMapOrigin().add(direction[0] * shift, direction[1]*shift);
+        PositionOnTilemap startP = startPosition.getnewPositionShiftedTowardsGivenPointByGivenDistance(shiftedPoint, shift);
+        VehicleMovement shiftedMovement = new VehicleMovement(startP, vehicleName, wait, trafficType);
+        for(int i=0; i<positionsOnMap.size(); i++){
+            shiftedPoint = positionsOnMap.get(i).coordsRelativeToMapOrigin().add(direction[0] * shift, direction[1]*shift);
+            PositionOnTilemap pos = positionsOnMap.get(i).getnewPositionShiftedTowardsGivenPointByGivenDistance(shiftedPoint, shift);
+            shiftedMovement.appendPairOfPositionAndDistance(pos, travelDistances.get(i));
+        }
+        return shiftedMovement;
+    }
+
     public String getVehicleName() {
         return vehicleName;
     }
