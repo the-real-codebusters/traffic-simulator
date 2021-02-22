@@ -429,6 +429,8 @@ public class MapModel {
         TrafficGraph trafficGraph;
         if (building.getTrafficType().equals(TrafficType.ROAD)) {
             trafficGraph = this.roadGraph;
+        } else if (building.getTrafficType().equals(TrafficType.RAIL)) {
+            trafficGraph = this.railGraph;
         } else {
             return new ArrayList<>();
             //TODO rails und air
@@ -455,9 +457,10 @@ public class MapModel {
 
     public void removePointsOnTile(Building buildingOnSelectedTile, int xCoord, int yCoord) {
         PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
-        List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
 
-        if (partOfGraph instanceof Road || partOfGraph instanceof Stop) {
+        if (partOfGraph instanceof Road || partOfGraph.getBuildingName().contains("busstop")) {
+            System.out.println("Trying to remove road");
+            List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
 
             for (Vertex v : addedVertices) {
                 if (v.getName().contains("c")) {
@@ -476,6 +479,17 @@ public class MapModel {
             }
             model.getMap().getRoadGraph().printGraph();
         }
+
+        if (partOfGraph instanceof Rail || partOfGraph.getBuildingName().contains("railstation")) {
+            System.out.println("Trying to remove rail");
+            List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
+
+            for (Vertex v1 : addedVertices) {
+            model.getMap().getRailGraph().removeVertex(v1.getName());
+            }
+            model.getMap().getRailGraph().printGraph();
+        }
+
         // TODO so anpassen, dass es auch für rails funktioniert
     }
 
