@@ -31,7 +31,7 @@ import java.util.*;
 public class View {
 
     // just an absolute path of my resources folder
-    String my_resources_path = "C:/Users/alexx/IdeaProjects/codebusters/resources";
+    String my_resources_path = "/Users/nataliiadaliba/IdeaProjects/codebusters/resources";
 
     private Stage stage;
 

@@ -146,8 +146,8 @@ public class TrafficLineCreationDialog {
                     return null;
                 } else {
                     // it was before 21.02.2021
-                    // return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().getUrl();
-                    return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().impl_getUrl();
+                     return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().getUrl();
+                    //return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().impl_getUrl();
                 }
             }
 
