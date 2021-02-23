@@ -62,8 +62,7 @@ public class ObjectToImageMapping {
         mapping.put("railcrossing", "rail/railroadcrossing");
         mapping.put("railsignal-ne-sw", "rail/rails_railsignal-ne-sw");
         mapping.put("railsignal-nw-se", "rail/rails_railsignal-nw-se");
-        mapping.put("railsignal", "rail/rails_railsignal-nw-se");
-//        mapping.put("railsignal", "rail/railsignal");
+        mapping.put("railsignal", "rail/railsignal");
 
         // Verschiedenes
         mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");

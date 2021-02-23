@@ -120,9 +120,6 @@ public class MapModel {
                 && !tileGrid[row][column].isWater()
                 && !(tileGrid[row][column].getBuilding() instanceof Factory)) return true;
 
-        System.out.println("building width: " + building.getWidth());
-        System.out.println("building depth: " + building.getDepth());
-
         if (building instanceof JustCombines){
             boolean canCombine = model.checkCombines(row, column, building) != building;
             if (!canCombine) return false;
