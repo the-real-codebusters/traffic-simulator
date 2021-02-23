@@ -180,7 +180,8 @@ public class Controller {
 
 
 
-            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
+            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail
+                || selectedBuilding instanceof JustCombines) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
 

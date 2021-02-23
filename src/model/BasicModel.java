@@ -282,6 +282,9 @@ public class BasicModel {
         else if(sBuilding instanceof Rail) {
             combinations = ((Rail) sBuilding).getCombines();
         }
+        else if(sBuilding instanceof JustCombines){
+            combinations = ((JustCombines) sBuilding).getCombines();
+        }
         if(combinations != null){
             for (Map.Entry<String, String> entry : combinations.entrySet()) {
                 if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {

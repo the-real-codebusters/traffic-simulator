@@ -120,6 +120,14 @@ public class MapModel {
                 && !tileGrid[row][column].isWater()
                 && !(tileGrid[row][column].getBuilding() instanceof Factory)) return true;
 
+        System.out.println("building width: " + building.getWidth());
+        System.out.println("building depth: " + building.getDepth());
+
+        if (building instanceof JustCombines){
+            boolean canCombine = model.checkCombines(row, column, building) != building;
+            if (!canCombine) return false;
+        }
+
         for (int r = row; r < row + building.getWidth(); r++) {
             for (int c = column; c < column + building.getDepth(); c++) {
                 Tile tile = tileGrid[r][c];
@@ -148,11 +156,7 @@ public class MapModel {
                 if (tile.isWater()) return false;
 
 
-                if (tile.getBuilding() instanceof Road) {
-                    boolean canCombine = model.checkCombines(row, column, building) != building;
-                    // Wenn eine strasse abgerissen werden soll, soll ebenfalls true zurückgegeben werden
-                    if (!canCombine) return false;
-                } else if (tile.getBuilding() instanceof Rail) {
+                if (tile.getBuilding() instanceof Road || tile.getBuilding() instanceof Rail) {
                     boolean canCombine = model.checkCombines(row, column, building) != building;
                     if (!canCombine) return false;
                 } else {
