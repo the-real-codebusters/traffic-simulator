@@ -52,6 +52,7 @@ public class Controller {
 
         TrafficGraph roadGraph = model.getMap().getRoadGraph();
         TrafficGraph railGraph = model.getMap().getRailGraph();
+//        TrafficGraph airGraph = model.getMap().getAirGraph();
 
         pathfinder = new Pathfinder(roadGraph, railGraph);
         model.setPathfinder(pathfinder);
@@ -143,6 +144,10 @@ public class Controller {
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
+        System.out.println(selectedBuilding.getBuildingName());
+            System.out.println("is a stop: " + (selectedBuilding instanceof Stop));
+
+        System.out.println("can place building: " + model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding));
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 

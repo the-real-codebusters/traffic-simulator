@@ -6,6 +6,8 @@ import java.util.*;
 public class Pathfinder {
     private TrafficGraph roadGraph;
     private TrafficGraph railGraph;
+    // TODO airGraph
+//    private TrafficGraph airGraph;
 
     //TODO Klasse eventuell static machen?
 
@@ -15,6 +17,7 @@ public class Pathfinder {
     public Pathfinder(TrafficGraph roadGraph, TrafficGraph railGraph) {
         this.railGraph = railGraph;
         this.roadGraph = roadGraph;
+//        this.airGraph = airGraph;
     }
 
     /**

@@ -12,6 +12,8 @@ public class ObjectToImageMapping {
     public ObjectToImageMapping(String gamemode){
         if(gamemode.equals("planverkehr")){
             createPlanverkehrMapping();
+        } else if (gamemode.equals("VitaExMachina")){
+            createVitaExMachinaMapping();
         }
         else {
                 //TODO
@@ -60,9 +62,13 @@ public class ObjectToImageMapping {
         // Verschiedenes
         mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
         mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
-        mapping.put("busstop-nw-se", "stations/road/busstop");
+        mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
+        mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
+
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
+        mapping.put("big tower", "airport/big tower");
+        mapping.put("tower", "airport/tower");
 
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
@@ -266,6 +272,16 @@ public class ObjectToImageMapping {
         mapping.put("road-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
 
 
+    }
+
+
+    private void createVitaExMachinaMapping(){
+
+        // Fabriken
+        mapping.put("data processing", "factories/data processing");
+        mapping.put("mechanical engineering", "factories/mechanical engineering");
+        mapping.put("recycling factory", "factories/recycling factory");
+        mapping.put("steel factory", "factories/steel factory");
     }
 
     public Collection<String> getImageNames(){
