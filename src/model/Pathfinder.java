@@ -329,6 +329,72 @@ public class Pathfinder {
         return foundStations;
     }
 
+    public Set<Vertex> findAllConnectedVerticesUntilSignal(Vertex startVertex, Rail startSignal){
+
+        TrafficGraph graph = railGraph;
+        Set<Vertex> foundVertices = new HashSet<>();
+
+        // Ebene der Breitensuche in dem Graph. Dies sollte auch der Entfernung zum Startknoten entsprechen
+        int searchLevel = 0;
+        startVertex.setActualSearchLevel(0);
+
+        Queue<Vertex> queue = new ArrayDeque<>();
+        queue.add(startVertex);
+
+        // Knoten die schon in der Suche besucht wurden
+        List<Vertex> alreadyVisited = new ArrayList<Vertex>();
+        alreadyVisited.add(startVertex);
+
+        // Child, Parent
+        // Speichert den Parent eines Knotens, von dem die Breitensuche zu diesem Knoten gelangt ist
+        Map<Vertex, Vertex> parentNodes = new HashMap<Vertex, Vertex>();
+
+        Vertex currentNode;
+
+        // Die Queue ist leer, wenn kein Zielknoten gefunden wurde
+        while (!queue.isEmpty()) {
+            currentNode = queue.remove();
+            searchLevel = currentNode.getActualSearchLevel();
+
+            foundVertices.add(currentNode);
+
+            //Wenn if-Bedingung erfüllt ist, dann haben wir ein Ziel gefunden
+            boolean signalAndNotStartSignal = false;
+            for(PartOfTrafficGraph building : currentNode.getBuildings()){
+                if(building instanceof Rail){
+                    Rail rail = (Rail) building;
+                    if((rail).isSignal() && !rail.equals(startSignal)){
+                        signalAndNotStartSignal = true;
+                    }
+                }
+            }
+
+            if (signalAndNotStartSignal) {
+                return foundVertices;
+            }
+            // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
+            List<Vertex> childs = new ArrayList<>();
+            childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
+
+            // Entferne alle bereits gesuchten Knoten aus den childs
+            childs.removeAll(alreadyVisited);
+
+            // Füge alle noch übrigen childs zu den bereits beuschten Knoten hinzu. Ist für nächste Durchlaufe
+            // der Schleife wichtig
+            alreadyVisited.addAll(childs);
+
+            int searchLevelOfChild = searchLevel + 1;
+            for (Vertex child : childs) {
+                child.setActualSearchLevel(searchLevelOfChild);
+            }
+
+            // Füge die übrigen Knoten der Queue hinzu
+            queue.addAll(childs);
+        }
+
+        return foundVertices;
+    }
+
     public Set<Vertex> findAllConnectedVerticesUntilSignal(Vertex startVertex){
 
         TrafficGraph graph = railGraph;
@@ -362,7 +428,7 @@ public class Pathfinder {
             boolean signal = false;
             for(PartOfTrafficGraph building : currentNode.getBuildings()){
                 if(building instanceof Rail){
-                    if(((Rail) building).getSignals().size() > 0){
+                    if(((Rail) building).isSignal()){
                         //Dann ist das Building ein Railsignal
                         signal = true;
                     }

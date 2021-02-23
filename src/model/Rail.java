@@ -28,6 +28,10 @@ public class Rail extends Building implements PartOfTrafficGraph{
         return instance;
     }
 
+    public boolean isSignal(){
+        return signals.size() > 0;
+    }
+
     public Map<String, String> getCombines() {
         return combines;
     }

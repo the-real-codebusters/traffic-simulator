@@ -81,8 +81,14 @@ public class MapModel {
                 //checke, ob man zwei TrafficParts mergen sollte
                 mergeTrafficPartsIfNeccessary(addedPoints, TrafficType.ROAD);
             } else if (instance instanceof Rail) {
-                //checke, ob man zwei TrafficParts mergen sollte
-                mergeTrafficPartsIfNeccessary(addedPoints, TrafficType.RAIL);
+
+                if(((Rail) instance).isSignal()){
+                    splitRailblocks((Rail)  instance, addedPoints);
+                }
+                else{
+                    //checke, ob man zwei TrafficParts mergen sollte
+                    mergeTrafficPartsIfNeccessary(addedPoints, TrafficType.RAIL);
+                }
             }
             if (instance instanceof Runway) {
                 if (createdNewStation) {
@@ -101,6 +107,49 @@ public class MapModel {
         }
 
         return instance;
+    }
+
+    private void splitRailblocks(Rail railsignal, List<Vertex> addedVertices){
+        if(addedVertices.size() != 3){
+            //Signals müssen immer 3 Punkte haben
+            throw new RuntimeException("Signals müssen immer 3 Punkte haben");
+        }
+
+        Vertex middleVertex = null;
+        for(Vertex v : addedVertices) {
+
+            if (v.getxCoordinateRelativeToTileOrigin() > 0 && v.getxCoordinateRelativeToTileOrigin() < 1
+                    && v.getyCoordinateRelativeToTileOrigin() > 0 && v.getyCoordinateRelativeToTileOrigin() < 1) {
+                middleVertex = v;
+            }
+        }
+
+        //Entferne middleVertex temporär aus Graph
+        List<Vertex> edges = railGraph.getAdjacencyMap().get(middleVertex.getName());
+        railGraph.removeVertex(middleVertex.getName());
+
+        //Suche jeweils in verschiedene Richtungen
+        Set<Vertex> verticesRailblock1 = model.getPathfinder().findAllConnectedVerticesUntilSignal(edges.get(0), railsignal);
+
+        Set<Vertex> verticesRailblock2 = model.getPathfinder().findAllConnectedVerticesUntilSignal(edges.get(1), railsignal);
+
+        Railblock block1 = new Railblock();
+        block1.addVertices(verticesRailblock1);
+
+        Railblock block2 = new Railblock();
+        block2.addVertices(verticesRailblock2);
+
+
+        railGraph.addVertex(middleVertex);
+        railGraph.addEdgeBidirectional(edges.get(0).getName(), middleVertex.getName());
+        railGraph.addEdgeBidirectional(edges.get(1).getName(), middleVertex.getName());
+
+        System.out.println("block1 in splitRailblocks: ");
+        block1.getVertices().forEach((x) -> System.out.println(x.getName()));
+
+        System.out.println("block2 in splitRailblocks: ");
+        block2.getVertices().forEach((x) -> System.out.println(x.getName()));
+
     }
 
 
@@ -349,7 +398,7 @@ public class MapModel {
         }
         else {
             if(numberOfNearTrafficParts == 1 && trafficType.equals(TrafficType.RAIL)){
-                ConnectedTrafficPart trafficPart = differentParts.iterator().next();
+//                ConnectedTrafficPart trafficPart = differentParts.iterator().next();
                 Railblock nearRailblock = null;
                 for(Vertex vertex : newAddedVertices){
                     if(vertex.getRailblock() != null){
