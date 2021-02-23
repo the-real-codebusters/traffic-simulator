@@ -457,40 +457,29 @@ public class MapModel {
 
     public void removePointsOnTile(Building buildingOnSelectedTile, int xCoord, int yCoord) {
         PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
+        List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
 
-        if (partOfGraph instanceof Road || partOfGraph.getBuildingName().contains("busstop")) {
-            System.out.println("Trying to remove road");
-            List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
-
-            for (Vertex v : addedVertices) {
-                if (v.getName().contains("c")) {
-                    model.getMap().getRoadGraph().removeVertex(v.getName());
-                }
+        TrafficGraph graph = model.getMap().getGraphForTrafficType(partOfGraph.getTrafficType());
+        for (Vertex v : addedVertices) {
+            boolean isOnBorder = true;
+            if(v.getxCoordinateRelativeToTileOrigin() > 0 && v.getxCoordinateRelativeToTileOrigin() < 1
+                    && v.getyCoordinateRelativeToTileOrigin() > 0 && v.getyCoordinateRelativeToTileOrigin() < 1){
+                isOnBorder = false;
             }
-
-            Map<String, Vertex> vertexesInGraph = model.getMap().getRoadGraph().getMapOfVertexes();
-            Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, Vertex> vertex = iterator.next();
-                List<Vertex> connections = model.getMap().getRoadGraph().getAdjacencyMap().get(vertex.getKey());
-                if (connections.size() == 0) {
-                    iterator.remove();
-                }
+            if (isOnBorder == false) {
+                graph.removeVertex(v.getName());
             }
-            model.getMap().getRoadGraph().printGraph();
         }
 
-        if (partOfGraph instanceof Rail || partOfGraph.getBuildingName().contains("railstation")) {
-            System.out.println("Trying to remove rail");
-            List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
-
-            for (Vertex v1 : addedVertices) {
-            model.getMap().getRailGraph().removeVertex(v1.getName());
+        Map<String, Vertex> vertexesInGraph = graph.getMapOfVertexes();
+        Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Vertex> vertex = iterator.next();
+            List<Vertex> connections = graph.getAdjacencyMap().get(vertex.getKey());
+            if (connections.size() == 0) {
+                iterator.remove();
             }
-            model.getMap().getRailGraph().printGraph();
         }
-
-        // TODO so anpassen, dass es auch für rails funktioniert
     }
 
 
@@ -944,6 +933,20 @@ public class MapModel {
 
         return validHeights.contains(nameOfAssociatedImage);
 
+    }
+
+    public TrafficGraph getGraphForTrafficType(TrafficType trafficType){
+        TrafficGraph graph;
+        if(trafficType.equals(TrafficType.ROAD)){
+            graph = roadGraph;
+        }
+        else if(trafficType.equals(TrafficType.RAIL)){
+            graph = railGraph;
+        }
+        else {
+            throw new IllegalArgumentException("Unfertiger Code");
+        }
+        return graph;
     }
 
 
