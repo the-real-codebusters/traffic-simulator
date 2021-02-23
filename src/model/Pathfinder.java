@@ -23,16 +23,7 @@ public class Pathfinder {
      * @return Liste des Wegs vom Startknoten zum Zielknoten, inklusive des Startknotens
      */
     public List<Vertex> findPathToNextStation(Station actualStation, TrafficType type){
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
@@ -132,16 +123,7 @@ public class Pathfinder {
      */
     public List<Station> findAllDirectlyConnectedStations(Station actualStation, TrafficType type){
 
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
@@ -209,16 +191,7 @@ public class Pathfinder {
      */
     public Set<PartOfTrafficGraph> findAllConnectedBuildings(Vertex startVertex, TrafficType type){
 
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
@@ -283,16 +256,7 @@ public class Pathfinder {
      */
     public List<Station> findAllDirectlyConnectedStations(Vertex startVertex, TrafficType type){
 
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         //TODO Mit anderer Methode findAllDirectlyConnectedStations mergen?
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
@@ -370,16 +334,7 @@ public class Pathfinder {
      */
     public List<Vertex> findPathToDesiredStation(Station desiredStation, Vertex startVertex, TrafficType trafficType){
 
-        TrafficGraph graph;
-        if(trafficType.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(trafficType.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(trafficType);
 
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
@@ -469,6 +424,20 @@ public class Pathfinder {
         }
         // Wenn kein Pfand gefunden, return leere Liste
         return new ArrayList<Vertex>();
+    }
+
+    public TrafficGraph getGraphForTrafficType(TrafficType trafficType){
+        TrafficGraph graph;
+        if(trafficType.equals(TrafficType.ROAD)){
+            graph = roadGraph;
+        }
+        else if(trafficType.equals(TrafficType.RAIL)){
+            graph = railGraph;
+        }
+        else {
+            throw new IllegalArgumentException("Unfertiger Code");
+        }
+        return graph;
     }
 
 

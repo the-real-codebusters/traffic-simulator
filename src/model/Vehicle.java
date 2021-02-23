@@ -66,6 +66,7 @@ public class Vehicle {
      * @return Ein VehicleMovement Objekt
      */
     public VehicleMovement getMovementForNextDay(){
+
         pathToNextStationBeforeMovement = new ArrayList<>(pathToNextStation);
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
         double wayToGo = speed;
@@ -79,6 +80,27 @@ public class Vehicle {
         while(wayToGo > 0 && pathToNextStation.size() > 0){
             Vertex nextVertex = pathToNextStation.remove(0);
             //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
+
+            //Teste, ob Knoten noch im Graph. Wenn nicht wurde Straße/Schiene verändert
+            if(!pathfinder.getGraphForTrafficType(trafficType).getMapOfVertexes().containsValue(nextVertex)){
+                System.out.println("Fehlende Straße/Schiene entdeckt");
+                savePathToNextStation(pathToNextStationBeforeMovement.get(0));
+                if(pathToNextStation.size() == 0){
+                    System.out.println("Kein neuer Weg gefunden");
+                    //Kein Weg gefunden
+                    TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+                    line.getVehicles().remove(this);
+                    vehicleMovement.setLastMovementBeforeRemove(true);
+                    return vehicleMovement;
+                }
+                else {
+                    System.out.println("Neuer Weg gefunden");
+                    //Weg gefunden
+                    return vehicleMovement;
+                }
+            }
+
+
             distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;

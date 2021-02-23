@@ -842,6 +842,7 @@ public class View {
 
 
         List<VehicleAnimation> animations = new ArrayList<>();
+        boolean clearOnFinished = false;
         for(VehicleMovement movement : movements){
             Point2D startPosition = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
             Point2D endPosition;
@@ -850,6 +851,9 @@ public class View {
             }
             else {
                 endPosition = startPosition;
+            }
+            if(movement.isLastMovementBeforeRemove()){
+                clearOnFinished = true;
             }
             //Prüfe ob Bewegung auf Canvas
             if((endPosition.getX() < 0 || endPosition.getX() > canvas.getWidth() || endPosition.getY() < 0 || endPosition.getY() > canvas.getHeight())
@@ -976,7 +980,7 @@ public class View {
                                 animation.getyCoordProperty().doubleValue()+yShift+directionShift[1]);
                     }
                 }
-                System.out.println(handleCalls);
+//                System.out.println(handleCalls);
             }
         };
         // Die parallelTransition sorgt für eine gleichzeitige Ausführung der Animationen. Dazu werden ihr alle timlines
@@ -986,9 +990,14 @@ public class View {
             parallelTransition.getChildren().add(animation.getTimeline());
         }
         getMenuPane().getAnimationButton().setDisable(false);
+        boolean finalClearOnFinished = clearOnFinished;
         parallelTransition.setOnFinished(event -> {
             parallelTransition.stop();
             timer.stop();
+
+            if(finalClearOnFinished){
+                drawMap();
+            }
 
             //Rufe simulateOneDay auf, wenn Animation vorbei. Dadurch entsteht ein Kreislauf, da simulateOneDay dann
             //wieder translateVehicles aufruft.
