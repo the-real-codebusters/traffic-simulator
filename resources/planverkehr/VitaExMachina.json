@@ -1,6 +1,6 @@
 
 {
-  "commodities": ["iron ore", "steel", "robot pieces", "neural networks", "nanotechnology ", "emotions", "quantum processor", "energy"],
+  "commodities": ["iron ore", "steel", "robot pieces", "neural networks", "nanotechnology", "emotions", "quantum processor", "energy"],
   "buildings" : {
     "road-ne" : {
       "buildmenu" : "road",

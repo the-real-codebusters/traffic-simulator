@@ -16,6 +16,7 @@ public class MapModel {
     private List<Station> stations = new ArrayList<>();
     private TrafficGraph roadGraph = new TrafficGraph();
     private TrafficGraph railGraph = new TrafficGraph();
+//    private TrafficGraph airGraph = new TrafficGraph();
 
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
@@ -76,8 +77,7 @@ public class MapModel {
             if (instance instanceof Road) {
                 //checke, ob man zwei TrafficParts mergen sollte
                 mergeTrafficPartsIfNeccessary(addedPoints.get(0), TrafficType.ROAD);
-            }
-            else if (instance instanceof Rail) {
+            } else if (instance instanceof Rail) {
                 //checke, ob man zwei TrafficParts mergen sollte
                 mergeTrafficPartsIfNeccessary(addedPoints.get(0), TrafficType.RAIL);
             }
@@ -133,7 +133,8 @@ public class MapModel {
                 if (building instanceof Factory && tile.getBuilding() != null) {
                     if (!((tile.getBuilding() instanceof Nature) ||
                             tile.getBuilding().getBuildingName().equals("grass") ||
-                            tile.getBuilding().getBuildingName().equals("0000") && tile.getCornerHeights().get("cornerS") > 0
+                            tile.getBuilding().getBuildingName().equals("0000")
+                                    && tile.getCornerHeights().get("cornerS") > 0
                     )) return false;
                 }
 
@@ -142,6 +143,7 @@ public class MapModel {
 
                 //Auf Wasserfeldern darf nicht gebaut werden
                 if (tile.isWater()) return false;
+
 
                 if (tile.getBuilding() instanceof Road) {
                     boolean canCombine = model.checkCombines(row, column, building) != building;
@@ -163,6 +165,9 @@ public class MapModel {
         //TODO Runways werden beim platzieren abgeschnitten
 
         if (building instanceof Stop) {
+
+            if (isTooCloseToFactory(building, row, column)) return false;
+
             adjacentStationId = -1L;
             for (int r = row; r < row + building.getWidth(); r++) {
                 Building adjacentBuilding = tileGrid[r][column - 1].getBuilding();
@@ -187,6 +192,95 @@ public class MapModel {
             }
         }
         return true;
+    }
+
+
+    /**
+     * Prüft, ob die zu bauende Station zu nah an einer Fabrik ist.
+     * Alle Stationen müssen einen Mindestabstand von 1 Tile zur nächsten Fabrik einhalten. Der kleine Tower
+     * muss einen Abstand von mindestens 2 Tiles einhalten und der große Tower von mindestens 3 Tiles
+     * @param building die zu platzierende Haltestelle
+     * @param row
+     * @param column
+     * @return
+     */
+    private boolean isTooCloseToFactory(Building building, int row, int column) {
+
+    // Wenn es sich um einen Busstop oder einen Bahnhof handelt, muss mindestens eine Zeile/Spalte
+    // Abstand zu einer Fabrik eingehalten werden
+        Point2D tileCoords = new Point2D(row, column);
+        Map<Tile, Point2D> neighbors = getAllNeighbors(tileCoords);
+        for (Tile neighbor : neighbors.keySet()) {
+            if (neighbor.getBuilding() instanceof Factory) {
+                return true;
+            }
+            // Wenn es sich um einen kleinen Tower handelt, müssen mindestens 2 Zeilen/Spalten
+            // Abstand zu einer Fabrik eingehalten werden
+            if (building.getBuildingName().contains("tower")) {
+                Map<Tile, Point2D> neighborsOfNeighbor = getAllNeighbors(neighbors.get(neighbor));
+                for (Tile neighborOfNeighbor : neighborsOfNeighbor.keySet()) {
+                    if (neighborOfNeighbor.getBuilding() instanceof Factory) {
+                        return true;
+                    }
+                    // Wenn es sich um einen großen Tower handelt, müssen mindestens 3 Zeilen/Spalten
+                    // Abstand zu einer Fabrik eingehalten werden
+                    if (building.getBuildingName().equals("big tower")) {
+                        Map<Tile, Point2D> thirdNeighbors = getAllNeighbors(neighborsOfNeighbor.get(neighborOfNeighbor));
+                        for (Tile thirdNeighbor : thirdNeighbors.keySet()) {
+                            if (thirdNeighbor.getBuilding() instanceof Factory) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Erzeugt eine Map, die alle Nachbar-Tiles mit entsprechenden Koordinaten enthält
+     * @param coords Koordinaten des Tiles, dessen Nachbarn gesucht werden
+     * @return
+     */
+    private Map<Tile, Point2D> getAllNeighbors(Point2D coords){
+        int xCoord = (int) coords.getX();
+        int yCoord = (int) coords.getY();
+
+        Map<Tile, Point2D> neighbors = new LinkedHashMap<>();
+
+
+        Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
+        Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
+        Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE
+        Tile tileSW = tileGrid[xCoord][yCoord - 1];     // SW
+
+        Tile tileN = tileGrid[xCoord - 1][yCoord +1];     // N
+        Tile tileE = tileGrid[xCoord +1][yCoord + 1];     // E
+        Tile tileS = tileGrid[xCoord + 1][yCoord -1];     // S
+        Tile tileW = tileGrid[xCoord-1][yCoord - 1];     // W
+
+        Point2D NW = new Point2D(xCoord - 1, yCoord );     // NW
+        Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
+        Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
+        Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
+
+        Point2D N = new Point2D(xCoord - 1, yCoord +1);     // N
+        Point2D E = new Point2D(xCoord +1, yCoord + 1);     // E
+        Point2D S = new Point2D(xCoord + 1, yCoord -1);     // S
+        Point2D W = new Point2D(xCoord-1, yCoord - 1);     // W
+
+        neighbors.put(tileNW, NW);
+        neighbors.put(tileNE, NE);
+        neighbors.put(tileSE, SE);
+        neighbors.put(tileSW, SW);
+        neighbors.put(tileN, N);
+        neighbors.put(tileE, E);
+        neighbors.put(tileS, S);
+        neighbors.put(tileW, W);
+
+        return neighbors;
     }
 
     //TODO Funktioniert momentan nur für ROAD
@@ -989,6 +1083,10 @@ public class MapModel {
     public TrafficGraph getRoadGraph() {
         return roadGraph;
     }
+
+//    public TrafficGraph getAirGraph() {
+//        return airGraph;
+//    }
 
     public void setRoadGraph(TrafficGraph roadGraph) {
         this.roadGraph = roadGraph;
