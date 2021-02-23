@@ -31,6 +31,9 @@ public class Station {
     private Vertex first;
     private Vertex last;
 
+    // Flugzeuge, die eine Landebahn nicht anfliegen duerfen, weil diese belegt ist
+    private Queue<VehicleMovement> airPlanesWaiting = new ArrayDeque<>();
+
 
     public Station(BasicModel model, TrafficLine roadTrafficLine, TrafficLine railTrafficLine,
                    TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart trafficPart) {
@@ -210,5 +213,13 @@ public class Station {
 
     public void setFirst(Vertex first) {
         this.first = first;
+    }
+
+    public void addAirPlanesWaiting(VehicleMovement e) {
+        airPlanesWaiting.offer(e);
+    }
+
+    public void removeAirPlanesWaiting() {
+        airPlanesWaiting.poll();
     }
 }

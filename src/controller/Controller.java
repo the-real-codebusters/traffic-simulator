@@ -283,8 +283,8 @@ public class Controller {
             if(stationsOfPlannedTrafficLine.size() == 0){
                 trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
             }
-            if(station.hasPartOfTrafficType(trafficType) &&
-                trafficPartOfPlannedTrafficLine.getStations().contains(station)
+            if(station.hasPartOfTrafficType(trafficType)/* &&*/
+                /*trafficPartOfPlannedTrafficLine.getStations().contains(station)*/
             ){
                 if(stationsOfPlannedTrafficLine.contains(station)){
                     stationsOfPlannedTrafficLine.remove(station);

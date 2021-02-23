@@ -23,6 +23,8 @@ public class Vehicle {
     private Station nextStation;
     private Pathfinder pathfinder;
 
+    private long id;
+
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
      * @return
@@ -221,5 +223,9 @@ public class Vehicle {
 
     public void setNextStation(Station nextStation) {
         this.nextStation = nextStation;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
