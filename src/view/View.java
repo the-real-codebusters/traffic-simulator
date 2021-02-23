@@ -30,9 +30,6 @@ import java.util.*;
 
 public class View {
 
-    // just an absolute path of my resources folder
-    String my_resources_path = "/Users/nataliiadaliba/IdeaProjects/codebusters/resources";
-
     private Stage stage;
 
     private double tileImageWidth = 128;
@@ -834,16 +831,12 @@ public class View {
 
         String gamemode = controller.getGamemode();
         Image image = null;
-        try {
-            image = new Image(
-                    new FileInputStream(my_resources_path + "/" + gamemode + "/" + imageName + ".png"),
+        image = new Image(
+                    "/" + gamemode + "/" + imageName + ".png",
                     widthAsInt,
                     heightAsInt,
                     false,
                     true);
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
         imageCache.put(imageName + widthAsInt + heightAsInt, image);
         return image;
     }
@@ -865,11 +858,7 @@ public class View {
 
         // System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
         Image image = null;
-        try {
-           image  = new Image(new FileInputStream(my_resources_path + url));
-        } catch (FileNotFoundException ex){
-            ex.printStackTrace();
-        }
+        image  = new Image(url);
         imageCache.put(imageName + "raw", image);
         return image;
     }
