@@ -220,9 +220,9 @@ public class Pathfinder {
             searchLevel = currentNode.getActualSearchLevel();
 
             //Wenn if-Bedingung erfüllt ist, dann haben wir ein Ziel gefunden
-            if (currentNode != null && currentNode.getBuilding() != null) {
+            if (currentNode != null && currentNode.getBuildings().size() > 0) {
 
-                foundBuildings.add(currentNode.getBuilding());
+                foundBuildings.addAll(currentNode.getBuildings());
             }
             // Wenn wir in den else-Teil gehen, haben wir noch kein Ziel gefunden
                 // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs

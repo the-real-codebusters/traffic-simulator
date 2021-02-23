@@ -332,7 +332,6 @@ public class MapModel {
             if (building.getTrafficType().equals(TrafficType.AIR)) {
                 trafficGraph = this.roadGraph;
             }
-            //TODO rails
 
             //Vielleicht sollte man für Flugzeuge eine eigene globale Variable von TrafficGraph erstellen, der die Punkte der
             // Flugverbindungen abspeichert. Dann müssten auch im Pathfinder unterschiedliche Graphen benutzt werden,
@@ -350,10 +349,26 @@ public class MapModel {
         //Stationen bestehen aus Haltestellen, deswegen ist dann der Punkt Teil einer Station
         if (building instanceof Stop) isPointPartOfStation = true;
 
+        Tile selectedTile = model.getMap().getTileGrid()[xCoordOfTile][yCoordOfTile];
+        Building buildingOnSelectedTileBefore = selectedTile.getBuilding();
+//        Set<Vertex> verticesOfBuildingBefore = new ArrayList<>();
+
+        //Entferne alle points des buildings, das vorher auf dem tile stand
+        if(buildingOnSelectedTileBefore instanceof PartOfTrafficGraph){
+            Set<Vertex>  verticesOfBuildingBefore = ((PartOfTrafficGraph) buildingOnSelectedTileBefore).getVertices();
+            for(Vertex v : verticesOfBuildingBefore){
+                model.getMap().getGraphForTrafficType(buildingOnSelectedTileBefore.getTrafficType()).removeVertex(v.getName());
+            }
+        }
+
         //Speichere die Knoten aus dem Graph vor den Änderungen
         List<Vertex> verticesBefore = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
 
         Map<String, List<Double>> points = building.getPoints();
+        Set<Vertex> joinedVertices = new HashSet<>();
+
+
+
         for (Map.Entry<String, List<Double>> pointNameAndCoords : points.entrySet()) {
 
             // identifier wird dem Name eines Knotens hinzugefügt, damit der Name unique bleibt,
@@ -364,13 +379,17 @@ public class MapModel {
             double xCoordOfPoint = pointNameAndCoords.getValue().get(0);
             double yCoordOfPoint = pointNameAndCoords.getValue().get(1);
 
+
             Vertex vertexOfBuilding = new Vertex(vertexName, xCoordOfPoint, yCoordOfPoint, xCoordOfTile, yCoordOfTile);
             vertexOfBuilding.setPointOfStation(isPointPartOfStation);
             if (isPointPartOfStation) {
                 vertexOfBuilding.setStation(((Stop) building).getStation());
             }
-            trafficGraph.addVertex(vertexOfBuilding);
-
+            boolean added = trafficGraph.addVertex(vertexOfBuilding);
+            if(!added){
+                Vertex v2 = trafficGraph.getMapOfVertexes().get(vertexOfBuilding.getName());
+                joinedVertices.add(v2);
+            }
             //
             for (Vertex vertexOfGraph : trafficGraph.getMapOfVertexes().values()) {
                 //edges gibt die Verbindungen zwischen den points eines buildings an
@@ -392,7 +411,10 @@ public class MapModel {
 
         //checkForDuplicatePoints entfernt Punkte, die durch das hinzufügen doppelt geworden sind.
         //Die joinedVertices sind die Punkte, die zusammengfügt wurden und noch im Graph sind
-        List<Vertex> joinedVertices = trafficGraph.checkForDuplicatePoints();
+        joinedVertices.addAll(trafficGraph.checkForDuplicatePoints());
+        System.out.println("joinedVertices");
+        joinedVertices.forEach((x) -> System.out.println(x.getName()));
+
         trafficGraph.printGraph();
 
         //Die Knoten im Graph nach den Änderungen
@@ -403,15 +425,21 @@ public class MapModel {
 
         List<Vertex> addedVertices = verticesOfBuilding;
 
+        System.out.println("addedVertices");
+        addedVertices.forEach((x) -> System.out.println(x.getName()));
+
         //Es wurden Points zusammengeführt, die gehören aber trotzdem zum building
         for (Vertex j : joinedVertices) {
             if (!addedVertices.contains(j)) {
                 addedVertices.add(j);
             }
         }
+        System.out.println("addedVertices after joined");
+        addedVertices.forEach((x) -> System.out.println(x.getName()));
+
         building.getVertices().addAll(addedVertices);
         for (Vertex addedV : addedVertices) {
-            addedV.setBuilding(building);
+            addedV.getBuildings().add(building);
         }
         return addedVertices;
     }
@@ -457,29 +485,49 @@ public class MapModel {
 
     public void removePointsOnTile(Building buildingOnSelectedTile, int xCoord, int yCoord) {
         PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
-        List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
-
         TrafficGraph graph = model.getMap().getGraphForTrafficType(partOfGraph.getTrafficType());
-        for (Vertex v : addedVertices) {
-            boolean isOnBorder = true;
-            if(v.getxCoordinateRelativeToTileOrigin() > 0 && v.getxCoordinateRelativeToTileOrigin() < 1
-                    && v.getyCoordinateRelativeToTileOrigin() > 0 && v.getyCoordinateRelativeToTileOrigin() < 1){
-                isOnBorder = false;
-            }
-            if (isOnBorder == false) {
-                graph.removeVertex(v.getName());
-            }
-        }
 
-        Map<String, Vertex> vertexesInGraph = graph.getMapOfVertexes();
-        Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, Vertex> vertex = iterator.next();
-            List<Vertex> connections = graph.getAdjacencyMap().get(vertex.getKey());
-            if (connections.size() == 0) {
-                iterator.remove();
+        Set<Vertex> addedVertices = ((PartOfTrafficGraph) buildingOnSelectedTile).getVertices();
+
+        System.out.println("Vertices of building in removePointsOnTile");
+        addedVertices.forEach((x) -> System.out.println(x.getName()));
+
+        for(Vertex vertex : addedVertices){
+            vertex.getBuildings().remove(buildingOnSelectedTile);
+
+            if(vertex.getBuildings().size() == 0){
+                graph.removeVertex(vertex.getName());
+            }
+            else {
+                System.out.println("Buildings for Vertex");
+                vertex.getBuildings().forEach((x) -> System.out.println(x.getBuildingName()));
             }
         }
+//
+//        List<Vertex> addedVertices = model.getMap().getVerticesOnTile(partOfGraph, xCoord, yCoord);
+//
+//
+//
+//        for (Vertex v : addedVertices) {
+//            boolean isOnBorder = true;
+//            if(v.getxCoordinateRelativeToTileOrigin() > 0 && v.getxCoordinateRelativeToTileOrigin() < 1
+//                    && v.getyCoordinateRelativeToTileOrigin() > 0 && v.getyCoordinateRelativeToTileOrigin() < 1){
+//                isOnBorder = false;
+//            }
+//            if (isOnBorder == false) {
+//                graph.removeVertex(v.getName());
+//            }
+//        }
+//
+//        Map<String, Vertex> vertexesInGraph = graph.getMapOfVertexes();
+//        Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
+//        while (iterator.hasNext()) {
+//            Map.Entry<String, Vertex> vertex = iterator.next();
+//            List<Vertex> connections = graph.getAdjacencyMap().get(vertex.getKey());
+//            if (connections.size() == 0) {
+//                iterator.remove();
+//            }
+//        }
     }
 
 
