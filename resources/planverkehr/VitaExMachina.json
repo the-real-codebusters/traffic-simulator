@@ -419,7 +419,7 @@
       "dz" : 1
     },
     "steel factory" : {
-      "width" : 6,
+      "width" : 5,
       "depth" : 3,
       "special" : "factory",
       "productions" : {"produce":{"steel":4},"consume":{"iron ore":5},"duration":20},
@@ -427,15 +427,15 @@
       "dz" : 1
     },
     "mechanical engineering" : {
-      "width" : 4,
-      "depth" : 5,
+      "width" : 5,
+      "depth" : 4,
       "special" : "factory",
       "productions" : [{"produce":{"robot pieces":4},"duration":8}, {"consume" : {"steel":2},"duration":25}],
       "storage" : {"steel" : 1000},
       "dz" : 1
     },
     "final factory" : {
-      "width" : 4,
+      "width" : 5,
       "depth" : 5,
       "special" : "factory",
       "productions" : {"consume":{"robot pieces":4, "emotions":1, "nanotechnology":3, "neural networks":2}, "duration":8},
@@ -452,8 +452,8 @@
       "dz" : 1
     },
     "fusion power plant" : {
-      "width" : 3,
-      "depth" : 6,
+      "width" : 2,
+      "depth" : 2,
       "special" : "factory",
       "productions" : {"produce":{"energy":5},"duration":10},
       "dz" : 1
@@ -467,7 +467,7 @@
       "dz" : 1
     },
     "nanotechnology lab" : {
-      "width" : 3,
+      "width" : 4,
       "depth" : 4,
       "special" : "factory",
       "productions" : {"produce":{"nanotechnology":7},"consume":{"energy":4 },"duration":30},
@@ -475,15 +475,15 @@
       "dz" : 1
     },
     "human research department" : {
-      "width" : 3,
-      "depth" : 4,
+      "width" : 5,
+      "depth" : 5,
       "special" : "factory",
       "productions" : {"produce":{"human data":7},"consume":{"energy":4, "quantum processor" : 5},"duration":30},
       "storage" : {"energy" : 600},
       "dz" : 1
     },
     "emotion research department" : {
-    "width" : 3,
+    "width" : 4,
     "depth" : 4,
     "special" : "factory",
     "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "human data" : 5 },"duration":30},
@@ -491,8 +491,8 @@
     "dz" : 1
   },
     "recycling factory" : {
-      "width" : 4,
-      "depth" : 4,
+      "width" : 5,
+      "depth" : 5,
       "special" : "factory",
       "productions" : {"produce":{"steel":8},"duration":15},
       "dz" : 1
