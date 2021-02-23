@@ -20,15 +20,19 @@ public class Controller {
     private BasicModel model;
     private Pathfinder pathfinder;
     private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
+    private Locale locale;
+    private ResourceBundle resourceBundle;
 
     //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
     //zu dieser Liste hinzugefügt werden
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
-    public Controller(View view, BasicModel model) {
+    public Controller(View view, BasicModel model, Locale locale, ResourceBundle resourceBundle) {
         this.view = view;
         this.model = model;
+        this.locale = locale;
+        this.resourceBundle = resourceBundle;
 
         MapModel map = model.getMap();
 //        model.printModelAttributes();
@@ -301,6 +305,11 @@ public class Controller {
         return model.getBuildingsForBuildmenu(buildmenu);
     }
 
+    public Locale getLocale() {
+        return locale;
+    }
 
-
+    public ResourceBundle getResourceBundle() {
+        return resourceBundle;
+    }
 }

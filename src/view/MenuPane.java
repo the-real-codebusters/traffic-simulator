@@ -23,10 +23,8 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
+import java.util.*;
 
 
 import javafx.scene.control.Button;
@@ -167,7 +165,20 @@ public class MenuPane extends AnchorPane {
 
 
     public void setDayLabel(int day){
-        dayLabel.setText("Current day: " + day);
+//        Locale locale = new Locale("de", "DE");
+        Locale locale = new Locale("en", "US");
+//        ResourceBundle resourceBundle = ResourceBundle.getBundle("Bundle", locale);
+
+//        Locale locale = controller.getLocale();
+        System.out.println("Locale: " + locale);
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("Bundle", locale);
+//        ResourceBundle resourceBundle = controller.getResourceBundle();
+        System.out.println(resourceBundle);
+        System.out.println(resourceBundle.getString("dayLabel"));
+
+        dayLabel.setText(resourceBundle.getString("dayLabel") + day);
+
+//        dayLabel.setText("Current day: " + day);
         dayLabel.setFont(new Font("Arial", 15));
     }
 
