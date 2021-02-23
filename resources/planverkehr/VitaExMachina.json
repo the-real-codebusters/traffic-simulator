@@ -474,11 +474,11 @@
       "storage" : {"energy" : 600},
       "dz" : 1
     },
-    "people research department" : {
+    "human research department" : {
       "width" : 3,
       "depth" : 4,
       "special" : "factory",
-      "productions" : {"produce":{"people data":7},"consume":{"energy":4, "quantum processor" : 5},"duration":30},
+      "productions" : {"produce":{"human data":7},"consume":{"energy":4, "quantum processor" : 5},"duration":30},
       "storage" : {"energy" : 600},
       "dz" : 1
     },
@@ -486,7 +486,7 @@
     "width" : 3,
     "depth" : 4,
     "special" : "factory",
-    "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "people data" : 5 },"duration":30},
+    "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "human data" : 5 },"duration":30},
     "storage" : {"energy" : 600},
     "dz" : 1
   },
