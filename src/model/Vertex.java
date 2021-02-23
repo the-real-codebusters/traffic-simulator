@@ -1,6 +1,9 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Vertex extends PositionOnTilemap {
     // TODO: bei Einlesen aus JSON sollte sichergestellt werden, dass Name unique ist
@@ -15,7 +18,7 @@ public class Vertex extends PositionOnTilemap {
     // Wenn ein Punkt zu einer Haltestelle gehört, darf ein Fahrzeug darauf anhalten
 //    private List<Building> buildings
 
-    private PartOfTrafficGraph building;
+    private Set<PartOfTrafficGraph> buildings = new HashSet<>();
     private int actualSearchLevel;
 
     public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
@@ -54,12 +57,8 @@ public class Vertex extends PositionOnTilemap {
         this.station = station;
     }
 
-    public PartOfTrafficGraph getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(PartOfTrafficGraph building) {
-        this.building = building;
+    public Set<PartOfTrafficGraph> getBuildings() {
+        return buildings;
     }
 
     @Override

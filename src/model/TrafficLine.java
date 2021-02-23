@@ -72,10 +72,13 @@ public class TrafficLine {
         }
 
         vehicle.savePathToNextStation(startVertexForNewVehicles);
+        if(vehicle.pathToNextStation.size() > 0){
+            //Dann konnte ein Weg gefunden werden
+            vehicles.add(vehicle);
+            System.out.println(vehicle.getTrafficType());
+            System.out.println("Speed of new vehicle"+vehicle.getSpeed());
+        }
 
-        vehicles.add(vehicle);
-        System.out.println(vehicle.getTrafficType());
-        System.out.println("Speed of new vehicle"+vehicle.getSpeed());
         return vehicle;
     }
 
