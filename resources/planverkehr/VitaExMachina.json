@@ -585,7 +585,7 @@
     "air taxi" : {
       "kind" : "plane",
       "graphic" : "air_taxi",
-      "cargo" : {"people data" : 7},
+      "cargo" : {"human data" : 7},
       "speed" : 0.7
     }
 
