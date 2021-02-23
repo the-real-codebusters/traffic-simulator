@@ -51,6 +51,21 @@ public class Vehicle {
      * Speichert den Weg zur nächsten Station ab
      * @param startVertex
      */
+    public void savePathToNextStationAndUpdateMovement(Vertex startVertex, VehicleMovement movement){
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
+        if(pathToNextStation.size() == 0){
+            System.out.println("Kein neuer Weg gefunden");
+            //Kein Weg gefunden
+            TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+            line.getVehicles().remove(this);
+            movement.setLastMovementBeforeRemove(true);
+        }
+    }
+
+    /**
+     * Speichert den Weg zur nächsten Station ab
+     * @param startVertex
+     */
     public void savePathToNextStation(Vertex startVertex){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
     }
@@ -81,23 +96,20 @@ public class Vehicle {
             Vertex nextVertex = pathToNextStation.remove(0);
             //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
 
-            //Teste, ob Knoten noch im Graph. Wenn nicht wurde Straße/Schiene verändert
-            if(!pathfinder.getGraphForTrafficType(trafficType).getMapOfVertexes().containsValue(nextVertex)){
+            //Teste, ob Knoten noch im Graph. Teste außerdem, ob Knoten noch eine Verbindung zum nächsten Knoten hat
+            // Wenn nicht wurde Straße/Schiene verändert
+            TrafficGraph graph = pathfinder.getGraphForTrafficType(trafficType);
+            boolean vertexContained = graph.getMapOfVertexes().containsValue(nextVertex);
+            boolean hasEdge = true;
+            if(vertexContained && pathToNextStation.size() > 0){
+                Vertex firstElementInPathToNextStation = pathToNextStation.remove(0);
+                hasEdge = graph.hasBidirectionalEdge(nextVertex.getName(), firstElementInPathToNextStation.getName());
+                pathToNextStation.add(0, firstElementInPathToNextStation);
+            }
+            if(!vertexContained || !hasEdge){
                 System.out.println("Fehlende Straße/Schiene entdeckt");
-                savePathToNextStation(pathToNextStationBeforeMovement.get(0));
-                if(pathToNextStation.size() == 0){
-                    System.out.println("Kein neuer Weg gefunden");
-                    //Kein Weg gefunden
-                    TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
-                    line.getVehicles().remove(this);
-                    vehicleMovement.setLastMovementBeforeRemove(true);
-                    return vehicleMovement;
-                }
-                else {
-                    System.out.println("Neuer Weg gefunden");
-                    //Weg gefunden
-                    return vehicleMovement;
-                }
+                savePathToNextStationAndUpdateMovement(pathToNextStationBeforeMovement.get(0), vehicleMovement);
+                return vehicleMovement;
             }
 
 
@@ -120,7 +132,7 @@ public class Vehicle {
         if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
-            savePathToNextStation((Vertex) currentPosition);
+            savePathToNextStationAndUpdateMovement((Vertex) currentPosition, vehicleMovement);
             System.out.println("Movement after method at last vertex to next station: ");
             for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
                 System.out.println(p.coordsRelativeToMapOrigin());

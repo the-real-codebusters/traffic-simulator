@@ -100,6 +100,15 @@ public class TrafficGraph {
         if (connectionsOfVertex2 != null) connectionsOfVertex2.remove(vertex1);
     }
 
+    public boolean hasBidirectionalEdge(String nameOfVertex1, String nameOfVertex2){
+        Vertex vertex2 = mapOfVertexes.get(nameOfVertex2);
+
+        boolean hasEdge = adjacencyMap.get(nameOfVertex1).contains(vertex2);
+
+        System.out.println("hasEdge between "+nameOfVertex1+" and "+nameOfVertex2+" was "+hasEdge);
+        return hasEdge;
+    }
+
 
     /**
      * Fügt zwei Knoten zusammen. Die ausgehenden und eingehenden Kanten von vertex2 werden vertex1 hinzugefügt.

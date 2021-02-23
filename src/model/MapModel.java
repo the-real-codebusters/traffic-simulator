@@ -41,7 +41,10 @@ public class MapModel {
             for (int c = column; c < column + instance.getDepth(); c++) {
                 if (tileGrid[r][c] == null)
                     tileGrid[r][c] = new Tile(instance, tileGrid[r][c].getCornerHeights(), false);
-                else tileGrid[r][c].setBuilding(instance);
+                else {
+                    removePreviousBuildingOutOfVertices(r, c);
+                    tileGrid[r][c].setBuilding(instance);
+                }
             }
         }
 
@@ -312,6 +315,30 @@ public class MapModel {
         return false;
     }
 
+    private void removePreviousBuildingOutOfVertices(int xCoordOfTile, int yCoordOfTile){
+
+        Tile selectedTile = model.getMap().getTileGrid()[xCoordOfTile][yCoordOfTile];
+        Building buildingOnSelectedTileBefore = selectedTile.getBuilding();
+
+        //Entferne alle points des buildings, das vorher auf dem tile stand
+        if(buildingOnSelectedTileBefore instanceof PartOfTrafficGraph){
+            Set<Vertex>  verticesOfBuildingBefore = ((PartOfTrafficGraph) buildingOnSelectedTileBefore).getVertices();
+            TrafficGraph graph = model.getMap().getGraphForTrafficType(buildingOnSelectedTileBefore.getTrafficType());
+            for(Vertex v : verticesOfBuildingBefore){
+                v.getBuildings().remove(buildingOnSelectedTileBefore);
+                if(v.getBuildings().size() == 0){
+                    graph.removeVertex(v.getName());
+                }
+                else {
+                    for(Vertex v2 : verticesOfBuildingBefore){
+                        graph.removeEdgeBidirectional(v.getName(), v2.getName());
+                    }
+                }
+            }
+            graph.printGraph();
+        }
+    }
+
 
     /**
      * Fügt die Points eines Felds zum Verkehrsgraph hinzu. Points innerhalb eines Tiles sind miteinander
@@ -348,18 +375,6 @@ public class MapModel {
 
         //Stationen bestehen aus Haltestellen, deswegen ist dann der Punkt Teil einer Station
         if (building instanceof Stop) isPointPartOfStation = true;
-
-        Tile selectedTile = model.getMap().getTileGrid()[xCoordOfTile][yCoordOfTile];
-        Building buildingOnSelectedTileBefore = selectedTile.getBuilding();
-//        Set<Vertex> verticesOfBuildingBefore = new ArrayList<>();
-
-        //Entferne alle points des buildings, das vorher auf dem tile stand
-        if(buildingOnSelectedTileBefore instanceof PartOfTrafficGraph){
-            Set<Vertex>  verticesOfBuildingBefore = ((PartOfTrafficGraph) buildingOnSelectedTileBefore).getVertices();
-            for(Vertex v : verticesOfBuildingBefore){
-                model.getMap().getGraphForTrafficType(buildingOnSelectedTileBefore.getTrafficType()).removeVertex(v.getName());
-            }
-        }
 
         //Speichere die Knoten aus dem Graph vor den Änderungen
         List<Vertex> verticesBefore = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
