@@ -94,11 +94,11 @@ public class Building {
         return dz;
     }
 
-    public ConnectedTrafficPart getTrafficLine() {
+    public ConnectedTrafficPart getTrafficPart() {
         return connectedTrafficPart;
     }
 
-    public void setTrafficLine(ConnectedTrafficPart connectedTrafficPart) {
+    public void setTrafficPart(ConnectedTrafficPart connectedTrafficPart) {
         this.connectedTrafficPart = connectedTrafficPart;
     }
 

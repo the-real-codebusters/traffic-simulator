@@ -7,7 +7,7 @@ public class Rail extends Building implements PartOfTrafficGraph{
 
     private Map<String, List<Double>> points = new HashMap<>();
     private List<List<String>> rails = new ArrayList<>();
-    // optional
+    // optional. Wenn Railsignal, dann hat es signals
     private List<String> signals = new ArrayList<>();
 
     // optional
@@ -58,6 +58,10 @@ public class Rail extends Building implements PartOfTrafficGraph{
 
     public void setSignals(List<String> signals) {
         this.signals = signals;
+    }
+
+    public List<String> getSignals() {
+        return signals;
     }
 
     @Override

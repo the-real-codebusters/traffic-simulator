@@ -13,6 +13,7 @@ public class Vertex extends PositionOnTilemap {
     private boolean isPointOfStation = false;
 
     private Station station = null;
+    private Railblock railblock = null;
 
     // Liste von Bauwerken, zu denen der Punkt gehört
     // Wenn ein Punkt zu einer Haltestelle gehört, darf ein Fahrzeug darauf anhalten
@@ -59,6 +60,14 @@ public class Vertex extends PositionOnTilemap {
 
     public Set<PartOfTrafficGraph> getBuildings() {
         return buildings;
+    }
+
+    public Railblock getRailblock() {
+        return railblock;
+    }
+
+    public void setRailblock(Railblock railblock) {
+        this.railblock = railblock;
     }
 
     @Override

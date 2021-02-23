@@ -178,19 +178,16 @@ public class Controller {
                 model.getMap().changeGroundHeight(xCoord, yCoord, -1);
             }
 
-
-
             if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail
                 || selectedBuilding instanceof JustCombines) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
 
+            System.out.println("managePlacement: "+selectedBuilding.getBuildingName()+" typ "+selectedBuilding.getTrafficType());
+
             if(selectedBuilding != null) {
                 Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
             }
-
-            // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
-            // Wenn nein, dann neu erstellen
 
             view.drawMap();
             if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {

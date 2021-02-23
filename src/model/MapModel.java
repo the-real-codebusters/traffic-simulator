@@ -79,15 +79,15 @@ public class MapModel {
             List<Vertex> addedPoints = model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
             if (instance instanceof Road) {
                 //checke, ob man zwei TrafficParts mergen sollte
-                mergeTrafficPartsIfNeccessary(addedPoints.get(0), TrafficType.ROAD);
+                mergeTrafficPartsIfNeccessary(addedPoints, TrafficType.ROAD);
             } else if (instance instanceof Rail) {
                 //checke, ob man zwei TrafficParts mergen sollte
-                mergeTrafficPartsIfNeccessary(addedPoints.get(0), TrafficType.RAIL);
+                mergeTrafficPartsIfNeccessary(addedPoints, TrafficType.RAIL);
             }
             if (instance instanceof Runway) {
                 if (createdNewStation) {
-                    ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
-                    instance.setTrafficLine(connectedTrafficPart);
+                    ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficPartOrCreateNewTrafficPart(station, instance.getTrafficType());
+                    instance.setTrafficPart(connectedTrafficPart);
                 }
                 //checke, ob man zwei TrafficLines mergen sollte
                 mergeTrafficAirPartsIfNeccessary(addedPoints.get(0));
@@ -96,8 +96,8 @@ public class MapModel {
         }
 
         if (createdNewStation) {
-            ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficLineOrCreateNewTrafficLine(station, instance.getTrafficType());
-            instance.setTrafficLine(connectedTrafficPart);
+            ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficPartOrCreateNewTrafficPart(station, instance.getTrafficType());
+            instance.setTrafficPart(connectedTrafficPart);
         }
 
         return instance;
@@ -145,7 +145,6 @@ public class MapModel {
                                     && tile.getCornerHeights().get("cornerS") > 0
                     )) return false;
                 }
-
 
                 // TODO Wenn Höhe nicht passt, return false
 
@@ -293,24 +292,80 @@ public class MapModel {
      * Prüft ausgehend von einem neu hinzugefügten Knoten, ob 2 Verkehrsteile verbunden wurden. Wenn das der Fall ist,
      * fügt es die beiden Verkehrsteile zu einer zusammen.
      *
-     * @param newAddedVertex
+     * @param newAddedVertices
      */
-    private void mergeTrafficPartsIfNeccessary(Vertex newAddedVertex, TrafficType trafficType) {
+    private void mergeTrafficPartsIfNeccessary(List<Vertex> newAddedVertices, TrafficType trafficType) {
 
-
-        List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertex, trafficType);
-        Set<ConnectedTrafficPart> differentLines = new HashSet<>();
+        List<Station> nearStations = model.getPathfinder().findAllDirectlyConnectedStations(newAddedVertices.get(0), trafficType);
+        Set<ConnectedTrafficPart> differentParts = new HashSet<>();
         for (Station station : nearStations) {
-            differentLines.add(station.getTrafficPartForTrafficType(trafficType));
-            //TODO Wann wird TrafficPart in Station gesetzt?
+            differentParts.add(station.getTrafficPartForTrafficType(trafficType));
         }
-        int numberOfNearTrafficLines = differentLines.size();
-        System.out.println(numberOfNearTrafficLines);
-        if (numberOfNearTrafficLines > 1) {
-            System.out.println("tried to merge trafficLines");
-            System.out.println("found lines " + numberOfNearTrafficLines);
-            mergeTrafficParts(new ArrayList<>(differentLines));
+        int numberOfNearTrafficParts = differentParts.size();
+        System.out.println(numberOfNearTrafficParts);
+        boolean mergeNecessary = numberOfNearTrafficParts > 1;
+        if (mergeNecessary) {
+            System.out.println("newAddedVertices in mergeTrafficPartsIfNeccessary: ");
+            newAddedVertices.forEach((x) -> System.out.println(x.getName()));
+
+            mergeTrafficParts(new ArrayList<>(differentParts));
+
+            if(trafficType.equals(TrafficType.RAIL)){
+
+                Set<Railblock> nearRailblocks = new HashSet<>();
+                for(Vertex vertex : newAddedVertices){
+
+                    Railblock nearRailblock = vertex.getRailblock();
+                    if(nearRailblock != null){
+                        nearRailblocks.add(nearRailblock);
+                    }
+                }
+                if(nearRailblocks.size() == 2){
+                    ArrayList<Railblock> railblockList = new ArrayList(nearRailblocks);
+
+                    Railblock railblock1 = railblockList.get(0);
+                    Railblock railblock2 = railblockList.get(1);
+
+                    System.out.println("Railblock 1 vertices: ");
+                    railblock1.getVertices().forEach((x) -> System.out.println(x.getName()));
+
+                    System.out.println("Railblock 2 vertices: ");
+                    railblock2.getVertices().forEach((x) -> System.out.println(x.getName()));
+
+                    railblock1.mergeWithRailblock(railblock2);
+                    railblock1.addVertices(new HashSet<>(newAddedVertices));
+
+                    System.out.println("Railblock 1 vertices: ");
+                    railblock1.getVertices().forEach((x) -> System.out.println(x.getName()));
+
+                }
+                else if(nearRailblocks.size() > 2){
+                    throw new RuntimeException("Unfertiger Code");
+                }
+                else {
+                    throw new RuntimeException("nearRailblocks.size() in mergeTrafficPartsIfNeccessary was "+nearRailblocks.size());
+                }
+            }
         }
+        else {
+            if(numberOfNearTrafficParts == 1 && trafficType.equals(TrafficType.RAIL)){
+                ConnectedTrafficPart trafficPart = differentParts.iterator().next();
+                Railblock nearRailblock = null;
+                for(Vertex vertex : newAddedVertices){
+                    if(vertex.getRailblock() != null){
+                        nearRailblock = vertex.getRailblock();
+                    }
+                }
+                if(nearRailblock != null){
+                    nearRailblock.addVertices(new HashSet<>(newAddedVertices));
+                    Set<Vertex> vertices = model.getPathfinder().findAllConnectedVerticesUntilSignal(newAddedVertices.get(0));
+                    System.out.println("connected vertices if not merged: ");
+                    vertices.forEach((x) -> System.out.println(x.getName()));
+                }
+                else throw new RuntimeException("railblock war null");
+            }
+        }
+
     }
 
     private void mergeTrafficAirPartsIfNeccessary(Vertex newAddedVertex) {
@@ -642,14 +697,14 @@ public class MapModel {
 
 
     /**
-     * Wenn keine andere Station im Straßengraphen findbar, fügt es dem Straßengraph eine neue Verkehrslinie hinzu. Wenn eine andere Station
-     * findbar, wird der verkehrslinie der gefundenen Station die angegebene Station hinzugefügt
-     *
+     * Wenn keine andere Station im Graphen findbar, fügt es dem Graphen einen neuen Verkehrsteil hinzu. Wenn eine
+     * andere Station findbar, wird der Verkehrsteil der gefundenen Station der neuen Station hinzugefügt
+     * Der Graph ist abhängig vom angegebenen trafficType.
      * @param newStation
      * @param trafficType
      * @return
      */
-    private ConnectedTrafficPart addNewStationToTrafficLineOrCreateNewTrafficLine(Station newStation, TrafficType trafficType) {
+    private ConnectedTrafficPart addNewStationToTrafficPartOrCreateNewTrafficPart(Station newStation, TrafficType trafficType) {
         List<Vertex> pathToStation;
         if (trafficType == TrafficType.AIR && stations.size() > 1) {
             Vertex startVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
@@ -685,6 +740,15 @@ public class MapModel {
             else if(trafficType.equals(TrafficType.RAIL)){
                 nextStation.getRailTrafficPart().addStationAndUpdateConnectedStations(newStation);
                 newStation.setRailTrafficPart(nextStation.getRailTrafficPart());
+
+                Vertex oneVertexOfRailblock = newStation.getComponents().get(0).getVertices().iterator().next();
+                Set<Vertex> verticesOfRailblock = model.getPathfinder().findAllConnectedVerticesUntilSignal(oneVertexOfRailblock);
+                Railblock railblock = new Railblock();
+                railblock.addVertices(verticesOfRailblock);
+
+                System.out.println("Vertices of new Railblock when added Station to existing ConnectedTrafficPart");
+                railblock.getVertices().forEach((x) -> System.out.println(x.getName()));
+
                 return nextStation.getRailTrafficPart();
             }
             else throw new IllegalArgumentException("traffictype in addNewStationToTrafficLineOrCreateNewTrafficLine was "+trafficType);
