@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
+import view.OpeningScreen;
 import view.View;
 
 
@@ -19,20 +20,17 @@ public class Controller {
     private View view;
     private BasicModel model;
     private Pathfinder pathfinder;
-    private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
-    private Locale locale;
-    private ResourceBundle resourceBundle;
+    private OpeningScreen opening;
 
     //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
     //zu dieser Liste hinzugefügt werden
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
-    public Controller(View view, BasicModel model, Locale locale, ResourceBundle resourceBundle) {
+    public Controller(View view, BasicModel model, OpeningScreen opening) {
         this.view = view;
         this.model = model;
-        this.locale = locale;
-        this.resourceBundle = resourceBundle;
+        this.opening = opening;
 
         MapModel map = model.getMap();
 //        model.printModelAttributes();
@@ -306,10 +304,10 @@ public class Controller {
     }
 
     public Locale getLocale() {
-        return locale;
+        return opening.getLocale();
     }
 
     public ResourceBundle getResourceBundle() {
-        return resourceBundle;
+        return opening.getResourceBundle();
     }
 }

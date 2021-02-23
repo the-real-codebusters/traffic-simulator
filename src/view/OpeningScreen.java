@@ -1,7 +1,5 @@
 package view;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -24,6 +22,8 @@ public class OpeningScreen {
     private final File mediaFile = new File("resources/IMG_7659.mp4");
     final Button openButton = new Button("Choose the json file");
     private Locale locale;
+
+
     private ResourceBundle resourceBundle = new ResourceBundle() {
         @Override
         protected Object handleGetObject(String key) {
@@ -44,28 +44,26 @@ public class OpeningScreen {
         ChoiceBox<String> languages = new ChoiceBox<>(
                 FXCollections.observableArrayList("English", "German")
         );
+        // wenn Auswahl nicht verändert wird, ist Spiel auf English
         languages.getSelectionModel().select(0);
         languages.setStyle("-fx-font-size: 15px");
 
-
+        // Locale ist per Default auf english
         locale = new Locale("en", "US");
 
+        // Prüft ob eine Sprachauswahl getroffen wird und erstellt entsprechend eine Locale und ein ResourceBundle
         languages.getSelectionModel().selectedItemProperty()
                 .addListener((obs, oldValue, newValue) -> {
-                    System.out.println(obs + " " + oldValue + newValue);
-//                    String language = languages.getSelectionModel().getSelectedItem();
+
                     String language = languages.getSelectionModel().getSelectedItem();
-                    System.out.println("language: " + language);
 
                     if (language.equals("English")){
                         locale = new Locale("en", "US");
                     } else if (language.equals("German")){
                         locale = new Locale("de", "DE");
                     }
-                    resourceBundle = ResourceBundle.getBundle("Bundle", locale);
-                    System.out.println("in opening screen: " + resourceBundle);
 
-                    System.out.println(locale);
+                    resourceBundle = ResourceBundle.getBundle("Bundle", locale);
 
                 });
 

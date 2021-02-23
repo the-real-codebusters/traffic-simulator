@@ -18,8 +18,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         OpeningScreen opening = new OpeningScreen(stage);
-        Locale locale = opening.getLocale();
-        ResourceBundle resourceBundle = opening.getResourceBundle();
+
         Button openButton = opening.getOpenButton();
         openButton.setOnAction(e -> {
             File file = new FileChooser().showOpenDialog(stage);
@@ -31,7 +30,7 @@ public class Main extends Application {
             boolean result = parser.parse(pathToFile, model);
             if (result) {
                 View view = new View(stage, model);
-                Controller controller = new Controller(view, model, locale, resourceBundle);
+                Controller controller = new Controller(view, model, opening);
             }
             String title = pathToFile.substring(pathToFile.lastIndexOf('\\') + 1, pathToFile.length()-5);
             stage.setTitle(title);

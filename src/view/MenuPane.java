@@ -54,6 +54,8 @@ public class MenuPane extends AnchorPane {
     private Button animationButton;
     private Slider slider;
     private Label dayLabel = new Label();
+    private Locale locale;
+    private ResourceBundle resourceBundle;
 
     public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
@@ -61,6 +63,8 @@ public class MenuPane extends AnchorPane {
         this.mapping = mapping;
         this.controller = controller;
         tabPane.setFocusTraversable(false);
+        locale = controller.getLocale();
+        resourceBundle = ResourceBundle.getBundle("Bundle", locale);
 
         setCanvasEvents();
 
@@ -165,19 +169,8 @@ public class MenuPane extends AnchorPane {
 
 
     public void setDayLabel(int day){
-//        Locale locale = new Locale("de", "DE");
-        Locale locale = new Locale("en", "US");
-//        ResourceBundle resourceBundle = ResourceBundle.getBundle("Bundle", locale);
-
-//        Locale locale = controller.getLocale();
-        System.out.println("Locale: " + locale);
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("Bundle", locale);
-//        ResourceBundle resourceBundle = controller.getResourceBundle();
-        System.out.println(resourceBundle);
-        System.out.println(resourceBundle.getString("dayLabel"));
 
         dayLabel.setText(resourceBundle.getString("dayLabel") + day);
-
 //        dayLabel.setText("Current day: " + day);
         dayLabel.setFont(new Font("Arial", 15));
     }
