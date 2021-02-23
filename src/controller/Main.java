@@ -15,42 +15,42 @@ public class Main extends Application {
 
     public void start(Stage stage) throws Exception {
 
-        OpeningScreen opening = new OpeningScreen(stage);
-        Button openButton = opening.getOpenButton();
-        openButton.setOnAction(e -> {
-            File file = new FileChooser().showOpenDialog(stage);
-            String pathToFile = file.getPath();
-
-            System.out.println("Program started");
-            JSONParser parser = new JSONParser();
-            BasicModel model = new BasicModel();
-            boolean result = parser.parse(pathToFile, model);
-            if (result) {
-                View view = new View(stage, model);
-                Controller controller = new Controller(view, model);
-            }
-            String title = pathToFile.substring(pathToFile.lastIndexOf('\\') + 1, pathToFile.length()-5);
-            stage.setTitle(title);
-        });
-
-        stage.show();
-    }
-
-
-//        System.out.println("Program started");
-//        JSONParser parser = new JSONParser();
-//        BasicModel model = new BasicModel();
+//        OpeningScreen opening = new OpeningScreen(stage);
+//        Button openButton = opening.getOpenButton();
+//        openButton.setOnAction(e -> {
+//            File file = new FileChooser().showOpenDialog(stage);
+//            String pathToFile = file.getPath();
 //
-//        if (parser.parse("resources/planverkehr/planverkehr.json", model)) {
-////            model.printModelAttributes();
-//            View view = new View(stage, model);
-//            stage.setTitle("Planverkehr");
-//            Controller controller = new Controller(view, model);
+//            System.out.println("Program started");
+//            JSONParser parser = new JSONParser();
+//            BasicModel model = new BasicModel();
+//            boolean result = parser.parse(pathToFile, model);
+//            if (result) {
+//                View view = new View(stage, model);
+//                Controller controller = new Controller(view, model);
+//            }
+//            String title = pathToFile.substring(pathToFile.lastIndexOf('\\') + 1, pathToFile.length()-5);
+//            stage.setTitle(title);
+//        });
 //
-////            stage.setMaximized(true);
-//            stage.show();
-//        }
+//        stage.show();
 //    }
+
+
+        System.out.println("Program started");
+        JSONParser parser = new JSONParser();
+        BasicModel model = new BasicModel();
+
+        if (parser.parse("resources/planverkehr/planverkehr.json", model)) {
+//            model.printModelAttributes();
+            View view = new View(stage, model);
+            stage.setTitle("Planverkehr");
+            Controller controller = new Controller(view, model);
+
+//            stage.setMaximized(true);
+            stage.show();
+        }
+    }
 
     public static void main(String[] args) {
         Application.launch(Main.class, args);
