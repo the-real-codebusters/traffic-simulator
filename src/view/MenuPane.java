@@ -187,14 +187,33 @@ public class MenuPane extends AnchorPane {
 
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
+//        Set<String> buildmenusLocalized = controller.getBuildmenus();
+//
+//        Iterator<String> iterator = buildmenus.iterator();
+//        String buildmenuLocalized = iterator.next();
+//        while (iterator.hasNext()){
+//            buildmenuLocalized = resourceBundle.getString(buildmenuLocalized);
+//            buildmenusLocalized.add(buildmenuLocalized);
+//        }
+//        for (String buildmenu : buildmenus){
+//            String buildmenuLocalized = resourceBundle.getString(buildmenu);
+//            buildmenusLocalized.add(buildmenuLocalized);
+//        }
+
 
         String speed = resourceBundle.getString("speed");
         String height = resourceBundle.getString("height");
         String vehicles = resourceBundle.getString("vehicles");
         String remove = resourceBundle.getString("remove");
 
+        String road = resourceBundle.getString("road");
+        String rail = resourceBundle.getString("rail");
+        String airport = resourceBundle.getString("airport");
+        String nature = resourceBundle.getString("nature");
+
         tabNames.addAll(List.of(speed));
         tabNames.addAll(buildmenus);
+//        tabNames.addAll(buildmenusLocalized);
         tabNames.addAll(List.of(height, vehicles, remove));
 
         // dummys:
@@ -202,7 +221,8 @@ public class MenuPane extends AnchorPane {
             tabContents.add(new AnchorPane());
         }
 
-        for (String name : tabNames) {
+        for (String tabName : tabNames) {
+//            tabName = resourceBundle.getString(tabName);
             ScrollPane scroll = new ScrollPane();
             scroll.setPrefViewportWidth(canvas.getWidth());
             scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -212,7 +232,7 @@ public class MenuPane extends AnchorPane {
 //            scroll.setFitToWidth(true);
             scroll.setPannable(true);
             HBox container = boxWithLayout();
-            List<Building> buildings = controller.getBuildingsByBuildmenu(name);
+            List<Building> buildings = controller.getBuildingsByBuildmenu(tabName);
             for (Building building : buildings) {
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
@@ -224,7 +244,7 @@ public class MenuPane extends AnchorPane {
                 //TODO
             }
 
-            if (name.equals(height)) {
+            if (tabName.equals(height)) {
                 Building height_up = new Building(1, 1, "height_up");
                 height_up.setDz(2);
                 ImageView imageViewUp = imageViewWithLayout(height_up);
@@ -234,7 +254,7 @@ public class MenuPane extends AnchorPane {
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }
 
-                if (name.equals(speed)) {
+                if (tabName.equals(speed)) {
                     Button standardSpeedButton = new Button();
                     standardSpeedButton.setText(resourceBundle.getString("standardSpeed"));
                     standardSpeedButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -258,14 +278,14 @@ public class MenuPane extends AnchorPane {
                 }
 
 
-                if (name.equals(remove)) {
+                if (tabName.equals(remove)) {
                     Building removeBuilding = new Building(1, 1, "remove");
                     ImageView imageView = imageViewWithLayout(removeBuilding);
                     container.getChildren().add(imageView);
                 }
 
                 scroll.setContent(container);
-                tabContents.set(tabNames.indexOf(name), scroll);
+                tabContents.set(tabNames.indexOf(tabName), scroll);
             }
 
     }
@@ -340,7 +360,8 @@ public class MenuPane extends AnchorPane {
     public void showTrafficPart(ConnectedTrafficPart part){
         trafficPartTabContent.getChildren().clear();
         String trafficType = resourceBundle.getString("trafficType");
-        Label type = new Label(trafficType + " \n"+part.getTrafficType().name());
+        String type = resourceBundle.getString(part.getTrafficType().name());
+        Label typeLabel = new Label(trafficType + " \n" + type);
         String stationsText = resourceBundle.getString("stationsText");
         Label stationList = new Label(stationsText);
         Pane box;
@@ -385,7 +406,7 @@ public class MenuPane extends AnchorPane {
                     }
                 };
         newTrafficLine.setOnAction(event);
-        trafficPartTabContent.getChildren().addAll(type, box, newTrafficLine);
+        trafficPartTabContent.getChildren().addAll(typeLabel, box, newTrafficLine);
         int index = tabContents.indexOf(trafficPartTabContent);
         tabPane.getSelectionModel().select(index);
 

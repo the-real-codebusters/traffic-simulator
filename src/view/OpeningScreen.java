@@ -64,6 +64,8 @@ public class OpeningScreen {
                     }
 
                     resourceBundle = ResourceBundle.getBundle("Bundle", locale);
+                    String openButtonText = resourceBundle.getString("openButtonText");
+                    openButton.setText(openButtonText);
 
                 });
 
