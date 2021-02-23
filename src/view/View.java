@@ -780,7 +780,7 @@ public class View {
                     factoryNameLabel.setText("factory name: " + factory.getBuildingName());
                     StringBuilder production = new StringBuilder();
                     for(Map.Entry<String, Integer> entry : factory.getProduce().entrySet()){
-                        production.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+                        production.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
                     }
                     if(production.toString().equals("")) {
                         production = new StringBuilder("nothing");
@@ -788,7 +788,7 @@ public class View {
                     productionLabel.setText("production: " + production);
                     StringBuilder consumption = new StringBuilder();
                     for(Map.Entry<String, Integer> entry : factory.getConsume().entrySet()){
-                        consumption.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+                        consumption.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
                     }
                     if(consumption.toString().equals("")) {
                         consumption = new StringBuilder("nothing");
