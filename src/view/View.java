@@ -798,7 +798,6 @@ public class View {
             return cachedImage;
         }
         String gamemode = controller.getGamemode();
-        System.out.println("/" + gamemode + "/" + imageName + ".png");
         Image image = new Image("/" + gamemode + "/" + imageName + ".png");
         imageCache.put(imageName + "raw", image);
         return image;
