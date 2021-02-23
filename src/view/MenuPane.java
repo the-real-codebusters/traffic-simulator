@@ -82,7 +82,9 @@ public class MenuPane extends AnchorPane {
     }
 
     private void createTrafficpartTab(){
-        String name = "traffic part";
+
+//        String name = "traffic part";
+        String name = resourceBundle.getString("name");
         HBox box = boxWithLayout();
         tabNames.add(name);
         tabContents.add(box);
@@ -137,7 +139,7 @@ public class MenuPane extends AnchorPane {
      */
     private void createTickSlider() {
         slider = new Slider();
-        slider.setLayoutX(view.getCanvas().getWidth()-10);
+        slider.setLayoutX(view.getCanvas().getWidth()-15);
         slider.setMin(0.01);
         slider.setMax(5);
         slider.setValue(view.getTickDuration());
@@ -149,10 +151,12 @@ public class MenuPane extends AnchorPane {
             view.setTickDuration(newValue.doubleValue());
         });
         slider.setLabelFormatter(new StringConverter<Double>() {
+            String faster = resourceBundle.getString("faster");
+            String slower = resourceBundle.getString("slower");
             @Override
             public String toString(Double n) {
-                if (n == 0.01) return "faster";
-                return "slower";
+                if (n == 0.01) return faster;
+                return slower;
             }
 
             @Override
@@ -184,9 +188,14 @@ public class MenuPane extends AnchorPane {
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
 
-        tabNames.addAll(List.of("speed"));
+        String speed = resourceBundle.getString("speed");
+        String height = resourceBundle.getString("height");
+        String vehicles = resourceBundle.getString("vehicles");
+        String remove = resourceBundle.getString("remove");
+
+        tabNames.addAll(List.of(speed));
         tabNames.addAll(buildmenus);
-        tabNames.addAll(List.of("height", "vehicles", "remove"));
+        tabNames.addAll(List.of(height, vehicles, remove));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
@@ -215,7 +224,7 @@ public class MenuPane extends AnchorPane {
                 //TODO
             }
 
-            if (name.equals("height")) {
+            if (name.equals(height)) {
                 Building height_up = new Building(1, 1, "height_up");
                 height_up.setDz(2);
                 ImageView imageViewUp = imageViewWithLayout(height_up);
@@ -225,9 +234,9 @@ public class MenuPane extends AnchorPane {
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }
 
-                if (name.equals("speed")) {
+                if (name.equals(speed)) {
                     Button standardSpeedButton = new Button();
-                    standardSpeedButton.setText("Standard Speed");
+                    standardSpeedButton.setText(resourceBundle.getString("standardSpeed"));
                     standardSpeedButton.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
@@ -244,13 +253,14 @@ public class MenuPane extends AnchorPane {
                     createTickSlider();
                     container.getChildren().add(0, animationButton);
                     container.getChildren().add(1, slider);
+                    container.setSpacing(30);
                     container.setPadding(new Insets(20,20,20,20));
                 }
 
 
-                if (name.equals("remove")) {
-                    Building remove = new Building(1, 1, "remove");
-                    ImageView imageView = imageViewWithLayout(remove);
+                if (name.equals(remove)) {
+                    Building removeBuilding = new Building(1, 1, "remove");
+                    ImageView imageView = imageViewWithLayout(removeBuilding);
                     container.getChildren().add(imageView);
                 }
 
@@ -329,8 +339,10 @@ public class MenuPane extends AnchorPane {
 
     public void showTrafficPart(ConnectedTrafficPart part){
         trafficPartTabContent.getChildren().clear();
-        Label type = new Label("Traffic type: \n"+part.getTrafficType().name());
-        Label stationList = new Label("Stations:");
+        String trafficType = resourceBundle.getString("trafficType");
+        Label type = new Label(trafficType + " \n"+part.getTrafficType().name());
+        String stationsText = resourceBundle.getString("stationsText");
+        Label stationList = new Label(stationsText);
         Pane box;
         if(part.getStations().size() > 4){
             HBox secondBox = boxWithLayout();
@@ -346,7 +358,8 @@ public class MenuPane extends AnchorPane {
                 else if(i<8) vbox2.getChildren().add(new Label("ID: "+part.getStations().get(i).getId()));
                 else if(i==8){
                     vbox2.getChildren().remove(vbox2.getChildren().size()-1);
-                    vbox2.getChildren().add(new Label("... and more"));
+                    String andMore = resourceBundle.getString("andMore");
+                    vbox2.getChildren().add(new Label(andMore));
                     break;
                 }
             }
@@ -361,7 +374,8 @@ public class MenuPane extends AnchorPane {
             }
             box = vbox;
         }
-        Button newTrafficLine = new Button("new Traffic Line");
+        String buttonText = resourceBundle.getString("newTrafficLine");
+        Button newTrafficLine = new Button(buttonText);
         // action event
         EventHandler<ActionEvent> event =
                 new EventHandler<ActionEvent>() {
