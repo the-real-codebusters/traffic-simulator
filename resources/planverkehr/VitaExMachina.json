@@ -467,18 +467,26 @@
       "dz" : 1
     },
     "nanotechnology lab" : {
-    "width" : 3,
-    "depth" : 4,
-    "special" : "factory",
-    "productions" : {"produce":{"nanotechnology":7},"consume":{"energy":4 },"duration":30},
-    "storage" : {"energy" : 600},
-    "dz" : 1
-  },
+      "width" : 3,
+      "depth" : 4,
+      "special" : "factory",
+      "productions" : {"produce":{"nanotechnology":7},"consume":{"energy":4 },"duration":30},
+      "storage" : {"energy" : 600},
+      "dz" : 1
+    },
+    "people research department" : {
+      "width" : 3,
+      "depth" : 4,
+      "special" : "factory",
+      "productions" : {"produce":{"people data":7},"consume":{"energy":4, "quantum processor" : 5},"duration":30},
+      "storage" : {"energy" : 600},
+      "dz" : 1
+    },
     "emotion research department" : {
     "width" : 3,
     "depth" : 4,
     "special" : "factory",
-    "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "quantum processor" : 5 },"duration":30},
+    "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "people data" : 5 },"duration":30},
     "storage" : {"energy" : 600},
     "dz" : 1
   },
@@ -577,7 +585,7 @@
     "air taxi" : {
       "kind" : "plane",
       "graphic" : "air_taxi",
-      "cargo" : {"nanotechnology" : 2, "neural networks" : 2},
+      "cargo" : {"people data" : 7},
       "speed" : 0.7
     }
 
