@@ -62,7 +62,9 @@ public class ObjectToImageMapping {
         // Verschiedenes
         mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
         mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
-        mapping.put("busstop-nw-se", "stations/road/busstop");
+        mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
+        mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
+
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
         mapping.put("big tower", "airport/big tower");
