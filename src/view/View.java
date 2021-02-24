@@ -37,6 +37,7 @@ public class View {
     private int mapDepth;
 
     private Controller controller;
+    private ResourceBundle resourceBundle;
 
     // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
@@ -727,7 +728,7 @@ public class View {
             double mouseX = event.getX();
             double mouseY = event.getY();
 
-            String mouseCoordinates = controller.getResourceBundle().getString("mouseCoordinates");
+            String mouseCoordinates = getResourceBundleFromController().getString("mouseCoordinates");
             String mouseCoords = "   " + mouseCoordinates + " x: " + mouseX + " y: " + mouseY;
             mousePosLabel.setText(mouseCoords);
 
@@ -736,7 +737,7 @@ public class View {
             Point2D newIsoCoord = findTileCoord(mouseX, mouseY);
             if(newIsoCoord != null) {
 
-                String tileCoordinates = controller.getResourceBundle().getString("tileCoordinates");
+                String tileCoordinates = getResourceBundleFromController().getString("tileCoordinates");
                 String tileCoords = "   " + tileCoordinates + " x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
                 isoCoordLabel.setText(tileCoords);
 
@@ -745,9 +746,9 @@ public class View {
                 cornerHeights = tile.getCornerHeights();
                 cornerLabel.setText("   " + cornerHeights.toString());
             } else {
-                String outsideOfMap = controller.getResourceBundle().getString("outsideOfMap");
+                String outsideOfMap = getResourceBundleFromController().getString("outsideOfMap");
                 isoCoordLabel.setText("   " + outsideOfMap);
-                String undefinedHeights = controller.getResourceBundle().getString("undefinedHeights");
+                String undefinedHeights = getResourceBundleFromController().getString("undefinedHeights");
                 cornerLabel.setText("   " + undefinedHeights);
             }
         });
@@ -1330,6 +1331,10 @@ public class View {
 
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    public ResourceBundle getResourceBundleFromController() {
+        return controller.getResourceBundle();
     }
 }
 

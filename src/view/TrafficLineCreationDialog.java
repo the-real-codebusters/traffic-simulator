@@ -3,7 +3,6 @@ package view;
 import controller.Controller;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -12,7 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -20,11 +18,10 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import model.Station;
 import model.TrafficType;
 import model.Vehicle;
 
-import java.awt.*;
+import javax.print.attribute.standard.PresentationDirection;
 import java.util.*;
 import java.util.List;
 
@@ -42,10 +39,13 @@ public class TrafficLineCreationDialog {
         VBox listBox = new VBox();
         listBox.setSpacing(5);
 
-        Label message = new Label("Create a new Traffic Line");
+        ResourceBundle resourceBundle = view.getResourceBundleFromController();
+
+        String createNewTrafficLine = resourceBundle.getString("createNewTrafficLine");
+        Label message = new Label(createNewTrafficLine);
         listBox.getChildren().add(message);
 
-        Label type = new Label("Traffic Type: "+trafficType.name());
+        Label type = new Label(resourceBundle.getString("trafficType")+ " " + resourceBundle.getString(trafficType.name()));
         listBox.getChildren().add(type);
 
         pane.setPrefWidth(750);
@@ -54,7 +54,8 @@ public class TrafficLineCreationDialog {
         Insets insets = new Insets(10);
 
         //Name eingeben
-        TextField textField = new TextField("name of Traffic Line");
+        String nameOfTrafficLine = resourceBundle.getString("nameOfTrafficLine");
+        TextField textField = new TextField(nameOfTrafficLine);
         listBox.getChildren().add(textField);
         BorderPane.setMargin(listBox, insets);
         pane.setTop(listBox);
@@ -62,20 +63,24 @@ public class TrafficLineCreationDialog {
         VBox centerBox = new VBox();
         centerBox.setSpacing(10);
         BorderPane.setMargin(centerBox, insets);
-        Label m2 = new Label("     Select vehicle type and desired number of vehicles:");
+        String selectVehiclesAndNumber = resourceBundle.getString("selectVehiclesAndNumber");
+        Label m2 = new Label(selectVehiclesAndNumber);
         centerBox.getChildren().add(m2);
 
         dropdown.setMaxWidth(400);
 
         List<Map<String, Object>> dropdownLabels = new ArrayList<>();
         List<Vehicle> vehicleTypes = view.getController().getVehicleTypesForTrafficType(trafficType);
-        System.out.println("Vehicle Types für den TrafficType "+trafficType);
-        vehicleTypes.forEach((x) -> System.out.println(x.getGraphic()));
+        String name = resourceBundle.getString("name");
+        String speed = resourceBundle.getString("speed");
+        String cargo = resourceBundle.getString("cargo");
         for(Vehicle v : vehicleTypes){
-            String info = "name: "+v.getGraphic()+"   speed: "+v.getSpeed()+"   cargo: ";
+            String graphic = resourceBundle.getString(v.getGraphic());
+            String info = name +": "+graphic+"   " +speed +": "+v.getSpeed()+"   "+ cargo +": ";
             Map<String, Integer> cargos = v.getStorage().getMaxima();
             for (Map.Entry<String, Integer> entry : cargos.entrySet()) {
-                info+= entry.getKey()+": "+entry.getValue()+" ";
+                String cargoName = resourceBundle.getString(entry.getKey());
+                info+= cargoName+": "+entry.getValue()+" ";
             }
 //            Label txtImg = new Label(info);
             String imageName = view.getObjectToImageMapping().getImageNameForObjectName(v.getGraphic()+"-nw");
@@ -95,21 +100,22 @@ public class TrafficLineCreationDialog {
         vehiclesHbox.getChildren().add(dropdown);
         numberVehiclesField = getIntegerFormattedTextField();
         vehiclesHbox.getChildren().add(numberVehiclesField);
-        vehiclesHbox.getChildren().add(getAddVehicleButton());
+        vehiclesHbox.getChildren().add(getAddVehicleButton(view));
         centerBox.getChildren().add(vehiclesHbox);
 
-        tableView = getVehicleTableView();
+        tableView = getVehicleTableView(view);
         centerBox.getChildren().add(tableView);
 
-        Button createButton = new Button("create traffic line");
+        String createTrafficLine = resourceBundle.getString("createTrafficLine");
+        Button createButton = new Button(createTrafficLine);
         createButton.setOnAction( (e) -> {
             Map<String, Integer> mapDesiredNumbers = new HashMap<>();
             Controller controller = view.getController();
             for(VehicleTypeRow row: tableView.getItems()){
-                String name = row.getInformation().split("name: ")[1].split(" ")[0];
-                mapDesiredNumbers.put(name, row.getDesiredNumber());
+                String name1 = row.getInformation().split("name: ")[1].split(" ")[0];
+                mapDesiredNumbers.put(name1, row.getDesiredNumber());
             }
-            System.out.println(mapDesiredNumbers);
+
             Map<Vehicle, Integer> vehicleMapDesiredNumbers = controller.getVehicleMapOfDesiredNumbers(mapDesiredNumbers);
             boolean isAcceptable = true;
             if(trafficType.equals(TrafficType.RAIL)){
@@ -129,8 +135,11 @@ public class TrafficLineCreationDialog {
                 window.close();
             }
             else {
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Die Auswahl der Fahrzeuge ist so nicht möglich. " +
-                        "Ein Zug vom Typ "+TrafficType.RAIL+" muss genau eine Lok (engine) besitzen)", ButtonType.OK);
+                String selectionNotPossible = resourceBundle.getString("selectionNotPossible");
+                String oneTrainOfType = resourceBundle.getString("oneTrainOfType");
+                String exactlyOneEngine = resourceBundle.getString("exactlyOneEngine");
+                Alert alert = new Alert(Alert.AlertType.WARNING, selectionNotPossible + oneTrainOfType
+                        + resourceBundle.getString(TrafficType.RAIL.toString())+ exactlyOneEngine, ButtonType.OK);
                 alert.showAndWait();
             }
         });
@@ -145,7 +154,7 @@ public class TrafficLineCreationDialog {
         window = new Stage();
         window.setScene(scene);
 
-        window.setTitle("New Traffic Line");
+        window.setTitle(resourceBundle.getString("newTrafficLine"));
 
         window.setOnCloseRequest((event) -> {
             view.getController().clearPlannedTrafficLine();
@@ -207,7 +216,9 @@ public class TrafficLineCreationDialog {
         return  textField;
     }
 
-    private Button getAddVehicleButton(){
+    private Button getAddVehicleButton(View view){
+//        String add = view.getResourceBundleFromController().getString("add");
+//        Button button = new Button(add);
         Button button = new Button("add");
         button.setOnAction( (actionEvent -> {
             Map<String, Object> selected = dropdown.getSelectionModel().getSelectedItem();
@@ -226,7 +237,7 @@ public class TrafficLineCreationDialog {
         return button;
     }
 
-    private TableView<VehicleTypeRow> getVehicleTableView(){
+    private TableView<VehicleTypeRow> getVehicleTableView(View view){
         TableView<VehicleTypeRow> tableView = new TableView();
         tableView.setPrefHeight(500);
 
@@ -234,12 +245,14 @@ public class TrafficLineCreationDialog {
         column1.setCellValueFactory(new PropertyValueFactory<>("image"));
         column1.setPrefWidth(iconWidth+10);
 
-        TableColumn<VehicleTypeRow, String> column2 = new TableColumn<>("Information");
-        column2.setCellValueFactory(new PropertyValueFactory<>("information"));
+        String information = view.getResourceBundleFromController().getString("information");
+        TableColumn<VehicleTypeRow, String> column2 = new TableColumn<>(information);
+        column2.setCellValueFactory(new PropertyValueFactory<>("Information"));
         column2.setPrefWidth(350);
 
-        TableColumn<VehicleTypeRow, Integer> column3 = new TableColumn<>("Desired Number");
-        column3.setCellValueFactory(new PropertyValueFactory<>("desiredNumber"));
+        String desiredNumber = view.getResourceBundleFromController().getString("desiredNumber");
+        TableColumn<VehicleTypeRow, Integer> column3 = new TableColumn<>(desiredNumber);
+        column3.setCellValueFactory(new PropertyValueFactory<>("Desired number"));
         column3.setPrefWidth(120);
 
         tableView.getColumns().addAll(column1, column2, column3);

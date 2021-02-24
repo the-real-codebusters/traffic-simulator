@@ -84,11 +84,11 @@ public class MenuPane extends AnchorPane {
     private void createTrafficpartTab(){
 
 //        String name = "traffic part";
-        String name = resourceBundle.getString("name");
+        String trafficPart = resourceBundle.getString("trafficPart");
         HBox box = boxWithLayout();
-        tabNames.add(name);
+        tabNames.add(trafficPart);
         tabContents.add(box);
-        addTab(name, box, false);
+        addTab(trafficPart, box, false);
         trafficPartTabContent = box;
     }
 

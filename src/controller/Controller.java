@@ -241,7 +241,7 @@ public class Controller {
                 System.out.println("stationsOfPlannedTrafficLine in controller: ");
                 stationsOfPlannedTrafficLine.forEach((x) -> System.out.println("Station id: "+x.getId()));
                 //Zeigt Liste in Popup an
-                view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
+                view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine, getResourceBundle());
             }
         }
     }
