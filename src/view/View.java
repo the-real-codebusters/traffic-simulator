@@ -657,7 +657,7 @@ public class View {
         }
         else {
             // Sollte nie aufgerufen werden
-            throw new RuntimeException("invalid building name");
+            throw new RuntimeException("invalid building name "+name);
         }
     }
 

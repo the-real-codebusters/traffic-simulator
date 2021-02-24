@@ -283,7 +283,7 @@ public class ObjectToImageMapping {
         mapping.put("recycling factory", "factories/recycling factory");
         mapping.put("steel factory", "factories/steel factory");
 
-        mapping.put("emotion research department", "factories/emotion research departement");
+        mapping.put("emotion research department", "factories/emotion research department");
         mapping.put("final factory", "factories/final factory");
         mapping.put("fusion power plant", "factories/fusion power plant");
         mapping.put("human research department", "factories/human research department");
@@ -293,7 +293,7 @@ public class ObjectToImageMapping {
 
         //Nature
         mapping.put("plant", "ground/plant");
-        mapping.put("trees", "ground/tree");
+        mapping.put("tree", "ground/tree");
         mapping.put("plantandtree", "ground/plantandtree");
         mapping.put("stones_one", "ground/stones_one");
         mapping.put("stones_two", "ground/stones_two");
@@ -320,6 +320,11 @@ public class ObjectToImageMapping {
         mapping.put("0011", "ground_heights/Slope_SW");
         mapping.put("0001", "ground_heights/Slope_W");
         mapping.put("0111", "ground_heights/Slope_WSE");
+
+        mapping.put("height_up" , "height_up");
+        mapping.put("height_down" , "height_down");
+        mapping.put("remove", "remove");
+        mapping.put("grass", "ground/grass");
 
     }
 
