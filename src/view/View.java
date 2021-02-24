@@ -772,7 +772,7 @@ public class View {
                     productionLabel.setText("production: " + production);
                     StringBuilder consumption = new StringBuilder();
                     for(Map.Entry<String, Integer> entry : factory.getConsume().entrySet()){
-                        consumption.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+                        consumption.append(entry.getKey()).append("  ");
                     }
                     if(consumption.toString().equals("")) {
                         consumption = new StringBuilder("nothing");
