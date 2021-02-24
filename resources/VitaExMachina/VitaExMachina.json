@@ -435,8 +435,8 @@
       "dz" : 1
     },
     "final factory" : {
-      "width" : 5,
-      "depth" : 5,
+      "width" : 7,
+      "depth" : 7,
       "special" : "factory",
       "productions" : {"consume":{"robot pieces":4, "emotions":1, "nanotechnology":3, "neural networks":2}, "duration":8},
 
