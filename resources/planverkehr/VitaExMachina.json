@@ -511,6 +511,13 @@
     "special" : "nature",
     "dz" : 2
     },
+    "plantandtree" : {
+      "buildmenu" : "nature",
+      "width" : 1,
+      "depth" : 1,
+      "special" : "nature",
+      "dz" : 2
+    },
     "stones_one" : {
       "width" : 1,
       "depth" : 1,
