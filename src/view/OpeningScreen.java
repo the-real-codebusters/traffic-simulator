@@ -50,6 +50,7 @@ public class OpeningScreen {
 
         // Locale ist per Default auf english
         locale = new Locale("en", "US");
+        resourceBundle = ResourceBundle.getBundle("Bundle", locale);
 
         // Prüft ob eine Sprachauswahl getroffen wird und erstellt entsprechend eine Locale und ein ResourceBundle
         languages.getSelectionModel().selectedItemProperty()

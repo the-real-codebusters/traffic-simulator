@@ -728,7 +728,7 @@ public class View {
             double mouseX = event.getX();
             double mouseY = event.getY();
 
-            String mouseCoordinates = getResourceBundleFromController().getString("mouseCoordinates");
+            String mouseCoordinates = controller.getResourceBundle().getString("mouseCoordinates");
             String mouseCoords = "   " + mouseCoordinates + " x: " + mouseX + " y: " + mouseY;
             mousePosLabel.setText(mouseCoords);
 
@@ -737,7 +737,7 @@ public class View {
             Point2D newIsoCoord = findTileCoord(mouseX, mouseY);
             if(newIsoCoord != null) {
 
-                String tileCoordinates = getResourceBundleFromController().getString("tileCoordinates");
+                String tileCoordinates = controller.getResourceBundle().getString("tileCoordinates");
                 String tileCoords = "   " + tileCoordinates + " x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
                 isoCoordLabel.setText(tileCoords);
 
@@ -746,9 +746,9 @@ public class View {
                 cornerHeights = tile.getCornerHeights();
                 cornerLabel.setText("   " + cornerHeights.toString());
             } else {
-                String outsideOfMap = getResourceBundleFromController().getString("outsideOfMap");
+                String outsideOfMap = controller.getResourceBundle().getString("outsideOfMap");
                 isoCoordLabel.setText("   " + outsideOfMap);
-                String undefinedHeights = getResourceBundleFromController().getString("undefinedHeights");
+                String undefinedHeights = controller.getResourceBundle().getString("undefinedHeights");
                 cornerLabel.setText("   " + undefinedHeights);
             }
         });
