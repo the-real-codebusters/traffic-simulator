@@ -138,7 +138,7 @@ public class MapModel {
 
         Railblock block2 = new Railblock();
         block2.addVertices(verticesRailblock2);
-
+        block2.addVertices(new HashSet<>(Arrays.asList(middleVertex)));
 
         railGraph.addVertex(middleVertex);
         railGraph.addEdgeBidirectional(edges.get(0).getName(), middleVertex.getName());

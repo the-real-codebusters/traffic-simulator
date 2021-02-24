@@ -216,7 +216,7 @@ public class TrafficLine {
                 }
             }
             if(engine == null) throw new RuntimeException("There was no engine in setDesiredNumbersOfVehicles");
-            Train train = new Train(wagons, engine);
+            Train train = new Train(wagons, engine, model);
             Map<Vehicle, Integer> desiredVehicles = new HashMap<>();
             desiredVehicles.put(train, 1);
             this.desiredNumbersOfVehicles = desiredVehicles;

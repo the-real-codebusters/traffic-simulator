@@ -89,7 +89,22 @@ public class BasicModel {
                 System.out.println("active traffic Line "+trafficLine.getName());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
-                    trafficLine.addNewVehicle(newVehicle);
+
+
+                    if(trafficLine.getTrafficType().equals(TrafficType.RAIL)){
+                        //Dann spawne nur, wenn nicht reserviert
+                        Vertex vertex = trafficLine.getStartStation().getComponents().get(0).getVertices().iterator().next();
+                        boolean reserved = vertex.getRailblock().isReservedAtDay(day, (Train) newVehicle);
+                        if(!reserved){
+                            reserved = vertex.getRailblock().isReservedAtDay(day+1, (Train) newVehicle);
+                        }
+                        if(!reserved){
+                            trafficLine.addNewVehicle(newVehicle);
+                        }
+                    }
+                    else {
+                        trafficLine.addNewVehicle(newVehicle);
+                    }
                 }
                 // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
                 activeVehicles.addAll(trafficLine.getVehicles()); //TODO

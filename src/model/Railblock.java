@@ -7,7 +7,7 @@ public class Railblock {
     Set<Vertex> vertices = new HashSet<>();
     Set<Tile> tilesOfSignals = new HashSet<>();
 
-    Map<Integer, Vehicle> reservations = new HashMap<>();
+    Map<Integer, Train> reservations = new HashMap<>();
 
 //
 //    public Railblock(Set<Vertex> vertices) {
@@ -25,11 +25,22 @@ public class Railblock {
         addVertices(otherBlock.getVertices());
         tilesOfSignals.addAll(otherBlock.getTilesOfSignals());
         //TODO Fall ingnoriert, wenn es schon Reservierungen gibt
-
     }
 
-    public boolean isReservedAtDay(int day){
-        return reservations.containsKey(day);
+    public void clearMapForAllPastDays(int day){
+        reservations.entrySet().removeIf(entry -> entry.getKey() < day);
+    }
+
+    public boolean isReservedAtDay(int day, Train ownTrain){
+        boolean dayContained = reservations.containsKey(day);
+        boolean isNotReservedByOwnTrain = true;
+        if(dayContained){
+            if(reservations.get(day).equals(ownTrain)){
+                isNotReservedByOwnTrain = false;
+            }
+        }
+
+        return dayContained && isNotReservedByOwnTrain;
     }
 
     public Vehicle getReservedByAtDay(int day){
@@ -44,7 +55,7 @@ public class Railblock {
         return tilesOfSignals;
     }
 
-    public Map<Integer, Vehicle> getReservations() {
+    public Map<Integer, Train> getReservations() {
         return reservations;
     }
 
