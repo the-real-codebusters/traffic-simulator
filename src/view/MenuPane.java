@@ -226,14 +226,13 @@ public class MenuPane extends AnchorPane {
             ScrollPane scroll = new ScrollPane();
             scroll.setPrefViewportWidth(canvas.getWidth());
             scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-//            scroll.setFitToHeight(true);
 
 
-//            scroll.setFitToWidth(true);
             scroll.setPannable(true);
             HBox container = boxWithLayout();
             List<Building> buildings = controller.getBuildingsByBuildmenu(tabName);
             for (Building building : buildings) {
+                System.out.println("building: " + building.getBuildmenu());
 
                 //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
                 String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
@@ -241,6 +240,11 @@ public class MenuPane extends AnchorPane {
                 ImageView imageView = imageViewWithLayout(building);
 
                 container.getChildren().add(imageView);
+                if (building.getBuildmenu().equals(tabName)) {
+                    System.out.println("tabname: " + tabName);
+                    String newName = resourceBundle.getString(tabName);
+
+                }
                 //TODO
             }
 
