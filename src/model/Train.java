@@ -245,6 +245,10 @@ public class Train extends Vehicle {
         this.engine = engine;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
      * @return
@@ -259,7 +263,7 @@ public class Train extends Vehicle {
         instance.setGraphic(graphic);
         instance.setKind(kind);
         instance.setStorage(storage.getNewInstance());
-        instance.name = name;
+        instance.name = "train "+(int)(Math.random()*100);
         return instance;
     }
 
