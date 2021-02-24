@@ -27,7 +27,7 @@ public class Main extends Application {
             System.out.println("Program started");
             JSONParser parser = new JSONParser();
             BasicModel model = new BasicModel();
-            boolean result = parser.parse(pathToFile, model);
+            boolean result = parser.parse(pathToFile, model, opening.getResourceBundle());
             if (result) {
                 View view = new View(stage, model);
                 Controller controller = new Controller(view, model, opening);

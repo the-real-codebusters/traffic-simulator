@@ -21,6 +21,7 @@ import static view.ErrorAlert.showAlert;
 public class JSONParser {
 
     private BasicModel model;
+    private ResourceBundle resourceBundle;
     private JSONObject json;
     private List<String> requiredRootAttributes = Arrays.asList("commodities", "buildings", "vehicles", "map");
     private List<String> commodities = new ArrayList<>();
@@ -30,14 +31,17 @@ public class JSONParser {
      * @param filename - JSON-Dateiname zum Laden
      * @return - true im Erfolgsfall, sonst false
      */
-    public boolean parse(String filename, BasicModel model) {
+    public boolean parse(String filename, BasicModel model, ResourceBundle resourceBundle) {
         this.model = model;
+        this.resourceBundle = resourceBundle;
         // JSON-Datei wird eingelesen
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(filename);
         } catch (FileNotFoundException e) {
-            showAlert("File " + filename + " not found");
+            String file = resourceBundle.getString("file");
+            String notFound = resourceBundle.getString("notFound");
+            showAlert(file + filename + notFound);
             return false;
         }
         try {
@@ -52,7 +56,8 @@ public class JSONParser {
        }
         catch(JSONException e){
             System.out.println(e.getMessage());
-                showAlert("File " + filename + " has no json format");
+            String hasNoJsonFormat = resourceBundle.getString("hasNoJsonFormat");
+                showAlert(resourceBundle.getString("file") + filename + hasNoJsonFormat);
                 return false;
             }
         catch(JSONParserException e){
