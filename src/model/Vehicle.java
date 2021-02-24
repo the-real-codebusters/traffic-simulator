@@ -30,6 +30,8 @@ public class Vehicle {
 
     protected String kind;
 
+    private long id;
+
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
      * @return

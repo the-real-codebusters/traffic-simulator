@@ -168,7 +168,9 @@ public class TrafficLineCreationDialog {
                 if (map == null){
                     return null;
                 } else {
-                    return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().getUrl();
+                    // it was before 21.02.2021
+                     return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().getUrl();
+                    //return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().impl_getUrl();
                 }
             }
 

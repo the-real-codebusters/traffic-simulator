@@ -263,10 +263,20 @@ public class Controller {
 
     public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
+
+        if (trafficType == TrafficType.AIR) {
+            
+         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
+            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+            model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
+        }
+        else {
         List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
         clearPlannedTrafficLine();
+        }
     }
 
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {

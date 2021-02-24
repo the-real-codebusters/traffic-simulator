@@ -22,10 +22,14 @@ import javafx.util.Pair;
 import model.*;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 
 public class View {
+
     private Stage stage;
 
     private double tileImageWidth = 128;
@@ -43,13 +47,9 @@ public class View {
 
 
     Screen screen = Screen.getPrimary();
-    Rectangle2D bounds = screen.getVisualBounds();
+    Rectangle2D screenBounds = screen.getVisualBounds();
 
-    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-
-    //    private Canvas canvas = new Canvas(bounds.getWidth(), bounds.getHeight()-210);
-    private Canvas canvas = new Canvas(1200, 550);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -80,6 +80,11 @@ public class View {
 
     private Map<List<Point2D>, Point2D> rowColToCanvasCoordinates = new LinkedHashMap<>();
 
+    // factory labels
+    private Label factoryNameLabel;
+    private Label productionLabel;
+    private Label consumptionLabel;
+
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         objectToImageMapping = new ObjectToImageMapping(model.getGamemode());
@@ -98,7 +103,7 @@ public class View {
         borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel, cornerLabel);
         borderPane.setCenter(canvas);
-        borderPane.setPrefSize(1200, 750);
+//        borderPane.setPrefSize(1200, 750);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel, cornerLabel);
@@ -106,10 +111,17 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-        stage.setX((screenBounds.getWidth() - 1200) / 2);
-        stage.setY((screenBounds.getHeight() - 750) / 2);
+//        stage.setX((screenBounds.getWidth() - 1200) / 2);
+//        stage.setY((screenBounds.getHeight() - 750) / 2);
 //        stage.setY(0);
         this.stage.setScene(new Scene(borderPane));
+    }
+
+
+    public void setFactoryLabels(Label factoryNameLabel, Label productionLabel, Label consumptionLabel){
+        this.factoryNameLabel = factoryNameLabel;
+        this.productionLabel = productionLabel;
+        this.consumptionLabel = consumptionLabel;
     }
 
     public void generateMenuPane(Controller controller){
@@ -657,7 +669,7 @@ public class View {
         }
         else {
             // Sollte nie aufgerufen werden
-            throw new RuntimeException("invalid building name");
+            throw new RuntimeException("invalid building name "+name);
         }
     }
 
@@ -743,6 +755,31 @@ public class View {
 
                 Map<String, Integer> cornerHeights;
                 Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
+
+                Building building = tile.getBuilding();
+                if (building instanceof Factory) {
+                    Factory factory = (Factory) building;
+                    // System.out.println("building = " + factory);
+                    factoryNameLabel.setText("factory name: " + factory.getBuildingName());
+                    StringBuilder production = new StringBuilder();
+                    for(Map.Entry<String, Integer> entry : factory.getProduce().entrySet()){
+                        production.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+                    }
+                    if(production.toString().equals("")) {
+                        production = new StringBuilder("nothing");
+                    }
+                    productionLabel.setText("production: " + production);
+                    StringBuilder consumption = new StringBuilder();
+                    for(Map.Entry<String, Integer> entry : factory.getConsume().entrySet()){
+                        consumption.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+                    }
+                    if(consumption.toString().equals("")) {
+                        consumption = new StringBuilder("nothing");
+                    }
+                    consumptionLabel.setText("consumption: " + consumption);
+
+                }
+
                 cornerHeights = tile.getCornerHeights();
                 cornerLabel.setText(cornerHeights.toString());
             } else {
@@ -776,12 +813,13 @@ public class View {
         }
 
         String gamemode = controller.getGamemode();
-        Image image = new Image(
-                "/" + gamemode + "/" + imageName + ".png",
-                widthAsInt,
-                heightAsInt,
-                false,
-                true);
+        Image image = null;
+        image = new Image(
+                    "/" + gamemode + "/" + imageName + ".png",
+                    widthAsInt,
+                    heightAsInt,
+                    false,
+                    true);
         imageCache.put(imageName + widthAsInt + heightAsInt, image);
         return image;
     }
@@ -798,7 +836,11 @@ public class View {
             return cachedImage;
         }
         String gamemode = controller.getGamemode();
-        Image image = new Image("/" + gamemode + "/" + imageName + ".png");
+        String url = "/" + gamemode + "/" + imageName + ".png";
+
+       // System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+        Image image = null;
+        image  = new Image(url);
         imageCache.put(imageName + "raw", image);
         return image;
     }

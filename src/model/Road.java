@@ -18,8 +18,15 @@ public class Road extends Building implements PartOfTrafficGraph{
     public Road getNewInstance(){
         Road instance = new Road();
         setInstanceStandardAttributes(instance);
-        instance.setPoints(Map.copyOf(points));
-        instance.setCombines(Map.copyOf(combines));
+
+        // it was before 21.02.2021
+        // instance.setPoints(Map.copyOf(points));
+        instance.setPoints(new HashMap<>(points));
+
+        // it was before 21.02.2021
+        // instance.setCombines(Map.copyOf(combines));
+        instance.setCombines(new HashMap<>(combines));
+
         instance.setRoads(roads);
         instance.setTrafficType(TrafficType.ROAD);
         return instance;
