@@ -300,6 +300,27 @@ public class ObjectToImageMapping {
 
         mapping.put("water", "ground/wasserblau");
 
+        // Grasfelder mit verschiedenen Höhen
+        mapping.put("0000", "ground/grass");
+        mapping.put("0100", "ground_heights/Slope_E");
+        mapping.put("1101", "ground_heights/Slope_ENW");
+        mapping.put("0101", "ground_heights/Slope_EW");
+        mapping.put("1000", "ground_heights/Slope_N");
+        mapping.put("1100", "ground_heights/Slope_NE");
+        mapping.put("1010", "ground_heights/Slope_NS");
+        mapping.put("1001", "ground_heights/Slope_NW");
+        mapping.put("1011", "ground_heights/Slope_NWS");
+        mapping.put("0010", "ground_heights/Slope_S");
+        mapping.put("0110", "ground_heights/Slope_SE");
+        mapping.put("1110", "ground_heights/Slope_SEN");
+        mapping.put("1210", "ground_heights/Slope_Steep_E");
+        mapping.put("2101", "ground_heights/Slope_Steep_N");
+        mapping.put("0121", "ground_heights/Slope_Steep_S");
+        mapping.put("1012", "ground_heights/Slope_Steep_W");
+        mapping.put("0011", "ground_heights/Slope_SW");
+        mapping.put("0001", "ground_heights/Slope_W");
+        mapping.put("0111", "ground_heights/Slope_WSE");
+
     }
 
     public Collection<String> getImageNames(){
