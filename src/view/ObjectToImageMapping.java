@@ -282,6 +282,24 @@ public class ObjectToImageMapping {
         mapping.put("mechanical engineering", "factories/mechanical engineering");
         mapping.put("recycling factory", "factories/recycling factory");
         mapping.put("steel factory", "factories/steel factory");
+
+        mapping.put("emotion research department", "factories/emotion research departement");
+        mapping.put("final factory", "factories/final factory");
+        mapping.put("fusion power plant", "factories/fusion power plant");
+        mapping.put("human research department", "factories/human research department");
+        mapping.put("institut of quantum physics", "factories/institut of quantum physics");
+        mapping.put("iron ore mine", "factories/iron ore mine");
+        mapping.put("nanotechnology lab", "factories/nanotechnology lab");
+
+        //Nature
+        mapping.put("plant", "ground/plant");
+        mapping.put("trees", "ground/tree");
+        mapping.put("plantandtree", "ground/plantandtree");
+        mapping.put("stones_one", "ground/stones_one");
+        mapping.put("stones_two", "ground/stones_two");
+
+        mapping.put("water", "ground/wasserblau");
+
     }
 
     public Collection<String> getImageNames(){

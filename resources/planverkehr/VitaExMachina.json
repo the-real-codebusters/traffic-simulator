@@ -14,6 +14,7 @@
     "road-nw" : {
       "buildmenu" : "road",
       "width" : 1,
+      "width" : 1,
       "depth" : 1,
       "points":{"c" : [0.5, 0.5], "nw" : [0, 0.5]},
       "roads":[["nw","c"]],
@@ -502,33 +503,33 @@
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
-      "dz" : 2
+      "dz" : 0
     },
     "plant" : {
     "buildmenu" : "nature",
     "width" : 1,
     "depth" : 1,
     "special" : "nature",
-    "dz" : 2
+    "dz" : 0
     },
     "plantandtree" : {
       "buildmenu" : "nature",
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
-      "dz" : 2
+      "dz" : 0
     },
     "stones_one" : {
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
-      "dz" : 2
+      "dz" : 0
     },
     "stones_two" : {
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
-      "dz" : 2
+      "dz" : 0
     }
     },
 
