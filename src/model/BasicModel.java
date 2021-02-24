@@ -94,10 +94,9 @@ public class BasicModel {
                     if(trafficLine.getTrafficType().equals(TrafficType.RAIL)){
                         //Dann spawne nur, wenn nicht reserviert
                         Vertex vertex = trafficLine.getStartStation().getComponents().get(0).getVertices().iterator().next();
-                        boolean reserved = vertex.getRailblock().isReservedAtDay(day, (Train) newVehicle);
-                        if(!reserved){
-                            reserved = vertex.getRailblock().isReservedAtDay(day+1, (Train) newVehicle);
-                        }
+                        boolean reserved = vertex.getRailblock().isReservedAtDay(day, (Train) newVehicle) ||
+                                vertex.getRailblock().isReservedAtDay(day+1, (Train) newVehicle);
+                        System.out.println("Reserved at day: " + day + " " + reserved);
                         if(!reserved){
                             trafficLine.addNewVehicle(newVehicle);
                         }
