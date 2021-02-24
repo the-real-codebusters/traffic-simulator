@@ -14,7 +14,6 @@ public class Tile {
     public Tile(Building building, Map<String, Integer> cornerHeights, boolean isWater) {
         this.building = building;
         this.cornerHeights = cornerHeights;
-        this.building = building;
         this.isWater = isWater;
     }
 
@@ -88,6 +87,18 @@ public class Tile {
             }
         }
         return maxHeight;
+    }
+
+
+    public int findMinCorner(Map<String, Integer> cornerHeights){
+
+        int minHeight = Integer.MAX_VALUE;
+        for (Integer corner : cornerHeights.values()){
+            if (corner < minHeight){
+                minHeight = corner;
+            }
+        }
+        return minHeight;
     }
 
 

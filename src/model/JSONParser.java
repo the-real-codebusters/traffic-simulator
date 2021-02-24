@@ -179,11 +179,11 @@ public class JSONParser {
 
     /**
      * prüfe Vehicle-Details
-     * @param vehicles
+     * @param jsonVehicles
      * @return
      * @throws JSONParserException
      */
-    private String handleVehiclesDetails(JSONObject vehicles) throws JSONParserException {
+    private String handleVehiclesDetails(JSONObject jsonVehicles) throws JSONParserException {
         // gültige Vehicle-Attribute
         String[] children = {"kind", "graphic", "cargo", "speed"};
 
@@ -192,35 +192,37 @@ public class JSONParser {
         Vehicle vehicle = new Vehicle();
 
         // Alle Kinder von Vehicles auslesen
-        for (int i = 0; i < vehicles.length(); i++) {
-            // Engine-Type hat kein Cargo
-            if (children[i].equals("cargo") && kind.equals("engine")) {
-                continue;
-            }
-            if (!vehicles.has(children[i])) {
-                throw new JSONParserException("Attribute " + children[i] + " for vehicles not found");
-            }
-            if ("speed".equals(children[i])) {
-                vehicle.setSpeed(handleContentAsDouble(vehicles, children[i], 0.0, null));
-            }  else if ("kind".equals(children[i])) {
-                kind = handleContentAsString(vehicles, children[i]);
-                if(kind.equals("road vehicle")){
-                    vehicle.setKind(TrafficType.ROAD);
+        for (int i = 0; i < jsonVehicles.length(); i++) {
+            for(int y=0; y<children.length; y++){
+                if (!jsonVehicles.has(children[y]) && !children[y].equals("cargo")) {
+                    throw new JSONParserException("Attribute " + children[y] + " for jsonVehicles not found");
                 }
-                else if(kind.equals("wagon")){
-                    vehicle.setKind(TrafficType.RAIL);
+
+                if ("speed".equals(children[y])) {
+                    vehicle.setSpeed(handleContentAsDouble(jsonVehicles, children[y], 0.0, null));
+                }  else if ("kind".equals(children[y])) {
+                    kind = handleContentAsString(jsonVehicles, children[y]);
+                    vehicle.setKind(kind);
+                    if(kind.equals("road vehicle")){
+                        vehicle.setTrafficType(TrafficType.ROAD);
+                    }
+                    else if(kind.equals("wagon")){
+                        vehicle.setTrafficType(TrafficType.RAIL);
+                    }
+                    else if(kind.equals("engine")){
+                        vehicle.setTrafficType(TrafficType.RAIL);
+                    }
+                    else if(kind.equals("plane")){
+                        vehicle.setTrafficType(TrafficType.AIR);
+                    }
+                    else throw new JSONParserException("Ein Fahrzeug in der JSON-Datei hat einen anderen Typ als road vehicle, wagon, engine oder plane");
+                } else if ("graphic".equals(children[y])) {
+                    vehicle.setGraphic(handleContentAsString(jsonVehicles, children[y]));
                 }
-                else if(kind.equals("engine")){
-                    vehicle.setKind(TrafficType.RAIL);
+                // Engine-Type hat kein Cargo
+                else if( "cargo".equals(children[y]) && !kind.equals("engine")) {
+                    handleCargoContent(jsonVehicles, children[y], vehicle);
                 }
-                else if(kind.equals("plane")){
-                    vehicle.setKind(TrafficType.AIR);
-                }
-                else throw new JSONParserException("Ein Fahrzeug in der JSON-Datei hat einen anderen Typ als road vehicle, wagon, engine oder plane");
-            } else if ("graphic".equals(children[i])) {
-                vehicle.setGraphic(handleContentAsString(vehicles, children[i]));
-            } else if( "cargo".equals(children[i])) {
-                handleCargoContent(vehicles, children[i], vehicle);
             }
         }
         model.getVehiclesTypes().add(vehicle);

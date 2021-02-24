@@ -21,9 +21,14 @@ public class Station {
 
     private ConnectedTrafficPart roadTrafficPart;
     private ConnectedTrafficPart airTrafficPart;
+    private ConnectedTrafficPart railTrafficPart;
 
 
-    private Set<Station> directlyConnectedStations = new HashSet<>();
+
+    private Set<Station> directlyRoadConnectedStations = new HashSet<>();
+    private Set<Station> directlyRailConnectedStations = new HashSet<>();
+    private Set<Station> directlyAirConnectedStations = new HashSet<>();
+
     private Pathfinder pathfinder;
 
     // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
@@ -36,7 +41,8 @@ public class Station {
 
 
     public Station(BasicModel model, TrafficLine roadTrafficLine, TrafficLine railTrafficLine,
-                   TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart trafficPart) {
+                   TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart roadTrafficPart,
+                   ConnectedTrafficPart railTrafficPart, ConnectedTrafficPart airTrafficPart) {
         // Stations haben unendliche Lagerkapazität
         Map<String, Integer> maximumCargo = new HashMap<>();
         for(String commodity: model.getCommodities()) {
@@ -48,7 +54,20 @@ public class Station {
         this.railTrafficLine = railTrafficLine;
         this.airTrafficLine = airTrafficLine;
         this.pathfinder = pathfinder;
-        this.roadTrafficPart = trafficPart;
+        this.roadTrafficPart = roadTrafficPart;
+        this.railTrafficPart = railTrafficPart;
+        this.airTrafficPart = airTrafficPart;
+    }
+
+    public Station(Pathfinder pathfinder, BasicModel model) {
+        // Stations haben unendliche Lagerkapazität
+        Map<String, Integer> maximumCargo = new HashMap<>();
+        for(String commodity: model.getCommodities()) {
+            maximumCargo.put(commodity, Integer.MAX_VALUE);
+        }
+        storage = new Storage(maximumCargo);
+
+        this.pathfinder = pathfinder;
     }
 
     /**
@@ -57,8 +76,17 @@ public class Station {
      * @param station
      * @return
      */
-    public boolean isDirectlyConnectedTo(Station station){
-        return directlyConnectedStations.contains(station);
+    public boolean isDirectlyConnectedTo(Station station, TrafficType trafficType){
+        if(trafficType.equals(TrafficType.ROAD)){
+            return directlyRoadConnectedStations.contains(station);
+        }
+        else if(trafficType.equals(TrafficType.RAIL)){
+            return directlyRailConnectedStations.contains(station);
+        }
+        else if(trafficType.equals(TrafficType.AIR)){
+            return directlyAirConnectedStations.contains(station);
+        }
+        else throw new IllegalArgumentException("Argument in isDirectlyConnectedTo was "+trafficType);
     }
 
     public TrafficLine getTrafficLineForTrafficType(TrafficType trafficType){
@@ -71,27 +99,27 @@ public class Station {
     /**
      * Setzt die Variable directlyConnectedStations für alle durch Straßen verbundenen Stationen.
      */
-    public void updateDirectlyConnectedStations(){
+    public void updateDirectlyConnectedStations(TrafficType trafficType){
         // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
-        List<Station> nextStations = pathfinder.findAllDirectlyConnectedStations(this);
+        List<Station> nextStations = pathfinder.findAllDirectlyConnectedStations(this, trafficType);
         System.out.println("Connected Stations for Station "+this.getId());
         for(Station n: nextStations){
             System.out.println("Next Station "+n.getId());
-            n.getDirectlyConnectedStations().add(this);
+            n.getDirectlyConnectedStations(trafficType).add(this);
         }
-        setDirectlyConnectedStations(nextStations);
+        setDirectlyConnectedStations(nextStations, trafficType);
     }
 
-    public void updateDirectlyConnectedStationsForRunway(Station start){
-        // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
-        List<Station> nextStations = pathfinder.findPathForPlane(start, this);
-        System.out.println("Connected Stations for Station "+this.getId());
-        for(Station n: nextStations){
-            System.out.println("Next Station "+n.getId());
-            n.getDirectlyConnectedStations().add(this);
-        }
-        setDirectlyConnectedStations(nextStations);
-    }
+//    public void updateDirectlyConnectedStationsForRunway(Station start){
+//        // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
+//        List<Station> nextStations = pathfinder.findPathForPlane(start, this);
+//        System.out.println("Connected Stations for Station "+this.getId());
+//        for(Station n: nextStations){
+//            System.out.println("Next Station "+n.getId());
+//            n.getDirectlyConnectedStations().add(this);
+//        }
+//        setDirectlyConnectedStations(nextStations);
+//    }
 
     /**
      * Fügt der Station eine Haltestelle hinzu und setzt in der Haltestelle diese Station
@@ -114,7 +142,14 @@ public class Station {
     public ConnectedTrafficPart getTrafficPartForTrafficType(TrafficType trafficType){
         if(trafficType.equals(TrafficType.AIR)) return airTrafficPart;
         else if(trafficType.equals(TrafficType.ROAD)) return roadTrafficPart;
+        else if (trafficType.equals(TrafficType.RAIL)) return railTrafficPart;
         return null;
+    }
+
+    public void setTrafficPartForTrafficType(ConnectedTrafficPart trafficPart, TrafficType trafficType){
+        if(trafficType.equals(TrafficType.AIR)) airTrafficPart = trafficPart;
+        else if(trafficType.equals(TrafficType.ROAD)) roadTrafficPart = trafficPart;
+        else if (trafficType.equals(TrafficType.RAIL)) railTrafficPart = trafficPart;
     }
 
     //Die Methoden equals() und hashCode() gehen davon aus, dass die id einer Station unique ist
@@ -151,12 +186,30 @@ public class Station {
         this.airTrafficPart = airTrafficPart;
     }
 
-    public Set<Station> getDirectlyConnectedStations() {
-        return directlyConnectedStations;
+    public Set<Station> getDirectlyConnectedStations(TrafficType type) {
+        if(type.equals(TrafficType.ROAD)){
+            return directlyRoadConnectedStations;
+        }
+        else if(type.equals(TrafficType.RAIL)){
+            return directlyRailConnectedStations;
+        }
+        else if(type.equals(TrafficType.AIR)){
+            return directlyAirConnectedStations;
+        }
+        throw new IllegalArgumentException("traffic type was "+type);
     }
 
-    public void setDirectlyConnectedStations(List<Station> directlyConnectedStations) {
-        this.directlyConnectedStations = new HashSet<>(directlyConnectedStations);
+    public void setDirectlyConnectedStations(List<Station> directlyConnectedStations, TrafficType type) {
+        if(type.equals(TrafficType.ROAD)){
+            directlyRoadConnectedStations = new HashSet<>(directlyConnectedStations);
+        }
+        else if(type.equals(TrafficType.RAIL)){
+            directlyRailConnectedStations = new HashSet<>(directlyConnectedStations);
+        }
+        else if(type.equals(TrafficType.AIR)){
+            directlyAirConnectedStations = new HashSet<>(directlyConnectedStations);
+        }
+        else throw new IllegalArgumentException("traffic type was "+type);
     }
 
     public ConnectedTrafficPart getRoadTrafficPart() {
@@ -221,5 +274,13 @@ public class Station {
 
     public void removeAirPlanesWaiting() {
         airPlanesWaiting.poll();
+    }
+    
+    public ConnectedTrafficPart getRailTrafficPart() {
+        return railTrafficPart;
+    }
+
+    public void setRailTrafficPart(ConnectedTrafficPart railTrafficPart) {
+        this.railTrafficPart = railTrafficPart;
     }
 }

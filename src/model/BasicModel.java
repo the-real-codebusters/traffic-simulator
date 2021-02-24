@@ -71,21 +71,12 @@ public class BasicModel {
             ConnectedTrafficPart newOrIncompleteConnectedTrafficPart = newCreatedOrIncompleteConnectedTrafficParts.remove();
 
             if(newOrIncompleteConnectedTrafficPart.checkIfMoreThanOneStation()){
-                if(newOrIncompleteConnectedTrafficPart.getTrafficType().equals(TrafficType.ROAD)){
-                    activeConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
-
-                    //TODO Andere TrafficTypes fehlen noch
-                }
-                if(newOrIncompleteConnectedTrafficPart.getTrafficType().equals(TrafficType.AIR)){
-                    activeConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
-                }
+                activeConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
             }
             // Eine Station, die nur eine Station hat, ist eine unfertige Verkehrslinie
             else {
                 incompleteConnectedTrafficParts.add(newOrIncompleteConnectedTrafficPart);
             }
-
-
         }
         newCreatedOrIncompleteConnectedTrafficParts.addAll(incompleteConnectedTrafficParts);
 
@@ -157,16 +148,74 @@ public class BasicModel {
         //VehicleMovement airplaneMovement = new VehicleMovement(new PositionOnTilemap());
 
         List<VehicleMovement> movements = new ArrayList<>();
-        for(Vehicle vehicle : activeVehicles){
-            // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
-            VehicleMovement movement = vehicle.getMovementForNextDay();
-            movements.add(movement);
-            // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
-            vehicle.setPosition(movement.getLastPair().getKey());
-        }
 
+        Collections.sort(activeVehicles, (v1, v2) -> {
+            if(v1.isHasWaitedInLastRound() && !v2.isHasWaitedInLastRound()){
+                return -1;
+            }
+            // -1 - less than, 1 - greater than, 0 - equal
+            return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
+        });
+        System.out.println("activeVehicles: "+activeVehicles);
+        List<InstantReservation> reservations = new ArrayList<>();
+        for(int i=0; i<activeVehicles.size(); i++){
+            Vehicle vehicle = activeVehicles.get(i);
+            // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
+            if(vehicle instanceof Train){
+                List<VehicleMovement> trainMovements = ((Train) vehicle).getTrainMovementsForNextDay();
+                vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                movements.addAll(trainMovements);
+            }
+            else if(vehicle.getTrafficType().equals(TrafficType.ROAD)){
+                VehicleMovement movement = vehicle.getMovementForNextDay();
+                createCarReservations(movement, reservations, vehicle);
+                movements.add(movement);
+            }
+            else {
+                VehicleMovement movement = vehicle.getMovementForNextDay();
+                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+                vehicle.setPosition(movement.getLastPair().getKey());
+                movements.add(movement);
+            }
+        }
         day++;
         return movements;
+    }
+
+    private void createCarReservations(VehicleMovement movement, List<InstantReservation> reservations, Vehicle vehicle){
+        Set<InstantReservation> newRes = new HashSet<>();
+        List<PositionOnTilemap> allPositions = movement.getAllPositions();
+        for(PositionOnTilemap pos: allPositions){
+            newRes.add(new InstantReservation(pos.getxCoordinateInGameMap(), pos.getyCoordinateInGameMap(), movement));
+        }
+        boolean shouldWait = false;
+        for(InstantReservation res : newRes){
+            if(reservations.contains(res)){
+                VehicleMovement movementThatReservedTile = reservations.get(reservations.indexOf(res)).getMovement();
+                boolean directionsContrawise = checkIfDirectionsContrawise(movementThatReservedTile.getDirectionOfLastMove(),
+                        movement.getDirectionOfLastMove());
+                if(!directionsContrawise){
+                    //Dann soll sich das Auto nicht bewegen, da das Tile schon besetzt ist
+                    shouldWait = true;
+                }
+                else{
+                    System.out.println("############Bewegung in entgegengesetzte Richtung entdeckt##########");
+                }
+            }
+        }
+        if(shouldWait){
+            PositionOnTilemap startPos = movement.getStartPosition();
+            reservations.add(new InstantReservation(startPos.getxCoordinateInGameMap(), startPos.getyCoordinateInGameMap(), movement));
+            vehicle.revertMovementForNextDay();
+            movement.setWait(true);
+            vehicle.setHasWaitedInLastRound(true);
+        }
+        else {
+            reservations.addAll(newRes);
+            // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+            vehicle.setPosition(movement.getLastPair().getKey());
+            vehicle.setHasWaitedInLastRound(false);
+        }
     }
 
     /**
@@ -280,12 +329,24 @@ public class BasicModel {
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
             //TODO hier wird manchmal eine exception geworfen. Warum?
-            System.out.println("Typ eines Vehicles : "+v.getKind());
-            if(v.getKind().equals(type)){
+            System.out.println("Typ eines Vehicles : "+v.getTrafficType());
+            if(v.getTrafficType().equals(type)){
                 desiredVehicles.add(v);
             }
         }
         return desiredVehicles;
+    }
+
+    private boolean checkIfDirectionsContrawise(int[] d1, int[] d2){
+        boolean contrawise = false;
+        if(d1[0] == d2[0] && d1[0] == 0){
+            if(Math.abs(d1[1] - d2[1]) == 2) contrawise = true;
+        }
+        else if(Math.abs(d1[0] - d2[0]) == 2){
+            if(d1[1] == d2[1] && d1[1] == 0) contrawise = true;
+        }
+        System.out.println("checkIfDirectionsContrawise "+contrawise);
+        return contrawise;
     }
 
     /**

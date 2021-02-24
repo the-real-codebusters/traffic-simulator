@@ -17,8 +17,15 @@ public class Stop extends Special implements PartOfTrafficGraph{
     public Stop getNewInstance(){
         Stop instance = new Stop();
         setInstanceStandardAttributes(instance);
-        instance.setPoints(Map.copyOf(points));
-        instance.setTransportations(List.copyOf(transportations));
+
+        // it was before 21.02.2021
+        // instance.setPoints(Map.copyOf(points));
+        instance.setPoints(new HashMap<>(points));
+
+        // it was before 21.02.2021
+        // instance.setTransportations(List.copyOf(transportations));
+        instance.setTransportations(new ArrayList<>(transportations));
+
         instance.setSpecial(getSpecial());
         instance.setTrafficType(getTrafficType());
         return instance;

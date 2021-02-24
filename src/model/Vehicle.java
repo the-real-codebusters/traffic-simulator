@@ -3,25 +3,32 @@ package model;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Vehicle {
-    private TrafficType kind;
-    private boolean canTransportCargo;
-    private double speed;
-    private String graphic;
-    private Storage storage;
+    protected TrafficType trafficType;
+    protected boolean canTransportCargo;
+    protected double speed;
+    protected String graphic;
+    protected Storage storage;
 
-    private PositionOnTilemap position;
-    private List<Vertex> pathToNextStation = new ArrayList<>();
+    protected PositionOnTilemap position;
+    protected List<Vertex> pathToNextStation = new ArrayList<>();
+
+    protected List<Vertex> pathToNextStationBeforeMovement;
 
     // Wenn das false ist, fährt das Fahrzeug zurück, also die Liste der Stationen der Verkehrslinie rückwärts ab
-    boolean movementInTrafficLineGoesForward = true;
+    protected boolean movementInTrafficLineGoesForward = true;
 
     // Die nächste Station, zu der das fahrzeug fahren will. Sozusagen das aktuelle Ziel
-    private Station nextStation;
-    private Pathfinder pathfinder;
+    protected Station nextStation;
+    protected Pathfinder pathfinder;
+
+    protected boolean hasWaitedInLastRound;
+
+    protected String kind;
 
     private long id;
 
@@ -31,24 +38,42 @@ public class Vehicle {
      */
     public Vehicle getNewInstance(){
         Vehicle instance = new Vehicle();
-        instance.setKind(kind);
+        instance.setTrafficType(trafficType);
         instance.setCanTransportCargo(canTransportCargo);
         instance.setSpeed(speed);
         instance.setGraphic(graphic);
-        instance.setStorage(storage.getNewInstance());
+        instance.setKind(kind);
+        if(!graphic.equals("the_engine")){
+            instance.setStorage(storage.getNewInstance());
+        }
         return instance;
     }
 
     /**
-     * Speichert den Weg zur nächsten Station ab. Momentan nur für Straßen
+     * Speichert den Weg zur nächsten Station ab
+     * @param startVertex
+     */
+    public void savePathToNextStationAndUpdateMovement(Vertex startVertex, VehicleMovement movement){
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
+        if(pathToNextStation.size() == 0){
+            System.out.println("Kein neuer Weg gefunden");
+            //Kein Weg gefunden
+            TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+            line.getVehicles().remove(this);
+            movement.setLastMovementBeforeRemove(true);
+        }
+    }
+
+    /**
+     * Speichert den Weg zur nächsten Station ab
      * @param startVertex
      */
     public void savePathToNextStation(Vertex startVertex){
-        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex);
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
     }
 
     public void updateNextStation() {
-        TrafficLine line = nextStation.getTrafficLineForTrafficType(kind);
+        TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
 
@@ -58,54 +83,103 @@ public class Vehicle {
      * @return Ein VehicleMovement Objekt
      */
     public VehicleMovement getMovementForNextDay(){
+
+        pathToNextStationBeforeMovement = new ArrayList<>(pathToNextStation);
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
         double wayToGo = speed;
         // Die Bewegung startet an der aktuellen Position
         PositionOnTilemap currentPosition = position;
-        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic);
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType);
         double distanceToNextVertex = 0;
         // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
         // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
         // Knoten, und der Länge des Wegs zu diesem Knoten mitgegeben werden
-        while(wayToGo >= 0 && pathToNextStation.size() > 0){
+        while(wayToGo > 0 && pathToNextStation.size() > 0){
             Vertex nextVertex = pathToNextStation.remove(0);
             //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
+
+            //Teste, ob Knoten noch im Graph. Teste außerdem, ob Knoten noch eine Verbindung zum nächsten Knoten hat
+            // Wenn nicht wurde Straße/Schiene verändert
+            TrafficGraph graph = pathfinder.getGraphForTrafficType(trafficType);
+            boolean vertexContained = graph.getMapOfVertexes().containsValue(nextVertex);
+            boolean hasEdge = true;
+            if(vertexContained && pathToNextStation.size() > 0){
+                Vertex firstElementInPathToNextStation = pathToNextStation.remove(0);
+                hasEdge = graph.hasBidirectionalEdge(nextVertex.getName(), firstElementInPathToNextStation.getName());
+                pathToNextStation.add(0, firstElementInPathToNextStation);
+            }
+            if(!vertexContained || !hasEdge){
+                System.out.println("Fehlende Straße/Schiene entdeckt");
+                savePathToNextStationAndUpdateMovement(pathToNextStationBeforeMovement.get(0), vehicleMovement);
+                return vehicleMovement;
+            }
+
+
             distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
+            System.out.println("pathToNextStation for vehicle "+graphic+" in while loop");
+            pathToNextStation.forEach((x) -> System.out.println(x.getName()));
         }
-        if(pathToNextStation.size() == 0){
+
+        System.out.println("Movement after while loop: ");
+        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+            System.out.println(p.coordsRelativeToMapOrigin());
+        }
+
+        System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+
+
+        if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
-            savePathToNextStation((Vertex) currentPosition);
+            savePathToNextStationAndUpdateMovement((Vertex) currentPosition, vehicleMovement);
+            System.out.println("Movement after method at last vertex to next station: ");
+            for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+                System.out.println(p.coordsRelativeToMapOrigin());
+            }
             return vehicleMovement;
         }
         // Ansonsten wurde die Zielstation nicht erreicht
 
-        // Da wayToGo dann vermutlich negativ ist, also nicht genug Weg bis zum nächsten Knoten vorhanden war, muss der
+        // Wenn wayToGo dann negativ ist, also nicht genug Weg bis zum nächsten Knoten vorhanden war, muss der
         // letzte Knoten aus dem VehicleMovement wieder entfernt werden und stattdessen eine Position anteilig des übrigen
         // Weges in Richtung des nächsten Knotens hinzugefügt werden
 
-        wayToGo+=distanceToNextVertex;
-        pathToNextStation.add(0, (Vertex) currentPosition);
-        vehicleMovement.removeLastPair();
+        if(wayToGo<0){
+            wayToGo+=distanceToNextVertex;
+            pathToNextStation.add(0, (Vertex) currentPosition);
+            vehicleMovement.removeLastPair();
 
-        PositionOnTilemap previouslyLastPosition;
-        if(vehicleMovement.getNumberOfPoints() == 0){
-            System.out.println("way to go "+wayToGo);
-            System.out.println("path to next station "+pathToNextStation);
-            previouslyLastPosition = vehicleMovement.getStartPosition();
+            System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+
+            PositionOnTilemap previouslyLastPosition;
+            if(vehicleMovement.getNumberOfPoints() == 0){
+                System.out.println("way to go "+wayToGo);
+                System.out.println("path to next station "+pathToNextStation);
+                previouslyLastPosition = vehicleMovement.getStartPosition();
+            }
+            else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
+            VehiclePosition lastPosition = previouslyLastPosition.
+                    getnewPositionShiftedTowardsGivenPointByGivenDistance(
+                            currentPosition.coordsRelativeToMapOrigin(), wayToGo);
+
+            vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
         }
-        else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
-        VehiclePosition lastPosition = previouslyLastPosition.
-                getnewPositionShiftedTowardsGivenPointByGivenDistance(
-                        currentPosition.coordsRelativeToMapOrigin(), wayToGo);
+        else if(wayToGo > 0){
+            throw new RuntimeException("wayToGo in getMovementForNextDay() was >0 : "+wayToGo);
+        }
 
-        //TODO Was wenn es genau am Ziel landet?
-
-        vehicleMovement.appendPairOfPositionAndDistance(lastPosition, wayToGo);
+        System.out.println("Movement after method: ");
+        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+            System.out.println(p.coordsRelativeToMapOrigin());
+        }
         return vehicleMovement;
+    }
+
+    public void revertMovementForNextDay(){
+        pathToNextStation = pathToNextStationBeforeMovement;
     }
 
     /**
@@ -157,12 +231,12 @@ public class Vehicle {
         }
     }
 
-    public TrafficType getKind() {
-        return kind;
+    public TrafficType getTrafficType() {
+        return trafficType;
     }
 
-    public void setKind(TrafficType kind) {
-        this.kind = kind;
+    public void setTrafficType(TrafficType trafficType) {
+        this.trafficType = trafficType;
     }
 
     public boolean isCanTransportCargo() {
@@ -190,6 +264,10 @@ public class Vehicle {
     }
 
     public Storage getStorage() {
+        if (graphic.equals("the_engine")) {
+            Map<String, Integer> cargoEmpty = new HashMap<>();
+            return new Storage(cargoEmpty);
+        }
         return storage;
     }
 
@@ -225,7 +303,19 @@ public class Vehicle {
         this.nextStation = nextStation;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public boolean isHasWaitedInLastRound() {
+        return hasWaitedInLastRound;
+    }
+
+    public void setHasWaitedInLastRound(boolean hasWaitedInLastRound) {
+        this.hasWaitedInLastRound = hasWaitedInLastRound;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 }

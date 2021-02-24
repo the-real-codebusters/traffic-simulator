@@ -21,6 +21,8 @@ public class Controller {
     private Pathfinder pathfinder;
     private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
 
+    //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
+    //zu dieser Liste hinzugefügt werden
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
@@ -48,8 +50,11 @@ public class Controller {
         // Map wird durch Methode der View gezeichnet
         view.drawMap();
 
-        TrafficGraph graph = model.getMap().getRawRoadGraph();
-        pathfinder = new Pathfinder(graph);
+        TrafficGraph roadGraph = model.getMap().getRoadGraph();
+        TrafficGraph railGraph = model.getMap().getRailGraph();
+//        TrafficGraph airGraph = model.getMap().getAirGraph();
+
+        pathfinder = new Pathfinder(roadGraph, railGraph);
         model.setPathfinder(pathfinder);
 
 //        new TrafficLineCreationDialog(view);
@@ -60,13 +65,20 @@ public class Controller {
 
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
+        System.out.println("Movements in controller");
+        for(VehicleMovement m : movements){
+            System.out.println("Movement: ");
+            for(PositionOnTilemap p: m.getAllPositions()){
+                System.out.println(p.coordsRelativeToMapOrigin());
+            }
+        }
+        view.getMenuPane().setDayLabel(model.getDay());
         if(movements.size() > 0){
             view.translateVehicles(movements);
         }
         else {
             waitForOneDay();
         }
-
     }
 
     public void waitForOneDay(){
@@ -76,9 +88,11 @@ public class Controller {
         timeline.play();
     }
 
-    public List<Vertex> getVertexesOfGraph(){
+    public List<Vertex> getVertexesOfGraphs(){
         List<Vertex> vertexes = new ArrayList<>();
-        vertexes.addAll(model.getMap().getRawRoadGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getRoadGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getRailGraph().getMapOfVertexes().values());
+
         return vertexes;
     }
 
@@ -92,7 +106,7 @@ public class Controller {
      */
     public void drawVertexesOfGraph(){
         Canvas canvas = view.getCanvas();
-        List<Vertex> vertexes = getVertexesOfGraph();
+        List<Vertex> vertexes = getVertexesOfGraphs();
         for(Vertex vertex: vertexes){
             Point2D pointOnCanvas = view.translateTileCoordsToCanvasCoords(vertex.getxCoordinateInGameMap(), vertex.getyCoordinateInGameMap());
             // pointOnCanvas ist an der Stelle der linken Ecke des Tiles
@@ -126,18 +140,21 @@ public class Controller {
         if(isoCoord != null){
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
-        List<Vertex> addedVertices;
 
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
+        System.out.println(selectedBuilding.getBuildingName());
+            System.out.println("is a stop: " + (selectedBuilding instanceof Stop));
+
+        System.out.println("can place building: " + model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding));
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
             // Wenn ein Gebäude entfernt werden soll
             if(selectedBuilding.getBuildingName().equals("remove")){
                 selectedBuilding = new Building();
-                selectedBuilding.setBuildingName("grass");
+                selectedBuilding.setBuildingName("ground");
                 selectedBuilding.setWidth(1);
                 selectedBuilding.setDepth(1);
 
@@ -147,28 +164,7 @@ public class Controller {
                 // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
-                    PartOfTrafficGraph partOfGraph = (PartOfTrafficGraph) buildingOnSelectedTile;
-                    addedVertices = model.getMap().addPointsToGraph(partOfGraph, xCoord, yCoord);
-
-                    for(Vertex v : addedVertices){
-                        if(v.getName().contains("c")) {
-                            model.getMap().getRawRoadGraph().removeVertex(v.getName());
-                        }
-                    }
-
-                    // TODO so anpassen, dass es auch für rails funktioniert
-
-                    Map<String, Vertex> vertexesInGraph = model.getMap().getRawRoadGraph().getMapOfVertexes();
-                    Iterator<Map.Entry<String, Vertex>> iterator = vertexesInGraph.entrySet().iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry<String, Vertex> vertex = iterator.next();
-                        List<Vertex> connections = model.getMap().getRawRoadGraph().getAdjacencyMap().get(vertex.getKey());
-                        if(connections.size()== 0) {
-                            iterator.remove();
-                            continue;
-                        }
-                    }
-                    model.getMap().getRawRoadGraph().printGraph();
+                    model.getMap().removePointsOnTile(buildingOnSelectedTile, xCoord, yCoord);
                 }
             }
 
@@ -203,63 +199,6 @@ public class Controller {
         }
     }
 
-
-
-
-
-    // Diese globalen Variablen dienen einer experimentellen Anzeige der Animationen.
-    // TODO In einem fertigen Programm sollten die Variablen nicht mehr in dieser Form vorhanden sein
-//    public int indexOfStart = 0;
-//    public int indexOfNext = indexOfStart + 1;
-//    public List<Vertex> path;
-//    public boolean notDone = true;
-
-//    /**
-//     * Bewegt ein Bild des Autos von Knoten v1 zu Knoten v2
-//     */
-//    public void moveCarFromPointToPoint(Vertex v1, Vertex v2){
-//
-//        Point2D startPointOnCanvas = view.translateTileCoordsToCanvasCoords(v1.getxCoordinateInGameMap(), v1.getyCoordinateInGameMap());
-//        startPointOnCanvas = view.changePointByTiles(startPointOnCanvas,
-//                v1.getxCoordinateRelativeToTileOrigin(),
-//                v1.getyCoordinateRelativeToTileOrigin());
-//
-//        Point2D nextPointOnCanvas = view.translateTileCoordsToCanvasCoords(v2.getxCoordinateInGameMap(), v2.getyCoordinateInGameMap());
-//        nextPointOnCanvas = view.changePointByTiles(nextPointOnCanvas,
-//                v2.getxCoordinateRelativeToTileOrigin(),
-//                v2.getyCoordinateRelativeToTileOrigin());
-//
-//        view.translateVehicle(startPointOnCanvas, nextPointOnCanvas);
-//    }
-
-
-//    /**
-//     * Soll momentan dafür sorgen, dass sich ein Auto entlang mehrerer Points bewegt.
-//     * Es wird eine Liste von Knoten anhand einer Breitensuche ermittelt und durch diese Liste wird iteriert, so dass
-//     * bei jeder Iteration die nächsten zwei Knoten der Liste der Methode translateCar übergeben werden.
-//     * Die Animation beginnt bei 10 platzierten verbundenen Knoten.
-//     */
-//    public void startCarMovement(){
-//        List<Vertex> vertexes = getVertexesOfGraph();
-//        if(vertexes.size() >= 10) {
-//
-//            Vertex startVertex = vertexes.get(indexOfStart);
-//            Vertex targetVertex = vertexes.get(vertexes.size()-1);
-//            if(notDone) path = pathfinder.findPathForRoadVehicle(startVertex, targetVertex);
-//
-//            for(Vertex v : path){
-//                System.out.print(v.getName() + " -> ");
-//            }
-//            System.out.println();
-//
-//            if(path.size() >= 10 && notDone) {
-//                System.out.println("path "+path.size());
-//                moveCarFromPointToPoint(path.get(indexOfStart), path.get(indexOfNext));
-//                notDone = false;
-//            }
-//        }
-//    }
-
     public boolean canPlaceBuildingAtPlaceInMapGrid(int row, int column, Building building){
         return model.getMap().canPlaceBuilding(row, column, building);
     }
@@ -279,19 +218,27 @@ public class Controller {
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
             TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
+            System.out.println("trafficType in selectStationsForTrafficLine "+trafficType);
 
             if(stationsOfPlannedTrafficLine.size() == 0){
                 trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
             }
-            if(station.hasPartOfTrafficType(trafficType)/* &&*/
-                /*trafficPartOfPlannedTrafficLine.getStations().contains(station)*/
+
+            //True, wenn Station Teil eines Verkehrsteils mit dem angegebenen typ ist und wenn die Station Teil des
+            //konkret angeklickten Verkehrsteils ist
+            if(station.hasPartOfTrafficType(trafficType) &&
+                trafficPartOfPlannedTrafficLine.getStations().contains(station)
             ){
+                // Benutzer kann Stationen aus geplanter Liste mit nochmaligem Klick löschen
                 if(stationsOfPlannedTrafficLine.contains(station)){
                     stationsOfPlannedTrafficLine.remove(station);
                 }
                 else {
                     stationsOfPlannedTrafficLine.add(station);
                 }
+                System.out.println("stationsOfPlannedTrafficLine in controller: ");
+                stationsOfPlannedTrafficLine.forEach((x) -> System.out.println("Station id: "+x.getId()));
+                //Zeigt Liste in Popup an
                 view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
             }
         }
@@ -309,26 +256,44 @@ public class Controller {
     }
 
 
-    public void createNewTrafficLine(Map<String, Integer> desiredNumbersOfVehicleNames,
+    public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
-        Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
-            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
-            mapDesiredNumbers.put(vehicle, entry.getValue());
-        }
-        List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
-        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
 
         if (trafficType == TrafficType.AIR) {
+            
+         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
             trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
             model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
         }
         else {
-            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
-            stationsOfPlannedTrafficLine.clear();
-            trafficPartOfPlannedTrafficLine = null;
+        List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
+        trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+        clearPlannedTrafficLine();
         }
     }
+
+    public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {
+        Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
+            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
+            System.out.println("vehicle in createNewTrafficLine " + vehicle.getGraphic());
+            mapDesiredNumbers.put(vehicle, entry.getValue());
+        }
+        return mapDesiredNumbers;
+    }
+
+    public void clearPlannedTrafficLine(){
+        stationsOfPlannedTrafficLine.clear();
+        this.trafficPartOfPlannedTrafficLine = null;
+    }
+
+    public int getDayFromModel(){
+        return model.getDay();
+    }
+
+    public Tile[][] getFields() { return model.getFieldGridOfMap(); }
 
     public Tile getTileOfMapTileGrid(int row, int column){
         return model.getMap().getTileGrid()[row][column];
@@ -345,5 +310,7 @@ public class Controller {
     public List<Building> getBuildingsByBuildmenu(String buildmenu){
         return model.getBuildingsForBuildmenu(buildmenu);
     }
+
+
 
 }

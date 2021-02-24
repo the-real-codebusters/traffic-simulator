@@ -3,7 +3,6 @@ package view;
 import controller.Controller;
 import javafx.animation.ParallelTransition;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -18,14 +17,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Popup;
+import javafx.scene.text.Font;
+
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import model.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
+import java.util.*;
 
 
 import javafx.scene.control.Button;
@@ -42,6 +40,7 @@ public class MenuPane extends AnchorPane {
     private MouseEvent hoveredEvent;
     private int result;
     private HBox trafficPartTabContent;
+    private VBox factoryTabContent;
 
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
@@ -54,6 +53,7 @@ public class MenuPane extends AnchorPane {
     private boolean run = true;
     private Button animationButton;
     private Slider slider;
+    private Label dayLabel = new Label();
 
     public MenuPane(Controller controller, View view, Canvas canvas, ObjectToImageMapping mapping) {
         this.view = view;
@@ -75,6 +75,8 @@ public class MenuPane extends AnchorPane {
         }
         createTrafficpartTab();
 
+        createFactoryTab();
+
     }
 
     private void createTrafficpartTab(){
@@ -84,6 +86,30 @@ public class MenuPane extends AnchorPane {
         tabContents.add(box);
         addTab(name, box, false);
         trafficPartTabContent = box;
+    }
+
+    private void createFactoryTab() {
+        String name = "factory";
+        VBox box = new VBox(10);
+        box.setPrefHeight(120);
+        box.setPadding(new Insets(5, 20, 5, 20));
+        tabNames.add(name);
+        tabContents.add(box);
+        addTab(name, box, false);
+        factoryTabContent = box;
+        Label factoryNameLabel = new Label();
+        Label productionLabel = new Label();
+        Label consumptionLabel = new Label();
+        factoryNameLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(factoryNameLabel);
+        productionLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(productionLabel);
+        consumptionLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(consumptionLabel);
+        factoryNameLabel.setText("factory name: not selected");
+        productionLabel.setText("production: nothing");
+        consumptionLabel.setText("consumption: nothing");
+        view.setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
     }
 
     /**
@@ -163,6 +189,12 @@ public class MenuPane extends AnchorPane {
         });
     }
 
+
+    public void setDayLabel(int day){
+        dayLabel.setText("Current day: " + day);
+        dayLabel.setFont(new Font("Arial", 15));
+    }
+
     /**
      * Erstellt die Inhalte der Tabs in der tabPane nach den buildmenus in der JSONDatei und zusätzlich height und
      * vehicles
@@ -172,9 +204,15 @@ public class MenuPane extends AnchorPane {
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
 
-        tabNames.addAll(List.of("speed"));
+        // it was before 21.02.2021
+        // tabNames.addAll(List.of("speed"));
+        tabNames.addAll(Collections.singletonList("speed"));
+
         tabNames.addAll(buildmenus);
-        tabNames.addAll(List.of("height", "vehicles", "remove"));
+
+        // it was before 21.02.2021
+        // tabNames.addAll(List.of("height", "vehicles", "remove"));
+        tabNames.addAll(Arrays.asList("height", "vehicles", "remove"));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
@@ -182,6 +220,14 @@ public class MenuPane extends AnchorPane {
         }
 
         for (String name : tabNames) {
+            ScrollPane scroll = new ScrollPane();
+            scroll.setPrefViewportWidth(canvas.getWidth());
+            scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+//            scroll.setFitToHeight(true);
+
+
+//            scroll.setFitToWidth(true);
+            scroll.setPannable(true);
             HBox container = boxWithLayout();
             List<Building> buildings = controller.getBuildingsByBuildmenu(name);
             for (Building building : buildings) {
@@ -197,8 +243,10 @@ public class MenuPane extends AnchorPane {
 
             if (name.equals("height")) {
                 Building height_up = new Building(1, 1, "height_up");
+                height_up.setDz(2);
                 ImageView imageViewUp = imageViewWithLayout(height_up);
                 Building height_down = new Building(1, 1, "height_down");
+                height_down.setDz(2);
                 ImageView imageViewDown = imageViewWithLayout(height_down);
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }
@@ -214,13 +262,15 @@ public class MenuPane extends AnchorPane {
 
                         }
                     });
-                    container.getChildren().add(standardSpeedButton);
+                    container.getChildren().addAll(standardSpeedButton, dayLabel);
+
                     // erzeuge einen Button zum Starten/Pausieren von Simulation
                     createAnimationButton();
                     // erzeuge SLider
                     createTickSlider();
                     container.getChildren().add(0, animationButton);
                     container.getChildren().add(1, slider);
+                    container.setPadding(new Insets(20,20,20,20));
                 }
 
 
@@ -230,8 +280,8 @@ public class MenuPane extends AnchorPane {
                     container.getChildren().add(imageView);
                 }
 
-
-                tabContents.set(tabNames.indexOf(name), container);
+                scroll.setContent(container);
+                tabContents.set(tabNames.indexOf(name), scroll);
             }
 
     }
@@ -242,7 +292,7 @@ public class MenuPane extends AnchorPane {
      */
     private HBox boxWithLayout() {
         HBox box = new HBox(10);
-        box.setPrefHeight(100);
+        box.setPrefHeight(120);
         box.setPadding(new Insets(5, 20, 5, 20));
         return box;
     }
@@ -394,6 +444,7 @@ public class MenuPane extends AnchorPane {
                     event.getButton().compareTo(MouseButton.PRIMARY) == 0 &&
                             selectedBuilding == null) {
                 if(selectTrafficLineStationsMode){
+                    System.out.println("selectTrafficLineStationsMode "+selectTrafficLineStationsMode);
                     controller.selectStationsForTrafficLine(event);
                 }
                 else controller.showTrafficPartInView(event);

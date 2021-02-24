@@ -1,9 +1,9 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class TrafficLine {
 
@@ -41,9 +41,14 @@ public class TrafficLine {
             }
         }
 
-        //TODO Rail
-
+        else if(trafficType.equals(TrafficType.RAIL)){
+            for(Station station : stations){
+                station.setRailTrafficLine(this);
+            }
+        }
     }
+
+    //TODO Wenn Vehicles kurz vor der station sind, werden sie schneller. Was ist da los?
 
     /**
      * Soll eine neues Fahrzeug zu der Liste der Fahzeuge hinzufügen. Gibt das erstellte fahrzeug zurück
@@ -67,10 +72,13 @@ public class TrafficLine {
         }
 
         vehicle.savePathToNextStation(startVertexForNewVehicles);
+        if(vehicle.pathToNextStation.size() > 0){
+            //Dann konnte ein Weg gefunden werden
+            vehicles.add(vehicle);
+            System.out.println(vehicle.getTrafficType());
+            System.out.println("Speed of new vehicle"+vehicle.getSpeed());
+        }
 
-        vehicles.add(vehicle);
-        System.out.println(vehicle.getKind());
-        System.out.println("Speed of new vehicle"+vehicle.getSpeed());
         return vehicle;
     }
 
@@ -83,7 +91,7 @@ public class TrafficLine {
 
         for(int i=0; i<sortedStations.size(); i++){
             for(Station unsorted : stations){
-                if(sortedStations.get(i).isDirectlyConnectedTo(unsorted)){
+                if(sortedStations.get(i).isDirectlyConnectedTo(unsorted, trafficType)){
                     if(! sortedStations.contains(unsorted)){
                         sortedStations.add(unsorted);
                     }
@@ -136,7 +144,7 @@ public class TrafficLine {
         int minimalNumberOfConnectedStations = Integer.MAX_VALUE;
         // Finde die Station, die am wenigsten Verbindungen hat
         for(Station station: stations){
-            int numberOfConnectedStations = station.getDirectlyConnectedStations().size();
+            int numberOfConnectedStations = station.getDirectlyConnectedStations(trafficType).size();
             // Wenn die Station nur eine direkt verbundene Station hat bzw diese Zahl minimal ist, dann kann sie als Start taugen
             if( numberOfConnectedStations < minimalNumberOfConnectedStations){
                 startStation = station;
@@ -160,12 +168,12 @@ public class TrafficLine {
     }
 
     public Vehicle getMissingVehicleOrNull(){
-        for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
-            if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
-                System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
-                return entry.getKey();
+            for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+                if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
+                    System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
+                    return entry.getKey();
+                }
             }
-        }
         return null;
     }
 
@@ -191,12 +199,36 @@ public class TrafficLine {
     }
 
     public void setDesiredNumbersOfVehicles(Map<Vehicle, Integer> desiredNumbersOfVehicles) {
-        this.desiredNumbersOfVehicles = desiredNumbersOfVehicles;
-        int total = 0;
-        for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
-            total+=entry.getValue();
+
+        if(trafficType.equals(TrafficType.RAIL)){
+            totalDesiredNumbersOfVehicles = 1;
+            Vehicle engine = null;
+            List<Vehicle> wagons = new ArrayList<>();
+            for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+                Vehicle vehicle = entry.getKey();
+                if(vehicle.getKind().equals("engine")){
+                    engine = vehicle.getNewInstance();
+                }
+                else {
+                    for(int i=0; i<entry.getValue(); i++){
+                        wagons.add(vehicle.getNewInstance());
+                    }
+                }
+            }
+            if(engine == null) throw new RuntimeException("There was no engine in setDesiredNumbersOfVehicles");
+            Train train = new Train(wagons, engine);
+            Map<Vehicle, Integer> desiredVehicles = new HashMap<>();
+            desiredVehicles.put(train, 1);
+            this.desiredNumbersOfVehicles = desiredVehicles;
         }
-        totalDesiredNumbersOfVehicles = total;
+        else {
+            this.desiredNumbersOfVehicles = desiredNumbersOfVehicles;
+            int total = 0;
+            for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
+                total += entry.getValue();
+            }
+            totalDesiredNumbersOfVehicles = total;
+        }
     }
 
     public Map<Vehicle, Integer> getDesiredNumbersOfVehicles() {

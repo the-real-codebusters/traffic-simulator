@@ -22,10 +22,14 @@ import javafx.util.Pair;
 import model.*;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 
 public class View {
+
     private Stage stage;
 
     private double tileImageWidth = 128;
@@ -77,10 +81,14 @@ public class View {
 
     private Map<List<Point2D>, Point2D> rowColToCanvasCoordinates = new LinkedHashMap<>();
 
+    // factory labels
+    private Label factoryNameLabel;
+    private Label productionLabel;
+    private Label consumptionLabel;
+
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         objectToImageMapping = new ObjectToImageMapping(model.getGamemode());
-        fields = model.getFieldGridOfMap();
 
         Label isoCoordLabel = new Label();
         isoCoordLabel.setFont(new Font("Arial", 15));
@@ -96,6 +104,7 @@ public class View {
         borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel, cornerLabel);
         borderPane.setCenter(canvas);
+        borderPane.setPrefSize(1200, 750);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel, cornerLabel);
@@ -103,8 +112,17 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-
+        stage.setX((screenBounds.getWidth() - 1200) / 2);
+        stage.setY((screenBounds.getHeight() - 750) / 2);
+//        stage.setY(0);
         this.stage.setScene(new Scene(borderPane));
+    }
+
+
+    public void setFactoryLabels(Label factoryNameLabel, Label productionLabel, Label consumptionLabel){
+        this.factoryNameLabel = factoryNameLabel;
+        this.productionLabel = productionLabel;
+        this.consumptionLabel = consumptionLabel;
     }
 
     public void generateMenuPane(Controller controller){
@@ -116,7 +134,7 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            double zoomFactor = Math.exp(scrollDelta * 0.01);
+            zoomFactor = Math.exp(scrollDelta * 0.01);
             tileImageWidth = tileImageWidth * zoomFactor;
             tileImageHeight = tileImageHeight * zoomFactor;
 
@@ -235,8 +253,9 @@ public class View {
      * Zeichnet Map auf Canvas anhand der Daten eines Arrays von Tiles
      */
     public void drawMap() {
-        final String grass1 = "file:grass.png";
-        Image grass = new Image(grass1);
+        fields = controller.getFields();
+//        final String grass1 = "file:grass.png";
+//        Image grass = new Image(grass1);
         // Hintergrund wird schwarz gesetzt
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -262,7 +281,6 @@ public class View {
                         && drawOrigin.getY() > -tileImageHeightHalf * 4
                         && drawOrigin.getY() < canvas.getHeight() + tileImageHeightHalf * 4) {
 
-                    //TODO fields von Controller holen, da mvc-model
 
                     // Row und Column müssen innerhalb des 2d-Arrays liegen
                     if (row >= 0 && col >= 0 && row < fields.length && col < fields[0].length) {
@@ -273,36 +291,13 @@ public class View {
                         if(building != null && (building.getWidth() > 1 || building.getDepth() > 1)){
 
                             //Hier gab es mal if-Bedingung ob field origin ist
-
-                            for(int i = col; i <= col + building.getDepth()-1; i++) {
-                                    // Obere Kante vom Gebäude mit Grassfläche übermalen
-                                    Image image = getGrassImage(i, row);
-                                    drawTileImage(drawOrigin, image, false, cornerHeights);
-                                }
+                            if(field.isBuildingOrigin()){
                                 drawBuildingOverMoreTiles(field, building, row, col);
-                                // obere ecke ist ein gebäude
-                                if (row == building.getStartRow()-1 && col == building.getStartColumn()) {
-                                    // Startzeile und Start/Endespalte merken
-                                    startRow = row + building.getWidth();
-                                    endCol = col;
-                                    startCol = endCol - building.getDepth() + 2;
-                                    for (int i = row; i <= startRow; i++) {
-                                        // Rechte Kante vom Gebäude mit Grassfläche übermalen
-                                        Image image = getGrassImage(col, i);
-                                        drawTileImage(drawOrigin, image, false, cornerHeights);
-                                    }
-                                }
-                        } else {
-                            // diese Zelle wurde vorher als Zelle neben einem Gebäude identifiziert
-                            // zeichnet neben Gebäude, um Problem der Überlappung zu lösen
-//                            if (row == startRow && col >= startCol && col <= endCol) {
-//                                // und muss daher als Grass gezeichnet werden
-//                                Image image = getGrassImage(col, row);
-//                                drawTileImage(drawOrigin, image, false, cornerHeights);
-//                            } else {
-
+                            }
+                        }
+                        else {
                                 if (building != null) {
-                                    if (building.getBuildingName().equals("ground") || building.getBuildingName().equals("flat")
+                                    if (building.getBuildingName().equals("ground")
                                             || building.getBuildingName().equals("grass")) {
 
                                         String absoluteTileHeight = field.absoluteHeigtToRelativeHeight(cornerHeights);
@@ -403,6 +398,8 @@ public class View {
 
     /**
      * Berechnet ob sich ein Punkt innerhalb der Fläche eines Polygons befindet.
+     * Idee: Ein Punkt liegt innerhalb des Polygons, wenn eine Gerade in der Ebene eine ungerade Anzahl an
+     * Schnittpunkten mit den Kanten des Polygons hat, ansonsten liegt der Punkt außerhalb.
      * @param mouseX
      * @param mouseY
      * @param coordsOnCanvas die Koordinaten der vier Ecken eines Polygons
@@ -410,19 +407,20 @@ public class View {
      */
     public boolean isPointInsidePolygon(double mouseX, double mouseY, List<Point2D> coordsOnCanvas) {
 
-        double x = mouseX;
-        double y = mouseY;
-
         boolean inside = false;
-        for (int i = 0, j = coordsOnCanvas.size() - 1; i < coordsOnCanvas.size(); j = i++) {
 
-            double xi = coordsOnCanvas.get(i).getX();
-            double yi = coordsOnCanvas.get(i).getY();
+        // start und end sind Start- und Endpunkte der vier Kanten des Polygons
+        for (int start = 0, end = coordsOnCanvas.size() - 1; start < coordsOnCanvas.size(); end = start++) {
 
-            double xj = coordsOnCanvas.get(j).getX();
-            double yj = coordsOnCanvas.get(j).getY();
+            double xStart = coordsOnCanvas.get(start).getX();
+            double yStart = coordsOnCanvas.get(start).getY();
 
-            boolean intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            double xEnd = coordsOnCanvas.get(end).getX();
+            double yEnd = coordsOnCanvas.get(end).getY();
+
+            // prüft Anzahl an Schnittpunkten zwischen einer virtuellen Gerade und den Kanten des Polygons
+            boolean intersect = ((yStart > mouseY) != (yEnd > mouseY)) &&
+                    (mouseX < (xEnd - xStart) * (mouseY - yStart) / (yEnd - yStart) + xStart);
             if (intersect) inside = !inside;
         }
 
@@ -646,7 +644,14 @@ public class View {
                         if(!(field.absoluteHeigtToRelativeHeight(field.getCornerHeights()).equals("0000"))){
                             Map<String, Integer> cornerHeights = fields[row][column].getCornerHeights();
                             String heights = fields[row][column].absoluteHeigtToRelativeHeight(cornerHeights);
-                            buildingName = field.getBuilding().getBuildingName() + heights;
+                            buildingName = field.getBuilding().getBuildingName();
+
+                            // Wenn es sich um eine Kurve handelt, sollen noch keine höhen mit in den Namen
+                            // übernommen werden, da momentan noch keine Grafiken/Aufschüttung
+                            if(!(buildingName.contains("ne-se") || buildingName.contains("nw-sw")
+                                || buildingName.contains("se-sw") || buildingName.contains("ne-nw"))){
+                                buildingName = buildingName + heights;
+                            }
                         } else {
                             buildingName = field.getBuilding().getBuildingName();
                         }
@@ -665,7 +670,7 @@ public class View {
         }
         else {
             // Sollte nie aufgerufen werden
-            throw new RuntimeException("invalid building name");
+            throw new RuntimeException("invalid building name "+name);
         }
     }
 
@@ -738,15 +743,44 @@ public class View {
             String mouseCoords = "Mouse coordinates: x: " + mouseX + " y: " + mouseY;
             mousePosLabel.setText(mouseCoords);
 
+
             // Findet isometrische Koordinaten der Mouseposition
             Point2D newIsoCoord = findTileCoord(mouseX, mouseY);
             if(newIsoCoord != null) {
 
                 String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
                 isoCoordLabel.setText(tileCoords);
+//                String buildingName = fields[(int)newIsoCoord.getX()][(int)newIsoCoord.getY()].getBuilding().getBuildingName();
+//                        cornerLabel.setText(buildingName);
+
 
                 Map<String, Integer> cornerHeights;
                 Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
+
+                Building building = tile.getBuilding();
+                if (building instanceof Factory) {
+                    Factory factory = (Factory) building;
+                    // System.out.println("building = " + factory);
+                    factoryNameLabel.setText("factory name: " + factory.getBuildingName());
+                    StringBuilder production = new StringBuilder();
+                    for(Map.Entry<String, Integer> entry : factory.getProduce().entrySet()){
+                        production.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+                    }
+                    if(production.toString().equals("")) {
+                        production = new StringBuilder("nothing");
+                    }
+                    productionLabel.setText("production: " + production);
+                    StringBuilder consumption = new StringBuilder();
+                    for(Map.Entry<String, Integer> entry : factory.getConsume().entrySet()){
+                        consumption.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+                    }
+                    if(consumption.toString().equals("")) {
+                        consumption = new StringBuilder("nothing");
+                    }
+                    consumptionLabel.setText("consumption: " + consumption);
+
+                }
+
                 cornerHeights = tile.getCornerHeights();
                 cornerLabel.setText(cornerHeights.toString());
             } else {
@@ -780,12 +814,13 @@ public class View {
         }
 
         String gamemode = controller.getGamemode();
-        Image image = new Image(
-                "/" + gamemode + "/" + imageName + ".png",
-                widthAsInt,
-                heightAsInt,
-                false,
-                true);
+        Image image = null;
+        image = new Image(
+                    "/" + gamemode + "/" + imageName + ".png",
+                    widthAsInt,
+                    heightAsInt,
+                    false,
+                    true);
         imageCache.put(imageName + widthAsInt + heightAsInt, image);
         return image;
     }
@@ -801,9 +836,12 @@ public class View {
         if (cachedImage != null) {
             return cachedImage;
         }
-
         String gamemode = controller.getGamemode();
-        Image image = new Image("/" + gamemode + "/" + imageName + ".png");
+        String url = "/" + gamemode + "/" + imageName + ".png";
+
+        // System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+        Image image = null;
+        image  = new Image(url);
         imageCache.put(imageName + "raw", image);
         return image;
     }
@@ -840,6 +878,10 @@ public class View {
                 carName +="-nw";
             }
         }
+        else {
+            //TODO
+            carName +="-nw";
+        }
         return objectToImageMapping.getImageNameForObjectName(carName);
     }
 
@@ -849,11 +891,23 @@ public class View {
      */
     public void translateVehicles(List<VehicleMovement> movements){
 
+
+
         List<VehicleAnimation> animations = new ArrayList<>();
-        // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
+        boolean clearOnFinished = false;
         for(VehicleMovement movement : movements){
-            Point2D endPosition = translateTileCoordsToCanvasCoords(movement.getLastPair().getKey().coordsRelativeToMapOrigin());
             Point2D startPosition = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
+            Point2D endPosition;
+            if(movement.hasMoreThanOnePoint()){
+                endPosition = translateTileCoordsToCanvasCoords(movement.getLastPair().getKey().coordsRelativeToMapOrigin());
+            }
+            else {
+                endPosition = startPosition;
+            }
+            if(movement.isLastMovementBeforeRemove()){
+                clearOnFinished = true;
+            }
+            //Prüfe ob Bewegung auf Canvas
             if((endPosition.getX() < 0 || endPosition.getX() > canvas.getWidth() || endPosition.getY() < 0 || endPosition.getY() > canvas.getHeight())
                     &&
                     (startPosition.getX() < 0 || startPosition.getX() > canvas.getWidth() || startPosition.getY() < 0 || startPosition.getY() > canvas.getHeight())
@@ -861,6 +915,8 @@ public class View {
                 //Dann liegt die Bewegung nicht auf dem sichtbaren Bereich. Tue also nichts
             }
             else {
+                //Dann liegt Bewegung auf Canvas
+                // Erstellt für jedes VehicleMovement-Objekt ein passendes VehicleAnimation-Objekt
                 animations.add(getAnimationForMovement(movement));
             }
         }
@@ -875,11 +931,15 @@ public class View {
         Point2D zeroPointAtStart = translateTileCoordsToCanvasCoords(0,0);
 
         timer = new AnimationTimer() {
+            int handleCalls = 0;
             @Override
             //Diese Methode wird während der Animation ständig aufgerufen. Sie soll das vorherig gezeichnete Bild des
             //Fahrzeugs überzeichnen und das Bild mit den neuen Coordinaten zeichnen. Dies tut sie für jedes Fahrzeug
             //das sich auf der Karte bewegt, also für jede VehicleAnimation in der Liste animations
             public void handle(long now) {
+
+                handleCalls++;
+
                 // Der Punkt auf dem Canvas zum aktuellen Zeitpunkt beim Tile an der Stelle x=0, y=0. Dadurch kann die
                 //Verschiebung der Karte im Vergleich zum Beginn festgestellt werden.
                 Point2D actualZeroPoint = translateTileCoordsToCanvasCoords(0,0);
@@ -895,23 +955,84 @@ public class View {
                     //gemacht werden, da das in Zukunft Performance-Probleme verursachen könnte
                     drawMap();
                     GraphicsContext gc = canvas.getGraphicsContext2D();
+
+//                    int minimumX = (int) findTileCoordForDrawMap(100, 100).getX();
+//                    int maximumX = (int) findTileCoordForDrawMap(canvas.getWidth(), canvas.getHeight()).getX();
+//                    int minimumY = (int) findTileCoordForDrawMap(100, canvas.getHeight()).getY();
+//                    int maximumY = (int) findTileCoordForDrawMap(canvas.getWidth(), 100).getY();
+//
+//                    drawPartOfMap(minimumX, maximumX, minimumY, maximumY);
+
+
+
+////                     Hier wird versucht, nur den Bereich des Canvas zu zeichnen, der von einer Animation
+////                     betroffen ist
+//                    for(VehicleMovement movement : movements) {
+//
+//                        int x = movement.getStartPosition().getxCoordinateInGameMap();
+//                        int y = movement.getStartPosition().getyCoordinateInGameMap();
+//
+//                        Point2D iso = new Point2D(x, y);
+//
+//                        Tile field = fields[x][y];
+//                        Map<String, Integer> cornerHeights = field.getCornerHeights();
+//                        Point2D drawOrigin = translateTileCoordsToCanvasCoords(x, y);
+//                        Image image = getSingleFieldImage(y, x, fields);
+//                        Building buildingOnTile = field.getBuilding();
+//
+//                        if (buildingOnTile.getWidth() > 1 || buildingOnTile.getDepth() > 1) {
+//                            drawBuildingOverMoreTiles(field, buildingOnTile, x, y);
+//                        } else {
+//                            drawTileImage(drawOrigin, image, false, cornerHeights);
+//                        }
+//
+////                        drawTileImage(drawOrigin, image, false, cornerHeights);
+//
+//                        // Zeichnet Nachbarn eines Tiles mit Animation neu
+//                        List<Point2D> neighbourOrigins = getNeighbours(iso);
+//                        for (Point2D p : neighbourOrigins) {
+//                            Point2D origin = translateTileCoordsToCanvasCoords((int) p.getX(), (int) p.getY());
+//                            Image imageN = getSingleFieldImage((int) p.getY(), (int) p.getX(), fields);
+//                            Tile tile = fields[(int) p.getX()][(int) p.getY()];
+//                            Map<String, Integer> cornerHeightsN = tile.getCornerHeights();
+//                            Building building = tile.getBuilding();
+//
+//                            if (building.getWidth() > 1 || building.getDepth() > 1) {
+//                                drawBuildingOverMoreTiles(field, building, (int) p.getX(), (int) p.getY());
+//                            } else {
+//                                drawTileImage(origin, imageN, false, cornerHeightsN);
+//                                if (field.getBuilding() instanceof Stop) {
+//                                    drawTileImage(drawOrigin, image, false, cornerHeights);
+//                                }
+//                            }
+//                        }
+//                    }
+
+
                     for(VehicleAnimation animation: animations){
                         // Der aktuelle Wert für das passende Bild steht in dem imageName Property der VehicleAnimation
                         String imageName = animation.getImageName().getValue();
 
                         if(imageName==null) throw new RuntimeException("imageName was null");
 
-                        Image carImage = getResourceForImageName(imageName, tileImageHeight,
-                                imageNameToImageRatio.get(imageName)*tileImageHeight);
+                        double ratio = imageNameToImageRatio.get(imageName);
+                        double imageWidth = tileImageWidthHalf;
+                        double imageHeight = imageWidth *ratio;
+
+                        Image vehicleImage = getResourceForImageName(imageName, imageWidth, imageHeight);
+
+                        double[] directionShift =
+                                getShiftForTrafficType(animation.getTrafficType(), imageName, imageWidth, imageHeight);
 
                         //Zeichnet das Bild auf das Canvas. xShift und yShift sind nur bei einer Verschiebung der Karte
                         //während der Animation nicht 0. Die Verschiebung von -15 in y-Richtung sind willkürlich
                         //und müssen nochmal angeschaut und verbessert werden. Es wurde dadurch versucht die Autos auf
                         //verschiedenen Straßenseiten anzuzeigen, geht aber noch nicht ganz.
-                        gc.drawImage(carImage, animation.getxCoordProperty().doubleValue()+xShift,
-                                animation.getyCoordProperty().doubleValue()-15+yShift);
+                        gc.drawImage(vehicleImage, animation.getxCoordProperty().doubleValue()+xShift+directionShift[0],
+                                animation.getyCoordProperty().doubleValue()+yShift+directionShift[1]);
                     }
                 }
+//                System.out.println(handleCalls);
             }
         };
         // Die parallelTransition sorgt für eine gleichzeitige Ausführung der Animationen. Dazu werden ihr alle timlines
@@ -921,17 +1042,181 @@ public class View {
             parallelTransition.getChildren().add(animation.getTimeline());
         }
         getMenuPane().getAnimationButton().setDisable(false);
+        boolean finalClearOnFinished = clearOnFinished;
         parallelTransition.setOnFinished(event -> {
             parallelTransition.stop();
             timer.stop();
 
+            if(finalClearOnFinished){
+                drawMap();
+            }
+
             //Rufe simulateOneDay auf, wenn Animation vorbei. Dadurch entsteht ein Kreislauf, da simulateOneDay dann
             //wieder translateVehicles aufruft.
             controller.simulateOneDay();
+
         });
 
         timer.start();
         parallelTransition.play();
+
+    }
+
+
+
+    public void drawPartOfMap(int minimumX, int maximumX, int minimumY, int maximumY) {
+        fields = controller.getFields();
+
+        // Es wird den angegebenen Ausschnitt iteriert
+        for (int col = maximumY; col >= minimumY; col--) {
+            for (int row = minimumX; row <= maximumX; row++) {
+
+                // Linke Ecke des Tiles
+                Point2D drawOrigin = translateTileCoordsToCanvasCoords(row, col);
+                if (drawOrigin.getX() > -tileImageWidth * 4 && drawOrigin.getX() < canvas.getWidth()
+                        && drawOrigin.getY() > -tileImageHeightHalf * 4
+                        && drawOrigin.getY() < canvas.getHeight() + tileImageHeightHalf * 4) {
+
+
+                    Tile field = fields[row][col];
+                    Building building = field.getBuilding();
+                    Map<String, Integer> cornerHeights = field.getCornerHeights();
+
+                    if(building != null && (building.getWidth() > 1 || building.getDepth() > 1)){
+                        drawBuildingOverMoreTiles(field, building, row, col);
+
+                    } else {
+
+                        if (building != null) {
+                            if (building.getBuildingName().equals("ground")
+                                    || building.getBuildingName().equals("grass")) {
+
+                                String buildingName = field.absoluteHeigtToRelativeHeight(cornerHeights);
+
+                                Image image = getSingleFieldImage(col, row, fields);
+                                String imageName = objectToImageMapping.getImageNameForObjectName(buildingName);
+
+                                Image r = getResourceForImageName(imageName);
+                                double ratio = r.getHeight() / r.getWidth();
+
+                                // Wenn das Verhältnis zwischen Breite und Höhe nicht 2:1 ist
+                                if (ratio != 0.5) {
+                                    drawGroundOverMoreTiles(drawOrigin, buildingName, image, cornerHeights);
+
+                                } else {
+                                    drawGroundInOneTile(drawOrigin, image, cornerHeights);
+                                }
+                            } else {
+                                Image image = getSingleFieldImage(col, row, fields);
+                                drawTileImage(drawOrigin, image, false, cornerHeights);
+                            }
+
+                            // in diesem Fall handelt es sich um ein Wasserfeld
+                        } else {
+                            Image image = getSingleFieldImage(col, row, fields);
+                            drawTileImage(drawOrigin, image, false, cornerHeights);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Zeichnet die Knoten des Graphen als gelbe Punkte ein
+        if(controller!=null){
+            controller.drawVertexesOfGraph();
+        }
+    }
+
+
+    private List<Point2D> getNeighbours(Point2D coords){
+        int xCoord = (int) coords.getX();
+        int yCoord = (int) coords.getY();
+
+
+        Tile tileNW = fields[xCoord - 1][yCoord];     // NW
+        Tile tileNE = fields[xCoord][yCoord + 1];     // NE
+        Tile tileSE = fields[xCoord + 1][yCoord];     // SE
+        Tile tileSW = fields[xCoord][yCoord - 1];     // SW
+
+        Tile tileN = fields[xCoord - 1][yCoord +1];     // N
+        Tile tileE = fields[xCoord +1][yCoord + 1];     // E
+        Tile tileS = fields[xCoord + 1][yCoord -1];     // S
+        Tile tileW = fields[xCoord-1][yCoord - 1];     // W
+
+        List<Tile> neighborTiles = new ArrayList<>();
+        neighborTiles.addAll(Arrays.asList(tileNW, tileNE, tileSE, tileSW,tileN, tileE, tileS , tileW));
+        List<Tile> tilesWithStop = new ArrayList<>();
+
+        Iterator<Tile> tileIterator = neighborTiles.iterator();
+        while (tileIterator.hasNext()){
+            Tile tile = tileIterator.next();
+            if(tile.getBuilding() instanceof Stop){
+                tilesWithStop.add(tile);
+                tileIterator.remove();
+            }
+        }
+
+        neighborTiles.addAll(tilesWithStop);
+
+
+
+        Point2D NW = new Point2D(xCoord - 1, yCoord );     // NW
+        Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
+        Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
+        Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
+
+        Point2D N = new Point2D(xCoord - 1, yCoord +1);     // N
+        Point2D E = new Point2D(xCoord +1, yCoord + 1);     // E
+        Point2D S = new Point2D(xCoord + 1, yCoord -1);     // S
+        Point2D W = new Point2D(xCoord-1, yCoord - 1);     // W
+
+        List<Point2D> neighbors = new ArrayList<>();
+        neighbors.addAll(Arrays.asList(NW, NE, SE, SW, N, E, S , W));
+
+        return neighbors;
+    }
+
+
+    private double[] getShiftForTrafficType(TrafficType type, String imageName, double imageWidth, double imageHeight){
+        double[] directionShift = new double[] {0,0};
+        if(type.equals(TrafficType.ROAD)){
+            directionShift = getRoadShiftForImageName(imageName, imageWidth, imageHeight);
+        }
+        else if(type.equals(TrafficType.RAIL)){
+            directionShift = getRailShiftForImageName(imageWidth, imageHeight);
+        }
+        return  directionShift;
+    }
+
+    private double[] getRailShiftForImageName(double imageWidth, double imageHeight){
+        double xshift = -imageWidth/2;
+        double yshift = -imageHeight*0.75;
+
+        return new double[] {xshift, yshift};
+    }
+
+    private double[] getRoadShiftForImageName(String imageName, double imageWidth, double imageHeight){
+        String ending = imageName.substring(imageName.length()-2);
+        double xshift = -imageWidth/2;
+        double yshift = -imageHeight*0.75;
+        if(ending.equals("ne")){
+            xshift += 0.225 * imageWidth;
+            yshift += 0.225 * imageHeight;
+        }
+        else if(ending.equals("nw")){
+            xshift += 0.125 * imageWidth;
+            yshift -= 0.125 * imageHeight;
+        }
+        else if(ending.equals("se")){
+            xshift -= 0.225 * imageWidth;
+            yshift += 0.225 * imageHeight;
+        }
+        else if(ending.equals("sw")){
+            xshift -= 0.125 * imageWidth;
+            yshift -= 0.125 * imageHeight;
+        }
+
+        return new double[] {xshift, yshift};
     }
 
     /**
@@ -945,52 +1230,74 @@ public class View {
         StringProperty imageName  = new SimpleStringProperty();
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
-        Point2D secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
+        Point2D secondPoint;
+        System.out.println(startPoint);
+        if(movement.hasMoreThanOnePoint()){
+            secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
+        }
+        else {
+            secondPoint = startPoint;
+        }
         String startImageName = getImageNameForCar(startPoint, secondPoint, movement.getVehicleName());
+//        System.out.println("image Name "+startImageName);
+        imageName.setValue(startImageName);
 
         // Ein KeyFrame gibt den Zustand einer Animation zu einer bestimmten Zeit an. Hier wird der Zustand zu Beginn
         // angegeben. Ein KeyFrame hat momentan 3 Variablen: Die x-Coordinate des fahrzeugs, die y-Coordinate des
         // Fahrzeugs und das passende Bild
         KeyFrame start = new KeyFrame(
-                Duration.seconds(0.0), new KeyValue(x, startPoint.getX()),
+                Duration.seconds(0.0),
+                new KeyValue(x, startPoint.getX()),
                 new KeyValue(y, startPoint.getY()),
                 new KeyValue(imageName, startImageName));
 
         Timeline timeline = new Timeline(start);
-        double wholeDistance = movement.getWholeDistance();
 
-        double time = 0.0;
-        for(int i=0; i<movement.getNumberOfPoints(); i++){
-            Pair<PositionOnTilemap, Double> pair = movement.getPairOfPositionAndDistance(i);
-            double distanceToPosition = pair.getValue();
-            // time gibt den Zeitpunkt des neuen KeyFrames an. Dabei wird anteilig der aktuell animierten Distanz zu der
-            // gesamten Distanz hinzugefügt.
-            time += ( distanceToPosition / wholeDistance) * tickDuration;
-            Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
-            String actualImageName;
-            if(i!=movement.getNumberOfPoints()-1){
-                // Bestimme das Bild des Fahrzeugs aus der aktuellen Position und der nächsten Position (deswegen i+1)
-                Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
-                actualImageName = getImageNameForCar(point, nextPoint, movement.getVehicleName());
-            }
-            else {
-                // Wenn der aktuelle Punkt der letzte Punkt der Liste ist, kann i+1 nicht verwendet werden. Also wird
-                // stattdessen der vorherige Punkt (i-1) benutzt, um das Bild zu bestimmen
-                Point2D lastPoint;
-                if(i==0) lastPoint = startPoint;
-                else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
-                actualImageName = getImageNameForCar(lastPoint, point, movement.getVehicleName());
-            }
+        if(movement.isWait()){
             KeyFrame frame = new KeyFrame(
-                    Duration.seconds(time),
-                    new KeyValue(x, point.getX()),
-                    new KeyValue(y, point.getY()),
-                    new KeyValue(imageName, actualImageName)
-                    );
+                    Duration.seconds(tickDuration),
+                    new KeyValue(x, startPoint.getX()),
+                    new KeyValue(y, startPoint.getY()),
+                    new KeyValue(imageName, startImageName)
+            );
             timeline.getKeyFrames().add(frame);
         }
+        else {
+            double wholeDistance = movement.getWholeDistance();
 
-        VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName);
+            double time = 0.0;
+            for(int i=0; i<movement.getNumberOfPoints(); i++){
+                Pair<PositionOnTilemap, Double> pair = movement.getPairOfPositionAndDistance(i);
+                double distanceToPosition = pair.getValue();
+                // time gibt den Zeitpunkt des neuen KeyFrames an. Dabei wird anteilig der aktuell animierten Distanz zu der
+                // gesamten Distanz hinzugefügt.
+                time += ( distanceToPosition / wholeDistance) * tickDuration;
+                Point2D point = translateTileCoordsToCanvasCoords(pair.getKey().coordsRelativeToMapOrigin());
+                String actualImageName;
+                if(i!=movement.getNumberOfPoints()-1){
+                    // Bestimme das Bild des Fahrzeugs aus der aktuellen Position und der nächsten Position (deswegen i+1)
+                    Point2D nextPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i+1).getKey().coordsRelativeToMapOrigin());
+                    actualImageName = getImageNameForCar(point, nextPoint, movement.getVehicleName());
+                }
+                else {
+                    // Wenn der aktuelle Punkt der letzte Punkt der Liste ist, kann i+1 nicht verwendet werden. Also wird
+                    // stattdessen der vorherige Punkt (i-1) benutzt, um das Bild zu bestimmen
+                    Point2D lastPoint;
+                    if(i==0) lastPoint = startPoint;
+                    else lastPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(i-1).getKey().coordsRelativeToMapOrigin());
+                    actualImageName = getImageNameForCar(lastPoint, point, movement.getVehicleName());
+                }
+                KeyFrame frame = new KeyFrame(
+                        Duration.seconds(time),
+                        new KeyValue(x, point.getX()),
+                        new KeyValue(y, point.getY()),
+                        new KeyValue(imageName, actualImageName)
+                );
+                timeline.getKeyFrames().add(frame);
+            }
+        }
+
+        VehicleAnimation animation = new VehicleAnimation(x,y, timeline, imageName, movement.getTrafficType());
         return animation;
     }
 
