@@ -183,7 +183,6 @@ public class Controller {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
 
-            System.out.println("managePlacement: "+selectedBuilding.getBuildingName()+" typ "+selectedBuilding.getTrafficType());
 
             if(selectedBuilding != null) {
                 Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
