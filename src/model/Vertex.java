@@ -79,6 +79,7 @@ public class Vertex extends PositionOnTilemap {
 
     public void setRailblock(Railblock railblock) {
         this.railblock = railblock;
+    }
 
     public String getDirection() {
         return direction;

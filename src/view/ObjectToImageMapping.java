@@ -342,6 +342,23 @@ public class ObjectToImageMapping {
         mapping.put("remove", "remove");
         mapping.put("grass", "ground/grass");
 
+        // Flache Straßen-Tiles
+//        mapping.put("road-ne", "road/flat/road_ne");
+//        mapping.put("road-nw", "road/flat/road_nw");
+//        mapping.put("road-se", "road/flat/road_se");
+//        mapping.put("road-sw", "road/flat/road_sw");
+//        mapping.put("road-ne-nw-se-sw", "road/flat/road_ne_nw_se_sw");
+//        mapping.put("road-ne-nw-se", "road/flat/road_ne_nw_se");
+//        mapping.put("road-ne-nw-sw", "road/flat/road_ne_nw_sw");
+//        mapping.put("road-ne-nw", "road/flat/road_ne_nw");
+//        mapping.put("road-ne-se-sw", "road/flat/road_ne_se_sw");
+//        mapping.put("road-ne-se", "road/flat/road_ne_se");
+//        mapping.put("road-ne-sw", "road/flat/road_ne_sw");
+//        mapping.put("road-nw-se-sw", "road/flat/road_nw_se_sw");
+//        mapping.put("road-nw-se", "road/flat/road_nw_se");
+//        mapping.put("road-nw-sw", "road/flat/road_nw_sw");
+//        mapping.put("road-se-sw", "road/flat/road_se_sw");
+
     }
 
     public Collection<String> getImageNames(){

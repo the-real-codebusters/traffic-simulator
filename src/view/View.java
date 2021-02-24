@@ -660,6 +660,7 @@ public class View {
                     }
                 }
             name = objectToImageMapping.getImageNameForObjectName(buildingName);
+//                System.out.println("buildingname: " + buildingName);
         }
         double ratio = 0;
         if(name != null && imageNameToImageRatio.containsKey(name)){
@@ -838,7 +839,7 @@ public class View {
         String gamemode = controller.getGamemode();
         String url = "/" + gamemode + "/" + imageName + ".png";
 
-       // System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+//        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
         Image image = null;
         image  = new Image(url);
         imageCache.put(imageName + "raw", image);

@@ -204,13 +204,11 @@ public class MenuPane extends AnchorPane {
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
 
-        // it was before 21.02.2021
         // tabNames.addAll(List.of("speed"));
         tabNames.addAll(Collections.singletonList("speed"));
 
         tabNames.addAll(buildmenus);
 
-        // it was before 21.02.2021
         // tabNames.addAll(List.of("height", "vehicles", "remove"));
         tabNames.addAll(Arrays.asList("height", "vehicles", "remove"));
 
