@@ -47,9 +47,8 @@ public class View {
 
 
     Screen screen = Screen.getPrimary();
-    Rectangle2D bounds = screen.getVisualBounds();
+    Rectangle2D screenBounds = screen.getVisualBounds();
 
-//    private Canvas canvas = new Canvas(bounds.getWidth(), bounds.getHeight()-210);
     private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
@@ -104,7 +103,7 @@ public class View {
         borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel, cornerLabel);
         borderPane.setCenter(canvas);
-        borderPane.setPrefSize(1200, 750);
+//        borderPane.setPrefSize(1200, 750);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel, cornerLabel);
@@ -112,8 +111,8 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-        stage.setX((screenBounds.getWidth() - 1200) / 2);
-        stage.setY((screenBounds.getHeight() - 750) / 2);
+//        stage.setX((screenBounds.getWidth() - 1200) / 2);
+//        stage.setY((screenBounds.getHeight() - 750) / 2);
 //        stage.setY(0);
         this.stage.setScene(new Scene(borderPane));
     }

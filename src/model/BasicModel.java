@@ -234,7 +234,7 @@ public class BasicModel {
                     s.setVisited(false);
                 }
                 //TODO: geschwindigkeit berücksichtigen
-                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
                 double distanceToNextVertex = first.getDistanceToPosition(last);
                 vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
                 airMovements.add(vmFirst);
@@ -266,7 +266,7 @@ public class BasicModel {
                     }
                 }
                 //TODO: geschwindigkeit berücksichtigen
-                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
                 double distanceToNextVertex = first.getDistanceToPosition(last);
                 vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
                 airMovements.add(vmFirst);
@@ -307,7 +307,7 @@ public class BasicModel {
                     }
                 }
                 //TODO: geschwindigkeit berücksichtigen
-                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
                 double distanceToNextVertex = first.getDistanceToPosition(last);
                 vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
                 airMovements.add(vmFirst);
