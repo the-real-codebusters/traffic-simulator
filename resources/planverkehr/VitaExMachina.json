@@ -510,8 +510,14 @@
     "depth" : 1,
     "special" : "nature",
     "dz" : 2
-  },
-    "stone" : {
+    },
+    "stones_one" : {
+      "width" : 1,
+      "depth" : 1,
+      "special" : "nature",
+      "dz" : 2
+    },
+    "stones_two" : {
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
