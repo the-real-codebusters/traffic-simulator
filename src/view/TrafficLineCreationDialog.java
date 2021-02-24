@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -151,8 +152,10 @@ public class TrafficLineCreationDialog {
                 String selectionNotPossible = resourceBundle.getString("selectionNotPossible");
                 String oneTrainOfType = resourceBundle.getString("oneTrainOfType");
                 String exactlyOneEngine = resourceBundle.getString("exactlyOneEngine");
-                Alert alert = new Alert(Alert.AlertType.WARNING, selectionNotPossible + oneTrainOfType
+                Alert alert = new Alert(Alert.AlertType.WARNING, selectionNotPossible + " " + oneTrainOfType
                         + resourceBundle.getString(TrafficType.RAIL.toString())+ exactlyOneEngine, ButtonType.OK);
+                alert.setTitle(resourceBundle.getString("warning"));
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
                 alert.showAndWait();
             }
         });
