@@ -112,8 +112,21 @@ public class TrafficLineCreationDialog {
             Map<String, Integer> mapDesiredNumbers = new HashMap<>();
             Controller controller = view.getController();
             for(VehicleTypeRow row: tableView.getItems()){
-                String name1 = row.getInformation().split("name: ")[1].split(" ")[0];
-                mapDesiredNumbers.put(name1, row.getDesiredNumber());
+                    String nameLocalized = row.getInformation().split(name+": ")[1].split(" ")[0];
+                    System.out.println("name1: " + nameLocalized);
+                    Locale locale = new Locale("en_US");
+                    ResourceBundle bundleEN = ResourceBundle.getBundle("Bundle", locale);
+                    // TODO: aus irgendeinem Grund ist für Silowagen eine Spezialbehandlung nötig. Fehler finden
+                    String nameEN;
+                    if(nameLocalized.equals("Silowagen")){
+                        nameEN = "bulk_truck";
+                    } else {
+                        nameEN = bundleEN.getString(nameLocalized);
+                    }
+//                    String nameEN = bundleEN.getString(nameLocalized);
+                    System.out.println("name2: " + nameEN);
+                    mapDesiredNumbers.put(nameEN, row.getDesiredNumber());
+
             }
 
             Map<Vehicle, Integer> vehicleMapDesiredNumbers = controller.getVehicleMapOfDesiredNumbers(mapDesiredNumbers);
@@ -217,13 +230,13 @@ public class TrafficLineCreationDialog {
     }
 
     private Button getAddVehicleButton(View view){
-//        String add = view.getResourceBundleFromController().getString("add");
-//        Button button = new Button(add);
-        Button button = new Button("add");
+        String add = view.getResourceBundleFromController().getString("add");
+        Button button = new Button(add);
         button.setOnAction( (actionEvent -> {
             Map<String, Object> selected = dropdown.getSelectionModel().getSelectedItem();
             Image image = (Image) selected.get("image");
             String infos = (String) selected.get("text");
+            System.out.println("infos: " + infos);
             String textNumberInput = numberVehiclesField.getText();
             if(textNumberInput != null && !textNumberInput.equals("")){
                 Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
@@ -252,7 +265,7 @@ public class TrafficLineCreationDialog {
 
         String desiredNumber = view.getResourceBundleFromController().getString("desiredNumber");
         TableColumn<VehicleTypeRow, Integer> column3 = new TableColumn<>(desiredNumber);
-        column3.setCellValueFactory(new PropertyValueFactory<>("Desired number"));
+        column3.setCellValueFactory(new PropertyValueFactory<>("desiredNumber"));
         column3.setPrefWidth(120);
 
         tableView.getColumns().addAll(column1, column2, column3);
