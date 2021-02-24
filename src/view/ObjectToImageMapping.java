@@ -46,6 +46,10 @@ public class ObjectToImageMapping {
         // Flache Rails (unvollständig)
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
+        mapping.put("rail-ne-se", "rail/rail-ne-se");
+        mapping.put("rail-nw-sw", "rail/rail-nw-sw");
+        mapping.put("rail-ne-nw", "rail/rail-ne-nw");
+        mapping.put("rail-sw-se", "rail/rail-sw-se");
         mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
         mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
         mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
@@ -58,10 +62,16 @@ public class ObjectToImageMapping {
         mapping.put("railswitch-nw-s", "rail/railswitch-nw-s");
         mapping.put("railswitch-se-n", "rail/railswitch-se-n");
         mapping.put("railswitch-sw-n", "rail/railswitch-sw-n");
+        mapping.put("railswitch-ne-w", "rail/railswitch-ne-w");
+        mapping.put("railswitch-nw-e", "rail/railswitch-nw-e");
+        mapping.put("railswitch-se-w", "rail/railswitch-se-w");
+        mapping.put("railswitch-sw-e", "rail/railswitch-sw-e");
 
         mapping.put("railcrossing", "rail/railroadcrossing");
-        mapping.put("railsignal-ne-sw", "rail/rails_railsignal-ne-sw");
-        mapping.put("railsignal-nw-se", "rail/rails_railsignal-nw-se");
+//        mapping.put("railsignal-ne-sw", "rail/rails_railsignal-ne-sw");
+//        mapping.put("railsignal-nw-se", "rail/rails_railsignal-nw-se");
+        mapping.put("railsignal-ne-sw", "rail/railsignal-ne-sw");
+        mapping.put("railsignal-nw-se", "rail/railsignal-nw-se");
         mapping.put("railsignal", "rail/railsignal");
 
         // Verschiedenes
