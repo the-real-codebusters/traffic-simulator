@@ -49,11 +49,8 @@ public class View {
     Screen screen = Screen.getPrimary();
     Rectangle2D bounds = screen.getVisualBounds();
 
-    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-
-    //    private Canvas canvas = new Canvas(bounds.getWidth(), bounds.getHeight()-210);
-    private Canvas canvas = new Canvas(1200, 550);
+//    private Canvas canvas = new Canvas(bounds.getWidth(), bounds.getHeight()-210);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 

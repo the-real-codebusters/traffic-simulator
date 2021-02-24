@@ -1,5 +1,7 @@
 package model;
 
+import view.View;
+
 import java.util.*;
 
 public class BasicModel {
@@ -82,9 +84,52 @@ public class BasicModel {
         // wenn eine existierende Station so erweitert wird, dass sie an eine existierende TrafficLine anschließt
 
         List<Vehicle> activeVehicles = new ArrayList<>();
+        List<VehicleMovement> airMovements = new ArrayList<>();
+        int index = 0;
         for(ConnectedTrafficPart activePart: activeConnectedTrafficParts){
+
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
+            if (activePart.getTrafficType() == TrafficType.AIR) {
+                // TODO: erste immer ignorieren
+                if (index == 0) {
+                    index++;
+                    continue;
+                }
+                int counter = 0;
+                TrafficLine trafficLine = activePart.getTrafficLines().get(0);
+                for (Station station: trafficLine.getStations()) {
+
+                    /*for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+                        for (int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+                            Vehicle v = entry.getKey();
+                            v.setId(i);
+                        }
+                    }*/
+
+
+                    if (!station.isVisited()) {
+                        // runway durchlaufen
+                        moveOnRunway(station, airMovements);
+                        return airMovements;
+                    }
+                    else {
+                        if (station.getLast() != null) {
+                            if (counter == trafficLine.getStations().size()-1) {
+                                // alle runways besucht, kehre zum Ursprung zurueck
+                                moveBackToOriginRunway(trafficLine, station, airMovements);
+                            }
+                            else {
+                                // bewegung zum nächsten runway, wenn es den gibt
+                                flyToNextRunway(trafficLine, station, airMovements, counter);
+                            }
+                            return airMovements;
+                        }
+                    }
+                    counter++;
+                }
+            }
+
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
                 System.out.println("active traffic Line "+trafficLine.getName());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
@@ -94,6 +139,8 @@ public class BasicModel {
                 // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
                 activeVehicles.addAll(trafficLine.getVehicles()); //TODO
             }
+
+
         }
 
         //newCreatedOrIncompleteTrafficLines.peek().get
@@ -169,6 +216,107 @@ public class BasicModel {
             vehicle.setPosition(movement.getLastPair().getKey());
             vehicle.setHasWaitedInLastRound(false);
         }
+    }
+
+    /**
+     * Bewegt Flugzeug zum ersten Runway zurueck
+     * @param trafficLine
+     * @param station
+     * @param airMovements
+     */
+    private void moveBackToOriginRunway(TrafficLine trafficLine, Station station, List<VehicleMovement> airMovements) {
+        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+                Vertex first = station.getLast();
+                Vertex last = trafficLine.getStations().get(0).getFirst();
+
+                for (Station s: trafficLine.getStations()) {
+                    s.setVisited(false);
+                }
+                //TODO: geschwindigkeit berücksichtigen
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                double distanceToNextVertex = first.getDistanceToPosition(last);
+                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+                airMovements.add(vmFirst);
+            }
+        }
+
+    }
+
+    /**
+     * Bewegt Flugzeug zum nachfolgenden Runway
+     * @param trafficLine
+     * @param station
+     * @param airMovements
+     * @param counter
+     */
+    private void flyToNextRunway(TrafficLine trafficLine, Station station, List<VehicleMovement> airMovements, int counter) {
+        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+                // bewegung zwischen beiden runways
+                Vertex first = station.getLast();
+
+                Iterator<Vertex> iter = trafficLine.getStations().get(counter + 1).getComponents().get(0).getVertices().iterator();
+                Vertex last = null;
+                while (iter.hasNext()) {
+                    Vertex current = iter.next();
+                    if (current.isFirst()) {
+                        last = current;
+                        break;
+                    }
+                }
+                //TODO: geschwindigkeit berücksichtigen
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                double distanceToNextVertex = first.getDistanceToPosition(last);
+                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+                airMovements.add(vmFirst);
+            }
+        }
+        station.setLast(null);
+
+    }
+
+    /**
+     * Bewegt Flugzeug auf dem Runway
+     * @param station
+     * @param airMovements
+     */
+    private void moveOnRunway(Station station, List<VehicleMovement> airMovements) {
+        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+
+                Iterator<Vertex> iter = station.getComponents().get(0).getVertices().iterator();
+                Vertex first = null;
+                Vertex last = null;
+                while (iter.hasNext()) {
+                    Vertex current = iter.next();
+                    if (i == 1) {
+                        if (current.isFirst()) {
+                            // TODO: Koordinate oberhalb von Runway berechnen
+                            Vertex stay = new Vertex(current.getName(), current.getxCoordinateRelativeToTileOrigin(), current.getyCoordinateRelativeToTileOrigin(), current.getxCoordinateInGameMap()-1, current.getyCoordinateInGameMap());
+                            first = stay;
+                            last = stay;
+                            //break;
+                        }
+                    }
+                    if (current.isFirst()) {
+                        first = current;
+                    }
+                    if (current.isLast()) {
+                        last = current;
+                    }
+                }
+                //TODO: geschwindigkeit berücksichtigen
+                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic());
+                double distanceToNextVertex = first.getDistanceToPosition(last);
+                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+                airMovements.add(vmFirst);
+                station.setVisited(true);
+                station.setFirst(first);
+                station.setLast(last);
+            }
+        }
+
     }
 
     /**
@@ -442,4 +590,6 @@ public class BasicModel {
             System.out.print(vehicle.getGraphic() + ", ");
         }
     }
+
+
 }

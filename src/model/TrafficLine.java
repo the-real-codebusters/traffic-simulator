@@ -231,6 +231,10 @@ public class TrafficLine {
         }
     }
 
+    public Map<Vehicle, Integer> getDesiredNumbersOfVehicles() {
+        return desiredNumbersOfVehicles;
+    }
+
     public List<Vehicle> getVehicles() {
         return vehicles;
     }
