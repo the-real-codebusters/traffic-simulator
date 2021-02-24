@@ -153,19 +153,27 @@ public class Controller {
 
             // Wenn ein Gebäude entfernt werden soll
             if(selectedBuilding.getBuildingName().equals("remove")){
-                selectedBuilding = new Building();
-                selectedBuilding.setBuildingName("ground");
-                selectedBuilding.setWidth(1);
-                selectedBuilding.setDepth(1);
-
                 Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
                 Building buildingOnSelectedTile = selectedTile.getBuilding();
+                int endRow = buildingOnSelectedTile.getOriginRow() + buildingOnSelectedTile.getWidth();
+                int endColumn = buildingOnSelectedTile.getOriginColumn() + buildingOnSelectedTile.getDepth();
+                for(int row = buildingOnSelectedTile.getOriginRow(); row < endRow; row++){
+                    for(int column = buildingOnSelectedTile.getOriginColumn(); column < endColumn; column++){
+                        selectedBuilding = new Building();
+                        selectedBuilding.setBuildingName("ground");
+                        selectedBuilding.setWidth(1);
+                        selectedBuilding.setDepth(1);
+                        model.getMap().placeBuilding(row, column, selectedBuilding);
+                    }
+                }
+
 
                 // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
                     model.getMap().removePointsOnTile(buildingOnSelectedTile, xCoord, yCoord);
                 }
+                return;
             }
 
             if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
