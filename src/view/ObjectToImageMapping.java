@@ -298,7 +298,8 @@ public class ObjectToImageMapping {
         mapping.put("stones_one", "ground/stones_one");
         mapping.put("stones_two", "ground/stones_two");
 
-        mapping.put("water", "ground/wasserblau");
+//        mapping.put("water", "ground/wasserblau");
+        mapping.put("water", "ground/wasserrosa");
 
         // Grasfelder mit verschiedenen Höhen
         mapping.put("0000", "ground/grass");
