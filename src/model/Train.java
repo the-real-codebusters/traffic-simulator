@@ -14,7 +14,7 @@ public class Train extends Vehicle {
     private int numberOfVertices = 10;
     private int verticesCounter = 0;
     private BasicModel model;
-    private List<Vertex> pathForFewDays = new ArrayList<>();
+//    private List<Vertex> pathForFewDays = new ArrayList<>();
     private String name = "train "+(int)(Math.random()*100);
 
     public Train(List<Vehicle> wagons, Vehicle engine, BasicModel model) {
@@ -40,7 +40,7 @@ public class Train extends Vehicle {
 
             //Erstes Ziel: Zug wartet, wenn konkreter Weg reserviert
             //Angenommen wir haben Liste von nächsten Vertices:
-            Map<Vertex, Integer> nextVerticesAndDay = getNextMovementForNextDay();
+            Map<Vertex, Integer> nextVerticesAndDay = getVerticesForNextTime();
             if(nextVerticesAndDay!= null){
                 boolean reserved = false;
                 for (Map.Entry<Vertex, Integer> entry : nextVerticesAndDay.entrySet()) {
@@ -74,7 +74,7 @@ public class Train extends Vehicle {
                 trainShouldWait = true;
                 System.out.println("nextVerticesAndDay was null");
             }
-            verticesCounter += nextVerticesAndDay.size();
+//            verticesCounter += nextVerticesAndDay.size();
         }
         else {
             verticesCounter = 0;
@@ -83,10 +83,12 @@ public class Train extends Vehicle {
         VehicleMovement engineMovement = getMovementForNextDay();
         if(trainShouldWait){
             engineMovement.setWait(trainShouldWait);
-//            revertMovementForNextDay();
+            revertMovementForNextDay();
             for(int i=0; i<numberOfVertices; i++){
                 pathToNextStation.iterator().next().getRailblock().getReservations().put(model.getDay()+i, this);
             }
+        } else {
+            verticesCounter += engineMovement.getNumberOfPoints();
         }
         engineMovement.setVehicleName(engine.getGraphic());
         movements.add(engineMovement);
@@ -128,7 +130,7 @@ public class Train extends Vehicle {
         return name;
     }
 
-    public Map<Vertex, Integer> getNextMovementForNextDay(){
+    public Map<Vertex, Integer> getVerticesForNextTime(){
         //Ziel: Map aus Tag und Vertex
 
         Map<Vertex, Integer> map = new HashMap<>();

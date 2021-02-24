@@ -131,7 +131,9 @@ public class BasicModel {
             // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
             if(vehicle instanceof Train){
                 List<VehicleMovement> trainMovements = ((Train) vehicle).getTrainMovementsForNextDay();
-                vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                if (!trainMovements.get(0).isWait()){
+                    vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                }
                 movements.addAll(trainMovements);
             }
             else if(vehicle.getTrafficType().equals(TrafficType.ROAD)){
