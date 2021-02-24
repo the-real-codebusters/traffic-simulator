@@ -134,7 +134,21 @@ public class BasicModel {
                 System.out.println("active traffic Line "+trafficLine.getName());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
-                    trafficLine.addNewVehicle(newVehicle);
+
+
+                    if(trafficLine.getTrafficType().equals(TrafficType.RAIL)){
+                        //Dann spawne nur, wenn nicht reserviert
+                        Vertex vertex = trafficLine.getStartStation().getComponents().get(0).getVertices().iterator().next();
+                        boolean reserved = vertex.getRailblock().isReservedAtDay(day, (Train) newVehicle) ||
+                                vertex.getRailblock().isReservedAtDay(day+1, (Train) newVehicle);
+                        System.out.println("Reserved at day: " + day + " " + reserved);
+                        if(!reserved){
+                            trafficLine.addNewVehicle(newVehicle);
+                        }
+                    }
+                    else {
+                        trafficLine.addNewVehicle(newVehicle);
+                    }
                 }
                 // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
                 activeVehicles.addAll(trafficLine.getVehicles()); //TODO
@@ -163,7 +177,9 @@ public class BasicModel {
             // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
             if(vehicle instanceof Train){
                 List<VehicleMovement> trainMovements = ((Train) vehicle).getTrainMovementsForNextDay();
-                vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                if (!trainMovements.get(0).isWait()){
+                    vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                }
                 movements.addAll(trainMovements);
             }
             else if(vehicle.getTrafficType().equals(TrafficType.ROAD)){
@@ -429,6 +445,9 @@ public class BasicModel {
         }
         else if(sBuilding instanceof Rail) {
             combinations = ((Rail) sBuilding).getCombines();
+        }
+        else if(sBuilding instanceof JustCombines){
+            combinations = ((JustCombines) sBuilding).getCombines();
         }
         if(combinations != null){
             for (Map.Entry<String, String> entry : combinations.entrySet()) {

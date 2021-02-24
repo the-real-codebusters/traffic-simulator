@@ -101,7 +101,6 @@ public class Tile {
         return minHeight;
     }
 
-
     public Building getBuilding() {
         return building;
     }
@@ -142,4 +141,6 @@ public class Tile {
     public boolean isWater() {
         return isWater;
     }
+
+
 }
