@@ -363,7 +363,7 @@ public class MenuPane extends AnchorPane {
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent e)
                     {
-                        showTrafficLineDialog();
+                        showTrafficLineDialog(part.getTrafficType());
                     }
                 };
         newTrafficLine.setOnAction(event);
@@ -432,19 +432,10 @@ public class MenuPane extends AnchorPane {
         });
     }
 
-    private void showTrafficLineDialog(){
+    private void showTrafficLineDialog(TrafficType trafficType){
 
         selectTrafficLineStationsMode = true;
-
-
-        ChoiceDialog<TrafficType> trafficLineChoice = new ChoiceDialog<TrafficType>(TrafficType.ROAD, TrafficType.values());
-        trafficLineChoice.setHeaderText("Traffic Type");
-        trafficLineChoice.setContentText("Set the Traffic Type of the new Traffic Line");
-        trafficLineChoice.showAndWait();
-        if(!trafficLineChoice.getSelectedItem().equals(TrafficType.NONE)){
-            // create a popup
-            trafficLinePopup = new TrafficLinePopup(view, trafficLineChoice.getSelectedItem());
-        }
+        trafficLinePopup = new TrafficLinePopup(view, trafficType);
     }
 
     public void setController(Controller controller) {
