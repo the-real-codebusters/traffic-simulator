@@ -102,6 +102,13 @@ public class Factory extends Special {
         return storage;
     }
 
+    // Darf nur aufgerufen werden, wenn sicher ist, dass die entsprechende commodity konsumiert wird
+    public int getFreeStorageForCommodity(String commodity){
+        int realAmount = storage.getCargo().get(commodity);
+        int maxAmount = storage.getMaxima().get(commodity);
+        return maxAmount-realAmount;
+    }
+
     public void setStorage(Storage storage) {
         System.out.println(storage);
         System.out.println("setStorage called");

@@ -1,5 +1,7 @@
 package model;
 
+import javafx.geometry.Point2D;
+
 import java.util.*;
 
 public class BasicModel {
@@ -211,7 +213,42 @@ public class BasicModel {
             Map<String, Integer> todayProduced = factory.produceAndConsume();
             System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
             System.out.println(todayProduced);
+            if (todayProduced.size() > 0) {
+                findDestinationForTransport(todayProduced, factory);
+            }
         }
+    }
+
+    private void findDestinationForTransport(Map<String, Integer> todayProduced, Factory producer){
+        for (Map.Entry<String, Integer> entry : todayProduced.entrySet()){
+            Set<Factory> consumers = new HashSet<>();
+            String producedCommodity = entry.getKey();
+            Integer producedAmount = entry.getValue();
+            for (Factory factory : factoryObjects){
+                List<ProductionStep> steps = factory.getProductionSteps();
+                for (ProductionStep step : steps){
+                    if (step.getConsume().containsKey(producedCommodity)){
+                        consumers.add(factory);
+                    }
+                }
+            }
+            calculateWeighting(consumers, producedCommodity, producer);
+        }
+    }
+
+    private Map<Factory, Double> calculateWeighting(Set<Factory> consumers, String commodity, Factory producer){
+        Map<Factory, Double> weights = new HashMap<>();
+        for (Factory consumer : consumers){
+            int freeStorage = consumer.getFreeStorageForCommodity(commodity);
+            int consumerX = consumer.getOriginRow();
+            int conumerY = consumer.getOriginColumn();
+            int producerX = producer.getOriginRow();
+            int producerY = producer.getOriginColumn();
+            double distance = new Point2D(consumerX, conumerY).distance(new Point2D(producerX, producerY));
+            double weight = freeStorage/distance;
+            weights.put(consumer, weight);
+        }
+        return weights;
     }
 
     private void createCarReservations(VehicleMovement movement, List<InstantCarReservation> reservations, Vehicle vehicle){
