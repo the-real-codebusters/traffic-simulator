@@ -1,5 +1,8 @@
 package model;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.layout.Region;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,8 +44,7 @@ public class JSONParser {
         } catch (FileNotFoundException e) {
             String file = resourceBundle.getString("file");
             String notFound = resourceBundle.getString("notFound");
-//            showAlert(file + filename + notFound);
-            showAlert(file + notFound);
+            showAlert(file + notFound, resourceBundle);
 
             return false;
         }
@@ -59,12 +61,12 @@ public class JSONParser {
         catch(JSONException e){
             System.out.println(e.getMessage());
             String hasNoJsonFormat = resourceBundle.getString("hasNoJsonFormat");
-//                showAlert(resourceBundle.getString("file") + filename + hasNoJsonFormat);
-            showAlert(resourceBundle.getString("file") + hasNoJsonFormat);
+            String msg = resourceBundle.getString("file") + filename + hasNoJsonFormat;
+            showAlert(msg, resourceBundle);
                 return false;
             }
         catch(JSONParserException e){
-                showAlert(e.getMessage());
+                showAlert(e.getMessage(), resourceBundle);
                 return false;
             }
             return true;
@@ -151,6 +153,8 @@ public class JSONParser {
         // Alle Kinder von Map auslesen
         for (int i = 0; i < map.length(); i++) {
             if (!map.has(children[i])) {
+                System.out.println(resourceBundle.getString("attribute") + children[i]
+                        + resourceBundle.getString("notFound"));
                 throw new JSONParserException(resourceBundle.getString("attribute") + children[i]
                         + resourceBundle.getString("notFound"));
             }
@@ -302,19 +306,22 @@ public class JSONParser {
             String data = keys.next();
             // Prüfe ob der Typ einer der Commodity-Typen ist
             if (!commodities.contains(data)) {
-                throw new JSONParserException("invalid cargo commodity type: " + data);
+                String invalidCargoCommodityType = resourceBundle.getString("invalidCargoCommodityType");
+                throw new JSONParserException(invalidCargoCommodityType + data);
             }
             // Wert des Cargo-Typen
             String value = cargoDetails.optString(data);
             try {
                 int value_int = Integer.valueOf(value);
                 if (value_int <= 0) {
-                    throw new JSONParserException ("attribute " + name + " has negative value");
+                    throw new JSONParserException (resourceBundle.getString("attribute") + name
+                            + resourceBundle.getString("hasNegativeValue"));
                 }
                 cargoMaxima.put(data, value_int);
             }
             catch(NumberFormatException e){
-                throw new JSONParserException ("no integer format for attribute " + name + " defined");
+                throw new JSONParserException (resourceBundle.getString("noIntegerFormat") + name
+                        + resourceBundle.getString("defined"));
             }
 
         }
@@ -358,7 +365,7 @@ public class JSONParser {
                 duration = handleContentAsInteger(productionDetails, "duration", 0, null);
             }
             else {
-                throw new JSONParserException ("invalid attribute for production: " + data);
+                throw new JSONParserException (resourceBundle.getString("invalidAttributeForProduction") + data);
             }
         }
         factory.setProduce(produceMap);
@@ -384,21 +391,22 @@ public class JSONParser {
                 case "plane": planeCounter++;break;
                 case "engine": engineCounter++;break;
                 case "wagon": wagonCounter++;break;
-                default:  throw new JSONParserException("Invalid value " + kind + " for attribute kind");
+                default:  throw new JSONParserException(resourceBundle.getString("invalidValue") + kind
+                        + resourceBundle.getString("forAttributeKind"));
             }
         }
         // Fehler falls mind. 1 Typ fehlt
         if (roadVehicleCounter == 0) {
-            throw new JSONParserException("At least one road vehicle should be definied");
+            throw new JSONParserException(resourceBundle.getString("atLeastOneRoadVehicle"));
         }
         if (planeCounter == 0) {
-            throw new JSONParserException("At least one plane should be definied");
+            throw new JSONParserException(resourceBundle.getString("atLeastOnePlane"));
         }
         if (engineCounter == 0) {
-            throw new JSONParserException("At least one engine should be definied");
+            throw new JSONParserException(resourceBundle.getString("atLeastOneEngine"));
         }
         if (wagonCounter == 0) {
-            throw new JSONParserException("At least one wagon should be definied");
+            throw new JSONParserException(resourceBundle.getString("atLeastOneWagon"));
         }
 
     }
@@ -506,27 +514,19 @@ public class JSONParser {
         Map<String, List<Double>> pointMap = handleBuildMenuPoints(json.getJSONObject("points"));
         List<List<String>> roadList = handleBuildMenuInfrastructure(json.getJSONArray("roads"));
         if(roadList.get(0).get(0).equals("ne") && roadList.get(0).get(1).equals("c") && roadList.size() == 1) {
-//            System.out.print("Derisses ne  ");
         }
         Map<String, String> combinesMap = new HashMap<>();
         if (json.has("combines")) {
             combinesMap = handleBuildMenuCombines(json.getJSONObject("combines"));
         }
         if (buildmenu.length == 1) {
-//            System.out.println("handleRoadContent "+buildmenu[0]);
             road.setBuildmenu(buildmenu[0]);
         }
-//        System.out.println("handleRoadContent "+road.getBuildmenu());
 
         road.setPoints(pointMap);
         road.setRoads(roadList);
         road.setCombines(combinesMap);
         road.setTrafficType(TrafficType.ROAD);
-//        System.out.println("handleRoadContent ");
-//        System.out.println("Name: " + road.getBuildingName());
-//        System.out.println("Roads: " + road.getRoads());
-//        System.out.println("Points: " + road.getPoints());
-//        System.out.println("Combines: " + road.getCombines());
         return road;
 
     }
@@ -542,7 +542,8 @@ public class JSONParser {
      */
     private boolean checkBuildMenu(String expected, String actual) throws JSONParserException {
         if (!expected.equals(actual)) {
-            throw new JSONParserException("build menue + " + actual + " undefined, expected " + expected);
+            throw new JSONParserException(resourceBundle.getString("buildmenu") + actual
+                    + " undefined, expected " + resourceBundle.getString("undefinedExpected"));
         }
         return true;
     }
@@ -560,7 +561,8 @@ public class JSONParser {
         JSONArray entryJson = json.getJSONArray("entry");
 
         if (entryJson.isEmpty()) {
-            throw new JSONParserException("signal data is empty ");
+//            throw new JSONParserException("signal data is empty ");
+            throw new JSONParserException(resourceBundle.getString("signalDataEmpty"));
         }
         List<String> entries = new ArrayList<>();
         for (int i = 0; i < entryJson.length(); i++) {
@@ -599,19 +601,19 @@ public class JSONParser {
             JSONArray array = (JSONArray) productions;
 
             if (array.isEmpty()) {
-                throw new JSONParserException("productions" + " is empty ");
+                throw new JSONParserException(resourceBundle.getString("productionsEmpty"));
             }
             for (int i = 0; i < array.length(); i++) {
                 try {
                     JSONObject prodDetails = array.getJSONObject(i);
                     checkProductionData((JSONObject)prodDetails, factory);
                 } catch (JSONException e) {
-                    throw new JSONParserException("no string format defined");
+                    throw new JSONParserException(resourceBundle.getString("noStringFormat"));
                 }
             }
         }
         else {
-            throw new JSONParserException("production "+ " has invalid format ");
+            throw new JSONParserException(resourceBundle.getString("productionsInvalid"));
         }
         return factory;
     }
@@ -657,7 +659,7 @@ public class JSONParser {
             JSONArray signalJson = json.getJSONArray("signals");
 
             if (signalJson.isEmpty()) {
-                throw new JSONParserException("signal data is empty ");
+                throw new JSONParserException(resourceBundle.getString("signalDataEmpty"));
             }
 
             for (int i = 0; i < signalJson.length(); i++) {
@@ -695,7 +697,8 @@ public class JSONParser {
                 case "factory": specialObject = handleFactoryContent(buildingsDetails); break;
                 case "busstop": specialObject = handleStopContent(buildingsDetails, "roads"); break;
                 default:
-                    throw new JSONParserException("special + " + special + " not defined");
+                    throw new JSONParserException(resourceBundle.getString("special") + special
+                            + resourceBundle.getString("notDefined"));
             }
             specialObject.setSpecial(special);
             return specialObject;
@@ -708,7 +711,8 @@ public class JSONParser {
                     case "road": return handleRoadContent(buildingsDetails, buildmenu);
                     case "rail": return handleRailsContent(buildingsDetails, buildmenu);
                     default:
-                        throw new JSONParserException("wrong buildmenu + " + buildmenu + "  defined");
+                        throw new JSONParserException(resourceBundle.getString("wrongBuildmenu") + buildmenu
+                                + resourceBundle.getString("defined"));
                 }
             }
             else {
@@ -721,7 +725,7 @@ public class JSONParser {
                 }
                 else {
                     // kein special, kein buildmenu, keine rails/roads
-                    throw new JSONParserException("wrong entry in json");
+                    throw new JSONParserException(resourceBundle.getString("wrongEntry"));
                 }
             }
         }
@@ -752,14 +756,14 @@ public class JSONParser {
      */
     private List<List<String>> handleBuildMenuInfrastructure(JSONArray infrastructure) throws JSONParserException {
         if (infrastructure.isEmpty()) {
-            throw new JSONParserException("roads/planes/railes are empty ");
+            throw new JSONParserException(resourceBundle.getString("roads/planes/railsAreEmpty"));
         }
         List<List<String>> roadList = new ArrayList<>();
 
         for (int i = 0; i <infrastructure.length(); i++) {
             JSONArray infrastructureData = infrastructure.getJSONArray(i);
             if (infrastructureData.isEmpty()) {
-                throw new JSONParserException("roads/planes/railes data are empty ");
+                throw new JSONParserException(resourceBundle.getString("roads/planes/railsDataAreEmpty"));
             }
             List<String> innerList = new ArrayList<>();
             for (int j = 0; j <infrastructureData.length(); j++) {
@@ -784,7 +788,7 @@ public class JSONParser {
             JSONArray values = points.optJSONArray(data);
             List<Double> pointData = new ArrayList<>();
             if (values.isEmpty()) {
-                throw new JSONParserException("points data are empty ");
+                throw new JSONParserException(resourceBundle.getString("pointsDataEmpty"));
             }
             for (int i = 0; i < values.length(); i++) {
                 try {
@@ -792,7 +796,7 @@ public class JSONParser {
                     pointData.add(d);
                 }
                 catch(JSONException e) {
-                    throw new JSONParserException("wrong double format for attribute " + data);
+                    throw new JSONParserException(resourceBundle.getString("wrongDoubleFormat") + data);
                 }
             }
             pointMap.put(data,pointData );
@@ -807,7 +811,8 @@ public class JSONParser {
     private void handleRootAttributes() throws JSONParserException {
         for (String rootAttribute: requiredRootAttributes) {
             if (! json.has(rootAttribute)) {
-                throw new JSONParserException("Attribute " + rootAttribute + " not found");
+                throw new JSONParserException(resourceBundle.getString("attribute") + rootAttribute
+                        + resourceBundle.getString("notFound"));
             }
         }
     }
