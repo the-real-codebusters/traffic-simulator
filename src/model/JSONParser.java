@@ -557,14 +557,37 @@ public class JSONParser {
         // prüfe Storage-Attribut
         Map<String, Integer> storageMap = new HashMap<>();
         if (json.has("storage")) {
-            JSONObject storage  = json.getJSONObject("storage");
-            Iterator<String> keys = storage.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                int value = storage.optInt(key);
-                storageMap.put(key,value);
+            Object object  = json.get("storage");
+            if(object instanceof JSONObject){
+                JSONObject storage  = json.getJSONObject("storage");
+                Iterator<String> keys = storage.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    int value = storage.optInt(key);
+                    storageMap.put(key,value);
+                }
             }
+            else if(object instanceof JSONArray){
+                JSONArray array = (JSONArray)object;
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject storage  = array.getJSONObject(i);
+                    Iterator<String> keys = storage.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        int value = storage.optInt(key);
+                        storageMap.put(key,value);
+                    }
+                }
+            }
+            else {
+                throw new JSONParserException(object+" was no JSONArray or JSONObject");
+            }
+
+            factory.setStorage(new Storage(storageMap));
         }
+//        else {
+//            System.out.println("kein Storage bei factory ");
+//        }
 
         Object productions = json.get("productions");
         // Productions kommt entweder einzeln oder als Array vor

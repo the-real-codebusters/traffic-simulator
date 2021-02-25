@@ -34,6 +34,9 @@ public class MapGenerator {
      */
     private void generateFactories(int mapWidth, int mapDepth, BasicModel basicModel) {
         List<Special> factoryBuildings = basicModel.getBuildingsForSpecialUse("factory");
+
+        List<Factory> factoryInstances = new ArrayList<>();
+
         Random randomGenerator = new Random();
         for (Building factory : factoryBuildings) {
             int maxNumberOfPlacements = ((mapDepth * mapWidth) / (factory.getDepth() * factory.getWidth())) / 250;
@@ -45,12 +48,15 @@ public class MapGenerator {
             while (numberOfPlacements > 0) {
                 int row = randomGenerator.nextInt(maxRow);
                 int column = randomGenerator.nextInt(maxColumn);
-                if (mapModel.canPlaceBuilding(row, column, factory.getNewInstance())) {
-                    mapModel.placeBuilding(row, column, factory);
+                Factory newFactory = (Factory) factory.getNewInstance();
+                if (mapModel.canPlaceBuilding(row, column, newFactory)) {
+                    mapModel.placeBuilding(row, column, newFactory);
+                    factoryInstances.add(newFactory);
                     numberOfPlacements--;
                 }
             }
         }
+        basicModel.setFactoryObjects(factoryInstances);
     }
 
 

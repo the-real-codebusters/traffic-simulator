@@ -17,6 +17,7 @@ public class BasicModel {
     private Set<String> buildmenus = new HashSet<>();
     private List<Building> buildings = new ArrayList<>();
     private List<Vehicle> vehiclesTypes = new ArrayList<>();
+    private List<Factory> factoryObjects = new ArrayList<>();
 
     // Die Verkehrslinien, die seit dem letzten Tag neu erstellt wurden oder nur eine Station haben und damit unfertig sind.
     private Queue<ConnectedTrafficPart> newCreatedOrIncompleteConnectedTrafficParts = new ArrayDeque<>();
@@ -197,12 +198,20 @@ public class BasicModel {
                 movements.add(movement);
             }
         }
+
+        produceAndConsume();
+
+
         day++;
         return movements;
     }
 
     private void produceAndConsume(){
-
+        for(Factory factory : factoryObjects){
+            Map<String, Integer> todayProduced = factory.produceAndConsume();
+            System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
+            System.out.println(todayProduced);
+        }
     }
 
     private void createCarReservations(VehicleMovement movement, List<InstantCarReservation> reservations, Vehicle vehicle){
@@ -617,5 +626,11 @@ public class BasicModel {
         }
     }
 
+    public List<Factory> getFactoryObjects() {
+        return factoryObjects;
+    }
 
+    public void setFactoryObjects(List<Factory> factoryObjects) {
+        this.factoryObjects = factoryObjects;
+    }
 }
