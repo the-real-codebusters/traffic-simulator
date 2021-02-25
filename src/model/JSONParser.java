@@ -552,6 +552,7 @@ public class JSONParser {
 
     private Factory handleFactoryContent(JSONObject json) throws JSONParserException {
         Factory factory = new Factory();
+        // [{"consume":{"glass":4, "silicone":1},"duration":8}, {"consume":{"solar panels":2},"duration":25}]
 
         setDefaultAttributes(factory, json);
         // prüfe Storage-Attribut
@@ -582,7 +583,6 @@ public class JSONParser {
             else {
                 throw new JSONParserException(object+" was no JSONArray or JSONObject");
             }
-
             factory.setStorage(new Storage(storageMap));
         }
 //        else {

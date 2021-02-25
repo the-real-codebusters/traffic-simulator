@@ -22,6 +22,7 @@ public class Factory extends Special {
             newSteps.add(oldStep.getNewInstance());
         }
         instance.setProductionSteps(newSteps);
+        if(storage != null) instance.setStorage(storage.getNewInstance());
 
         instance.setSpecial(getSpecial());
         setTrafficType(TrafficType.NONE);
@@ -102,7 +103,9 @@ public class Factory extends Special {
     }
 
     public void setStorage(Storage storage) {
+        System.out.println(storage);
         System.out.println("setStorage called");
+        System.out.println("Factory:" + this.buildingName);
         this.storage = storage;
     }
 
