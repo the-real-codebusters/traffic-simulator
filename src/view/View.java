@@ -133,16 +133,36 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            zoomFactor = Math.exp(scrollDelta * 0.01);
-            tileImageWidth = tileImageWidth * zoomFactor;
-            tileImageHeight = tileImageHeight * zoomFactor;
+            double zoomFactor = Math.exp(scrollDelta * 0.01);
 
-            tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
-            tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+            if ((tileImageWidth > 2 && tileImageHeight > 2 && scrollDelta < 0) || (scrollDelta >= 0 && tileImageWidth < canvasCenterWidth*2)) {
 
-            heightOffset = heightOffset * zoomFactor;
+                Point2D currentIsoCoord = findTileCoord(scrollEvent.getX(), scrollEvent.getY());
 
-            drawMap();
+                if(currentIsoCoord != null) {
+                    double abstandX = (currentIsoCoord.getX() - mapWidth / 2) * (zoomFactor - 1);
+                    double abstandY = (currentIsoCoord.getY() - mapDepth / 2) * (zoomFactor - 1);
+                    double xVerschiebung = abstandX * tileImageWidthHalf;
+                    double yVerschiebung = abstandX * tileImageHeightHalf;
+                    xVerschiebung += abstandY * tileImageWidthHalf;
+                    yVerschiebung -= abstandY * tileImageHeightHalf;
+
+
+                    tileImageWidth = tileImageWidth * zoomFactor;
+                    tileImageHeight = tileImageHeight * zoomFactor;
+
+                    tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
+                    tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+
+                    heightOffset = heightOffset * zoomFactor;
+
+                    // verschiebt indirekt den Mittelpunkt und damit das ganze Spielfeld
+                    cameraOffsetX += xVerschiebung;
+                    cameraOffsetY += yVerschiebung;
+
+                }
+                drawMap();
+            }
 
         });
     }
@@ -839,7 +859,7 @@ public class View {
         String gamemode = controller.getGamemode();
         String url = "/" + gamemode + "/" + imageName + ".png";
 
-//        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
         Image image = null;
         image  = new Image(url);
         imageCache.put(imageName + "raw", image);
