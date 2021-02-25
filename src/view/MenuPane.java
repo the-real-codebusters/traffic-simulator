@@ -83,7 +83,6 @@ public class MenuPane extends AnchorPane {
 
     private void createTrafficpartTab(){
 
-//        String name = "traffic part";
         String trafficPart = resourceBundle.getString("trafficPart");
         HBox box = boxWithLayout();
         tabNames.add(trafficPart);
@@ -175,7 +174,6 @@ public class MenuPane extends AnchorPane {
     public void setDayLabel(int day){
 
         dayLabel.setText(resourceBundle.getString("dayLabel") + day);
-//        dayLabel.setText("Current day: " + day);
         dayLabel.setFont(new Font("Arial", 15));
     }
 
@@ -187,18 +185,11 @@ public class MenuPane extends AnchorPane {
 
         // Get Buildmenus from Controller
         Set<String> buildmenus = controller.getBuildmenus();
-//        Set<String> buildmenusLocalized = controller.getBuildmenus();
-//
-//        Iterator<String> iterator = buildmenus.iterator();
-//        String buildmenuLocalized = iterator.next();
-//        while (iterator.hasNext()){
-//            buildmenuLocalized = resourceBundle.getString(buildmenuLocalized);
-//            buildmenusLocalized.add(buildmenuLocalized);
-//        }
-//        for (String buildmenu : buildmenus){
-//            String buildmenuLocalized = resourceBundle.getString(buildmenu);
-//            buildmenusLocalized.add(buildmenuLocalized);
-//        }
+        Set<String> buildmenusLocalized = new HashSet<>();
+
+        for (String buildmenu : buildmenus){
+            buildmenusLocalized.add(resourceBundle.getString(buildmenu));
+        }
 
 
         String speed = resourceBundle.getString("speed");
@@ -206,14 +197,8 @@ public class MenuPane extends AnchorPane {
         String vehicles = resourceBundle.getString("vehicles");
         String remove = resourceBundle.getString("remove");
 
-        String road = resourceBundle.getString("road");
-        String rail = resourceBundle.getString("rail");
-        String airport = resourceBundle.getString("airport");
-        String nature = resourceBundle.getString("nature");
-
         tabNames.addAll(List.of(speed));
-        tabNames.addAll(buildmenus);
-//        tabNames.addAll(buildmenusLocalized);
+        tabNames.addAll(buildmenusLocalized);
         tabNames.addAll(List.of(height, vehicles, remove));
 
         // dummys:
@@ -222,31 +207,32 @@ public class MenuPane extends AnchorPane {
         }
 
         for (String tabName : tabNames) {
-//            tabName = resourceBundle.getString(tabName);
+
             ScrollPane scroll = new ScrollPane();
             scroll.setPrefViewportWidth(canvas.getWidth());
             scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-
             scroll.setPannable(true);
+
             HBox container = boxWithLayout();
-            List<Building> buildings = controller.getBuildingsByBuildmenu(tabName);
-            for (Building building : buildings) {
-                System.out.println("building: " + building.getBuildmenu());
 
-                //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
-                String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
-                if (imageName == null) continue;
-                ImageView imageView = imageViewWithLayout(building);
+            Locale locale = new Locale("en_US");
+            ResourceBundle bundleEN = ResourceBundle.getBundle("Bundle", locale);
 
-                container.getChildren().add(imageView);
-                if (building.getBuildmenu().equals(tabName)) {
-                    System.out.println("tabname: " + tabName);
-                    String newName = resourceBundle.getString(tabName);
+            if(bundleEN.getString(tabName).equals("road") || bundleEN.getString(tabName).equals("rail") ||
+                    bundleEN.getString(tabName).equals("airport") || bundleEN.getString(tabName).equals("nature")) {
 
+                List<Building> buildings = controller.getBuildingsByBuildmenu(bundleEN.getString(tabName));
+                for (Building building : buildings) {
+
+                    //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
+                    String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
+                    if (imageName == null) continue;
+                    ImageView imageView = imageViewWithLayout(building);
+
+                    container.getChildren().add(imageView);
                 }
-                //TODO
             }
+
 
             if (tabName.equals(height)) {
                 Building height_up = new Building(1, 1, "height_up");
@@ -258,41 +244,40 @@ public class MenuPane extends AnchorPane {
                 container.getChildren().addAll(imageViewUp, imageViewDown);
             }
 
-                if (tabName.equals(speed)) {
-                    Button standardSpeedButton = new Button();
-                    standardSpeedButton.setText(resourceBundle.getString("standardSpeed"));
-                    standardSpeedButton.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent event) {
-                            view.setTickDuration(1.0);
-                            slider.setValue(view.getTickDuration());
+            if (tabName.equals(speed)) {
+                Button standardSpeedButton = new Button();
+                standardSpeedButton.setText(resourceBundle.getString("standardSpeed"));
+                standardSpeedButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        view.setTickDuration(1.0);
+                        slider.setValue(view.getTickDuration());
 
-                        }
-                    });
-                    container.getChildren().addAll(standardSpeedButton, dayLabel);
+                    }
+                });
+                container.getChildren().addAll(standardSpeedButton, dayLabel);
 
-                    // erzeuge einen Button zum Starten/Pausieren von Simulation
-                    createAnimationButton();
-                    // erzeuge SLider
-                    createTickSlider();
-                    container.getChildren().add(0, animationButton);
-                    container.getChildren().add(1, slider);
-                    container.setSpacing(30);
-                    container.setPadding(new Insets(20,20,20,20));
-                }
-
-
-                if (tabName.equals(remove)) {
-                    Building removeBuilding = new Building(1, 1, "remove");
-                    ImageView imageView = imageViewWithLayout(removeBuilding);
-                    container.getChildren().add(imageView);
-                }
-
-                scroll.setContent(container);
-                tabContents.set(tabNames.indexOf(tabName), scroll);
+                // erzeuge einen Button zum Starten/Pausieren von Simulation
+                createAnimationButton();
+                // erzeuge SLider
+                createTickSlider();
+                container.getChildren().add(0, animationButton);
+                container.getChildren().add(1, slider);
+                container.setSpacing(30);
+                container.setPadding(new Insets(20, 20, 20, 20));
             }
 
+
+            if (tabName.equals(remove)) {
+                Building removeBuilding = new Building(1, 1, "remove");
+                ImageView imageView = imageViewWithLayout(removeBuilding);
+                container.getChildren().add(imageView);
+            }
+            scroll.setContent(container);
+            tabContents.set(tabNames.indexOf(tabName), scroll);
+        }
     }
+
 
     /**
      * Erstellt eine HBox mit bestimmtem Layout
