@@ -337,10 +337,9 @@ public class JSONParser {
             else {
                 throw new JSONParserException ("invalid attribute for production: " + data);
             }
+
+            factory.getProductionSteps().add(new ProductionStep(produceMap, consumeMap, duration));
         }
-        factory.setProduce(produceMap);
-        factory.setConsume(consumeMap);
-        factory.setDuration(duration);
     }
     /**
      * Prüft Inhalt des Vehicles-Attributs

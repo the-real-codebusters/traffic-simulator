@@ -60,7 +60,6 @@ public class BasicModel {
         //
 
 
-
         // In der Zeit einer Runde, also seit dem letzten Aufruf dieser Methode, können Haltestellen platziert worden
         // sein, die zu neuen, unverbundenen Stationen führen. Eine unverbundene Station stellt erstmal eine neue
         // Verkehrslinie dar. Diese neue Verkehrslinie wurde der Queue newCreatedOrIncompleteTrafficLines hinzugefügt
@@ -200,6 +199,10 @@ public class BasicModel {
         }
         day++;
         return movements;
+    }
+
+    private void produceAndConsume(){
+
     }
 
     private void createCarReservations(VehicleMovement movement, List<InstantCarReservation> reservations, Vehicle vehicle){

@@ -45,7 +45,7 @@ public class MapGenerator {
             while (numberOfPlacements > 0) {
                 int row = randomGenerator.nextInt(maxRow);
                 int column = randomGenerator.nextInt(maxColumn);
-                if (mapModel.canPlaceBuilding(row, column, factory)) {
+                if (mapModel.canPlaceBuilding(row, column, factory.getNewInstance())) {
                     mapModel.placeBuilding(row, column, factory);
                     numberOfPlacements--;
                 }

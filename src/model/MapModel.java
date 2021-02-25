@@ -71,7 +71,7 @@ public class MapModel {
 //                station.setTrafficPartForTrafficType(nextStation.getTrafficPartForTrafficType(type), type);
             } else {
 
-                System.out.println("stop: "+instance.getBuildingName()+" found factory: "+getNearFactory((Stop) instance, row, column));
+//                System.out.println("stop: "+instance.getBuildingName()+" found factory: "+getNearFactory((Stop) instance, row, column));
                 station = new Station(model.getPathfinder(), model);
                 stations.add(station);
                 System.out.println("Station neu erzeugt");
@@ -80,6 +80,10 @@ public class MapModel {
 
                 createdNewStation = true;
             }
+            Factory nearFactory = getNearFactory((Stop) instance, row, column);
+            station.setNearFactory(nearFactory);
+            nearFactory.getNearStations().add(station);
+
             station.addBuildingAndSetStationInBuilding((Stop) instance, nextStation == null);
             System.out.println("StationID in placeBuilding " + ((Stop) instance).getStation().getId());
         }
