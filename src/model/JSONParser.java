@@ -59,7 +59,6 @@ public class JSONParser {
             handleMapContent(json.getJSONObject("map"));
        }
         catch(JSONException e){
-            System.out.println(e.getMessage());
             String hasNoJsonFormat = resourceBundle.getString("hasNoJsonFormat");
             String msg = resourceBundle.getString("file") + filename + hasNoJsonFormat;
             showAlert(msg, resourceBundle);
