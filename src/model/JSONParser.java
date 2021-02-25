@@ -317,7 +317,7 @@ public class JSONParser {
                 Iterator<String> keysProd = prod.keys();
                 while (keysProd.hasNext()) {
                     String type = keysProd.next();
-                    int amount = prod.optInt(data);
+                    int amount = prod.optInt(type);
                     produceMap.put(type, amount);
                 }
             }
