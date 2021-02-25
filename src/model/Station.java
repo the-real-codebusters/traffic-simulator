@@ -15,6 +15,8 @@ public class Station {
     private static final AtomicLong NEXT_ID = new AtomicLong(0);
     private final long id = NEXT_ID.getAndIncrement();
     private int maxPlanes = 0;
+
+    //TODO Mehrere TrafficLines für eine Station
     private TrafficLine roadTrafficLine;
     private TrafficLine railTrafficLine;
     private TrafficLine airTrafficLine;
@@ -24,13 +26,14 @@ public class Station {
     private ConnectedTrafficPart railTrafficPart;
 
 
-
     private Set<Station> directlyRoadConnectedStations = new HashSet<>();
     private Set<Station> directlyRailConnectedStations = new HashSet<>();
     private Set<Station> directlyAirConnectedStations = new HashSet<>();
 
     private Pathfinder pathfinder;
     private BasicModel model;
+
+    private Factory nearFactory;
 
     // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
     private boolean visited;
@@ -79,6 +82,10 @@ public class Station {
      * @return
      */
     public boolean isDirectlyConnectedTo(Station station, TrafficType trafficType){
+
+        System.out.println("directlyRoadConnectedStations in isDirectlyConnectedTo für Station "+id);
+        directlyRoadConnectedStations.forEach((x) -> System.out.println( "verbunden mit Station: "+x.getId()));
+
         if(trafficType.equals(TrafficType.ROAD)){
             return directlyRoadConnectedStations.contains(station);
         }
@@ -351,5 +358,13 @@ public class Station {
 
     public void setRailTrafficPart(ConnectedTrafficPart railTrafficPart) {
         this.railTrafficPart = railTrafficPart;
+    }
+
+    public Factory getNearFactory() {
+        return nearFactory;
+    }
+
+    public void setNearFactory(Factory nearFactory) {
+        this.nearFactory = nearFactory;
     }
 }

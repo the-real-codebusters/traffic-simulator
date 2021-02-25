@@ -859,7 +859,7 @@ public class View {
         String gamemode = controller.getGamemode();
         String url = "/" + gamemode + "/" + imageName + ".png";
 
-        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+//        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
         Image image = null;
         image  = new Image(url);
         imageCache.put(imageName + "raw", image);

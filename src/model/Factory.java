@@ -1,7 +1,6 @@
 package model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Factory extends Special {
 
@@ -10,6 +9,8 @@ public class Factory extends Special {
     //optional
     private Map<String, Integer> storage = new HashMap<>();
     private int duration;
+
+    private Set<Station> nearStations = new HashSet<>();
 
     @Override
     public Factory getNewInstance(){
@@ -47,6 +48,10 @@ public class Factory extends Special {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public Set<Station> getNearStations() {
+        return nearStations;
     }
 
     @Override
