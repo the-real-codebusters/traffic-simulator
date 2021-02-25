@@ -56,16 +56,16 @@ public class TrafficLine {
     public Vehicle addNewVehicle(Vehicle vehicle){
 
         if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
-        int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
-        int columnInTileGrid = startVertexForNewVehicles.getyCoordinateInGameMap();
-
-        double shiftToDepthInOneTile = startVertexForNewVehicles.getxCoordinateRelativeToTileOrigin();
-        double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
-        VehiclePosition position = new VehiclePosition(shiftToWidthInOneTile, shiftToDepthInOneTile,
-                rowInTileGrid, columnInTileGrid);
+//        int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
+//        int columnInTileGrid = startVertexForNewVehicles.getyCoordinateInGameMap();
+//
+//        double shiftToDepthInOneTile = startVertexForNewVehicles.getxCoordinateRelativeToTileOrigin();
+//        double shiftToWidthInOneTile = startVertexForNewVehicles.getyCoordinateRelativeToTileOrigin();
+//        VehiclePosition position = new VehiclePosition(shiftToWidthInOneTile, shiftToDepthInOneTile,
+//                rowInTileGrid, columnInTileGrid);
 
         vehicle.setPathfinder(model.getPathfinder());
-        vehicle.setPosition(position);
+        vehicle.setPosition(stations.get(0).getComponents().get(0).getVertices().iterator().next());
         vehicle.setNextStation(stations.get(0));
         if (trafficType != TrafficType.AIR) {
             vehicle.updateNextStation();
@@ -78,6 +78,9 @@ public class TrafficLine {
             System.out.println(vehicle.getTrafficType());
             System.out.println("Speed of new vehicle"+vehicle.getSpeed());
         }
+//        else{
+//            throw new RuntimeException("Neues Vehicle konnte keinen Weg finden");
+//        }
 
         return vehicle;
     }
@@ -155,13 +158,19 @@ public class TrafficLine {
             throw new RuntimeException("No startStation found in setStartVertexForNewVehicles() in Class TrafficLine");
         }
 
-        // Finde den Knoten um das Auto zu platzieren
-        for(Stop stop: startStation.getComponents()){
-            if(stop.getTrafficType().equals(trafficType)){
-                startVertexForNewVehicles = stop.getVertices().iterator().next();
-                break;
+        // Finde den Knoten um das Fahrzeug zu platzieren
+        if(trafficType.equals(TrafficType.AIR)){
+            startVertexForNewVehicles = startStation.getEntrys().get(0);
+        }
+        else {
+            for(Stop stop: startStation.getComponents()){
+                if(stop.getTrafficType().equals(trafficType)){
+                    startVertexForNewVehicles = stop.getVertices().iterator().next();
+                    break;
+                }
             }
         }
+
         this.startStation = startStation;
 
         //TODO eventuell unfertig?

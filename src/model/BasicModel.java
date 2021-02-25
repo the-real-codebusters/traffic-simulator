@@ -1,7 +1,5 @@
 package model;
 
-import view.View;
-
 import java.util.*;
 
 public class BasicModel {
@@ -90,45 +88,45 @@ public class BasicModel {
 
             // Für jede aktive Verkehrslinie wird ein neues Fahrzeug hinzugefügt, wenn es weniger Fahrzeuge gibt als die gewünschte
             // Anzahl
-            if (activePart.getTrafficType() == TrafficType.AIR) {
-                // TODO: erste immer ignorieren
-                if (index == 0) {
-                    index++;
-                    continue;
-                }
-                int counter = 0;
-                TrafficLine trafficLine = activePart.getTrafficLines().get(0);
-                for (Station station: trafficLine.getStations()) {
-
-                    /*for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
-                        for (int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
-                            Vehicle v = entry.getKey();
-                            v.setId(i);
-                        }
-                    }*/
-
-
-                    if (!station.isVisited()) {
-                        // runway durchlaufen
-                        moveOnRunway(station, airMovements);
-                        return airMovements;
-                    }
-                    else {
-                        if (station.getLast() != null) {
-                            if (counter == trafficLine.getStations().size()-1) {
-                                // alle runways besucht, kehre zum Ursprung zurueck
-                                moveBackToOriginRunway(trafficLine, station, airMovements);
-                            }
-                            else {
-                                // bewegung zum nächsten runway, wenn es den gibt
-                                flyToNextRunway(trafficLine, station, airMovements, counter);
-                            }
-                            return airMovements;
-                        }
-                    }
-                    counter++;
-                }
-            }
+//            if (activePart.getTrafficType() == TrafficType.AIR) {
+//                // TODO: erste immer ignorieren
+//                if (index == 0) {
+//                    index++;
+//                    continue;
+//                }
+//                int counter = 0;
+//                TrafficLine trafficLine = activePart.getTrafficLines().get(0);
+//                for (Station station: trafficLine.getStations()) {
+//
+//                    /*for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+//                        for (int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+//                            Vehicle v = entry.getKey();
+//                            v.setId(i);
+//                        }
+//                    }*/
+//
+//
+//                    if (!station.isVisited()) {
+//                        // runway durchlaufen
+//                        moveOnRunway(station, airMovements);
+//                        return airMovements;
+//                    }
+//                    else {
+//                        if (station.getLast() != null) {
+//                            if (counter == trafficLine.getStations().size()-1) {
+//                                // alle runways besucht, kehre zum Ursprung zurueck
+//                                moveBackToOriginRunway(trafficLine, station, airMovements);
+//                            }
+//                            else {
+//                                // bewegung zum nächsten runway, wenn es den gibt
+//                                flyToNextRunway(trafficLine, station, airMovements, counter);
+//                            }
+//                            return airMovements;
+//                        }
+//                    }
+//                    counter++;
+//                }
+//            }
 
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
                 System.out.println("active traffic Line "+trafficLine.getName());
@@ -171,7 +169,7 @@ public class BasicModel {
             return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
         });
         System.out.println("activeVehicles: "+activeVehicles);
-        List<InstantReservation> reservations = new ArrayList<>();
+        List<InstantCarReservation> reservations = new ArrayList<>();
         for(int i=0; i<activeVehicles.size(); i++){
             Vehicle vehicle = activeVehicles.get(i);
             // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
@@ -187,6 +185,12 @@ public class BasicModel {
                 createCarReservations(movement, reservations, vehicle);
                 movements.add(movement);
             }
+            else if(vehicle.getTrafficType().equals(TrafficType.AIR)){
+                VehicleMovement movement = vehicle.getMovementForNextDay();
+                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+                vehicle.setPosition(movement.getLastPair().getKey());
+                movements.add(movement);
+            }
             else {
                 VehicleMovement movement = vehicle.getMovementForNextDay();
                 // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
@@ -198,14 +202,14 @@ public class BasicModel {
         return movements;
     }
 
-    private void createCarReservations(VehicleMovement movement, List<InstantReservation> reservations, Vehicle vehicle){
-        Set<InstantReservation> newRes = new HashSet<>();
+    private void createCarReservations(VehicleMovement movement, List<InstantCarReservation> reservations, Vehicle vehicle){
+        Set<InstantCarReservation> newRes = new HashSet<>();
         List<PositionOnTilemap> allPositions = movement.getAllPositions();
         for(PositionOnTilemap pos: allPositions){
-            newRes.add(new InstantReservation(pos.getxCoordinateInGameMap(), pos.getyCoordinateInGameMap(), movement));
+            newRes.add(new InstantCarReservation(pos.getxCoordinateInGameMap(), pos.getyCoordinateInGameMap(), movement));
         }
         boolean shouldWait = false;
-        for(InstantReservation res : newRes){
+        for(InstantCarReservation res : newRes){
             if(reservations.contains(res)){
                 VehicleMovement movementThatReservedTile = reservations.get(reservations.indexOf(res)).getMovement();
                 boolean directionsContrawise = checkIfDirectionsContrawise(movementThatReservedTile.getDirectionOfLastMove(),
@@ -221,7 +225,7 @@ public class BasicModel {
         }
         if(shouldWait){
             PositionOnTilemap startPos = movement.getStartPosition();
-            reservations.add(new InstantReservation(startPos.getxCoordinateInGameMap(), startPos.getyCoordinateInGameMap(), movement));
+            reservations.add(new InstantCarReservation(startPos.getxCoordinateInGameMap(), startPos.getyCoordinateInGameMap(), movement));
             vehicle.revertMovementForNextDay();
             movement.setWait(true);
             vehicle.setHasWaitedInLastRound(true);

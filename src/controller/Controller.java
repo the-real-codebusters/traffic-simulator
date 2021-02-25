@@ -52,9 +52,9 @@ public class Controller {
 
         TrafficGraph roadGraph = model.getMap().getRoadGraph();
         TrafficGraph railGraph = model.getMap().getRailGraph();
-//        TrafficGraph airGraph = model.getMap().getAirGraph();
+        TrafficGraph airGraph = model.getMap().getAirGraph();
 
-        pathfinder = new Pathfinder(roadGraph, railGraph);
+        pathfinder = new Pathfinder(roadGraph, railGraph, airGraph);
         model.setPathfinder(pathfinder);
 
 //        new TrafficLineCreationDialog(view);
@@ -92,6 +92,7 @@ public class Controller {
         List<Vertex> vertexes = new ArrayList<>();
         vertexes.addAll(model.getMap().getRoadGraph().getMapOfVertexes().values());
         vertexes.addAll(model.getMap().getRailGraph().getMapOfVertexes().values());
+        vertexes.addAll(model.getMap().getAirGraph().getMapOfVertexes().values());
 
         return vertexes;
     }
@@ -171,7 +172,7 @@ public class Controller {
                 // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
-                    model.getMap().removePointsOnTile(buildingOnSelectedTile, xCoord, yCoord);
+                    model.getMap().removePointsOnTile(buildingOnSelectedTile);
                 }
                 return;
             }
@@ -210,8 +211,11 @@ public class Controller {
 
     public void showTrafficPartInView(MouseEvent event){
         Building building = getBuildingForMouseEvent(event);
+        System.out.println("building "+building.getBuildingName()+" in showTrafficPartInView");
         if(building instanceof PartOfTrafficGraph){
             ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
+            System.out.println("trafficPart "+trafficPart+" in showTrafficPartInView");
+
             if(trafficPart != null){
                 view.getMenuPane().showTrafficPart(trafficPart);
             }
@@ -220,6 +224,7 @@ public class Controller {
 
     public void selectStationsForTrafficLine(MouseEvent event){
         Building building = getBuildingForMouseEvent(event);
+        System.out.println("building "+building.getBuildingName()+" in selectStationsForTrafficLine");
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
             TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
@@ -227,6 +232,10 @@ public class Controller {
 
             if(stationsOfPlannedTrafficLine.size() == 0){
                 trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
+            }
+
+            if(trafficType.equals(TrafficType.AIR) && !station.isWholeAirstation()){
+                return;
             }
 
             //True, wenn Station Teil eines Verkehrsteils mit dem angegebenen typ ist und wenn die Station Teil des

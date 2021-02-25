@@ -6,18 +6,15 @@ import java.util.*;
 public class Pathfinder {
     private TrafficGraph roadGraph;
     private TrafficGraph railGraph;
-    // TODO airGraph
-//    private TrafficGraph airGraph;
+    private TrafficGraph airGraph;
 
     //TODO Klasse eventuell static machen?
 
-    //TODO Eigene Graphen für AIR und RAIL; dann müssen die Methoden je nach Parameter TrafficType unterschiedliche
-    // Graphen benutzen
 
-    public Pathfinder(TrafficGraph roadGraph, TrafficGraph railGraph) {
+    public Pathfinder(TrafficGraph roadGraph, TrafficGraph railGraph, TrafficGraph airGraph) {
         this.railGraph = railGraph;
         this.roadGraph = roadGraph;
-//        this.airGraph = airGraph;
+        this.airGraph = airGraph;
     }
 
     /**
@@ -471,6 +468,8 @@ public class Pathfinder {
 
         TrafficGraph graph = getGraphForTrafficType(trafficType);
 
+        graph.printGraph();
+
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
@@ -569,8 +568,11 @@ public class Pathfinder {
         else if(trafficType.equals(TrafficType.RAIL)){
             graph = railGraph;
         }
+        else if(trafficType.equals(TrafficType.AIR)){
+            graph = airGraph;
+        }
         else {
-            throw new IllegalArgumentException("Unfertiger Code");
+            throw new IllegalArgumentException("no graph for trafficType "+trafficType);
         }
         return graph;
     }

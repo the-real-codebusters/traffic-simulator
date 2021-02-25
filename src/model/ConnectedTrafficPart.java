@@ -19,6 +19,7 @@ public class ConnectedTrafficPart {
         this.model = model;
         this.trafficType = trafficType;
         stations.add(firstStation);
+        firstStation.setTrafficPartForTrafficType(this, trafficType);
         setAssociatedTrafficPartInEveryBuilding();
         if(trafficType.equals(TrafficType.RAIL)){
             Vertex oneVertexOfRailblock = firstStation.getComponents().get(0).getVertices().iterator().next();
@@ -46,6 +47,7 @@ public class ConnectedTrafficPart {
         System.out.println("addStation called");
         stations.add(station);
         station.updateDirectlyConnectedStations(trafficType);
+        station.setTrafficPartForTrafficType(this, trafficType);
         setAssociatedTrafficPartInEveryBuilding();
     }
 
@@ -54,12 +56,19 @@ public class ConnectedTrafficPart {
 
     public void setAssociatedTrafficPartInEveryBuilding(){
         System.out.println("setAssociatedTrafficPartInEveryBuilding() called" );
-        Vertex someVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
-        Set<PartOfTrafficGraph> associatedBuildings = model.getPathfinder().findAllConnectedBuildings(someVertex, trafficType);
-        System.out.println("associatedBuildings "+associatedBuildings);
-        for(PartOfTrafficGraph aB: associatedBuildings){
-            aB.setAssociatedPartOfTraffic(this);
-            System.out.println("Associated building : "+ aB.getBuildingName());
+        if(!trafficType.equals(TrafficType.AIR)){
+            Vertex someVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
+            Set<PartOfTrafficGraph> associatedBuildings = model.getPathfinder().findAllConnectedBuildings(someVertex, trafficType);
+            for(PartOfTrafficGraph aB: associatedBuildings){
+                aB.setAssociatedPartOfTraffic(this);
+            }
+        }
+        else {
+            for(Station station : stations){
+                for(Stop stop : station.getComponents()){
+                    stop.setAssociatedPartOfTraffic(this);
+                }
+            }
         }
     }
 
