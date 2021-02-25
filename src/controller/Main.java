@@ -41,7 +41,7 @@ public class Main extends Application {
         JSONParser parser = new JSONParser();
         BasicModel model = new BasicModel();
 
-        if (parser.parse("resources/VitaExMachina/VitaExMachina.json", model)) {
+        if (parser.parse("resources/planverkehr/planverkehr.json", model)) {
 //            model.printModelAttributes();
             View view = new View(stage, model);
             stage.setTitle("Vita Ex Machina");
