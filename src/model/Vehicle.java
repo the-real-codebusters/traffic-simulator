@@ -70,6 +70,7 @@ public class Vehicle {
      */
     public void savePathToNextStation(Vertex startVertex){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
+        System.out.println("pathToNextStation in savePathToNextStation: "+pathToNextStation);
     }
 
     public void updateNextStation() {
