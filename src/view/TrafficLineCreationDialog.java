@@ -152,9 +152,10 @@ public class TrafficLineCreationDialog {
                 String selectionNotPossible = resourceBundle.getString("selectionNotPossible");
                 String oneTrainOfType = resourceBundle.getString("oneTrainOfType");
                 String exactlyOneEngine = resourceBundle.getString("exactlyOneEngine");
-                Alert alert = new Alert(Alert.AlertType.WARNING, selectionNotPossible + " " + oneTrainOfType
+                Alert alert = new Alert(Alert.AlertType.NONE, selectionNotPossible + " " + oneTrainOfType
                         + resourceBundle.getString(TrafficType.RAIL.toString())+ exactlyOneEngine, ButtonType.OK);
                 alert.setTitle(resourceBundle.getString("warning"));
+                alert.setHeaderText(resourceBundle.getString("warning"));
                 alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
                 alert.showAndWait();
             }
