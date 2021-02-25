@@ -41,7 +41,9 @@ public class JSONParser {
         } catch (FileNotFoundException e) {
             String file = resourceBundle.getString("file");
             String notFound = resourceBundle.getString("notFound");
-            showAlert(file + filename + notFound);
+//            showAlert(file + filename + notFound);
+            showAlert(file + notFound);
+
             return false;
         }
         try {
@@ -57,7 +59,8 @@ public class JSONParser {
         catch(JSONException e){
             System.out.println(e.getMessage());
             String hasNoJsonFormat = resourceBundle.getString("hasNoJsonFormat");
-                showAlert(resourceBundle.getString("file") + filename + hasNoJsonFormat);
+//                showAlert(resourceBundle.getString("file") + filename + hasNoJsonFormat);
+            showAlert(resourceBundle.getString("file") + hasNoJsonFormat);
                 return false;
             }
         catch(JSONParserException e){
@@ -78,7 +81,9 @@ public class JSONParser {
             return value;
         }
         catch(JSONException e) {
-            throw new JSONParserException ("no string format for attribute " + name + " defined");
+            String noStringFormat = resourceBundle.getString("noStringFormat");
+            String defined = resourceBundle.getString("defined");
+            throw new JSONParserException (noStringFormat + name + defined);
         }
     }
 
@@ -89,17 +94,21 @@ public class JSONParser {
      */
     private int handleContentAsInteger(JSONObject json, String name, Integer lower, Integer upper) throws JSONParserException{
         try {
+            String attribute = resourceBundle.getString("attribute");
             int value = json.getInt(name);
             if (lower != null && value < lower) {
-                throw new JSONParserException ("attribute " + name + " has invalid lower bound");
+                String hasInvalidLowerBound = resourceBundle.getString("hasInvalidLowerBound");
+                throw new JSONParserException (attribute + name + hasInvalidLowerBound);
             }
             if (upper != null && value > upper) {
-                throw new JSONParserException ("attribute " + name + " has invalid upper bound");
+                String hasInvalidUpperBound = resourceBundle.getString("hasInvalidUpperBound");
+                throw new JSONParserException (attribute + name + hasInvalidUpperBound);
             }
             return value;
         }
         catch(JSONException e) {
-            throw new JSONParserException ("no integer format for attribute " + name + " defined");
+            String noIntegerFormat = resourceBundle.getString("noIntegerFormat");
+            throw new JSONParserException (noIntegerFormat + name + resourceBundle.getString("defined"));
         }
     }
 
@@ -110,17 +119,21 @@ public class JSONParser {
      */
     private double handleContentAsDouble(JSONObject json, String name, Double lower, Double upper) throws JSONParserException{
         try {
+            String attribute = resourceBundle.getString("attribute");
             double value = json.getDouble(name);
             if (lower != null && value < lower) {
-                throw new JSONParserException ("attribute " + name + " has invalid lower bound");
+                String hasInvalidLowerBound = resourceBundle.getString("hasInvalidLowerBound");
+                throw new JSONParserException (attribute + name + hasInvalidLowerBound);
             }
             if (upper != null && value > upper) {
-                throw new JSONParserException ("attribute " + name + " has invalid upper bound");
+                String hasInvalidUpperBound = resourceBundle.getString("hasInvalidUpperBound");
+                throw new JSONParserException (attribute + name + hasInvalidUpperBound);
             }
             return value;
         }
         catch(JSONException e) {
-            throw new JSONParserException ("no double format for attribute " + name + " defined");
+            String noDoubleFormat = resourceBundle.getString("noDoubleFormat");
+            throw new JSONParserException (noDoubleFormat + name + resourceBundle.getString("defined"));
         }
     }
 
@@ -138,7 +151,8 @@ public class JSONParser {
         // Alle Kinder von Map auslesen
         for (int i = 0; i < map.length(); i++) {
             if (!map.has(children[i])) {
-                throw new JSONParserException("Attribute " + children[i] + " for map not found");
+                throw new JSONParserException(resourceBundle.getString("attribute") + children[i]
+                        + resourceBundle.getString("notFound"));
             }
             if ("width".equals(children[i])) {
                 width = handleContentAsInteger(map, children[i], 100, null);
@@ -168,14 +182,16 @@ public class JSONParser {
      */
     private void handleCommoditiesContent(JSONArray array) throws JSONParserException {
         if (array.isEmpty()) {
-            throw new JSONParserException("commoditites are empty ");
+            String commoditiesAreEmpty = resourceBundle.getString("commoditiesAreEmpty");
+            throw new JSONParserException(commoditiesAreEmpty);
         }
         for (int j = 0; j < array.length(); j++) {
             try {
                 commodities.add(array.getString(j));
             }
             catch(JSONException e) {
-                throw new JSONParserException("no string format defined");
+                String noStringFormatDefined = resourceBundle.getString("noStringFormatDefined");
+                throw new JSONParserException(noStringFormatDefined);
             }
         }
         // ausgelesene commodities werden dem model hinzugefügt
@@ -199,8 +215,10 @@ public class JSONParser {
         // Alle Kinder von Vehicles auslesen
         for (int i = 0; i < jsonVehicles.length(); i++) {
             for(int y=0; y<children.length; y++){
+                String forJsonVehicles = resourceBundle.getString("forJsonVehicles");
                 if (!jsonVehicles.has(children[y]) && !children[y].equals("cargo")) {
-                    throw new JSONParserException("Attribute " + children[y] + " for jsonVehicles not found");
+                    throw new JSONParserException(resourceBundle.getString("attribute") + children[y]
+                            + forJsonVehicles + resourceBundle.getString("notFound"));
                 }
 
                 if ("speed".equals(children[y])) {
@@ -220,7 +238,7 @@ public class JSONParser {
                     else if(kind.equals("plane")){
                         vehicle.setTrafficType(TrafficType.AIR);
                     }
-                    else throw new JSONParserException("Ein Fahrzeug in der JSON-Datei hat einen anderen Typ als road vehicle, wagon, engine oder plane");
+                    else throw new JSONParserException(resourceBundle.getString("invalidVehicleKind"));
                 } else if ("graphic".equals(children[y])) {
                     vehicle.setGraphic(handleContentAsString(jsonVehicles, children[y]));
                 }
@@ -252,19 +270,19 @@ public class JSONParser {
             JSONArray array = (JSONArray) cargo;
 
             if (array.isEmpty()) {
-                throw new JSONParserException(name + " is empty ");
+                throw new JSONParserException(name + resourceBundle.getString("isEmpty"));
             }
             for (int i = 0; i < array.length(); i++) {
                 try {
                     JSONObject cargoDetails = array.getJSONObject(i);
                     handleCargoData(cargoDetails, name, cargoMaxima);
                 } catch (JSONException e) {
-                    throw new JSONParserException("no string format defined");
+                    throw new JSONParserException(resourceBundle.getString("noStringFormatDefined"));
                 }
             }
         }
         else {
-            throw new JSONParserException(name + " has invalid format ");
+            throw new JSONParserException(name + resourceBundle.getString("hasInvalidFormat"));
         }
 
         Storage storage = new Storage(cargoMaxima);
