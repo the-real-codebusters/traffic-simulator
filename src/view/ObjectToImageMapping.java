@@ -365,7 +365,7 @@ public class ObjectToImageMapping {
         mapping.put("road-ne-se", "road/flat/road_ne_se");
         mapping.put("road-ne-sw", "road/flat/road_ne_sw");
         mapping.put("road-nw-se-sw", "road/flat/road_nw_se_sw");
-//        mapping.put("road-nw-se", "road/flat/road_nw_se");
+        mapping.put("road-nw-se", "road/flat/road_nw_se");
         mapping.put("road-nw-sw", "road/flat/road_nw_sw");
         mapping.put("road-se-sw", "road/flat/road_se_sw");
 
