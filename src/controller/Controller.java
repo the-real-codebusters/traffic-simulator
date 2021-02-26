@@ -157,19 +157,27 @@ public class Controller {
 
             // Wenn ein Gebäude entfernt werden soll
             if(selectedBuilding.getBuildingName().equals("remove")){
-                selectedBuilding = new Building();
-                selectedBuilding.setBuildingName("ground");
-                selectedBuilding.setWidth(1);
-                selectedBuilding.setDepth(1);
-
                 Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
                 Building buildingOnSelectedTile = selectedTile.getBuilding();
+                int endRow = buildingOnSelectedTile.getOriginRow() + buildingOnSelectedTile.getWidth();
+                int endColumn = buildingOnSelectedTile.getOriginColumn() + buildingOnSelectedTile.getDepth();
+                for(int row = buildingOnSelectedTile.getOriginRow(); row < endRow; row++){
+                    for(int column = buildingOnSelectedTile.getOriginColumn(); column < endColumn; column++){
+                        selectedBuilding = new Building();
+                        selectedBuilding.setBuildingName("ground");
+                        selectedBuilding.setWidth(1);
+                        selectedBuilding.setDepth(1);
+                        model.getMap().placeBuilding(row, column, selectedBuilding);
+                    }
+                }
+
 
                 // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
                 if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
 
                     model.getMap().removePointsOnTile(buildingOnSelectedTile, xCoord, yCoord);
                 }
+                return;
             }
 
             if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
@@ -182,18 +190,15 @@ public class Controller {
                 model.getMap().changeGroundHeight(xCoord, yCoord, -1);
             }
 
-
-
-            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail) {
+            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail
+                || selectedBuilding instanceof JustCombines) {
                 selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
             }
+
 
             if(selectedBuilding != null) {
                 Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
             }
-
-            // Suchen, ob andere Station durch Graph findbar. Wenn ja, dann hinzufügen zu existierender Verkehrslinie
-            // Wenn nein, dann neu erstellen
 
             view.drawMap();
             if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {
@@ -262,10 +267,20 @@ public class Controller {
 
     public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
+
+        if (trafficType == TrafficType.AIR) {
+            
+         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
+        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
+            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+            model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
+        }
+        else {
         List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
         clearPlannedTrafficLine();
+        }
     }
 
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {

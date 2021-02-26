@@ -18,12 +18,14 @@ public class TrafficGraph {
      * Fügt den Knoten zum Graph hinzu
      * @param vertex
      */
-    public void addVertex(Vertex vertex) {
+    public boolean addVertex(Vertex vertex) {
         String name = vertex.getName();
         if (!adjacencyMap.containsKey(name)) {
             adjacencyMap.put(name, new ArrayList<>());
             mapOfVertexes.put(name, vertex);
+            return true;
         }
+        else return false;
     }
 
     /**
@@ -35,6 +37,8 @@ public class TrafficGraph {
         adjacencyMap.values().stream().forEach(adjajencyList -> adjajencyList.remove(vertex));
         adjacencyMap.remove(nameOfVertex);
         mapOfVertexes.remove(nameOfVertex);
+
+        System.out.println("Vertex "+nameOfVertex+" removed");
     }
 
 
@@ -96,6 +100,15 @@ public class TrafficGraph {
         if (connectionsOfVertex2 != null) connectionsOfVertex2.remove(vertex1);
     }
 
+    public boolean hasBidirectionalEdge(String nameOfVertex1, String nameOfVertex2){
+        Vertex vertex2 = mapOfVertexes.get(nameOfVertex2);
+
+        boolean hasEdge = adjacencyMap.get(nameOfVertex1).contains(vertex2);
+
+        System.out.println("hasEdge between "+nameOfVertex1+" and "+nameOfVertex2+" was "+hasEdge);
+        return hasEdge;
+    }
+
 
     /**
      * Fügt zwei Knoten zusammen. Die ausgehenden und eingehenden Kanten von vertex2 werden vertex1 hinzugefügt.
@@ -105,6 +118,7 @@ public class TrafficGraph {
      */
     public Vertex joinVertices(Vertex vertex1, Vertex vertex2) {
 
+        System.out.println("join Vertices called");
         List<Vertex> connectionsFromVertex2 = adjacencyMap.get(vertex2.getName());
 
         // Ausgehende Kanten von vertex2 werden zu vertex1 hinzugefügt

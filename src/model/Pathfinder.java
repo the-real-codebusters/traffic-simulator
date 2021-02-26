@@ -26,19 +26,7 @@ public class Pathfinder {
      * @return Liste des Wegs vom Startknoten zum Zielknoten, inklusive des Startknotens
      */
     public List<Vertex> findPathToNextStation(Station actualStation, TrafficType type){
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-//        else if(type.equals(TrafficType.AIR)){
-//            graph = airGraph;
-//        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
@@ -138,19 +126,7 @@ public class Pathfinder {
      */
     public List<Station> findAllDirectlyConnectedStations(Station actualStation, TrafficType type){
 
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-//        else if(type.equals(TrafficType.AIR)){
-//            graph = airGraph;
-//        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
@@ -218,16 +194,7 @@ public class Pathfinder {
      */
     public Set<PartOfTrafficGraph> findAllConnectedBuildings(Vertex startVertex, TrafficType type){
 
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
@@ -256,9 +223,9 @@ public class Pathfinder {
             searchLevel = currentNode.getActualSearchLevel();
 
             //Wenn if-Bedingung erfüllt ist, dann haben wir ein Ziel gefunden
-            if (currentNode != null && currentNode.getBuilding() != null) {
+            if (currentNode != null && currentNode.getBuildings().size() > 0) {
 
-                foundBuildings.add(currentNode.getBuilding());
+                foundBuildings.addAll(currentNode.getBuildings());
             }
             // Wenn wir in den else-Teil gehen, haben wir noch kein Ziel gefunden
                 // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
@@ -292,16 +259,7 @@ public class Pathfinder {
      */
     public List<Station> findAllDirectlyConnectedStations(Vertex startVertex, TrafficType type){
 
-        TrafficGraph graph;
-        if(type.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(type.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(type);
 
         //TODO Mit anderer Methode findAllDirectlyConnectedStations mergen?
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
@@ -371,6 +329,138 @@ public class Pathfinder {
         return foundStations;
     }
 
+    public Set<Vertex> findAllConnectedVerticesUntilSignal(Vertex startVertex, Rail startSignal){
+
+        TrafficGraph graph = railGraph;
+        Set<Vertex> foundVertices = new HashSet<>();
+
+        // Ebene der Breitensuche in dem Graph. Dies sollte auch der Entfernung zum Startknoten entsprechen
+        int searchLevel = 0;
+        startVertex.setActualSearchLevel(0);
+
+        Queue<Vertex> queue = new ArrayDeque<>();
+        queue.add(startVertex);
+
+        // Knoten die schon in der Suche besucht wurden
+        List<Vertex> alreadyVisited = new ArrayList<Vertex>();
+        alreadyVisited.add(startVertex);
+
+        // Child, Parent
+        // Speichert den Parent eines Knotens, von dem die Breitensuche zu diesem Knoten gelangt ist
+        Map<Vertex, Vertex> parentNodes = new HashMap<Vertex, Vertex>();
+
+        Vertex currentNode;
+
+        // Die Queue ist leer, wenn kein Zielknoten gefunden wurde
+        while (!queue.isEmpty()) {
+            currentNode = queue.remove();
+            searchLevel = currentNode.getActualSearchLevel();
+
+            foundVertices.add(currentNode);
+
+            //Wenn if-Bedingung erfüllt ist, dann haben wir ein Ziel gefunden
+            boolean signalAndNotStartSignal = false;
+            for(PartOfTrafficGraph building : currentNode.getBuildings()){
+                if(building instanceof Rail){
+                    Rail rail = (Rail) building;
+                    if((rail).isSignal() && !rail.equals(startSignal)){
+                        signalAndNotStartSignal = true;
+                    }
+                }
+            }
+
+            if (signalAndNotStartSignal) {
+                return foundVertices;
+            }
+            // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
+            List<Vertex> childs = new ArrayList<>();
+            childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
+
+            // Entferne alle bereits gesuchten Knoten aus den childs
+            childs.removeAll(alreadyVisited);
+
+            // Füge alle noch übrigen childs zu den bereits beuschten Knoten hinzu. Ist für nächste Durchlaufe
+            // der Schleife wichtig
+            alreadyVisited.addAll(childs);
+
+            int searchLevelOfChild = searchLevel + 1;
+            for (Vertex child : childs) {
+                child.setActualSearchLevel(searchLevelOfChild);
+            }
+
+            // Füge die übrigen Knoten der Queue hinzu
+            queue.addAll(childs);
+        }
+
+        return foundVertices;
+    }
+
+    public Set<Vertex> findAllConnectedVerticesUntilSignal(Vertex startVertex){
+
+        TrafficGraph graph = railGraph;
+        Set<Vertex> foundVertices = new HashSet<>();
+
+        // Ebene der Breitensuche in dem Graph. Dies sollte auch der Entfernung zum Startknoten entsprechen
+        int searchLevel = 0;
+        startVertex.setActualSearchLevel(0);
+
+        Queue<Vertex> queue = new ArrayDeque<>();
+        queue.add(startVertex);
+
+        // Knoten die schon in der Suche besucht wurden
+        List<Vertex> alreadyVisited = new ArrayList<Vertex>();
+        alreadyVisited.add(startVertex);
+
+        // Child, Parent
+        // Speichert den Parent eines Knotens, von dem die Breitensuche zu diesem Knoten gelangt ist
+        Map<Vertex, Vertex> parentNodes = new HashMap<Vertex, Vertex>();
+
+        Vertex currentNode;
+
+        // Die Queue ist leer, wenn kein Zielknoten gefunden wurde
+        while (!queue.isEmpty()) {
+            currentNode = queue.remove();
+            searchLevel = currentNode.getActualSearchLevel();
+
+            foundVertices.add(currentNode);
+
+            //Wenn if-Bedingung erfüllt ist, dann haben wir ein Ziel gefunden
+            boolean signal = false;
+            for(PartOfTrafficGraph building : currentNode.getBuildings()){
+                if(building instanceof Rail){
+                    if(((Rail) building).isSignal()){
+                        //Dann ist das Building ein Railsignal
+                        signal = true;
+                    }
+                }
+            }
+
+            if (signal) {
+                return foundVertices;
+            }
+            // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
+            List<Vertex> childs = new ArrayList<>();
+            childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
+
+            // Entferne alle bereits gesuchten Knoten aus den childs
+            childs.removeAll(alreadyVisited);
+
+            // Füge alle noch übrigen childs zu den bereits beuschten Knoten hinzu. Ist für nächste Durchlaufe
+            // der Schleife wichtig
+            alreadyVisited.addAll(childs);
+
+            int searchLevelOfChild = searchLevel + 1;
+            for (Vertex child : childs) {
+                child.setActualSearchLevel(searchLevelOfChild);
+            }
+
+            // Füge die übrigen Knoten der Queue hinzu
+            queue.addAll(childs);
+        }
+
+        return foundVertices;
+    }
+
 
     /**
      * Sucht sich einen Weg vom Startknoten zu der angegebenen Station
@@ -379,16 +469,7 @@ public class Pathfinder {
      */
     public List<Vertex> findPathToDesiredStation(Station desiredStation, Vertex startVertex, TrafficType trafficType){
 
-        TrafficGraph graph;
-        if(trafficType.equals(TrafficType.ROAD)){
-            graph = roadGraph;
-        }
-        else if(trafficType.equals(TrafficType.RAIL)){
-            graph = railGraph;
-        }
-        else {
-            throw new IllegalArgumentException("Unfertiger Code");
-        }
+        TrafficGraph graph = getGraphForTrafficType(trafficType);
 
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
@@ -478,6 +559,20 @@ public class Pathfinder {
         }
         // Wenn kein Pfand gefunden, return leere Liste
         return new ArrayList<Vertex>();
+    }
+
+    public TrafficGraph getGraphForTrafficType(TrafficType trafficType){
+        TrafficGraph graph;
+        if(trafficType.equals(TrafficType.ROAD)){
+            graph = roadGraph;
+        }
+        else if(trafficType.equals(TrafficType.RAIL)){
+            graph = railGraph;
+        }
+        else {
+            throw new IllegalArgumentException("Unfertiger Code");
+        }
+        return graph;
     }
 
 

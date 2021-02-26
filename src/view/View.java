@@ -22,10 +22,14 @@ import javafx.util.Pair;
 import model.*;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 
 public class View {
+
     private Stage stage;
 
     private double tileImageWidth = 128;
@@ -44,13 +48,9 @@ public class View {
 
 
     Screen screen = Screen.getPrimary();
-    Rectangle2D bounds = screen.getVisualBounds();
+    Rectangle2D screenBounds = screen.getVisualBounds();
 
-    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-
-    //    private Canvas canvas = new Canvas(bounds.getWidth(), bounds.getHeight()-210);
-    private Canvas canvas = new Canvas(1200, 550);
+    private Canvas canvas = new Canvas(900, 450);
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -81,6 +81,11 @@ public class View {
 
     private Map<List<Point2D>, Point2D> rowColToCanvasCoordinates = new LinkedHashMap<>();
 
+    // factory labels
+    private Label factoryNameLabel;
+    private Label productionLabel;
+    private Label consumptionLabel;
+
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
         objectToImageMapping = new ObjectToImageMapping(model.getGamemode());
@@ -99,7 +104,7 @@ public class View {
         borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel, cornerLabel);
         borderPane.setCenter(canvas);
-        borderPane.setPrefSize(1200, 750);
+//        borderPane.setPrefSize(1200, 750);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel, cornerLabel);
@@ -107,10 +112,17 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-        stage.setX((screenBounds.getWidth() - 1200) / 2);
-        stage.setY((screenBounds.getHeight() - 750) / 2);
+//        stage.setX((screenBounds.getWidth() - 1200) / 2);
+//        stage.setY((screenBounds.getHeight() - 750) / 2);
 //        stage.setY(0);
         this.stage.setScene(new Scene(borderPane));
+    }
+
+
+    public void setFactoryLabels(Label factoryNameLabel, Label productionLabel, Label consumptionLabel){
+        this.factoryNameLabel = factoryNameLabel;
+        this.productionLabel = productionLabel;
+        this.consumptionLabel = consumptionLabel;
     }
 
     public void generateMenuPane(Controller controller){
@@ -122,16 +134,36 @@ public class View {
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
-            zoomFactor = Math.exp(scrollDelta * 0.01);
-            tileImageWidth = tileImageWidth * zoomFactor;
-            tileImageHeight = tileImageHeight * zoomFactor;
+            double zoomFactor = Math.exp(scrollDelta * 0.01);
 
-            tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
-            tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+            if ((tileImageWidth > 2 && tileImageHeight > 2 && scrollDelta < 0) || (scrollDelta >= 0 && tileImageWidth < canvasCenterWidth*2)) {
 
-            heightOffset = heightOffset * zoomFactor;
+                Point2D currentIsoCoord = findTileCoord(scrollEvent.getX(), scrollEvent.getY());
 
-            drawMap();
+                if(currentIsoCoord != null) {
+                    double abstandX = (currentIsoCoord.getX() - mapWidth / 2) * (zoomFactor - 1);
+                    double abstandY = (currentIsoCoord.getY() - mapDepth / 2) * (zoomFactor - 1);
+                    double xVerschiebung = abstandX * tileImageWidthHalf;
+                    double yVerschiebung = abstandX * tileImageHeightHalf;
+                    xVerschiebung += abstandY * tileImageWidthHalf;
+                    yVerschiebung -= abstandY * tileImageHeightHalf;
+
+
+                    tileImageWidth = tileImageWidth * zoomFactor;
+                    tileImageHeight = tileImageHeight * zoomFactor;
+
+                    tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
+                    tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
+
+                    heightOffset = heightOffset * zoomFactor;
+
+                    // verschiebt indirekt den Mittelpunkt und damit das ganze Spielfeld
+                    cameraOffsetX += xVerschiebung;
+                    cameraOffsetY += yVerschiebung;
+
+                }
+                drawMap();
+            }
 
         });
     }
@@ -649,6 +681,7 @@ public class View {
                     }
                 }
             name = objectToImageMapping.getImageNameForObjectName(buildingName);
+//                System.out.println("buildingname: " + buildingName);
         }
         double ratio = 0;
         if(name != null && imageNameToImageRatio.containsKey(name)){
@@ -658,7 +691,7 @@ public class View {
         }
         else {
             // Sollte nie aufgerufen werden
-            throw new RuntimeException("invalid building name");
+            throw new RuntimeException("invalid building name "+name);
         }
     }
 
@@ -743,6 +776,31 @@ public class View {
 
                 Map<String, Integer> cornerHeights;
                 Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
+
+                Building building = tile.getBuilding();
+                if (building instanceof Factory) {
+                    Factory factory = (Factory) building;
+                    // System.out.println("building = " + factory);
+                    factoryNameLabel.setText("factory name: " + factory.getBuildingName());
+                    StringBuilder production = new StringBuilder();
+                    for(Map.Entry<String, Integer> entry : factory.getProduce().entrySet()){
+                        production.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+                    }
+                    if(production.toString().equals("")) {
+                        production = new StringBuilder("nothing");
+                    }
+                    productionLabel.setText("production: " + production);
+                    StringBuilder consumption = new StringBuilder();
+                    for(Map.Entry<String, Integer> entry : factory.getConsume().entrySet()){
+                        consumption.append(entry.getKey()).append("  ");
+                    }
+                    if(consumption.toString().equals("")) {
+                        consumption = new StringBuilder("nothing");
+                    }
+                    consumptionLabel.setText("consumption: " + consumption);
+
+                }
+
                 cornerHeights = tile.getCornerHeights();
                 cornerLabel.setText("   " + cornerHeights.toString());
             } else {
@@ -778,12 +836,13 @@ public class View {
         }
 
         String gamemode = controller.getGamemode();
-        Image image = new Image(
-                "/" + gamemode + "/" + imageName + ".png",
-                widthAsInt,
-                heightAsInt,
-                false,
-                true);
+        Image image = null;
+        image = new Image(
+                    "/" + gamemode + "/" + imageName + ".png",
+                    widthAsInt,
+                    heightAsInt,
+                    false,
+                    true);
         imageCache.put(imageName + widthAsInt + heightAsInt, image);
         return image;
     }
@@ -799,9 +858,12 @@ public class View {
         if (cachedImage != null) {
             return cachedImage;
         }
-
         String gamemode = controller.getGamemode();
-        Image image = new Image("/" + gamemode + "/" + imageName + ".png");
+        String url = "/" + gamemode + "/" + imageName + ".png";
+
+        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+        Image image = null;
+        image  = new Image(url);
         imageCache.put(imageName + "raw", image);
         return image;
     }
@@ -854,6 +916,7 @@ public class View {
 
 
         List<VehicleAnimation> animations = new ArrayList<>();
+        boolean clearOnFinished = false;
         for(VehicleMovement movement : movements){
             Point2D startPosition = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
             Point2D endPosition;
@@ -862,6 +925,9 @@ public class View {
             }
             else {
                 endPosition = startPosition;
+            }
+            if(movement.isLastMovementBeforeRemove()){
+                clearOnFinished = true;
             }
             //Prüfe ob Bewegung auf Canvas
             if((endPosition.getX() < 0 || endPosition.getX() > canvas.getWidth() || endPosition.getY() < 0 || endPosition.getY() > canvas.getHeight())
@@ -988,7 +1054,7 @@ public class View {
                                 animation.getyCoordProperty().doubleValue()+yShift+directionShift[1]);
                     }
                 }
-                System.out.println(handleCalls);
+//                System.out.println(handleCalls);
             }
         };
         // Die parallelTransition sorgt für eine gleichzeitige Ausführung der Animationen. Dazu werden ihr alle timlines
@@ -998,9 +1064,14 @@ public class View {
             parallelTransition.getChildren().add(animation.getTimeline());
         }
         getMenuPane().getAnimationButton().setDisable(false);
+        boolean finalClearOnFinished = clearOnFinished;
         parallelTransition.setOnFinished(event -> {
             parallelTransition.stop();
             timer.stop();
+
+            if(finalClearOnFinished){
+                drawMap();
+            }
 
             //Rufe simulateOneDay auf, wenn Animation vorbei. Dadurch entsteht ein Kreislauf, da simulateOneDay dann
             //wieder translateVehicles aufruft.

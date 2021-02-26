@@ -18,6 +18,7 @@ public class VehicleMovement {
     private String vehicleName;
     private boolean wait;
     private TrafficType trafficType;
+    boolean lastMovementBeforeRemove = false;
 
 
     public VehicleMovement(PositionOnTilemap startPosition, String vehicleName, boolean wait, TrafficType trafficType) {
@@ -150,5 +151,13 @@ public class VehicleMovement {
 
     public TrafficType getTrafficType() {
         return trafficType;
+    }
+
+    public boolean isLastMovementBeforeRemove() {
+        return lastMovementBeforeRemove;
+    }
+
+    public void setLastMovementBeforeRemove(boolean lastMovementBeforeRemove) {
+        this.lastMovementBeforeRemove = lastMovementBeforeRemove;
     }
 }

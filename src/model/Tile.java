@@ -14,7 +14,6 @@ public class Tile {
     public Tile(Building building, Map<String, Integer> cornerHeights, boolean isWater) {
         this.building = building;
         this.cornerHeights = cornerHeights;
-        this.building = building;
         this.isWater = isWater;
     }
 
@@ -102,7 +101,6 @@ public class Tile {
         return minHeight;
     }
 
-
     public Building getBuilding() {
         return building;
     }
@@ -143,4 +141,6 @@ public class Tile {
     public boolean isWater() {
         return isWater;
     }
+
+
 }

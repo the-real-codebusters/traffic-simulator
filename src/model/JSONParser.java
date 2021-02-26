@@ -617,20 +617,20 @@ public class JSONParser {
         return factory;
     }
 
-    private Rail handleJustCombinesContent(JSONObject json) throws JSONParserException {
-        Rail rail = new Rail();
+    private JustCombines handleJustCombinesContent(JSONObject json) throws JSONParserException {
+        JustCombines justCombines = new JustCombines();
 
         String buildmenu = handleContentAsString(json, "buildmenu");
-        rail.setBuildmenu(buildmenu);
+        justCombines.setBuildmenu(buildmenu);
 
         Map<String, String> combinesMap = new HashMap<>();
         if (json.has("combines")) {
             combinesMap = handleBuildMenuCombines(json.getJSONObject("combines"));
         }
-        rail.setCombines(combinesMap);
+        justCombines.setCombines(combinesMap);
 
 
-        return rail;
+        return justCombines;
     }
     private Nature handleNatureContent(JSONObject json) throws JSONParserException {
         Nature nature = new Nature();
@@ -692,7 +692,7 @@ public class JSONParser {
                 case "taxiway": specialObject = handleStopContent(buildingsDetails, "planes"); break;
                 case "runway": specialObject = handleRunwayContent(buildingsDetails); break;
                 case "nature": specialObject = handleNatureContent(buildingsDetails); break;
-                case "justcombines": return handleJustCombinesContent(buildingsDetails);
+                case "justcombines": specialObject = handleJustCombinesContent(buildingsDetails); break;
                 case "factory": specialObject = handleFactoryContent(buildingsDetails); break;
                 case "busstop": specialObject = handleStopContent(buildingsDetails, "roads"); break;
                 default:

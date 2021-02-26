@@ -1,6 +1,9 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Vertex extends PositionOnTilemap {
     // TODO: bei Einlesen aus JSON sollte sichergestellt werden, dass Name unique ist
@@ -10,16 +13,28 @@ public class Vertex extends PositionOnTilemap {
     private boolean isPointOfStation = false;
 
     private Station station = null;
+    private Railblock railblock = null;
 
     // Liste von Bauwerken, zu denen der Punkt gehört
     // Wenn ein Punkt zu einer Haltestelle gehört, darf ein Fahrzeug darauf anhalten
 //    private List<Building> buildings
 
-    private PartOfTrafficGraph building;
+    private Set<PartOfTrafficGraph> buildings = new HashSet<>();
     private int actualSearchLevel;
+    // Knotennamen (sw, r0, ...)
+    private String direction;
 
     public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
-        int xCoordinateInGameMap, int yCoordinateInGameMap) {
+        int xCoordinateInGameMap, int yCoordinateInGameMap, String direction) {
+
+        super(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin, xCoordinateInGameMap,
+                yCoordinateInGameMap);
+        this.name = name;
+        this.direction = direction;
+    }
+
+    public Vertex(String name, double xCoordinateRelativeToTileOrigin, double yCoordinateRelativeToTileOrigin,
+                  int xCoordinateInGameMap, int yCoordinateInGameMap) {
 
         super(xCoordinateRelativeToTileOrigin, yCoordinateRelativeToTileOrigin, xCoordinateInGameMap,
                 yCoordinateInGameMap);
@@ -54,12 +69,28 @@ public class Vertex extends PositionOnTilemap {
         this.station = station;
     }
 
-    public PartOfTrafficGraph getBuilding() {
-        return building;
+    public Set<PartOfTrafficGraph> getBuildings() {
+        return buildings;
     }
 
-    public void setBuilding(PartOfTrafficGraph building) {
-        this.building = building;
+    public Railblock getRailblock() {
+        return railblock;
+    }
+
+    public void setRailblock(Railblock railblock) {
+        this.railblock = railblock;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public boolean isFirst() {
+        return direction.equals("r0");
+    }
+
+    public boolean isLast() {
+        return direction.equals("se");
     }
 
     @Override

@@ -3,7 +3,6 @@ package view;
 import controller.Controller;
 import javafx.animation.ParallelTransition;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -41,6 +40,7 @@ public class MenuPane extends AnchorPane {
     private MouseEvent hoveredEvent;
     private int result;
     private HBox trafficPartTabContent;
+    private VBox factoryTabContent;
 
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
@@ -79,6 +79,8 @@ public class MenuPane extends AnchorPane {
         }
         createTrafficpartTab();
 
+        createFactoryTab();
+
     }
 
     private void createTrafficpartTab(){
@@ -89,6 +91,30 @@ public class MenuPane extends AnchorPane {
         tabContents.add(box);
         addTab(trafficPart, box, false);
         trafficPartTabContent = box;
+    }
+
+    private void createFactoryTab() {
+        String name = "factory";
+        VBox box = new VBox(10);
+        box.setPrefHeight(120);
+        box.setPadding(new Insets(5, 20, 5, 20));
+        tabNames.add(name);
+        tabContents.add(box);
+        addTab(name, box, false);
+        factoryTabContent = box;
+        Label factoryNameLabel = new Label();
+        Label productionLabel = new Label();
+        Label consumptionLabel = new Label();
+        factoryNameLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(factoryNameLabel);
+        productionLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(productionLabel);
+        consumptionLabel.setFont(new Font("Arial", 15));
+        box.getChildren().add(consumptionLabel);
+        factoryNameLabel.setText("factory name: not selected");
+        productionLabel.setText("production: nothing");
+        consumptionLabel.setText("consumption: nothing");
+        view.setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
     }
 
     /**
@@ -391,7 +417,7 @@ public class MenuPane extends AnchorPane {
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent e)
                     {
-                        showTrafficLineDialog();
+                        showTrafficLineDialog(part.getTrafficType());
                     }
                 };
         newTrafficLine.setOnAction(event);
@@ -460,19 +486,10 @@ public class MenuPane extends AnchorPane {
         });
     }
 
-    private void showTrafficLineDialog(){
+    private void showTrafficLineDialog(TrafficType trafficType){
 
         selectTrafficLineStationsMode = true;
-
-
-        ChoiceDialog<TrafficType> trafficLineChoice = new ChoiceDialog<TrafficType>(TrafficType.ROAD, TrafficType.values());
-        trafficLineChoice.setHeaderText("Traffic Type");
-        trafficLineChoice.setContentText("Set the Traffic Type of the new Traffic Line");
-        trafficLineChoice.showAndWait();
-        if(!trafficLineChoice.getSelectedItem().equals(TrafficType.NONE)){
-            // create a popup
-            trafficLinePopup = new TrafficLinePopup(view, trafficLineChoice.getSelectedItem());
-        }
+        trafficLinePopup = new TrafficLinePopup(view, trafficType);
     }
 
     public void setController(Controller controller) {

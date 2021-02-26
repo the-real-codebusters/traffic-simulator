@@ -30,6 +30,8 @@ public class Vehicle {
 
     protected String kind;
 
+    private long id;
+
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
      * @return
@@ -51,6 +53,21 @@ public class Vehicle {
      * Speichert den Weg zur nächsten Station ab
      * @param startVertex
      */
+    public void savePathToNextStationAndUpdateMovement(Vertex startVertex, VehicleMovement movement){
+        pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
+        if(pathToNextStation.size() == 0){
+            System.out.println("Kein neuer Weg gefunden");
+            //Kein Weg gefunden
+            TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+            line.getVehicles().remove(this);
+            movement.setLastMovementBeforeRemove(true);
+        }
+    }
+
+    /**
+     * Speichert den Weg zur nächsten Station ab
+     * @param startVertex
+     */
     public void savePathToNextStation(Vertex startVertex){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
     }
@@ -66,6 +83,7 @@ public class Vehicle {
      * @return Ein VehicleMovement Objekt
      */
     public VehicleMovement getMovementForNextDay(){
+
         pathToNextStationBeforeMovement = new ArrayList<>(pathToNextStation);
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
         double wayToGo = speed;
@@ -79,6 +97,24 @@ public class Vehicle {
         while(wayToGo > 0 && pathToNextStation.size() > 0){
             Vertex nextVertex = pathToNextStation.remove(0);
             //TODO Was wenn letzter Knoten aus pathToNextStation erreicht? Am Ziel?
+
+            //Teste, ob Knoten noch im Graph. Teste außerdem, ob Knoten noch eine Verbindung zum nächsten Knoten hat
+            // Wenn nicht wurde Straße/Schiene verändert
+            TrafficGraph graph = pathfinder.getGraphForTrafficType(trafficType);
+            boolean vertexContained = graph.getMapOfVertexes().containsValue(nextVertex);
+            boolean hasEdge = true;
+            if(vertexContained && pathToNextStation.size() > 0){
+                Vertex firstElementInPathToNextStation = pathToNextStation.remove(0);
+                hasEdge = graph.hasBidirectionalEdge(nextVertex.getName(), firstElementInPathToNextStation.getName());
+                pathToNextStation.add(0, firstElementInPathToNextStation);
+            }
+            if(!vertexContained || !hasEdge){
+                System.out.println("Fehlende Straße/Schiene entdeckt");
+                savePathToNextStationAndUpdateMovement(pathToNextStationBeforeMovement.get(0), vehicleMovement);
+                return vehicleMovement;
+            }
+
+
             distanceToNextVertex = currentPosition.getDistanceToPosition(nextVertex);
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
@@ -98,7 +134,7 @@ public class Vehicle {
         if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
-            savePathToNextStation((Vertex) currentPosition);
+            savePathToNextStationAndUpdateMovement((Vertex) currentPosition, vehicleMovement);
             System.out.println("Movement after method at last vertex to next station: ");
             for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
                 System.out.println(p.coordsRelativeToMapOrigin());

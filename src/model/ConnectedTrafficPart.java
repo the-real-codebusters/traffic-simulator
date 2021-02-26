@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +20,16 @@ public class ConnectedTrafficPart {
         this.trafficType = trafficType;
         stations.add(firstStation);
         setAssociatedTrafficPartInEveryBuilding();
+        if(trafficType.equals(TrafficType.RAIL)){
+            Vertex oneVertexOfRailblock = firstStation.getComponents().get(0).getVertices().iterator().next();
+            Set<Vertex> verticesOfRailblock = model.getPathfinder().findAllConnectedVerticesUntilSignal(oneVertexOfRailblock);
+
+            System.out.println("verticesOfRailblock in ConnectedTrafficPart: ");
+            verticesOfRailblock.forEach((x) -> System.out.println(x.getName()));
+
+            Railblock railblock = new Railblock();
+            railblock.addVertices(verticesOfRailblock);
+        }
     }
 
     public boolean checkIfMoreThanOneStation(){
