@@ -506,6 +506,9 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
         mapping.put("road-nw0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
         mapping.put("road-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
+
+        mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
+        mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
     }
 
     public Collection<String> getImageNames(){

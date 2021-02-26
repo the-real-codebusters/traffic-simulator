@@ -47,7 +47,8 @@ public class Main extends Application {
         Locale locale = new Locale("de", "DE");
         ResourceBundle resourceBundle = ResourceBundle.getBundle("Bundle", locale);
 
-        if (parser.parse("resources/planverkehr/planverkehr.json", model, resourceBundle)) {
+//        if (parser.parse("resources/planverkehr/planverkehr.json", model, resourceBundle)) {
+        if (parser.parse("resources/VitaExMachina/VitaExMachina.json", model, resourceBundle)) {
 
 //            model.printModelAttributes();
             View view = new View(stage, model);
