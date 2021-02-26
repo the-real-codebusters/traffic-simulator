@@ -499,11 +499,27 @@ public class Pathfinder {
 
             System.out.println("currentNode in findPathToDesiredStation"+ currentNode.getName());
 
+            boolean airAndTerminalOrNotAir = false;
+            if(trafficType.equals(TrafficType.AIR)){
+                for(PartOfTrafficGraph building: currentNode.getBuildings()){
+                    if(building instanceof Special && ((Special) building).getSpecial().equals("terminal")){
+                        airAndTerminalOrNotAir = true;
+                        break;
+                    }
+                }
+            }
+            else {
+                airAndTerminalOrNotAir = true;
+            }
+
+            System.out.println("airAndTerminalOrNotAir "+airAndTerminalOrNotAir);
+
+
             //Wenn if-Bedingung erfüllt ist, dann haben wir das Ziel gefunden
-            if (currentNode != null && currentNode.isPointOfStation() && currentNode.getStation() == desiredStation) {
+            if (currentNode != null && currentNode.isPointOfStation() && currentNode.getStation() == desiredStation && airAndTerminalOrNotAir) {
 
                 System.out.println("if-Bedingung in findPathToDesiredStation was true. currentNode station "+currentNode.getStation().getId() +
-                        "desiredStation "+desiredStation);
+                        "desiredStation "+desiredStation.getId());
                 // Füge Zielknoten zu Weg hinzu
                 path.add(currentNode);
 

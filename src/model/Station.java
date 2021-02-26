@@ -37,6 +37,8 @@ public class Station {
     private Vertex first;
     private Vertex last;
 
+    private Stop terminal;
+
     // Flugzeuge, die eine Landebahn nicht anfliegen duerfen, weil diese belegt ist
     private Queue<VehicleMovement> airPlanesWaiting = new ArrayDeque<>();
 
@@ -172,6 +174,9 @@ public class Station {
                 int maxplanes = ((Tower) building).getMaxplanes();
                 if(maxplanes > this.maxPlanes) this.maxPlanes = maxplanes;
             }
+            else if(building.getSpecial().equals("terminal")){
+                terminal = building;
+            }
             updateDirectlyConnectedStations(TrafficType.AIR);
         }
 
@@ -227,6 +232,10 @@ public class Station {
         if(trafficType.equals(TrafficType.AIR)) airTrafficPart = trafficPart;
         else if(trafficType.equals(TrafficType.ROAD)) roadTrafficPart = trafficPart;
         else if (trafficType.equals(TrafficType.RAIL)) railTrafficPart = trafficPart;
+    }
+
+    public Stop getTerminal() {
+        return terminal;
     }
 
     //Die Methoden equals() und hashCode() gehen davon aus, dass die id einer Station unique ist
