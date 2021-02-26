@@ -61,6 +61,7 @@ public class MapModel {
         //Variable, die anzeigt ob eine neue Station kreirt wird / wurde
         boolean createdNewStation = false;
         Station station = null;
+        boolean worked = true;
 
         if (instance instanceof Stop) {
             //Sucht, ob direkt daneben eine existierende Station steht und verbindet sich in dem Fall damit.
@@ -89,7 +90,7 @@ public class MapModel {
                 nearFactory.getNearStations().add(station);
             }
 
-            station.addBuildingAndSetStationInBuilding((Stop) instance, nextStation == null);
+            worked = station.addBuildingAndSetStationInBuilding((Stop) instance, nextStation == null);
             System.out.println("StationID in placeBuilding " + ((Stop) instance).getStation().getId());
         }
         if (instance instanceof PartOfTrafficGraph) {
@@ -120,6 +121,10 @@ public class MapModel {
         if (createdNewStation) {
             ConnectedTrafficPart connectedTrafficPart = addNewStationToTrafficPartOrCreateNewTrafficPart(station, instance.getTrafficType());
             instance.setTrafficPart(connectedTrafficPart);
+        }
+        if(!worked){
+            ConnectedTrafficPart newTrafficPart = new ConnectedTrafficPart(model, building.getTrafficType(), station);
+
         }
 
         return instance;
@@ -822,9 +827,6 @@ public class MapModel {
 
         if (trafficType == TrafficType.AIR) {
             anotherStationFindable = getAllAirStations().size() > 0;
-//            Vertex startVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
-//            Vertex endVertex = newStation.getComponents().get(0).getVertices().iterator().next();
-//            pathToStation = model.getPathfinder().findPathForPlane(startVertex, endVertex);
         } else {
             pathToStation = model.getPathfinder().findPathToNextStation(newStation, trafficType);
             if (pathToStation.size() > 0) anotherStationFindable = true;
@@ -862,7 +864,7 @@ public class MapModel {
                 nextStation.getRailTrafficPart().addStationAndUpdateConnectedStations(newStation);
                 newStation.setRailTrafficPart(nextStation.getRailTrafficPart());
 
-                Vertex oneVertexOfRailblock = newStation.getComponents().get(0).getVertices().iterator().next();
+                Vertex oneVertexOfRailblock = newStation.getSomeVertexForTrafficType(TrafficType.RAIL);
                 Set<Vertex> verticesOfRailblock = model.getPathfinder().findAllConnectedVerticesUntilSignal(oneVertexOfRailblock);
                 Railblock railblock = new Railblock();
                 railblock.addVertices(verticesOfRailblock);

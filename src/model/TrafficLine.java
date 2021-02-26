@@ -65,7 +65,7 @@ public class TrafficLine {
 //                rowInTileGrid, columnInTileGrid);
 
         vehicle.setPathfinder(model.getPathfinder());
-        vehicle.setPosition(stations.get(0).getComponents().get(0).getVertices().iterator().next());
+        vehicle.setPosition(stations.get(0).getSomeVertexForTrafficType(trafficType));
         vehicle.setNextStation(stations.get(0));
 //        if (trafficType != TrafficType.AIR) {
             vehicle.updateNextStation();

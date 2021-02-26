@@ -174,7 +174,7 @@ public class Station {
      * @param building
      * @return
      */
-    public void addBuildingAndSetStationInBuilding(Stop building, boolean firstStation){
+    public boolean addBuildingAndSetStationInBuilding(Stop building, boolean firstStation){
         building.setStation(this);
         if(building.getTrafficType().equals(TrafficType.AIR)){
             if(building instanceof Tower){
@@ -191,8 +191,10 @@ public class Station {
 
         if(!firstStation){
             ConnectedTrafficPart trafficPart = getTrafficPartForTrafficType(building.getTrafficType());
+            if(trafficPart == null) return false;
             trafficPart.setAssociatedTrafficPartInEveryBuilding();
         }
+        return true;
     }
 
     public boolean isWholeAirstation(){
@@ -226,6 +228,15 @@ public class Station {
 
     public boolean hasPartOfTrafficType(TrafficType trafficType){
         return getTrafficPartForTrafficType(trafficType) != null;
+    }
+
+    public Vertex getSomeVertexForTrafficType(TrafficType trafficType){
+        for(Stop stop: components){
+            if(stop.getTrafficType().equals(trafficType)){
+                return stop.getVertices().iterator().next();
+            }
+        }
+        throw new RuntimeException("Found no Vertex for trafficType "+trafficType);
     }
 
     public ConnectedTrafficPart getTrafficPartForTrafficType(TrafficType trafficType){

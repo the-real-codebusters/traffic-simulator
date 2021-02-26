@@ -22,7 +22,7 @@ public class ConnectedTrafficPart {
         firstStation.setTrafficPartForTrafficType(this, trafficType);
         setAssociatedTrafficPartInEveryBuilding();
         if(trafficType.equals(TrafficType.RAIL)){
-            Vertex oneVertexOfRailblock = firstStation.getComponents().get(0).getVertices().iterator().next();
+            Vertex oneVertexOfRailblock = firstStation.getSomeVertexForTrafficType(TrafficType.RAIL);
             Set<Vertex> verticesOfRailblock = model.getPathfinder().findAllConnectedVerticesUntilSignal(oneVertexOfRailblock);
 
             System.out.println("verticesOfRailblock in ConnectedTrafficPart: ");
@@ -57,7 +57,7 @@ public class ConnectedTrafficPart {
     public void setAssociatedTrafficPartInEveryBuilding(){
         System.out.println("setAssociatedTrafficPartInEveryBuilding() called" );
         if(!trafficType.equals(TrafficType.AIR)){
-            Vertex someVertex = stations.get(0).getComponents().get(0).getVertices().iterator().next();
+            Vertex someVertex = stations.get(0).getSomeVertexForTrafficType(trafficType);
             Set<PartOfTrafficGraph> associatedBuildings = model.getPathfinder().findAllConnectedBuildings(someVertex, trafficType);
             for(PartOfTrafficGraph aB: associatedBuildings){
                 aB.setAssociatedPartOfTraffic(this);
@@ -71,6 +71,9 @@ public class ConnectedTrafficPart {
             }
         }
     }
+
+
+
 
     /**
      * Fügt diesen Verkehrsteil und den angegebenen Verkehrsteil zu einem Verkehrsteil zusammen

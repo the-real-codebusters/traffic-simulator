@@ -25,7 +25,7 @@ public class Pathfinder {
     public List<Vertex> findPathToNextStation(Station actualStation, TrafficType type){
         TrafficGraph graph = getGraphForTrafficType(type);
 
-        Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
+        Vertex startVertex = actualStation.getSomeVertexForTrafficType(type);
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
@@ -125,7 +125,7 @@ public class Pathfinder {
 
         TrafficGraph graph = getGraphForTrafficType(type);
 
-        Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
+        Vertex startVertex = actualStation.getSomeVertexForTrafficType(type);
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         List<Station> foundStations = new ArrayList<>();
@@ -228,7 +228,10 @@ public class Pathfinder {
                 // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
                 List<Vertex> childs = new ArrayList<>();
                 System.out.println("current Node : "+currentNode.getName());
-                childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
+                System.out.println("graph.getAdjacencyMap() "+graph.getAdjacencyMap());
+                System.out.println("in klammern "+graph.getAdjacencyMap().get(currentNode.getName()));
+
+            childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
 
                 // Entferne alle bereits gesuchten Knoten aus den childs
                 childs.removeAll(alreadyVisited);
