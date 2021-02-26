@@ -118,7 +118,7 @@ public class TrafficLineGraph {
     public void generateEntriesFromStationList(List<Station> stations){
         for (Station station : stations){
             mapOfStations.putIfAbsent(station.getId(), station);
-            weightedAdjacencyMap.put(station.getId(), new HashMap<>());
+            weightedAdjacencyMap.putIfAbsent(station.getId(), new HashMap<>());
         }
         for (int i = 0; i < stations.size()-1; i++){
             Station station1 = stations.get(i);

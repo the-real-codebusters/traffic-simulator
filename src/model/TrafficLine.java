@@ -55,6 +55,8 @@ public class TrafficLine {
      */
     public Vehicle addNewVehicle(Vehicle vehicle){
 
+        System.out.println("addNewVehicle called for "+vehicle.getGraphic());
+
         if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
 //        int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
 //        int columnInTileGrid = startVertexForNewVehicles.getyCoordinateInGameMap();
@@ -78,9 +80,6 @@ public class TrafficLine {
             System.out.println(vehicle.getTrafficType());
             System.out.println("Speed of new vehicle"+vehicle.getSpeed());
             System.out.println("path of new vehicle"+vehicle.pathToNextStation);
-        }
-        else{
-            throw new RuntimeException("Neues Vehicle konnte keinen Weg finden");
         }
 
         return vehicle;

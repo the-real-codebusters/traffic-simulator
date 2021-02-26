@@ -124,7 +124,7 @@ public class MapModel {
         }
         if(!worked){
             ConnectedTrafficPart newTrafficPart = new ConnectedTrafficPart(model, building.getTrafficType(), station);
-
+            model.getNewCreatedOrIncompleteTrafficParts().add(newTrafficPart);
         }
 
         return instance;
