@@ -86,7 +86,7 @@ public class ObjectToImageMapping {
         mapping.put("tower", "airport/tower");
 
         //TODO Use real building
-        mapping.put("terminal", "rail/railcurve-ne-s");
+        mapping.put("terminal", "airport/terminal");
 
 
 
@@ -357,6 +357,34 @@ public class ObjectToImageMapping {
         mapping.put("remove", "remove");
         mapping.put("grass", "ground/grass");
 
+        mapping.put("rail-ne-sw", "rail/rail-ne-sw");
+        mapping.put("rail-nw-se", "rail/rail-nw-se");
+        mapping.put("rail-ne-se", "rail/rail-ne-se");
+        mapping.put("rail-nw-sw", "rail/rail-nw-sw");
+        mapping.put("rail-ne-nw", "rail/rail-ne-nw");
+        mapping.put("rail-sw-se", "rail/rail-se-sw");
+        mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
+        mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
+        mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
+        mapping.put("railcurve-nw-s", "rail/railcurve-nw-s");
+        mapping.put("railcurve-se-n", "rail/railcurve-se-n");
+        mapping.put("railcurve-se-w", "rail/railcurve-se-w");
+        mapping.put("railcurve-sw-e", "rail/railcurve-sw-e");
+        mapping.put("railcurve-sw-n", "rail/railcurve-sw-n");
+        mapping.put("railswitch-ne-s", "rail/railswitch-ne-s");
+        mapping.put("railswitch-nw-s", "rail/railswitch-nw-s");
+        mapping.put("railswitch-se-n", "rail/railswitch-se-n");
+        mapping.put("railswitch-sw-n", "rail/railswitch-sw-n");
+        mapping.put("railswitch-ne-w", "rail/railswitch-ne-w");
+        mapping.put("railswitch-nw-e", "rail/railswitch-nw-e");
+        mapping.put("railswitch-se-w", "rail/railswitch-se-w");
+        mapping.put("railswitch-sw-e", "rail/railswitch-sw-e");
+
+        mapping.put("railsignal-ne-sw", "rail/railsignal-ne-sw");
+        mapping.put("railsignal-nw-se", "rail/railsignal-nw-se");
+        mapping.put("railsignal", "rail/railsignal");
+
+
         // Flache Straßen-Tiles
         mapping.put("road-ne", "road/flat/road_ne");
         mapping.put("road-nw", "road/flat/road_nw");
@@ -370,7 +398,7 @@ public class ObjectToImageMapping {
         mapping.put("road-ne-se", "road/flat/road_ne_se");
         mapping.put("road-ne-sw", "road/flat/road_ne_sw");
         mapping.put("road-nw-se-sw", "road/flat/road_nw_se_sw");
-//        mapping.put("road-nw-se", "road/flat/road_nw_se");
+        mapping.put("road-nw-se", "road/flat/road_nw_se");
         mapping.put("road-nw-sw", "road/flat/road_nw_sw");
         mapping.put("road-se-sw", "road/flat/road_se_sw");
 
@@ -488,6 +516,10 @@ public class ObjectToImageMapping {
         mapping.put("road-nw-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
         mapping.put("road-nw0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
         mapping.put("road-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
+
+        mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
+        mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
+
     }
 
     public Collection<String> getImageNames(){

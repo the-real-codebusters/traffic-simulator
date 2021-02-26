@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
+import view.OpeningScreen;
 import view.View;
 
 
@@ -19,16 +20,19 @@ public class Controller {
     private View view;
     private BasicModel model;
     private Pathfinder pathfinder;
-    private Map <Tile, Point2D> tileToPositionInGridNeighbors = new LinkedHashMap<>();
+    private OpeningScreen opening;
+    private ResourceBundle resourceBundle;
 
     //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
     //zu dieser Liste hinzugefügt werden
     private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
-    public Controller(View view, BasicModel model) {
+    public Controller(View view, BasicModel model, ResourceBundle resourceBundle) {
         this.view = view;
         this.model = model;
+//        this.opening = opening;
+        this.resourceBundle = resourceBundle;
 
         MapModel map = model.getMap();
 //        model.printModelAttributes();
@@ -252,7 +256,7 @@ public class Controller {
                 System.out.println("stationsOfPlannedTrafficLine in controller: ");
                 stationsOfPlannedTrafficLine.forEach((x) -> System.out.println("Station id: "+x.getId()));
                 //Zeigt Liste in Popup an
-                view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine);
+                view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine, getResourceBundle());
             }
         }
     }
@@ -272,19 +276,19 @@ public class Controller {
     public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
 
-        if (trafficType == TrafficType.AIR) {
+//        if (trafficType == TrafficType.AIR) {
             
-         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
-        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
-            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
-            model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
-        }
-        else {
+//         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
+//        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
+//            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+//            model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
+//        }
+//        else {
         List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
         clearPlannedTrafficLine();
-        }
+//        }
     }
 
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {
@@ -324,6 +328,19 @@ public class Controller {
         return model.getBuildingsForBuildmenu(buildmenu);
     }
 
+//    public Locale getLocale() {
+//        return opening.getLocale();
+//    }
 
+    public Locale getLocale() {
+        return resourceBundle.getLocale();
+    }
 
+//    public ResourceBundle getResourceBundle() {
+//        return opening.getResourceBundle();
+//    }
+
+    public ResourceBundle getResourceBundle() {
+        return resourceBundle;
+    }
 }

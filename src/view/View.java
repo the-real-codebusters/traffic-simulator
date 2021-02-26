@@ -41,6 +41,7 @@ public class View {
     private int mapDepth;
 
     private Controller controller;
+    private ResourceBundle resourceBundle;
 
     // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
@@ -748,7 +749,8 @@ public class View {
             double mouseX = event.getX();
             double mouseY = event.getY();
 
-            String mouseCoords = "Mouse coordinates: x: " + mouseX + " y: " + mouseY;
+            String mouseCoordinates = controller.getResourceBundle().getString("mouseCoordinates");
+            String mouseCoords = "   " + mouseCoordinates + " x: " + mouseX + " y: " + mouseY;
             mousePosLabel.setText(mouseCoords);
 
 
@@ -756,19 +758,23 @@ public class View {
             Point2D newIsoCoord = findTileCoord(mouseX, mouseY);
             if(newIsoCoord != null) {
 
-                String tileCoords = "Tile coordinates: x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
+                String tileCoordinates = controller.getResourceBundle().getString("tileCoordinates");
+                String tileCoords = "   " + tileCoordinates + " x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
                 isoCoordLabel.setText(tileCoords);
 //                String buildingName = fields[(int)newIsoCoord.getX()][(int)newIsoCoord.getY()].getBuilding().getBuildingName();
 //                        cornerLabel.setText(buildingName);
+
 
                 Map<String, Integer> cornerHeights;
                 Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
 
                 cornerHeights = tile.getCornerHeights();
-                cornerLabel.setText(cornerHeights.toString());
+                cornerLabel.setText("   " + cornerHeights.toString());
             } else {
-                isoCoordLabel.setText("Tile coordinates outside of map");
-                cornerLabel.setText("undefined corner heights for this coordinates");
+                String outsideOfMap = controller.getResourceBundle().getString("outsideOfMap");
+                isoCoordLabel.setText("   " + outsideOfMap);
+                String undefinedHeights = controller.getResourceBundle().getString("undefinedHeights");
+                cornerLabel.setText("   " + undefinedHeights);
             }
         });
     }
@@ -823,6 +829,7 @@ public class View {
         String url = "/" + gamemode + "/" + imageName + ".png";
 
 //        System.out.println("url = " + url); // an output /planverkehr/rail/railswitch-nw-s.png
+
         Image image = null;
         image  = new Image(url);
         imageCache.put(imageName + "raw", image);
@@ -1363,6 +1370,10 @@ public class View {
 
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    public ResourceBundle getResourceBundleFromController() {
+        return controller.getResourceBundle();
     }
 }
 

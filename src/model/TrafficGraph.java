@@ -71,6 +71,8 @@ public class TrafficGraph {
         if (!adjacencyMap.get(nameOfVertex2).contains(vertex1)) {
             adjacencyMap.get(nameOfVertex2).add(vertex1);
         }
+
+        System.out.println("addEdgeBidirectional between "+nameOfVertex1+" and "+nameOfVertex2);
     }
 
 
