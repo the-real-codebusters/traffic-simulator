@@ -48,10 +48,10 @@ public class TrafficGraph {
      * @param target Name des Knotens, auf den der Pfeil zeigt, also das "Ziel" der Kante
      */
     public void addEdge(String start, String target) {
-        Vertex startVertex = mapOfVertexes.get(target);
+        Vertex targetVertex = mapOfVertexes.get(target);
         if (!start.equals(target)) {
-            if (!adjacencyMap.get(start).contains(startVertex)) {
-                adjacencyMap.get(start).add(startVertex);
+            if (!adjacencyMap.get(start).contains(targetVertex)) {
+                adjacencyMap.get(start).add(targetVertex);
             }
         }
     }

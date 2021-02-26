@@ -220,6 +220,8 @@ public class BasicModel {
         }
     }
 
+    //TODO: duration von sand pit auf 15 zurücksetzen
+
     private List<TransportPackage> findDestinationForTransport(Map<String, Integer> todayProduced, Factory producer){
         List<TransportPackage> transportPackages = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : todayProduced.entrySet()){
@@ -270,7 +272,6 @@ public class BasicModel {
             System.out.println("Distance: " + distance + " Free storage: " + freeStorage + " weight: " + weight);
             weights.put(consumer, weight);
         }
-//        System.out.println("Gewichte: " + weights);
         return weights;
     }
 

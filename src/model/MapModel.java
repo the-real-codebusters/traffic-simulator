@@ -83,8 +83,10 @@ public class MapModel {
                 createdNewStation = true;
             }
             Factory nearFactory = getNearFactory((Stop) instance, row, column);
-            station.setNearFactory(nearFactory);
-            nearFactory.getNearStations().add(station);
+            if (nearFactory != null) {
+                station.setNearFactory(nearFactory);
+                nearFactory.getNearStations().add(station);
+            }
 
             station.addBuildingAndSetStationInBuilding((Stop) instance, nextStation == null);
             System.out.println("StationID in placeBuilding " + ((Stop) instance).getStation().getId());
