@@ -45,4 +45,14 @@ public class TransportPackage {
     public void setAmount(int amount) {
         this.amount = amount;
     }
+
+    @Override
+    public String toString() {
+        return "TransportPackage{" +
+                "producerFactory=" + producerFactory +
+                ", consumerFactory=" + consumerFactory +
+                ", commodity='" + commodity + '\'' +
+                ", amount=" + amount +
+                '}';
+    }
 }

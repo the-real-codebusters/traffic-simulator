@@ -34,6 +34,8 @@ public class Station {
     private BasicModel model;
 
     private Factory nearFactory;
+    private int actualSearchLevel;
+
 
     // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
     private boolean visited;
@@ -64,6 +66,8 @@ public class Station {
         this.railTrafficPart = railTrafficPart;
         this.airTrafficPart = airTrafficPart;
         this.model = model;
+
+        model.getMap().getTrafficLineGraph().addStation(this);
     }
 
     public Station(Pathfinder pathfinder, BasicModel model) {
@@ -76,6 +80,9 @@ public class Station {
 
         this.pathfinder = pathfinder;
         this.model = model;
+
+        model.getMap().getTrafficLineGraph().addStation(this);
+
     }
 
     /**
@@ -394,5 +401,13 @@ public class Station {
 
     public void setNearFactory(Factory nearFactory) {
         this.nearFactory = nearFactory;
+    }
+
+    public int getActualSearchLevel() {
+        return actualSearchLevel;
+    }
+
+    public void setActualSearchLevel(int actualSearchLevel) {
+        this.actualSearchLevel = actualSearchLevel;
     }
 }

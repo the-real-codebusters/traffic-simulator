@@ -223,7 +223,20 @@ public class BasicModel {
 //            System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
             System.out.println(todayProduced);
             if (todayProduced.size() > 0) {
-                findDestinationForTransport(todayProduced, factory);
+                List<TransportPackage> transportPackages = findDestinationForTransport(todayProduced, factory);
+                for(TransportPackage transportPackage : transportPackages){
+                    boolean producerHasStation =  transportPackage.getProducerFactory().getNearStations().size() > 0;
+                    boolean consumerHasStation =  transportPackage.getConsumerFactory().getNearStations().size() > 0;
+
+                    if(consumerHasStation && producerHasStation){
+                        List<Station> path = pathfinder.findPathToConsumer(transportPackage);
+
+                        System.out.println("Weg zu Konsumer");
+                        path.forEach((x) -> System.out.println("Station id : "+x.getId()));
+                    }
+                    //TODO Ansonsten vernichte Ware
+
+                }
             }
         }
     }
@@ -250,6 +263,7 @@ public class BasicModel {
             TransportPackage transportPackage = new TransportPackage(producer, destination, producedCommodity, producedAmount);
             transportPackages.add(transportPackage);
         }
+        System.out.println("Transport packages: "+transportPackages);
         return transportPackages;
     }
 

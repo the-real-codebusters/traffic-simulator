@@ -58,7 +58,7 @@ public class Controller {
         TrafficGraph railGraph = model.getMap().getRailGraph();
         TrafficGraph airGraph = model.getMap().getAirGraph();
 
-        pathfinder = new Pathfinder(roadGraph, railGraph, airGraph);
+        pathfinder = new Pathfinder(roadGraph, railGraph, airGraph, model.getMap().getTrafficLineGraph());
         model.setPathfinder(pathfinder);
 
 //        new TrafficLineCreationDialog(view);

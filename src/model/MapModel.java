@@ -362,6 +362,7 @@ public class MapModel {
      * @return
      */
     private Map<Tile, Point2D> getAllNeighbors(Point2D coords) {
+        //TODO Was wenn außerhalb der Map?
         int xCoord = (int) coords.getX();
         int yCoord = (int) coords.getY();
 
