@@ -553,10 +553,16 @@ public class ObjectToImageMapping {
         mapping.put("air_taxi-se", "vehicles/air/air_taxi-se");
         mapping.put("air_taxi-sw", "vehicles/air/air_taxi-sw");
 
+
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
         mapping.put("big tower", "airport/big tower");
         mapping.put("terminal", "airport/terminal");
+
+
+        mapping.put("height_up" , "height_up");
+        mapping.put("height_down" , "height_down");
+        mapping.put("remove", "remove");
 
 
 //        mapping.put("battery-ne", "vehicles/air/battery-ne");
