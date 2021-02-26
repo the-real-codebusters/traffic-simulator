@@ -1,13 +1,11 @@
 package model;
 
-import java.awt.geom.Point2D;
-
-public class InstantReservation {
+public class InstantCarReservation {
     private int tileX;
     private int tileY;
     private VehicleMovement movement;
 
-    public InstantReservation(int tileX, int tileY, VehicleMovement movement) {
+    public InstantCarReservation(int tileX, int tileY, VehicleMovement movement) {
         this.tileX = tileX;
         this.tileY = tileY;
         this.movement = movement;
@@ -22,7 +20,7 @@ public class InstantReservation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        InstantReservation that = (InstantReservation) o;
+        InstantCarReservation that = (InstantCarReservation) o;
 
         if (tileX != that.tileX) return false;
         return tileY == that.tileY;

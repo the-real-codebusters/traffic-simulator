@@ -70,6 +70,7 @@ public class Vehicle {
      */
     public void savePathToNextStation(Vertex startVertex){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
+        System.out.println("pathToNextStation in savePathToNextStation: "+pathToNextStation);
     }
 
     public void updateNextStation() {
@@ -87,6 +88,11 @@ public class Vehicle {
         pathToNextStationBeforeMovement = new ArrayList<>(pathToNextStation);
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
         double wayToGo = speed;
+
+        if(isAirmovementInNearOfStation()){
+            wayToGo = 0.8;
+        }
+
         // Die Bewegung startet an der aktuellen Position
         PositionOnTilemap currentPosition = position;
         VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType);
@@ -198,6 +204,14 @@ public class Vehicle {
                     "was not");
         }
         storage.changeCargo(commodity, amount);
+    }
+
+    private boolean isAirmovementInNearOfStation(){
+        boolean air = trafficType.equals(TrafficType.AIR);
+        Vertex nextVertex = pathToNextStation.get(0);
+        double distanceToNextVertex = nextVertex.coordsRelativeToMapOrigin().distance(position.coordsRelativeToMapOrigin());
+
+        return air && distanceToNextVertex <= 1;
     }
 
     /**

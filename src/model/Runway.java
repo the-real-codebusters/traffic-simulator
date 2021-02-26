@@ -1,5 +1,7 @@
 package model;
 
+import javafx.beans.property.StringProperty;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,14 @@ public class Runway extends Stop {
 
     public void setEntry(List<String> entry) {
         this.entry = entry;
+    }
+
+    public List<String> getEntry() {
+        return entry;
+    }
+
+    public String getFirstAndOnlyEntry() {
+        return entry.get(0);
     }
 
     @Override

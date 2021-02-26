@@ -30,11 +30,14 @@ public class Station {
     private Set<Station> directlyAirConnectedStations = new HashSet<>();
 
     private Pathfinder pathfinder;
+    private BasicModel model;
 
     // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
     private boolean visited;
     private Vertex first;
     private Vertex last;
+
+    private Stop terminal;
 
     // Flugzeuge, die eine Landebahn nicht anfliegen duerfen, weil diese belegt ist
     private Queue<VehicleMovement> airPlanesWaiting = new ArrayDeque<>();
@@ -57,6 +60,7 @@ public class Station {
         this.roadTrafficPart = roadTrafficPart;
         this.railTrafficPart = railTrafficPart;
         this.airTrafficPart = airTrafficPart;
+        this.model = model;
     }
 
     public Station(Pathfinder pathfinder, BasicModel model) {
@@ -68,11 +72,11 @@ public class Station {
         storage = new Storage(maximumCargo);
 
         this.pathfinder = pathfinder;
+        this.model = model;
     }
 
     /**
      * Gibt zurück, ob die Station mit der angegebenen Station direkt durch Straßen verbunden ist
-     * //TODO Sollte auch für Rail und AIR funktionieren ?
      * @param station
      * @return
      */
@@ -97,17 +101,54 @@ public class Station {
     }
 
     /**
-     * Setzt die Variable directlyConnectedStations für alle durch Straßen verbundenen Stationen.
+     * Setzt die Variable directlyConnectedStations für alle verbundenen Stationen.
      */
     public void updateDirectlyConnectedStations(TrafficType trafficType){
-        // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
-        List<Station> nextStations = pathfinder.findAllDirectlyConnectedStations(this, trafficType);
+        List<Station> nextStations;
+        if(trafficType.equals(TrafficType.AIR)){
+            //Airstation nur fertig, wenn Runway, Terminal und Tower enthalten ist
+            if(! isWholeAirstation()){
+                return;
+            }
+
+            nextStations = model.getMap().getAllAirStations();
+            nextStations.remove(this);
+        }
+        else {
+            // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
+            nextStations = pathfinder.findAllDirectlyConnectedStations(this, trafficType);
+        }
+
         System.out.println("Connected Stations for Station "+this.getId());
         for(Station n: nextStations){
             System.out.println("Next Station "+n.getId());
             n.getDirectlyConnectedStations(trafficType).add(this);
         }
         setDirectlyConnectedStations(nextStations, trafficType);
+        if(trafficType.equals(TrafficType.AIR)){
+            setEntryConnections();
+        }
+    }
+
+    private void setEntryConnections(){
+        System.out.println("setEntryConnections called");
+        List<Vertex> ownEntrys = getEntrys();
+        System.out.println("ownEntrys "+ownEntrys);
+
+        List<Vertex> otherEntrys = new ArrayList<>();
+            for(Station otherStation : directlyAirConnectedStations){
+                otherEntrys.addAll(otherStation.getEntrys());
+            }
+        System.out.println("directlyAirConnectedStations "+directlyAirConnectedStations);
+
+        System.out.println("otherEntrys "+otherEntrys);
+            TrafficGraph graph = model.getMap().getGraphForTrafficType(TrafficType.AIR);
+
+            for(Vertex ownEntry : ownEntrys){
+                for(Vertex otherEntry: otherEntrys){
+                    graph.addEdgeBidirectional(ownEntry.getName(), otherEntry.getName());
+                }
+            }
     }
 
 //    public void updateDirectlyConnectedStationsForRunway(Station start){
@@ -126,13 +167,54 @@ public class Station {
      * @param building
      * @return
      */
-    public boolean addBuildingAndSetStationInBuilding(Stop building){
+    public void addBuildingAndSetStationInBuilding(Stop building, boolean firstStation){
         building.setStation(this);
-        if(building instanceof Tower){
-            int maxplanes = ((Tower) building).getMaxplanes();
-            if(maxplanes > this.maxPlanes) this.maxPlanes = maxplanes;
+        if(building.getTrafficType().equals(TrafficType.AIR)){
+            if(building instanceof Tower){
+                int maxplanes = ((Tower) building).getMaxplanes();
+                if(maxplanes > this.maxPlanes) this.maxPlanes = maxplanes;
+            }
+            else if(building.getSpecial().equals("terminal")){
+                terminal = building;
+            }
+            updateDirectlyConnectedStations(TrafficType.AIR);
         }
-        return components.add(building);
+
+        components.add(building);
+
+        if(!firstStation){
+            ConnectedTrafficPart trafficPart = getTrafficPartForTrafficType(building.getTrafficType());
+            trafficPart.setAssociatedTrafficPartInEveryBuilding();
+        }
+    }
+
+    public boolean isWholeAirstation(){
+        int numberRunways = 0;
+        int numberTerminals = 0;
+
+        for(Stop c : components){
+            if(c instanceof Runway) numberRunways++;
+            else if(c.getSpecial().equals("terminal")) numberTerminals++;
+        }
+
+        return numberRunways > 0 && numberTerminals > 0 && maxPlanes > 0;
+    }
+
+    public List<Vertex> getEntrys(){
+        List<Vertex> entrys = new ArrayList<>();
+        for(Stop c : components){
+            if(c instanceof Runway) {
+                String entryName = ((Runway) c).getFirstAndOnlyEntry();
+                Vertex entry = null;
+                for(Vertex vertex: c.getVertices()){
+                    if(vertex.getName().contains(entryName)){
+                        entry = vertex;
+                    }
+                }
+                entrys.add(entry);
+            }
+        }
+        return entrys;
     }
 
     public boolean hasPartOfTrafficType(TrafficType trafficType){
@@ -143,13 +225,17 @@ public class Station {
         if(trafficType.equals(TrafficType.AIR)) return airTrafficPart;
         else if(trafficType.equals(TrafficType.ROAD)) return roadTrafficPart;
         else if (trafficType.equals(TrafficType.RAIL)) return railTrafficPart;
-        return null;
+        else throw new RuntimeException("TrafficPart in Station "+id+" was not there for traffictype "+trafficType);
     }
 
     public void setTrafficPartForTrafficType(ConnectedTrafficPart trafficPart, TrafficType trafficType){
         if(trafficType.equals(TrafficType.AIR)) airTrafficPart = trafficPart;
         else if(trafficType.equals(TrafficType.ROAD)) roadTrafficPart = trafficPart;
         else if (trafficType.equals(TrafficType.RAIL)) railTrafficPart = trafficPart;
+    }
+
+    public Stop getTerminal() {
+        return terminal;
     }
 
     //Die Methoden equals() und hashCode() gehen davon aus, dass die id einer Station unique ist
