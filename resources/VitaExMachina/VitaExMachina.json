@@ -452,8 +452,8 @@
       "dz" : 1
     },
     "fusion power plant" : {
-      "width" : 2,
-      "depth" : 2,
+      "width" : 4,
+      "depth" : 4,
       "special" : "factory",
       "productions" : {"produce":{"energy":5},"duration":10},
       "dz" : 1
@@ -555,7 +555,7 @@
 
     "engine" : {
       "kind" : "engine",
-      "graphic" : "locomotive",
+      "graphic" : "the_engine",
       "speed" : 2.2
     },
     "quantum wagon" : {
