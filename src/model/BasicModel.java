@@ -1,5 +1,6 @@
 package model;
 
+import com.sun.nio.sctp.SendFailedNotification;
 import javafx.geometry.Point2D;
 
 import java.util.*;
@@ -219,7 +220,8 @@ public class BasicModel {
         }
     }
 
-    private void findDestinationForTransport(Map<String, Integer> todayProduced, Factory producer){
+    private List<TransportPackage> findDestinationForTransport(Map<String, Integer> todayProduced, Factory producer){
+        List<TransportPackage> transportPackages = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : todayProduced.entrySet()){
             Set<Factory> consumers = new HashSet<>();
             String producedCommodity = entry.getKey();
@@ -232,8 +234,26 @@ public class BasicModel {
                     }
                 }
             }
-            calculateWeighting(consumers, producedCommodity, producer);
+            Map<Factory, Double> weights = calculateWeighting(consumers, producedCommodity, producer);
+            Map<Factory, Double> probabilities = calculateProbabilities(weights);
+            Factory destination = pickConsumerFactory(probabilities);
+            TransportPackage transportPackage = new TransportPackage(producer, destination, producedCommodity, producedAmount);
+            transportPackages.add(transportPackage);
         }
+        return transportPackages;
+    }
+
+    private Factory pickConsumerFactory(Map<Factory, Double> probabilities){
+        double randomInRange0To1= Math.random();
+        double probCounter = 0;
+        for (Map.Entry<Factory, Double> entry : probabilities.entrySet()){
+            probCounter += entry.getValue();
+            if (probCounter > randomInRange0To1){
+                System.out.println("Ziel: " + entry.getKey().buildingName);
+                return entry.getKey();
+            }
+        }
+        throw new RuntimeException("consumer in pickConsumerFactory not found");
     }
 
     private Map<Factory, Double> calculateWeighting(Set<Factory> consumers, String commodity, Factory producer){
@@ -241,14 +261,32 @@ public class BasicModel {
         for (Factory consumer : consumers){
             int freeStorage = consumer.getFreeStorageForCommodity(commodity);
             int consumerX = consumer.getOriginRow();
-            int conumerY = consumer.getOriginColumn();
+            int consumerY = consumer.getOriginColumn();
             int producerX = producer.getOriginRow();
             int producerY = producer.getOriginColumn();
-            double distance = new Point2D(consumerX, conumerY).distance(new Point2D(producerX, producerY));
-            double weight = freeStorage/distance;
+            System.out.println("Points: " + consumerX + " " + consumerY + " " + producerX + " " + producerY);
+            double distance = new Point2D(consumerX, consumerY).distance(new Point2D(producerX, producerY));
+            double weight = (double)freeStorage/distance;
+            System.out.println("Distance: " + distance + " Free storage: " + freeStorage + " weight: " + weight);
             weights.put(consumer, weight);
         }
+//        System.out.println("Gewichte: " + weights);
         return weights;
+    }
+
+    private Map<Factory, Double> calculateProbabilities(Map<Factory, Double> weights){
+        Map<Factory, Double> probabilities = new HashMap<>();
+        double totalWeight = 0;
+        for (Double weight : weights.values()){
+            totalWeight+= weight;
+        }
+        for (Map.Entry<Factory, Double> entry : weights.entrySet()){
+            double probability = entry.getValue()/totalWeight;
+            probabilities.put(entry.getKey(), probability);
+            System.out.println("Factory: " + entry.getKey().buildingName + " probability: " + probability);
+        }
+//        System.out.println(probabilities);
+        return probabilities;
     }
 
     private void createCarReservations(VehicleMovement movement, List<InstantCarReservation> reservations, Vehicle vehicle){

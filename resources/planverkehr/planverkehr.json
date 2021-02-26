@@ -415,7 +415,7 @@
       "width" : 5,
       "depth" : 5,
       "special" : "factory",
-      "productions" : {"produce":{"sand":8},"duration":15},
+      "productions" : {"produce":{"sand":8},"duration":1},
       "dz" : 1
     },
     "glassworks" : {

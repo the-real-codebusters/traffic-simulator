@@ -36,6 +36,14 @@ public class MapModel {
     public Building placeBuilding(int row, int column, Building building) {
 
         Building instance = building.getNewInstance();
+        //Setzt Ursprungstile auf das tile ganz links
+        Tile originTile = tileGrid[row][column];
+        originTile.setBuildingOrigin(true);
+        instance.setOriginColumn(column);
+        instance.setOriginRow(row);
+        System.out.println("building name in placeBuilding: " + building.getBuildingName());
+        System.out.println("origin row: " + instance.getOriginRow());
+        System.out.println("origin column: " + instance.getOriginColumn());
 
         //Setzt für jedes zugrundeliegende Tile das neue Building
         for (int r = row; r < row + instance.getWidth(); r++) {
@@ -48,12 +56,6 @@ public class MapModel {
                 }
             }
         }
-
-        //Setzt Ursprungstile auf das tile ganz links
-        Tile originTile = tileGrid[row][column];
-        originTile.setBuildingOrigin(true);
-        instance.setOriginColumn(column);
-        instance.setOriginRow(row);
 
         //Variable, die anzeigt ob eine neue Station kreirt wird / wurde
         boolean createdNewStation = false;
