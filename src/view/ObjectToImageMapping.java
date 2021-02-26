@@ -520,6 +520,44 @@ public class ObjectToImageMapping {
         mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
         mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
 
+        //Fahrzeuge RAiL
+
+        mapping.put("the_engine-ne", "vehicles/rail/the_engine-ne");
+        mapping.put("the_engine-nw", "vehicles/rail/the_engine-nw");
+        mapping.put("the_engine-se", "vehicles/rail/the_engine-se");
+        mapping.put("the_engine-sw", "vehicles/rail/the_engine-sw");
+
+        //Fahrzeuge AIR
+        mapping.put("ufo_steel-ne", "vehicles/air/ufo_steel-ne");
+        mapping.put("ufo_steel-nw", "vehicles/air/ufo_steel-nw");
+        mapping.put("ufo_steel-se", "vehicles/air/ufo_steel-se");
+        mapping.put("ufo_steel-sw", "vehicles/air/ufo_steel-sw");
+
+        mapping.put("ufo_iron_ore-ne", "vehicles/air/ufo_iron_ore-ne");
+        mapping.put("ufo_iron_ore-nw", "vehicles/air/ufo_iron_ore-nw");
+        mapping.put("ufo_iron_ore-se", "vehicles/air/ufo_iron_ore-se");
+        mapping.put("ufo_iron_ore-sw", "vehicles/air/ufo_iron_ore-sw");
+
+        mapping.put("ufo_robot_pieces-ne", "vehicles/air/ufo_robot_pieces-ne");
+        mapping.put("ufo_robot_pieces-nw", "vehicles/air/ufo_robot_pieces-nw");
+        mapping.put("ufo_robot_pieces-se", "vehicles/air/ufo_robot_pieces-se");
+        mapping.put("ufo_robot_pieces-sw", "vehicles/air/ufo_robot_pieces-sw");
+
+        mapping.put("drone-ne", "vehicles/air/drone-ne");
+        mapping.put("drone-nw", "vehicles/air/drone-nw");
+        mapping.put("drone-se", "vehicles/air/drone-se");
+        mapping.put("drone-sw", "vehicles/air/drone-sw");
+
+        mapping.put("air_taxi-ne", "vehicles/air/air_taxi-ne");
+        mapping.put("air_taxi-nw", "vehicles/air/air_taxi-nw");
+        mapping.put("air_taxi-se", "vehicles/air/air_taxi-se");
+        mapping.put("air_taxi-sw", "vehicles/air/air_taxi-sw");
+
+//        mapping.put("battery-ne", "vehicles/air/battery-ne");
+//         mapping.put("battery-nw", "vehicles/air/battery-nw");
+//         mapping.put("battery-se", "vehicles/air/battery-se");
+//         mapping.put("battery-sw", "vehicles/air/battery-sw");
+
     }
 
     public Collection<String> getImageNames(){
