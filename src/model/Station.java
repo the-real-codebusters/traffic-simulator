@@ -111,7 +111,6 @@ public class Station {
 
             nextStations = model.getMap().getAllAirStations();
             nextStations.remove(this);
-            setEntryConnections();
         }
         else {
             // Mache eine Breitensuche auf dem Graph um alle direkt verbundenen Stationen zu finden
@@ -124,14 +123,23 @@ public class Station {
             n.getDirectlyConnectedStations(trafficType).add(this);
         }
         setDirectlyConnectedStations(nextStations, trafficType);
+        if(trafficType.equals(TrafficType.AIR)){
+            setEntryConnections();
+        }
     }
 
     private void setEntryConnections(){
-            List<Vertex> ownEntrys = getEntrys();
-            List<Vertex> otherEntrys = new ArrayList<>();
+        System.out.println("setEntryConnections called");
+        List<Vertex> ownEntrys = getEntrys();
+        System.out.println("ownEntrys "+ownEntrys);
+
+        List<Vertex> otherEntrys = new ArrayList<>();
             for(Station otherStation : directlyAirConnectedStations){
                 otherEntrys.addAll(otherStation.getEntrys());
             }
+        System.out.println("directlyAirConnectedStations "+directlyAirConnectedStations);
+
+        System.out.println("otherEntrys "+otherEntrys);
             TrafficGraph graph = model.getMap().getGraphForTrafficType(TrafficType.AIR);
 
             for(Vertex ownEntry : ownEntrys){

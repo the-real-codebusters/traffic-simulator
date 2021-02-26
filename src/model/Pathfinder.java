@@ -497,9 +497,13 @@ public class Pathfinder {
             currentNode = queue.remove();
             searchLevel = currentNode.getActualSearchLevel();
 
+            System.out.println("currentNode in findPathToDesiredStation"+ currentNode.getName());
+
             //Wenn if-Bedingung erfüllt ist, dann haben wir das Ziel gefunden
             if (currentNode != null && currentNode.isPointOfStation() && currentNode.getStation() == desiredStation) {
 
+                System.out.println("if-Bedingung in findPathToDesiredStation was true. currentNode station "+currentNode.getStation().getId() +
+                        "desiredStation "+desiredStation);
                 // Füge Zielknoten zu Weg hinzu
                 path.add(currentNode);
 

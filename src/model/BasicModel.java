@@ -129,7 +129,9 @@ public class BasicModel {
 //            }
 
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
+
                 System.out.println("active traffic Line "+trafficLine.getName());
+                System.out.println("activeVehicles size "+activeVehicles.size());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
 
@@ -145,11 +147,17 @@ public class BasicModel {
                         }
                     }
                     else {
+
                         trafficLine.addNewVehicle(newVehicle);
                     }
+                    System.out.println("activeVehicles size in if "+activeVehicles.size());
                 }
                 // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
                 activeVehicles.addAll(trafficLine.getVehicles()); //TODO
+
+                System.out.println("trafficLine.getVehicles() "+trafficLine.getVehicles());
+                System.out.println("activeVehicles size after add All "+activeVehicles.size());
+
             }
 
 
