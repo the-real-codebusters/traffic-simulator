@@ -86,7 +86,7 @@ public class ObjectToImageMapping {
         mapping.put("tower", "airport/tower");
 
         //TODO Use real building
-        mapping.put("terminal", "rail/railcurve-ne-s");
+        mapping.put("terminal", "airport/terminal");
 
 
 
