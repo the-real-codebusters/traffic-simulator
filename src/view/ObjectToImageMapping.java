@@ -380,6 +380,11 @@ public class ObjectToImageMapping {
         mapping.put("railswitch-se-w", "rail/railswitch-se-w");
         mapping.put("railswitch-sw-e", "rail/railswitch-sw-e");
 
+        mapping.put("railsignal-ne-sw", "rail/railsignal-ne-sw");
+        mapping.put("railsignal-nw-se", "rail/railsignal-nw-se");
+        mapping.put("railsignal", "rail/railsignal");
+
+
         // Flache Straßen-Tiles
         mapping.put("road-ne", "road/flat/road_ne");
         mapping.put("road-nw", "road/flat/road_nw");
@@ -514,6 +519,7 @@ public class ObjectToImageMapping {
 
         mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
         mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
+
     }
 
     public Collection<String> getImageNames(){
