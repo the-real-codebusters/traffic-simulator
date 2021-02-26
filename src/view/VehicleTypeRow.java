@@ -15,6 +15,7 @@ public class VehicleTypeRow {
     }
 
     public String getInformation() {
+        System.out.println("information: " + information);
         return information;
     }
 

@@ -555,7 +555,7 @@
 
     "engine" : {
       "kind" : "engine",
-      "graphic" : "locomotive",
+      "graphic" : "the_engine",
       "speed" : 2.2
     },
     "quantum wagon" : {
