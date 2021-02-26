@@ -77,10 +77,11 @@ public class TrafficLine {
             vehicles.add(vehicle);
             System.out.println(vehicle.getTrafficType());
             System.out.println("Speed of new vehicle"+vehicle.getSpeed());
+            System.out.println("path of new vehicle"+vehicle.pathToNextStation);
         }
-//        else{
-//            throw new RuntimeException("Neues Vehicle konnte keinen Weg finden");
-//        }
+        else{
+            throw new RuntimeException("Neues Vehicle konnte keinen Weg finden");
+        }
 
         return vehicle;
     }
