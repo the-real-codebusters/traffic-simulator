@@ -555,7 +555,9 @@ public class ObjectToImageMapping {
 
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
-        mapping.put("tower", "airport/tower");
+        mapping.put("big tower", "airport/big tower");
+        mapping.put("terminal", "airport/terminal");
+
 
 //        mapping.put("battery-ne", "vehicles/air/battery-ne");
 //         mapping.put("battery-nw", "vehicles/air/battery-nw");
