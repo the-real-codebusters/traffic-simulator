@@ -1,5 +1,7 @@
 package model;
 
+import javafx.geometry.Point2D;
+
 import java.util.*;
 
 
@@ -63,6 +65,9 @@ public class TrafficLineGraph {
     public void addEdgeBidirectional(Long idOfStation1, Long idOfStation2, double weight) {
         Station station1 = mapOfStations.get(idOfStation1);
         Station station2 = mapOfStations.get(idOfStation2);
+        System.out.println("idOfStation1: " + idOfStation1);
+        System.out.println("station2: " + station2);
+        System.out.println(weightedAdjacencyMap.get(idOfStation1));
         if (!weightedAdjacencyMap.get(idOfStation1).containsKey(station2)) {
             weightedAdjacencyMap.get(idOfStation1).put(station2, weight);
         }
@@ -108,6 +113,24 @@ public class TrafficLineGraph {
 //        System.out.println("hasEdge between " + nameOfStation1 + " and " + nameOfStation2 + " was " + hasEdge);
 //        return hasEdge;
 //    }
+
+
+    public void generateEntriesFromStationList(List<Station> stations){
+        for (Station station : stations){
+            mapOfStations.putIfAbsent(station.getId(), station);
+            weightedAdjacencyMap.put(station.getId(), new HashMap<>());
+        }
+        for (int i = 0; i < stations.size()-1; i++){
+            Station station1 = stations.get(i);
+            Station station2 = stations.get(i+1);
+            Point2D point1 = station1.getComponents().get(0).getVertices().iterator().next().coordsRelativeToMapOrigin();
+            Point2D point2 = station2.getComponents().get(0).getVertices().iterator().next().coordsRelativeToMapOrigin();
+            double distance = point1.distance(point2);
+
+            addEdgeBidirectional(station1.getId(), station2.getId(), distance);
+
+        }
+    }
 
 
     /**
@@ -184,7 +207,7 @@ public class TrafficLineGraph {
     //Die Methode gibt den Graph auf der Kommandozeile aus. Ist nur zu Testzwecken vorhanden
     public void printGraph() {
         for (Map.Entry<Long, Station> entry : this.mapOfStations.entrySet()) {
-            System.out.print("Station " + entry.getKey() + " is connected to: ");
+            System.out.print("StationGraph " + entry.getKey() + " is connected to: ");
             this.weightedAdjacencyMap.get(entry.getKey()).forEach((v,x) -> System.out.print(" " + v.getId() + " weight: " + x));
             System.out.println();
         }

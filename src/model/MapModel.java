@@ -17,6 +17,7 @@ public class MapModel {
     private TrafficGraph roadGraph = new TrafficGraph();
     private TrafficGraph railGraph = new TrafficGraph();
     private TrafficGraph airGraph = new TrafficGraph();
+    private TrafficLineGraph trafficLineGraph = new TrafficLineGraph();
 
     public MapModel(int width, int depth, BasicModel model) {
         this.width = width;
@@ -1348,6 +1349,10 @@ public class MapModel {
 
     public void setRailGraph(TrafficGraph railGraph) {
         this.railGraph = railGraph;
+    }
+
+    public TrafficLineGraph getTrafficLineGraph() {
+        return trafficLineGraph;
     }
 }
 
