@@ -609,7 +609,9 @@ public class JSONParser {
             else {
                 throw new JSONParserException(object+" was no JSONArray or JSONObject");
             }
-            factory.setStorage(new Storage(storageMap));
+            Storage storage = new Storage(storageMap);
+            System.out.println("storage in JSON-parser: "+storage);
+            factory.setStorage(storage);
         }
 //        else {
 //            System.out.println("kein Storage bei factory ");

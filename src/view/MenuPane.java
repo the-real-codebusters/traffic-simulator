@@ -40,12 +40,18 @@ public class MenuPane extends AnchorPane {
     private MouseEvent hoveredEvent;
 //    private int result;
     private HBox trafficPartTabContent;
-    private VBox factoryTabContent;
+    private HBox factoryTabContent;
 
     // factory labels
     private Label factoryNameLabel;
     private Label productionLabel;
     private Label consumptionLabel;
+    private Label factoryMaximaStorageLabel;
+    private Label factoryRealStorageLabel;
+    private Label factoryNearStationsLabel;
+    private ImageView factoryImageView;
+
+
 
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
@@ -103,13 +109,31 @@ public class MenuPane extends AnchorPane {
         VBox box = new VBox(10);
         box.setPrefHeight(120);
         box.setPadding(new Insets(5, 20, 5, 20));
-        tabNames.add(name);
-        tabContents.add(box);
-        addTab(name, box, false);
-        factoryTabContent = box;
+
         Label factoryNameLabel = new Label();
         Label productionLabel = new Label();
         Label consumptionLabel = new Label();
+        factoryRealStorageLabel = new Label();
+        factoryMaximaStorageLabel = new Label();
+        factoryNearStationsLabel = new Label();
+        factoryImageView = new ImageView();
+        factoryImageView.setPreserveRatio(true);
+        factoryImageView.setFitHeight(90);
+
+        VBox box2 = new VBox(factoryRealStorageLabel, factoryMaximaStorageLabel, factoryNearStationsLabel);
+        box2.setSpacing(10);
+        box2.setPrefHeight(120);
+        box2.setPadding(new Insets(5, 20, 5, 20));
+        HBox hbox = boxWithLayout();
+        hbox.getChildren().addAll(factoryImageView, box, box2);
+
+        factoryRealStorageLabel.setFont(new Font("Arial", 15));
+//        box.getChildren().add(factoryRealStorageLabel);
+        factoryMaximaStorageLabel.setFont(new Font("Arial", 15));
+//        box.getChildren().add(factoryMaximaStorageLabel);
+        factoryNearStationsLabel.setFont(new Font("Arial", 15));
+//        box.getChildren().add(factoryNearStationsLabel);
+
         factoryNameLabel.setFont(new Font("Arial", 15));
         box.getChildren().add(factoryNameLabel);
         productionLabel.setFont(new Font("Arial", 15));
@@ -119,7 +143,13 @@ public class MenuPane extends AnchorPane {
         factoryNameLabel.setText("factory name: not selected");
         productionLabel.setText("production: nothing");
         consumptionLabel.setText("consumption: nothing");
+
         setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
+        factoryTabContent = hbox;
+        addTab(name, hbox, false);
+
+        tabNames.add(name);
+        tabContents.add(hbox);
     }
 
 
@@ -507,6 +537,9 @@ public class MenuPane extends AnchorPane {
     private void showFactoryInformation(Building building){
         Factory factory = (Factory) building;
 
+        String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
+        Image image = view.getResourceForImageName(imageName);
+        factoryImageView.setImage(image);
 
         // System.out.println("building = " + factory);
         factoryNameLabel.setText("factory name: " + factory.getBuildingName());
@@ -526,6 +559,30 @@ public class MenuPane extends AnchorPane {
             consumption = new StringBuilder("nothing");
         }
         consumptionLabel.setText("consumption: " + consumption);
+
+        if(factory.getStorage() != null){
+            StringBuilder realStored = new StringBuilder();
+            for(Map.Entry<String, Integer> entry : factory.getStorage().getCargo().entrySet()){
+                realStored.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+            }
+            factoryRealStorageLabel.setText("stored cargo: " + realStored);
+
+            StringBuilder maxStored = new StringBuilder();
+            for(Map.Entry<String, Integer> entry : factory.getStorage().getMaxima().entrySet()){
+                maxStored.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+            }
+            factoryMaximaStorageLabel.setText("Maximum cargo capacity: " + maxStored);
+        }
+        else {
+            System.out.println("factory storage was null. name "+factory.getBuildingName());
+        }
+
+        StringBuilder nearStations = new StringBuilder();
+        for(Station station : factory.getNearStations()){
+            nearStations.append(station.getId()).append("; ");
+        }
+        factoryNearStationsLabel.setText("Near Station-Ids: " + nearStations);
+
 
         int index = tabContents.indexOf(factoryTabContent);
         tabPane.getSelectionModel().select(index);
