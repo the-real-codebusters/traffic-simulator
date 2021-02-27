@@ -576,18 +576,27 @@ public class MenuPane extends AnchorPane {
             }
             factoryMaximaStorageLabel.setText("Maximum cargo capacity: " + maxStored);
 
+            boolean labelTooLong = false;
             for(Label label: labels){
-                if(label.getText().length() > 30){
-                    label.setFont(new Font("Arial", 5));
-                }
-                else {
-                    label.setFont(new Font("Arial", 15));
+                if(label.getText().length() > 100){
+                    labelTooLong = true;
                 }
             }
+                for(Label label: labels){
+                    if(labelTooLong){
+                        label.setFont(new Font("Arial", 10));
+                    }
+                    else {
+                        label.setFont(new Font("Arial", 15));
+
+                    }
+                }
 
         }
         else {
             System.out.println("factory storage was null. name "+factory.getBuildingName());
+            factoryRealStorageLabel.setText("");
+            factoryMaximaStorageLabel.setText("");
         }
 
         StringBuilder nearStations = new StringBuilder();
