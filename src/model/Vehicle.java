@@ -32,6 +32,8 @@ public class Vehicle {
 
     private long id;
 
+    private TransportPackage vehicleTransportPackage;
+
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
      * @return
@@ -74,6 +76,14 @@ public class Vehicle {
     }
 
     public void updateNextStation() {
+        if (nextStation == vehicleTransportPackage.getNextStationForTransport()) {
+            TransportPackage oldTransportPackage = vehicleTransportPackage;
+            deliverTransportPackage();
+            if (vehicleTransportPackage == null) {
+                collectTransportPackage();
+            }
+            oldTransportPackage.getPath().remove(0);
+        }
         TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
@@ -182,6 +192,55 @@ public class Vehicle {
             System.out.println(p.coordsRelativeToMapOrigin());
         }
         return vehicleMovement;
+    }
+
+
+    private void deliverTransportPackage(){
+            nextStation.addTransportPackage(vehicleTransportPackage);
+            vehicleTransportPackage = null;
+    }
+
+    private void collectTransportPackage(){
+        List<TransportPackage> stationPackages = nextStation.getStoredPackages();
+        for (TransportPackage transportPackage : stationPackages){
+            String packageCommodity = transportPackage.getCommodity();
+            if (this.storage.getMaxima().containsKey(packageCommodity)){
+                TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+                if(line.getStations().contains(transportPackage.getNextStationForTransport())) {
+                    if (hasEnoughCargoCapacity(transportPackage)) {
+                        this.vehicleTransportPackage = transportPackage;
+                    } else {
+                        Map<String, TransportPackage> splitPackages = splitPackage(transportPackage);
+                        this.vehicleTransportPackage = splitPackages.get("vehiclePackage");
+                        nextStation.addTransportPackage(splitPackages.get("stationPackage"));
+                    }
+                    nextStation.getStoredPackages().remove(transportPackage);
+                    break;
+                }
+            }
+        }
+    }
+
+    private Map<String, TransportPackage> splitPackage(TransportPackage transportPackage){
+        int capacity = getCapacityForCommodity(transportPackage.getCommodity());
+        TransportPackage vehiclePackage = new TransportPackage(transportPackage.getProducerFactory(),
+                transportPackage.getConsumerFactory(), transportPackage.getCommodity(), capacity);
+        int remainingAmount = transportPackage.getAmount() - capacity;
+        TransportPackage stationPackage = new TransportPackage(transportPackage.getProducerFactory(),
+                transportPackage.getConsumerFactory(), transportPackage.getCommodity(), remainingAmount);
+
+        Map<String, TransportPackage> splitPackages = new HashMap<>();
+        splitPackages.put("vehiclePackage", vehiclePackage);
+        splitPackages.put("stationPackage", stationPackage);
+        return splitPackages;
+    }
+
+    private boolean hasEnoughCargoCapacity(TransportPackage transportPackage){
+        return storage.getMaxima().get(transportPackage.getCommodity()) >= transportPackage.getAmount();
+    }
+
+    private int getCapacityForCommodity(String commodity){
+        return storage.getMaxima().get(commodity);
     }
 
     public void revertMovementForNextDay(){

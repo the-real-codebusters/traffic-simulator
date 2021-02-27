@@ -221,7 +221,7 @@ public class BasicModel {
         for(Factory factory : factoryObjects){
             Map<String, Integer> todayProduced = factory.produceAndConsume();
 //            System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
-            System.out.println(todayProduced);
+//            System.out.println(todayProduced);
             if (todayProduced.size() > 0) {
                 List<TransportPackage> transportPackages = findDestinationForTransport(todayProduced, factory);
                 for(TransportPackage transportPackage : transportPackages){
@@ -230,6 +230,9 @@ public class BasicModel {
 
                     if(consumerHasStation && producerHasStation){
                         List<Station> path = pathfinder.findPathToConsumer(transportPackage);
+                        transportPackage.setPath(path);
+                        Station producerStation = transportPackage.getNextStationForTransport();
+                        producerStation.getStoredPackages().add(transportPackage);
 
                         System.out.println("Weg zu Konsumer");
                         path.forEach((x) -> System.out.println("Station id : "+x.getId()));

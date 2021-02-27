@@ -36,6 +36,8 @@ public class Station {
     private Factory nearFactory;
     private int actualSearchLevel;
 
+    private List<TransportPackage> storedPackages = new ArrayList<>();
+
 
     // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
     private boolean visited;
@@ -323,6 +325,14 @@ public class Station {
         else throw new IllegalArgumentException("traffic type was "+type);
     }
 
+    public void addTransportPackage(TransportPackage transportPackage){
+        if (nearFactory == transportPackage.getConsumerFactory()){
+            nearFactory.getStorage().changeCargo(transportPackage.getCommodity(), transportPackage.getAmount());
+        } else {
+            storedPackages.add(transportPackage);
+        }
+    }
+
     public ConnectedTrafficPart getRoadTrafficPart() {
         return roadTrafficPart;
     }
@@ -409,5 +419,13 @@ public class Station {
 
     public void setActualSearchLevel(int actualSearchLevel) {
         this.actualSearchLevel = actualSearchLevel;
+    }
+
+    public List<TransportPackage> getStoredPackages() {
+        return storedPackages;
+    }
+
+    public void setStoredPackages(List<TransportPackage> storedPackages) {
+        this.storedPackages = storedPackages;
     }
 }

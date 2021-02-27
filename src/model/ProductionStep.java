@@ -13,7 +13,7 @@ public class ProductionStep {
 
     public ProductionStep(Map<String, Integer> produce, Map<String, Integer> consume, int duration) {
         this.produce = produce;
-        System.out.println("produce in ProductionStep: " + produce);
+//        System.out.println("produce in ProductionStep: " + produce);
         this.consume = consume;
         this.duration = duration;
     }

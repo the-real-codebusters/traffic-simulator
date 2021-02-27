@@ -1,11 +1,14 @@
 package model;
 
+import java.util.List;
+
 public class TransportPackage {
 
     private Factory producerFactory;
     private Factory consumerFactory;
     private String commodity;
     private int amount;
+    private List<Station> path;
 
     public TransportPackage(Factory producerFactory, Factory consumerFactory, String commodity, int amount) {
         this.producerFactory = producerFactory;
@@ -44,6 +47,18 @@ public class TransportPackage {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public List<Station> getPath() {
+        return path;
+    }
+
+    public void setPath(List<Station> path) {
+        this.path = path;
+    }
+
+    public Station getNextStationForTransport(){
+        return path.get(0);
     }
 
     @Override

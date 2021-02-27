@@ -43,14 +43,14 @@ public class Factory extends Special {
                 enoughCargoInStorage = true;
             }
             else {
-                System.out.println("factory "+buildingName);
+//                System.out.println("factory "+buildingName);
                 for (Map.Entry<String, Integer> entry : consume.entrySet()) {
                     String commodity = entry.getKey();
                     int amountConsume = entry.getValue();
 
-                    System.out.println(storage);
-                    System.out.println(storage.getCargo());
-                    System.out.println(storage.getCargo().get(commodity));
+//                    System.out.println(storage);
+//                    System.out.println(storage.getCargo());
+//                    System.out.println(storage.getCargo().get(commodity));
 
                     int realAmount = storage.getCargo().get(commodity);
                     if(realAmount < amountConsume) {
@@ -110,9 +110,9 @@ public class Factory extends Special {
     }
 
     public void setStorage(Storage storage) {
-        System.out.println(storage);
-        System.out.println("setStorage called");
-        System.out.println("Factory:" + this.buildingName);
+//        System.out.println(storage);
+//        System.out.println("setStorage called");
+//        System.out.println("Factory:" + this.buildingName);
         this.storage = storage;
     }
 
