@@ -34,8 +34,8 @@ public class Railblock {
     public boolean isReservedAtDay(int day, Train ownTrain){
         boolean dayContained = reservations.containsKey(day);
         boolean isNotReservedByOwnTrain = true;
-        System.out.println("asked reserved at day: " + day);
-        reservations.forEach((x,y) -> System.out.println("Day: " + x + " reserved by: " +  y.getName()));
+//        System.out.println("asked reserved at day: " + day);
+//        reservations.forEach((x,y) -> System.out.println("Day: " + x + " reserved by: " +  y.getName()));
 
         if(dayContained){
             if(reservations.get(day).equals(ownTrain)){

@@ -58,7 +58,7 @@ public class Vehicle {
     public void savePathToNextStationAndUpdateMovement(Vertex startVertex, VehicleMovement movement){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
         if(pathToNextStation.size() == 0){
-            System.out.println("Kein neuer Weg gefunden");
+//            System.out.println("Kein neuer Weg gefunden");
             //Kein Weg gefunden
             TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
             line.getVehicles().remove(this);
@@ -72,18 +72,27 @@ public class Vehicle {
      */
     public void savePathToNextStation(Vertex startVertex){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
-        System.out.println("pathToNextStation in savePathToNextStation: "+pathToNextStation);
+//        System.out.println("pathToNextStation in savePathToNextStation: "+pathToNextStation);
     }
 
     public void updateNextStation() {
-        if (nextStation == vehicleTransportPackage.getNextStationForTransport()) {
-            TransportPackage oldTransportPackage = vehicleTransportPackage;
-            deliverTransportPackage();
-            if (vehicleTransportPackage == null) {
-                collectTransportPackage();
+
+        if(vehicleTransportPackage != null){
+            System.out.println("vehicleTransportPackage "+vehicleTransportPackage.toString());
+            System.out.println("vehicle package path size "+vehicleTransportPackage.getPath().size());
+            System.out.println("nextStation vehicle "+nextStation.getId());
+            if(vehicleTransportPackage.getPath().size() > 0){
+                System.out.println("next station for package"+vehicleTransportPackage.getNextStationForTransport().getId());
             }
-            oldTransportPackage.getPath().remove(0);
         }
+
+        if (vehicleTransportPackage != null && vehicleTransportPackage.getPath().size() == 1 && nextStation.equals(vehicleTransportPackage.getNextStationForTransport())) {
+            deliverTransportPackage();
+        }
+        if (vehicleTransportPackage == null) {
+            collectTransportPackage();
+        }
+
         TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
@@ -135,26 +144,26 @@ public class Vehicle {
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
-            System.out.println("pathToNextStation for vehicle "+graphic+" in while loop");
-            pathToNextStation.forEach((x) -> System.out.println(x.getName()));
+//            System.out.println("pathToNextStation for vehicle "+graphic+" in while loop");
+//            pathToNextStation.forEach((x) -> System.out.println(x.getName()));
         }
 
-        System.out.println("Movement after while loop: ");
-        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
-            System.out.println(p.coordsRelativeToMapOrigin());
-        }
+//        System.out.println("Movement after while loop: ");
+//        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+//            System.out.println(p.coordsRelativeToMapOrigin());
+//        }
 
-        System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+//        System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
 
 
         if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
             savePathToNextStationAndUpdateMovement((Vertex) currentPosition, vehicleMovement);
-            System.out.println("Movement after method at last vertex to next station: ");
-            for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
-                System.out.println(p.coordsRelativeToMapOrigin());
-            }
+//            System.out.println("Movement after method at last vertex to next station: ");
+//            for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+//                System.out.println(p.coordsRelativeToMapOrigin());
+//            }
             return vehicleMovement;
         }
         // Ansonsten wurde die Zielstation nicht erreicht
@@ -168,12 +177,12 @@ public class Vehicle {
             pathToNextStation.add(0, (Vertex) currentPosition);
             vehicleMovement.removeLastPair();
 
-            System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+//            System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
 
             PositionOnTilemap previouslyLastPosition;
             if(vehicleMovement.getNumberOfPoints() == 0){
-                System.out.println("way to go "+wayToGo);
-                System.out.println("path to next station "+pathToNextStation);
+//                System.out.println("way to go "+wayToGo);
+//                System.out.println("path to next station "+pathToNextStation);
                 previouslyLastPosition = vehicleMovement.getStartPosition();
             }
             else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
@@ -187,20 +196,21 @@ public class Vehicle {
             throw new RuntimeException("wayToGo in getMovementForNextDay() was >0 : "+wayToGo);
         }
 
-        System.out.println("Movement after method: ");
-        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
-            System.out.println(p.coordsRelativeToMapOrigin());
-        }
+//        System.out.println("Movement after method: ");
+//        for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+//            System.out.println(p.coordsRelativeToMapOrigin());
+//        }
         return vehicleMovement;
     }
 
 
     private void deliverTransportPackage(){
+            System.out.println("deliverTransportPackage called; path "+vehicleTransportPackage.getPath().size());
             nextStation.addTransportPackage(vehicleTransportPackage);
             vehicleTransportPackage = null;
     }
 
-    private void collectTransportPackage(){
+    public void collectTransportPackage(){
         List<TransportPackage> stationPackages = nextStation.getStoredPackages();
         for (TransportPackage transportPackage : stationPackages){
             String packageCommodity = transportPackage.getCommodity();
@@ -215,8 +225,13 @@ public class Vehicle {
                         nextStation.addTransportPackage(splitPackages.get("stationPackage"));
                     }
                     nextStation.getStoredPackages().remove(transportPackage);
+                    transportPackage.getPath().remove(0);
+                    System.out.println("vehicle "+this.getGraphic()+" hat package genommen: "+transportPackage);
                     break;
                 }
+            }
+            else {
+                System.out.println("vehicle "+this.getGraphic()+" hat package "+transportPackage+" nicht aufgenommen");
             }
         }
     }

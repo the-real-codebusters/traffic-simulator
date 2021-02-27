@@ -167,7 +167,7 @@ public class JSONParser {
                 gamemode = handleContentAsString(map, children[i]);
             }
             // mapModel wird aus eingelesenen Werten erzeugt und dem model hinzugefügt
-            MapModel mapModel = new MapModel(width, depth, model);
+            MapModel mapModel = new MapModel(70, 40, model);
             mapModel.setMapgen(mapgen);
             // mapModel und eingelesener gamemode werden dem model hinzugefügt
             model.setMap(mapModel);
@@ -356,7 +356,7 @@ public class JSONParser {
                 Iterator<String> keysCons = cons.keys();
                 while (keysCons.hasNext()) {
                     String type = keysCons.next();
-                    int amount = cons.optInt(data);
+                    int amount = cons.optInt(type);
                     consumeMap.put(type, amount);
                 }
             }
@@ -366,6 +366,8 @@ public class JSONParser {
             else {
                 throw new JSONParserException (resourceBundle.getString("invalidAttributeForProduction") + data);
             }
+            System.out.println("consume map: "+consumeMap);
+            System.out.println("production map: "+produceMap);
 
             factory.getProductionSteps().add(new ProductionStep(produceMap, consumeMap, duration));
         }
@@ -607,7 +609,9 @@ public class JSONParser {
             else {
                 throw new JSONParserException(object+" was no JSONArray or JSONObject");
             }
-            factory.setStorage(new Storage(storageMap));
+            Storage storage = new Storage(storageMap);
+            System.out.println("storage in JSON-parser: "+storage);
+            factory.setStorage(storage);
         }
 //        else {
 //            System.out.println("kein Storage bei factory ");

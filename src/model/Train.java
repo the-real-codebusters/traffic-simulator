@@ -35,7 +35,7 @@ public class Train extends Vehicle {
         List<VehicleMovement> movements = new ArrayList<>();
         boolean trainShouldWait = false;
         if(verticesCounter <= numberOfVertices){
-            System.out.println();
+//            System.out.println();
             // Dann suche konkreten Weg für einige Tage
 
             //Erstes Ziel: Zug wartet, wenn konkreter Weg reserviert
@@ -64,15 +64,15 @@ public class Train extends Vehicle {
                         Map<Integer, Train> reservations = railblock.getReservations();
                         reservations.put(entry.getValue(), this);
 
-                        System.out.println("Reservations for Vertex "+entry.getKey().getName());
-                        reservations.forEach((x, y) -> System.out.println("Tag "+x+"  vehicle name "+y.getName()));
+//                        System.out.println("Reservations for Vertex "+entry.getKey().getName());
+//                        reservations.forEach((x, y) -> System.out.println("Tag "+x+"  vehicle name "+y.getName()));
                     }
                 }
             }
 
             else {
                 trainShouldWait = true;
-                System.out.println("nextVerticesAndDay was null");
+//                System.out.println("nextVerticesAndDay was null");
             }
 //            verticesCounter += nextVerticesAndDay.size();
         }

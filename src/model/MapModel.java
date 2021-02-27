@@ -42,9 +42,9 @@ public class MapModel {
         originTile.setBuildingOrigin(true);
         instance.setOriginColumn(column);
         instance.setOriginRow(row);
-        System.out.println("building name in placeBuilding: " + building.getBuildingName());
-        System.out.println("origin row: " + instance.getOriginRow());
-        System.out.println("origin column: " + instance.getOriginColumn());
+//        System.out.println("building name in placeBuilding: " + building.getBuildingName());
+//        System.out.println("origin row: " + instance.getOriginRow());
+//        System.out.println("origin column: " + instance.getOriginColumn());
 
         //Setzt für jedes zugrundeliegende Tile das neue Building
         for (int r = row; r < row + instance.getWidth(); r++) {
@@ -69,7 +69,7 @@ public class MapModel {
             Station nextStation = getStationNextToStop(row, column, (Stop) instance);
             if (nextStation != null) {
                 station = nextStation;
-                System.out.println("Nachbar für Stop gefunden");
+//                System.out.println("Nachbar für Stop gefunden");
                 //TODO Fall ignoriert, wenn Station durch immer neue Stops näher an Factory gebaut wird
 //                TrafficType type = instance.getTrafficType();
 //                station.setTrafficPartForTrafficType(nextStation.getTrafficPartForTrafficType(type), type);
@@ -78,20 +78,20 @@ public class MapModel {
 //                System.out.println("stop: "+instance.getBuildingName()+" found factory: "+getNearFactory((Stop) instance, row, column));
                 station = new Station(model.getPathfinder(), model);
                 stations.add(station);
-                System.out.println("Station neu erzeugt");
-                System.out.println("stations in placebuilding " + stations);
-                System.out.println("airstations in placebuilding " + getAllAirStations());
+//                System.out.println("Station neu erzeugt");
+//                System.out.println("stations in placebuilding " + stations);
+//                System.out.println("airstations in placebuilding " + getAllAirStations());
 
                 createdNewStation = true;
             }
-            Factory nearFactory = getNearFactory((Stop) instance, row, column);
+            Factory nearFactory = getNearFactory(row, column);
             if (nearFactory != null) {
                 station.setNearFactory(nearFactory);
                 nearFactory.getNearStations().add(station);
             }
 
             worked = station.addBuildingAndSetStationInBuilding((Stop) instance, nextStation == null);
-            System.out.println("StationID in placeBuilding " + ((Stop) instance).getStation().getId());
+//            System.out.println("StationID in placeBuilding " + ((Stop) instance).getStation().getId());
         }
         if (instance instanceof PartOfTrafficGraph) {
             List<Vertex> addedPoints = model.getMap().addPointsToGraph((PartOfTrafficGraph) instance, row, column);
@@ -164,12 +164,12 @@ public class MapModel {
         railGraph.addVertex(middleVertex);
         railGraph.addEdgeBidirectional(edges.get(0).getName(), middleVertex.getName());
         railGraph.addEdgeBidirectional(edges.get(1).getName(), middleVertex.getName());
-
-        System.out.println("block1 in splitRailblocks: ");
-        block1.getVertices().forEach((x) -> System.out.println(x.getName()));
-
-        System.out.println("block2 in splitRailblocks: ");
-        block2.getVertices().forEach((x) -> System.out.println(x.getName()));
+//
+//        System.out.println("block1 in splitRailblocks: ");
+//        block1.getVertices().forEach((x) -> System.out.println(x.getName()));
+//
+//        System.out.println("block2 in splitRailblocks: ");
+//        block2.getVertices().forEach((x) -> System.out.println(x.getName()));
 
     }
 
@@ -239,6 +239,7 @@ public class MapModel {
 
             if (isTooCloseToFactory(building, row, column)) return false;
 
+
             adjacentStationId = -1L;
             for (int r = row; r < row + building.getWidth(); r++) {
                 Building adjacentBuilding = tileGrid[r][column - 1].getBuilding();
@@ -282,6 +283,7 @@ public class MapModel {
         // Abstand zu einer Fabrik eingehalten werden
         Point2D tileCoords = new Point2D(row, column);
         Map<Tile, Point2D> neighbors = getAllNeighbors(tileCoords);
+        if(neighbors.size() == 0) return true;
         for (Tile neighbor : neighbors.keySet()) {
             if (neighbor.getBuilding() instanceof Factory) {
                 return true;
@@ -290,6 +292,7 @@ public class MapModel {
             // Abstand zu einer Fabrik eingehalten werden
             if (building.getBuildingName().contains("tower")) {
                 Map<Tile, Point2D> neighborsOfNeighbor = getAllNeighbors(neighbors.get(neighbor));
+                if(neighborsOfNeighbor.size() == 0) return true;
                 for (Tile neighborOfNeighbor : neighborsOfNeighbor.keySet()) {
                     if (neighborOfNeighbor.getBuilding() instanceof Factory) {
                         return true;
@@ -298,6 +301,7 @@ public class MapModel {
                     // Abstand zu einer Fabrik eingehalten werden
                     if (building.getBuildingName().equals("big tower")) {
                         Map<Tile, Point2D> thirdNeighbors = getAllNeighbors(neighborsOfNeighbor.get(neighborOfNeighbor));
+                        if(thirdNeighbors.size() == 0) return true;
                         for (Tile thirdNeighbor : thirdNeighbors.keySet()) {
                             if (thirdNeighbor.getBuilding() instanceof Factory) {
                                 return true;
@@ -310,13 +314,8 @@ public class MapModel {
         return false;
     }
 
-    /**
-     * @param stop   die zu platzierende Haltestelle
-     * @param row
-     * @param column
-     * @return
-     */
-    private Factory getNearFactory(Stop stop, int row, int column) {
+
+    private Factory getNearFactory(int row, int column) {
 
         // Wenn es sich um einen Busstop oder einen Bahnhof handelt, muss mindestens eine Zeile/Spalte
         // Abstand zu einer Fabrik eingehalten werden
@@ -325,24 +324,28 @@ public class MapModel {
 
         Point2D tileCoords = new Point2D(row, column);
         Map<Tile, Point2D> neighbors = getAllNeighbors(tileCoords);
+        if(neighbors.size() == 0) return null;
         for (Tile neighbor : neighbors.keySet()) {
             if (neighbor.getBuilding() instanceof Factory) {
                 return (Factory) neighbor.getBuilding();
             }
 
             Map<Tile, Point2D> neighborsOfNeighbor = getAllNeighbors(neighbors.get(neighbor));
+            if(neighborsOfNeighbor.size() == 0) return null;
             for (Tile neighborOfNeighbor : neighborsOfNeighbor.keySet()) {
                 if (neighborOfNeighbor.getBuilding() instanceof Factory) {
                     return (Factory) neighborOfNeighbor.getBuilding();
                 }
 
                 Map<Tile, Point2D> thirdNeighbors = getAllNeighbors(neighborsOfNeighbor.get(neighborOfNeighbor));
+                if(thirdNeighbors.size() == 0) return null;
                 for (Tile thirdNeighbor : thirdNeighbors.keySet()) {
                     if (thirdNeighbor.getBuilding() instanceof Factory) {
                         return (Factory) thirdNeighbor.getBuilding();
                     }
 
                     Map<Tile, Point2D> fourthNeighbors = getAllNeighbors(thirdNeighbors.get(thirdNeighbor));
+                    if(fourthNeighbors.size() == 0) return null;
                     for (Tile fourthNeighbor : fourthNeighbors.keySet()) {
                         if (fourthNeighbor.getBuilding() instanceof Factory) {
                             return (Factory) fourthNeighbor.getBuilding();
@@ -368,35 +371,37 @@ public class MapModel {
 
         Map<Tile, Point2D> neighbors = new LinkedHashMap<>();
 
+        boolean toCloseToBorder = xCoord == 0 || yCoord==0 || xCoord == width-1 || yCoord == depth-1;
+        if(!toCloseToBorder){
+            Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
+            Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
+            Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE
+            Tile tileSW = tileGrid[xCoord][yCoord - 1];     // SW
 
-        Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
-        Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
-        Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE
-        Tile tileSW = tileGrid[xCoord][yCoord - 1];     // SW
+            Tile tileN = tileGrid[xCoord - 1][yCoord + 1];     // N
+            Tile tileE = tileGrid[xCoord + 1][yCoord + 1];     // E
+            Tile tileS = tileGrid[xCoord + 1][yCoord - 1];     // S
+            Tile tileW = tileGrid[xCoord - 1][yCoord - 1];     // W
 
-        Tile tileN = tileGrid[xCoord - 1][yCoord + 1];     // N
-        Tile tileE = tileGrid[xCoord + 1][yCoord + 1];     // E
-        Tile tileS = tileGrid[xCoord + 1][yCoord - 1];     // S
-        Tile tileW = tileGrid[xCoord - 1][yCoord - 1];     // W
+            Point2D NW = new Point2D(xCoord - 1, yCoord);     // NW
+            Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
+            Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
+            Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
 
-        Point2D NW = new Point2D(xCoord - 1, yCoord);     // NW
-        Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
-        Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
-        Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
+            Point2D N = new Point2D(xCoord - 1, yCoord + 1);     // N
+            Point2D E = new Point2D(xCoord + 1, yCoord + 1);     // E
+            Point2D S = new Point2D(xCoord + 1, yCoord - 1);     // S
+            Point2D W = new Point2D(xCoord - 1, yCoord - 1);     // W
 
-        Point2D N = new Point2D(xCoord - 1, yCoord + 1);     // N
-        Point2D E = new Point2D(xCoord + 1, yCoord + 1);     // E
-        Point2D S = new Point2D(xCoord + 1, yCoord - 1);     // S
-        Point2D W = new Point2D(xCoord - 1, yCoord - 1);     // W
-
-        neighbors.put(tileNW, NW);
-        neighbors.put(tileNE, NE);
-        neighbors.put(tileSE, SE);
-        neighbors.put(tileSW, SW);
-        neighbors.put(tileN, N);
-        neighbors.put(tileE, E);
-        neighbors.put(tileS, S);
-        neighbors.put(tileW, W);
+            neighbors.put(tileNW, NW);
+            neighbors.put(tileNE, NE);
+            neighbors.put(tileSE, SE);
+            neighbors.put(tileSW, SW);
+            neighbors.put(tileN, N);
+            neighbors.put(tileE, E);
+            neighbors.put(tileS, S);
+            neighbors.put(tileW, W);
+        }
 
         return neighbors;
     }
@@ -418,7 +423,7 @@ public class MapModel {
                 differentParts.add(station.getTrafficPartForTrafficType(trafficType));
             }
             int numberOfNearTrafficParts = differentParts.size();
-            System.out.println(numberOfNearTrafficParts);
+//            System.out.println(numberOfNearTrafficParts);
             boolean mergeNecessary = numberOfNearTrafficParts > 1;
             if (mergeNecessary) {
 //            System.out.println("newAddedVertices in mergeTrafficPartsIfNeccessary: ");
@@ -442,17 +447,17 @@ public class MapModel {
                         Railblock railblock1 = railblockList.get(0);
                         Railblock railblock2 = railblockList.get(1);
 
-                        System.out.println("Railblock 1 vertices: ");
-                        railblock1.getVertices().forEach((x) -> System.out.println(x.getName()));
-
-                        System.out.println("Railblock 2 vertices: ");
-                        railblock2.getVertices().forEach((x) -> System.out.println(x.getName()));
+//                        System.out.println("Railblock 1 vertices: ");
+//                        railblock1.getVertices().forEach((x) -> System.out.println(x.getName()));
+//
+//                        System.out.println("Railblock 2 vertices: ");
+//                        railblock2.getVertices().forEach((x) -> System.out.println(x.getName()));
 
                         railblock1.mergeWithRailblock(railblock2);
                         railblock1.addVertices(new HashSet<>(newAddedVertices));
 
-                        System.out.println("Railblock 1 vertices: ");
-                        railblock1.getVertices().forEach((x) -> System.out.println(x.getName()));
+//                        System.out.println("Railblock 1 vertices: ");
+//                        railblock1.getVertices().forEach((x) -> System.out.println(x.getName()));
 
                     } else if (nearRailblocks.size() > 2) {
                         throw new RuntimeException("Unfertiger Code");
@@ -472,8 +477,8 @@ public class MapModel {
                     if (nearRailblock != null) {
                         nearRailblock.addVertices(new HashSet<>(newAddedVertices));
                         Set<Vertex> vertices = model.getPathfinder().findAllConnectedVerticesUntilSignal(newAddedVertices.get(0));
-                        System.out.println("connected vertices if not merged: ");
-                        vertices.forEach((x) -> System.out.println(x.getName()));
+//                        System.out.println("connected vertices if not merged: ");
+//                        vertices.forEach((x) -> System.out.println(x.getName()));
                     } else throw new RuntimeException("railblock war null");
                 }
             }
@@ -506,7 +511,7 @@ public class MapModel {
                 airStations.add(st);
             }
         }
-        System.out.println("AirStations in MapModel :" + airStations);
+//        System.out.println("AirStations in MapModel :" + airStations);
         return airStations;
     }
 
@@ -517,13 +522,13 @@ public class MapModel {
      */
     private void mergeTrafficParts(List<ConnectedTrafficPart> parts) {
         ConnectedTrafficPart firstPart = parts.get(0);
-        System.out.println("firstPart " + firstPart.getStations().size());
+//        System.out.println("firstPart " + firstPart.getStations().size());
         for (int i = 1; i < parts.size(); i++) {
             firstPart.mergeWithTrafficPart(parts.get(i));
             model.getActiveTrafficParts().remove(parts.get(i));
             model.getNewCreatedOrIncompleteTrafficParts().remove(parts.get(i));
         }
-        System.out.println("firstPart after merge " + firstPart.getStations().size());
+//        System.out.println("firstPart after merge " + firstPart.getStations().size());
     }
 
 //    private void mergeTrafficAirParts(List<ConnectedTrafficPart> parts){
@@ -603,7 +608,7 @@ public class MapModel {
                     }
                 }
             }
-            graph.printGraph();
+//            graph.printGraph();
         }
     }
 
@@ -694,10 +699,10 @@ public class MapModel {
         //checkForDuplicatePoints entfernt Punkte, die durch das hinzufügen doppelt geworden sind.
         //Die joinedVertices sind die Punkte, die zusammengfügt wurden und noch im Graph sind
         joinedVertices.addAll(trafficGraph.checkForDuplicatePoints());
-        System.out.println("joinedVertices");
-        joinedVertices.forEach((x) -> System.out.println(x.getName()));
+//        System.out.println("joinedVertices");
+//        joinedVertices.forEach((x) -> System.out.println(x.getName()));
 
-        trafficGraph.printGraph();
+//        trafficGraph.printGraph();
 
         //Die Knoten im Graph nach den Änderungen
         List<Vertex> verticesAfter = new ArrayList<>(trafficGraph.getMapOfVertexes().values());
@@ -756,7 +761,7 @@ public class MapModel {
             for (Vertex v : trafficGraph.getMapOfVertexes().values()) {
                 if (v.getName().equals(vertexName)) {
                     verticesOnTile.add(v);
-                    System.out.println("name of connected vertex: " + v.getName());
+//                    System.out.println("name of connected vertex: " + v.getName());
                 }
             }
         }
@@ -771,8 +776,8 @@ public class MapModel {
 
         Set<Vertex> addedVertices = ((PartOfTrafficGraph) buildingOnSelectedTile).getVertices();
 
-        System.out.println("Vertices of building in removePointsOnTile");
-        addedVertices.forEach((x) -> System.out.println(x.getName()));
+//        System.out.println("Vertices of building in removePointsOnTile");
+//        addedVertices.forEach((x) -> System.out.println(x.getName()));
 
         for (Vertex vertex : addedVertices) {
             vertex.getBuildings().remove(buildingOnSelectedTile);
@@ -780,8 +785,8 @@ public class MapModel {
             if (vertex.getBuildings().size() == 0) {
                 graph.removeVertex(vertex.getName());
             } else {
-                System.out.println("Buildings for Vertex");
-                vertex.getBuildings().forEach((x) -> System.out.println(x.getBuildingName()));
+//                System.out.println("Buildings for Vertex");
+//                vertex.getBuildings().forEach((x) -> System.out.println(x.getBuildingName()));
             }
         }
 //
@@ -822,7 +827,7 @@ public class MapModel {
      * @return
      */
     private ConnectedTrafficPart addNewStationToTrafficPartOrCreateNewTrafficPart(Station newStation, TrafficType trafficType) {
-        System.out.println("addNewStationToTrafficPartOrCreateNewTrafficPart called");
+//        System.out.println("addNewStationToTrafficPartOrCreateNewTrafficPart called");
         List<Vertex> pathToStation = null;
         boolean anotherStationFindable = false;
 
@@ -839,14 +844,14 @@ public class MapModel {
             if (trafficType.equals(TrafficType.ROAD)) {
                 Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
                 Station nextStation = lastVertex.getStation();
-                System.out.println("should call addStationAndUpdateConnectedStations with " + newStation.getId());
+//                System.out.println("should call addStationAndUpdateConnectedStations with " + newStation.getId());
                 nextStation.getRoadTrafficPart().addStationAndUpdateConnectedStations(newStation);
                 newStation.setRoadTrafficPart(nextStation.getRoadTrafficPart());
                 return nextStation.getRoadTrafficPart();
             } else if (trafficType.equals(TrafficType.AIR)) {
 
                 ConnectedTrafficPart trafficPart = getAllAirStations().get(0).getAirTrafficPart();
-                System.out.println("should call addStationAndUpdateConnectedStations with " + newStation.getId());
+//                System.out.println("should call addStationAndUpdateConnectedStations with " + newStation.getId());
                 trafficPart.addStationAndUpdateConnectedStations(newStation);
                 newStation.setAirTrafficPart(trafficPart);
                 return trafficPart;
@@ -861,7 +866,7 @@ public class MapModel {
             } else if (trafficType.equals(TrafficType.RAIL)) {
                 Vertex lastVertex = pathToStation.get(pathToStation.size() - 1);
                 Station nextStation = lastVertex.getStation();
-                System.out.println("should call addStationAndUpdateConnectedStations with " + newStation.getId());
+//                System.out.println("should call addStationAndUpdateConnectedStations with " + newStation.getId());
                 nextStation.getRailTrafficPart().addStationAndUpdateConnectedStations(newStation);
                 newStation.setRailTrafficPart(nextStation.getRailTrafficPart());
 
@@ -870,8 +875,8 @@ public class MapModel {
                 Railblock railblock = new Railblock();
                 railblock.addVertices(verticesOfRailblock);
 
-                System.out.println("Vertices of new Railblock when added Station to existing ConnectedTrafficPart");
-                railblock.getVertices().forEach((x) -> System.out.println(x.getName()));
+//                System.out.println("Vertices of new Railblock when added Station to existing ConnectedTrafficPart");
+//                railblock.getVertices().forEach((x) -> System.out.println(x.getName()));
 
                 return nextStation.getRailTrafficPart();
             } else

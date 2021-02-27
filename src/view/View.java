@@ -1221,7 +1221,7 @@ public class View {
 
         Point2D startPoint = translateTileCoordsToCanvasCoords(movement.getStartPosition().coordsRelativeToMapOrigin());
         Point2D secondPoint;
-        System.out.println(startPoint);
+//        System.out.println(startPoint);
         if(movement.hasMoreThanOnePoint()){
             secondPoint = translateTileCoordsToCanvasCoords(movement.getPairOfPositionAndDistance(0).getKey().coordsRelativeToMapOrigin());
         }

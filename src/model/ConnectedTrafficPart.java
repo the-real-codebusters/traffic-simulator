@@ -25,8 +25,8 @@ public class ConnectedTrafficPart {
             Vertex oneVertexOfRailblock = firstStation.getSomeVertexForTrafficType(TrafficType.RAIL);
             Set<Vertex> verticesOfRailblock = model.getPathfinder().findAllConnectedVerticesUntilSignal(oneVertexOfRailblock);
 
-            System.out.println("verticesOfRailblock in ConnectedTrafficPart: ");
-            verticesOfRailblock.forEach((x) -> System.out.println(x.getName()));
+//            System.out.println("verticesOfRailblock in ConnectedTrafficPart: ");
+//            verticesOfRailblock.forEach((x) -> System.out.println(x.getName()));
 
             Railblock railblock = new Railblock();
             railblock.addVertices(verticesOfRailblock);
@@ -44,7 +44,7 @@ public class ConnectedTrafficPart {
      * @param station
      */
     public void addStationAndUpdateConnectedStations(Station station){
-        System.out.println("addStation called");
+//        System.out.println("addStation called");
         stations.add(station);
         station.updateDirectlyConnectedStations(trafficType);
         station.setTrafficPartForTrafficType(this, trafficType);
@@ -55,7 +55,7 @@ public class ConnectedTrafficPart {
     // ConnectedTrafficPart noch nicht
 
     public void setAssociatedTrafficPartInEveryBuilding(){
-        System.out.println("setAssociatedTrafficPartInEveryBuilding() called" );
+//        System.out.println("setAssociatedTrafficPartInEveryBuilding() called" );
         if(!trafficType.equals(TrafficType.AIR)){
             Vertex someVertex = stations.get(0).getSomeVertexForTrafficType(trafficType);
             Set<PartOfTrafficGraph> associatedBuildings = model.getPathfinder().findAllConnectedBuildings(someVertex, trafficType);
@@ -82,13 +82,13 @@ public class ConnectedTrafficPart {
     public void mergeWithTrafficPart(ConnectedTrafficPart otherPart){
         if(!otherPart.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge parts " +
                 "of different trafficTypes");
-        System.out.println("Stations "+stations);
+//        System.out.println("Stations "+stations);
         for(Station otherStation: otherPart.getStations()){
             otherStation.setTrafficPartForTrafficType(this, trafficType);
             otherStation.updateDirectlyConnectedStations(trafficType);
             stations.add(otherStation);
         }
-        System.out.println("Stations "+stations);
+//        System.out.println("Stations "+stations);
         trafficLines.addAll(otherPart.getTrafficLines());
         setAssociatedTrafficPartInEveryBuilding();
     }
@@ -97,32 +97,6 @@ public class ConnectedTrafficPart {
         trafficLines.add(trafficLine);
         trafficLine.setStartVertexAndStartStationForNewVehicles();
     }
-//=======
-//    public void mergeWithAirTrafficPart(ConnectedTrafficPart otherPart){
-//        if(!otherPart.getTrafficType().equals(trafficType)) throw new IllegalArgumentException("Tried to merge parts " +
-//                "of different trafficTypes");
-//        System.out.println("Stations "+stations);
-//        for(Station otherStation: otherPart.getStations()){
-//            //TODO: gleiche Stationen nicht miteinander verbinden
-//            if (otherPart.getStations().size() > this.getStations().size()) {
-//                if (otherStation != this.getStations().get(0)) {
-//                    otherStation.setAirTrafficPart(this);
-//                    otherStation.updateDirectlyConnectedStationsForRunway(this.getStations().get(0));
-//                }
-//            }
-//            else {
-//                otherStation.setAirTrafficPart(this);
-//                otherStation.updateDirectlyConnectedStationsForRunway(this.getStations().get(1));
-//            }
-//
-//            //stations.add(otherStation);
-//
-//        }
-//        otherPart.getTrafficLines().add(new TrafficLine(model, TrafficType.AIR));
-//        System.out.println("Stations "+stations);
-//        trafficLines.addAll(otherPart.getTrafficLines());
-//        setAssociatedTrafficPartInEveryBuilding();
-//>>>>>>> master
 
     public void setStations(List<Station> stations) {
         this.stations = stations;
