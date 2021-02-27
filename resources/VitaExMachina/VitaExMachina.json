@@ -439,7 +439,6 @@
       "depth" : 7,
       "special" : "factory",
       "productions" : {"consume":{"robot pieces":4, "emotions":1, "nanotechnology":3, "neural networks":2}, "duration":8},
-
       "storage" : {"robot pieces" : 1000, "nanotechnology" : 300, "emotions" : 500, "neural networks" : 600},
       "dz" : 1
     },
@@ -479,17 +478,17 @@
       "depth" : 5,
       "special" : "factory",
       "productions" : {"produce":{"human data":7},"consume":{"energy":4, "quantum processor" : 5},"duration":30},
-      "storage" : {"energy" : 600},
+      "storage" : {"energy" : 600, "quantum processor" : 500},
       "dz" : 1
     },
     "emotion research department" : {
-    "width" : 4,
-    "depth" : 4,
-    "special" : "factory",
-    "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "human data" : 5 },"duration":30},
-    "storage" : {"energy" : 600},
-    "dz" : 1
-  },
+      "width" : 4,
+      "depth" : 4,
+      "special" : "factory",
+      "productions" : {"produce":{"emotions":7},"consume":{"energy":4, "human data" : 5 },"duration":30},
+      "storage" : {"energy" : 600, "human data" : 400 },
+      "dz" : 1
+    },
     "recycling factory" : {
       "width" : 5,
       "depth" : 5,
@@ -505,11 +504,11 @@
       "dz" : 0
     },
     "plant" : {
-    "buildmenu" : "nature",
-    "width" : 1,
-    "depth" : 1,
-    "special" : "nature",
-    "dz" : 0
+      "buildmenu" : "nature",
+      "width" : 1,
+      "depth" : 1,
+      "special" : "nature",
+      "dz" : 0
     },
     "plantandtree" : {
       "buildmenu" : "nature",
@@ -530,7 +529,7 @@
       "special" : "nature",
       "dz" : 0
     }
-    },
+  },
 
 
   "vehicles" : {
@@ -609,4 +608,4 @@
     "width" : 300,
     "depth" : 400
   }
-  }
+}

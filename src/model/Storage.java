@@ -11,12 +11,14 @@ public class Storage {
     public Storage(Map<String, Integer> maxima) {
         this.maxima = maxima;
         for (Map.Entry<String, Integer> entry : maxima.entrySet()) {
+//            System.out.println("Key of commodity in Storage "+entry.getKey());
             cargo.put(entry.getKey(), 0);
         }
     }
 
     public Storage getNewInstance(){
         Map<String, Integer> maxima = new HashMap<>(this.maxima);
+//        System.out.println("maxima in getNewInstance "+maxima);
         return new Storage(maxima);
     }
 

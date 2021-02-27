@@ -50,6 +50,10 @@ public class Factory extends Special {
 
 //                    System.out.println(storage);
 //                    System.out.println(storage.getCargo());
+//                    System.out.println("commodity: "+commodity);
+//                    System.out.println("name "+buildingName);
+//                    System.out.println("map: "+storage.getCargo());
+
 //                    System.out.println(storage.getCargo().get(commodity));
 
                     int realAmount = storage.getCargo().get(commodity);

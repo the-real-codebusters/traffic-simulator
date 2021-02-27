@@ -266,7 +266,7 @@ public class BasicModel {
             TransportPackage transportPackage = new TransportPackage(producer, destination, producedCommodity, producedAmount);
             transportPackages.add(transportPackage);
         }
-        System.out.println("Transport packages: "+transportPackages);
+//        System.out.println("Transport packages: "+transportPackages);
         return transportPackages;
     }
 
