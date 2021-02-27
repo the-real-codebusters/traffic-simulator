@@ -239,6 +239,7 @@ public class MapModel {
 
             if (isTooCloseToFactory(building, row, column)) return false;
 
+
             adjacentStationId = -1L;
             for (int r = row; r < row + building.getWidth(); r++) {
                 Building adjacentBuilding = tileGrid[r][column - 1].getBuilding();
@@ -282,6 +283,7 @@ public class MapModel {
         // Abstand zu einer Fabrik eingehalten werden
         Point2D tileCoords = new Point2D(row, column);
         Map<Tile, Point2D> neighbors = getAllNeighbors(tileCoords);
+        if(neighbors.size() == 0) return true;
         for (Tile neighbor : neighbors.keySet()) {
             if (neighbor.getBuilding() instanceof Factory) {
                 return true;
@@ -290,6 +292,7 @@ public class MapModel {
             // Abstand zu einer Fabrik eingehalten werden
             if (building.getBuildingName().contains("tower")) {
                 Map<Tile, Point2D> neighborsOfNeighbor = getAllNeighbors(neighbors.get(neighbor));
+                if(neighborsOfNeighbor.size() == 0) return true;
                 for (Tile neighborOfNeighbor : neighborsOfNeighbor.keySet()) {
                     if (neighborOfNeighbor.getBuilding() instanceof Factory) {
                         return true;
@@ -298,6 +301,7 @@ public class MapModel {
                     // Abstand zu einer Fabrik eingehalten werden
                     if (building.getBuildingName().equals("big tower")) {
                         Map<Tile, Point2D> thirdNeighbors = getAllNeighbors(neighborsOfNeighbor.get(neighborOfNeighbor));
+                        if(thirdNeighbors.size() == 0) return true;
                         for (Tile thirdNeighbor : thirdNeighbors.keySet()) {
                             if (thirdNeighbor.getBuilding() instanceof Factory) {
                                 return true;
@@ -368,35 +372,37 @@ public class MapModel {
 
         Map<Tile, Point2D> neighbors = new LinkedHashMap<>();
 
+        boolean toCloseToBorder = xCoord == 0 || yCoord==0 || xCoord == width-1 || yCoord == depth-1;
+        if(!toCloseToBorder){
+            Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
+            Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
+            Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE
+            Tile tileSW = tileGrid[xCoord][yCoord - 1];     // SW
 
-        Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
-        Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
-        Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE
-        Tile tileSW = tileGrid[xCoord][yCoord - 1];     // SW
+            Tile tileN = tileGrid[xCoord - 1][yCoord + 1];     // N
+            Tile tileE = tileGrid[xCoord + 1][yCoord + 1];     // E
+            Tile tileS = tileGrid[xCoord + 1][yCoord - 1];     // S
+            Tile tileW = tileGrid[xCoord - 1][yCoord - 1];     // W
 
-        Tile tileN = tileGrid[xCoord - 1][yCoord + 1];     // N
-        Tile tileE = tileGrid[xCoord + 1][yCoord + 1];     // E
-        Tile tileS = tileGrid[xCoord + 1][yCoord - 1];     // S
-        Tile tileW = tileGrid[xCoord - 1][yCoord - 1];     // W
+            Point2D NW = new Point2D(xCoord - 1, yCoord);     // NW
+            Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
+            Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
+            Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
 
-        Point2D NW = new Point2D(xCoord - 1, yCoord);     // NW
-        Point2D NE = new Point2D(xCoord, yCoord + 1);     // NE
-        Point2D SE = new Point2D(xCoord + 1, yCoord);     // SE
-        Point2D SW = new Point2D(xCoord, yCoord - 1);     // SW
+            Point2D N = new Point2D(xCoord - 1, yCoord + 1);     // N
+            Point2D E = new Point2D(xCoord + 1, yCoord + 1);     // E
+            Point2D S = new Point2D(xCoord + 1, yCoord - 1);     // S
+            Point2D W = new Point2D(xCoord - 1, yCoord - 1);     // W
 
-        Point2D N = new Point2D(xCoord - 1, yCoord + 1);     // N
-        Point2D E = new Point2D(xCoord + 1, yCoord + 1);     // E
-        Point2D S = new Point2D(xCoord + 1, yCoord - 1);     // S
-        Point2D W = new Point2D(xCoord - 1, yCoord - 1);     // W
-
-        neighbors.put(tileNW, NW);
-        neighbors.put(tileNE, NE);
-        neighbors.put(tileSE, SE);
-        neighbors.put(tileSW, SW);
-        neighbors.put(tileN, N);
-        neighbors.put(tileE, E);
-        neighbors.put(tileS, S);
-        neighbors.put(tileW, W);
+            neighbors.put(tileNW, NW);
+            neighbors.put(tileNE, NE);
+            neighbors.put(tileSE, SE);
+            neighbors.put(tileSW, SW);
+            neighbors.put(tileN, N);
+            neighbors.put(tileE, E);
+            neighbors.put(tileS, S);
+            neighbors.put(tileW, W);
+        }
 
         return neighbors;
     }

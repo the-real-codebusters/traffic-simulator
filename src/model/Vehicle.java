@@ -226,8 +226,12 @@ public class Vehicle {
                     }
                     nextStation.getStoredPackages().remove(transportPackage);
                     transportPackage.getPath().remove(0);
+                    System.out.println("vehicle "+this.getGraphic()+" hat package genommen: "+transportPackage);
                     break;
                 }
+            }
+            else {
+                System.out.println("vehicle "+this.getGraphic()+" hat package "+transportPackage+" nicht aufgenommen");
             }
         }
     }
