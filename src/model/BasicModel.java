@@ -285,6 +285,7 @@ public class BasicModel {
                 return entry.getKey();
             }
         }
+        //Die Exception wird geworfen, wenn alle Consumer voll sind. Dies sollte in einer großen Map so gut wie nie vorkommen.
         throw new RuntimeException("consumer in pickConsumerFactory not found");
     }
 
