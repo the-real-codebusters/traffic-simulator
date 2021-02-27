@@ -209,13 +209,32 @@ public class Station {
     public boolean isWholeAirstation(){
         int numberRunways = 0;
         int numberTerminals = 0;
+        Runway runway = null;
+        List<Vertex> verticesOfTerminal = new ArrayList<>();
 
         for(Stop c : components){
-            if(c instanceof Runway) numberRunways++;
-            else if(c.getSpecial().equals("terminal")) numberTerminals++;
+            if(c instanceof Runway) {
+                numberRunways++;
+                runway = (Runway) c;
+            }
+            else if(c.getSpecial().equals("terminal")) {
+                numberTerminals++;
+                verticesOfTerminal.addAll(c.getVertices());
+            }
         }
 
-        return numberRunways > 0 && numberTerminals > 0 && maxPlanes > 0;
+        boolean terminalVerticesConnectToRunway = true;
+        if(runway != null){
+            for(Vertex vertex : verticesOfTerminal){
+                Set<PartOfTrafficGraph> path = pathfinder.findAllConnectedBuildings(vertex, TrafficType.AIR);
+                if(! path.contains(runway)){
+                    terminalVerticesConnectToRunway = false;
+                    break;
+                }
+            }
+        }
+
+        return numberRunways > 0 && numberTerminals > 0 && maxPlanes > 0 && terminalVerticesConnectToRunway;
     }
 
     public List<Vertex> getEntrys(){
