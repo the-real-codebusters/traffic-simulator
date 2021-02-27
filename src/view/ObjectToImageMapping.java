@@ -517,8 +517,12 @@ public class ObjectToImageMapping {
         mapping.put("road-nw0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
         mapping.put("road-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
 
+        //Stations
+
         mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
         mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
+        mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
+        mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
 
         //Fahrzeuge RAiL
 
@@ -526,6 +530,21 @@ public class ObjectToImageMapping {
         mapping.put("the_engine-nw", "vehicles/rail/the_engine-nw");
         mapping.put("the_engine-se", "vehicles/rail/the_engine-se");
         mapping.put("the_engine-sw", "vehicles/rail/the_engine-sw");
+        mapping.put("emotions_wagon-ne", "vehicles/rail/emotions_wagon_ne");
+        mapping.put("emotions_wagon-nw", "vehicles/rail/emotions_wagon_nw");
+        mapping.put("emotions_wagon-se", "vehicles/rail/emotions_wagon_se");
+        mapping.put("emotions_wagon-sw", "vehicles/rail/emotions_wagon_sw");
+        mapping.put("quantum_wagon-ne", "vehicles/rail/quantum_wagon_ne");
+        mapping.put("quantum_wagon-nw", "vehicles/rail/quantum_wagon_nw");
+        mapping.put("quantum_wagon-se", "vehicles/rail/quantum_wagon_se");
+        mapping.put("quantum_wagon-sw", "vehicles/rail/quantum_wagon_sw");
+
+        //Fahrzeuge ROAD
+        mapping.put("recycling_truck-ne", "vehicles/road/recycling_truck-ne");
+        mapping.put("recycling_truck-nw", "vehicles/road/recycling_truck-nw");
+        mapping.put("recycling_truck-se", "vehicles/road/recycling_truck-se");
+        mapping.put("recycling_truck-sw", "vehicles/road/recycling_truck-sw");
+
 
         //Fahrzeuge AIR
         mapping.put("ufo_steel-ne", "vehicles/air/ufo_steel-ne");
