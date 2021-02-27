@@ -7,14 +7,17 @@ public class Pathfinder {
     private TrafficGraph roadGraph;
     private TrafficGraph railGraph;
     private TrafficGraph airGraph;
+    private TrafficLineGraph trafficLineGraph;
+
 
     //TODO Klasse eventuell static machen?
 
 
-    public Pathfinder(TrafficGraph roadGraph, TrafficGraph railGraph, TrafficGraph airGraph) {
+    public Pathfinder(TrafficGraph roadGraph, TrafficGraph railGraph, TrafficGraph airGraph, TrafficLineGraph trafficLineGraph) {
         this.railGraph = railGraph;
         this.roadGraph = roadGraph;
         this.airGraph = airGraph;
+        this.trafficLineGraph = trafficLineGraph;
     }
 
     /**
@@ -25,7 +28,7 @@ public class Pathfinder {
     public List<Vertex> findPathToNextStation(Station actualStation, TrafficType type){
         TrafficGraph graph = getGraphForTrafficType(type);
 
-        Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
+        Vertex startVertex = actualStation.getSomeVertexForTrafficType(type);
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
@@ -125,7 +128,7 @@ public class Pathfinder {
 
         TrafficGraph graph = getGraphForTrafficType(type);
 
-        Vertex startVertex = actualStation.getComponents().get(0).getVertices().iterator().next();
+        Vertex startVertex = actualStation.getSomeVertexForTrafficType(type);
         System.out.println("startVertex in Pathfinder "+startVertex.getName());
 
         List<Station> foundStations = new ArrayList<>();
@@ -228,7 +231,10 @@ public class Pathfinder {
                 // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
                 List<Vertex> childs = new ArrayList<>();
                 System.out.println("current Node : "+currentNode.getName());
-                childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
+                System.out.println("graph.getAdjacencyMap() "+graph.getAdjacencyMap());
+                System.out.println("in klammern "+graph.getAdjacencyMap().get(currentNode.getName()));
+
+            childs.addAll(graph.getAdjacencyMap().get(currentNode.getName()));
 
                 // Entferne alle bereits gesuchten Knoten aus den childs
                 childs.removeAll(alreadyVisited);
@@ -595,6 +601,97 @@ public class Pathfinder {
             throw new IllegalArgumentException("no graph for trafficType "+trafficType);
         }
         return graph;
+    }
+
+
+    //TODO Entfernungen (distances) berücksichtigen
+    public List<Station> findPathToConsumer(TransportPackage transportPackage){
+
+        Station startStation = transportPackage.getProducerFactory().getNearStations().iterator().next();
+        Station endStation = transportPackage.getConsumerFactory().getNearStations().iterator().next();
+
+        // Sollte der gefundene Weg von Startknoten zu gefundenem Zielnoten sein
+        List<Station> path = new ArrayList<Station>();
+
+        // Ebene der Breitensuche in dem Graph. Dies sollte auch der Entfernung zum Startknoten entsprechen
+        int searchLevel = 0;
+        startStation.setActualSearchLevel(0);
+
+        Queue<Station> queue = new ArrayDeque<>();
+        queue.add(startStation);
+
+        // Knoten die schon in der Suche besucht wurden
+        List<Station> alreadyVisited = new ArrayList<>();
+        alreadyVisited.add(startStation);
+
+        // Child, Parent
+        // Speichert den Parent eines Knotens, von dem die Breitensuche zu diesem Knoten gelangt ist
+        Map<Station, Station> parentNodes = new HashMap<>();
+
+        Station currentNode;
+
+        // Die Queue ist leer, wenn kein Zielknoten gefunden wurde
+        while (!queue.isEmpty()) {
+            currentNode = queue.remove();
+            searchLevel = currentNode.getActualSearchLevel();
+
+            //Wenn if-Bedingung erfüllt ist, dann haben wir das Ziel gefunden
+            if (currentNode != null && currentNode.equals(endStation)) {
+
+                // Füge Zielknoten zu Weg hinzu
+                path.add(currentNode);
+
+                Station actualParentNode = currentNode;
+
+                // Gehe Weg von Zielknoten zu Startknoten zurück und speichere den Weg ab
+                // Brich Schleife ab, wenn Startknoten erreicht
+                while (!actualParentNode.equals(startStation)) {
+                    actualParentNode = parentNodes.get(actualParentNode);
+                    path.add(actualParentNode);
+                }
+                // Damit Liste start -> ziel anzeigt und nicht ziel -> start
+                Collections.reverse(path);
+                return path;
+            }
+            // Wenn wir in den else-Teil gehen, haben wir noch kein Ziel gefunden
+            else {
+                // Speichere alle in Verbindung stehenden Knoten mit dem aktuellen Knoten in childs
+                List<Station> childs = new ArrayList<>();
+
+                if(trafficLineGraph.getWeightedAdjacencyMap().get(currentNode.getId())==null) throw new NullPointerException("" +
+                        "eine ID einer Station in der Adjazenzliste war nicht auffindbar. Das kann doch nicht sein");
+
+                childs.addAll(trafficLineGraph.getWeightedAdjacencyMap().get(currentNode.getId()).keySet());
+                System.out.println("childs in pathfinder "+childs);
+
+
+                // Entferne alle bereits gesuchten Knoten aus den childs
+                childs.removeAll(alreadyVisited);
+
+                // Füge alle noch übrigen childs zu den bereits beuschten Knoten hinzu. Ist für nächste Durchlaufe
+                // der Schleife wichtig
+                alreadyVisited.addAll(childs);
+
+                int searchLevelOfChild = searchLevel + 1;
+                for (Station child : childs) {
+                    child.setActualSearchLevel(searchLevelOfChild);
+                }
+
+                // Füge die übrigen Knoten der Queue hinzu
+                queue.addAll(childs);
+
+                for (Station child : childs) {
+                    // Prüfe, ob ein Knoten mehrere Parents hat. Sollte nie ausgeführt werden
+                    if (parentNodes.containsKey(child)){
+                        throw new RuntimeException("Map parentNodes hat schon einen Parent für Child");
+                    }
+                    // Speichere für jedes child den Knoten ab, durch den die Breitensuche zu dem child gelangt ist
+                    parentNodes.put(child, currentNode);
+                }
+            }
+        }
+        // Wenn kein Pfand gefunden, return leere Liste
+        return new ArrayList<Station>();
     }
 
 

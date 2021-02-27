@@ -42,6 +42,11 @@ public class MenuPane extends AnchorPane {
     private HBox trafficPartTabContent;
     private VBox factoryTabContent;
 
+    // factory labels
+    private Label factoryNameLabel;
+    private Label productionLabel;
+    private Label consumptionLabel;
+
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
 
@@ -114,7 +119,14 @@ public class MenuPane extends AnchorPane {
         factoryNameLabel.setText("factory name: not selected");
         productionLabel.setText("production: nothing");
         consumptionLabel.setText("consumption: nothing");
-        view.setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
+        setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
+    }
+
+
+    public void setFactoryLabels(Label factoryNameLabel, Label productionLabel, Label consumptionLabel){
+        this.factoryNameLabel = factoryNameLabel;
+        this.productionLabel = productionLabel;
+        this.consumptionLabel = consumptionLabel;
     }
 
     /**
@@ -471,7 +483,13 @@ public class MenuPane extends AnchorPane {
                     System.out.println("selectTrafficLineStationsMode "+selectTrafficLineStationsMode);
                     controller.selectStationsForTrafficLine(event);
                 }
-                else controller.showTrafficPartInView(event);
+                else {
+                    Building building = controller.getBuildingForMouseEvent(event);
+                    if(building instanceof Factory){
+                        showFactoryInformation(building);
+                    }
+                    else controller.showTrafficPartInView(building);
+                }
             }
         });
 
@@ -484,6 +502,31 @@ public class MenuPane extends AnchorPane {
                 controller.managePlacement(dragEvent);
             }
         });
+    }
+
+    private void showFactoryInformation(Building building){
+        Factory factory = (Factory) building;
+
+
+        // System.out.println("building = " + factory);
+        factoryNameLabel.setText("factory name: " + factory.getBuildingName());
+        StringBuilder production = new StringBuilder();
+        for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getProduce().entrySet()){
+            production.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+        }
+        if(production.toString().equals("")) {
+            production = new StringBuilder("nothing");
+        }
+        productionLabel.setText("production: " + production);
+        StringBuilder consumption = new StringBuilder();
+        for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getConsume().entrySet()){
+            consumption.append(entry.getKey()).append("  ");
+        }
+        if(consumption.toString().equals("")) {
+            consumption = new StringBuilder("nothing");
+        }
+        consumptionLabel.setText("consumption: " + consumption);
+
     }
 
     private void showTrafficLineDialog(TrafficType trafficType){

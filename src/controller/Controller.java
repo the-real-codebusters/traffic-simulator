@@ -58,7 +58,7 @@ public class Controller {
         TrafficGraph railGraph = model.getMap().getRailGraph();
         TrafficGraph airGraph = model.getMap().getAirGraph();
 
-        pathfinder = new Pathfinder(roadGraph, railGraph, airGraph);
+        pathfinder = new Pathfinder(roadGraph, railGraph, airGraph, model.getMap().getTrafficLineGraph());
         model.setPathfinder(pathfinder);
 
 //        new TrafficLineCreationDialog(view);
@@ -213,8 +213,7 @@ public class Controller {
         return model.getMap().canPlaceBuilding(row, column, building);
     }
 
-    public void showTrafficPartInView(MouseEvent event){
-        Building building = getBuildingForMouseEvent(event);
+    public void showTrafficPartInView(Building building){
         System.out.println("building "+building.getBuildingName()+" in showTrafficPartInView");
         if(building instanceof PartOfTrafficGraph){
             ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
@@ -262,7 +261,7 @@ public class Controller {
         }
     }
 
-    private Building getBuildingForMouseEvent(MouseEvent event){
+    public Building getBuildingForMouseEvent(MouseEvent event){
         double mouseX = event.getX();
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
@@ -276,20 +275,13 @@ public class Controller {
 
     public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
-
-//        if (trafficType == TrafficType.AIR) {
-            
-//         List<Station> st = new ArrayList<>(stationsOfPlannedTrafficLine);
-//        TrafficLine trafficLine = new TrafficLine(model, trafficType, st, mapDesiredNumbers, name);
-//            trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
-//            model.getActiveTrafficParts().add(trafficPartOfPlannedTrafficLine);
-//        }
-//        else {
         List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
         clearPlannedTrafficLine();
-//        }
+        TrafficLineGraph trafficLineGraph = model.getMap().getTrafficLineGraph();
+        trafficLineGraph.generateEntriesFromStationList(stationList);
+        trafficLineGraph.printGraph();
     }
 
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {

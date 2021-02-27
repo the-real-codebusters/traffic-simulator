@@ -346,7 +346,7 @@ public class JSONParser {
                 Iterator<String> keysProd = prod.keys();
                 while (keysProd.hasNext()) {
                     String type = keysProd.next();
-                    int amount = prod.optInt(data);
+                    int amount = prod.optInt(type);
                     produceMap.put(type, amount);
                 }
             }
@@ -366,10 +366,9 @@ public class JSONParser {
             else {
                 throw new JSONParserException (resourceBundle.getString("invalidAttributeForProduction") + data);
             }
+
+            factory.getProductionSteps().add(new ProductionStep(produceMap, consumeMap, duration));
         }
-        factory.setProduce(produceMap);
-        factory.setConsume(consumeMap);
-        factory.setDuration(duration);
     }
     /**
      * Prüft Inhalt des Vehicles-Attributs
@@ -577,19 +576,42 @@ public class JSONParser {
 
     private Factory handleFactoryContent(JSONObject json) throws JSONParserException {
         Factory factory = new Factory();
+        // [{"consume":{"glass":4, "silicone":1},"duration":8}, {"consume":{"solar panels":2},"duration":25}]
 
         setDefaultAttributes(factory, json);
         // prüfe Storage-Attribut
         Map<String, Integer> storageMap = new HashMap<>();
         if (json.has("storage")) {
-            JSONObject storage  = json.getJSONObject("storage");
-            Iterator<String> keys = storage.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                int value = storage.optInt(key);
-                storageMap.put(key,value);
+            Object object  = json.get("storage");
+            if(object instanceof JSONObject){
+                JSONObject storage  = json.getJSONObject("storage");
+                Iterator<String> keys = storage.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    int value = storage.optInt(key);
+                    storageMap.put(key,value);
+                }
             }
+            else if(object instanceof JSONArray){
+                JSONArray array = (JSONArray)object;
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject storage  = array.getJSONObject(i);
+                    Iterator<String> keys = storage.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        int value = storage.optInt(key);
+                        storageMap.put(key,value);
+                    }
+                }
+            }
+            else {
+                throw new JSONParserException(object+" was no JSONArray or JSONObject");
+            }
+            factory.setStorage(new Storage(storageMap));
         }
+//        else {
+//            System.out.println("kein Storage bei factory ");
+//        }
 
         Object productions = json.get("productions");
         // Productions kommt entweder einzeln oder als Array vor

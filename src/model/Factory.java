@@ -1,61 +1,134 @@
 package model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Factory extends Special {
 
-    private Map<String, Integer> produce = new HashMap<>();
-    private Map<String, Integer> consume = new HashMap<>();
+
     //optional
-    private Map<String, Integer> storage = new HashMap<>();
-    private int duration;
+    private Storage storage;
+
+    private Set<Station> nearStations = new HashSet<>();
+    private List<ProductionStep> productionSteps = new ArrayList<>();
+
 
     @Override
     public Factory getNewInstance(){
         Factory instance = new Factory();
         setInstanceStandardAttributes(instance);
 
-        // it was before 21.02.2021
-        // instance.setConsume(Map.copyOf(consume));
-        instance.setConsume(new HashMap<>(consume));
-
-        // it was before 21.02.2021
-        // instance.setProduce(Map.copyOf(produce));
-        instance.setProduce(new HashMap<>(produce));
+        List<ProductionStep> newSteps = new ArrayList<>();
+        for(ProductionStep oldStep : productionSteps){
+            newSteps.add(oldStep.getNewInstance());
+        }
+        instance.setProductionSteps(newSteps);
+        if(storage != null) instance.setStorage(storage.getNewInstance());
 
         instance.setSpecial(getSpecial());
         setTrafficType(TrafficType.NONE);
         return instance;
     }
 
-    public Map<String, Integer> getProduce(){ return produce; }
+    public Map<String, Integer> produceAndConsume(){
+        // Gibt es genug zum konsumieren?
 
-    public Map<String, Integer> getConsume(){ return consume; }
+        Map<String, Integer> todayProduced = new HashMap<>();
 
-    public void setProduce(Map<String, Integer> produce) {
-        this.produce = produce;
+        for(ProductionStep step : productionSteps){
+            Map<String, Integer> produce = step.getProduce();
+            Map<String, Integer> consume = step.getConsume();
+
+            boolean enoughCargoInStorage = true;
+            if(consume.isEmpty()){
+                enoughCargoInStorage = true;
+            }
+            else {
+//                System.out.println("factory "+buildingName);
+                for (Map.Entry<String, Integer> entry : consume.entrySet()) {
+                    String commodity = entry.getKey();
+                    int amountConsume = entry.getValue();
+
+//                    System.out.println(storage);
+//                    System.out.println(storage.getCargo());
+//                    System.out.println(storage.getCargo().get(commodity));
+
+                    int realAmount = storage.getCargo().get(commodity);
+                    if(realAmount < amountConsume) {
+                        enoughCargoInStorage = false;
+                    }
+                }
+            }
+
+            if(enoughCargoInStorage && step.getCounter() == step.getDuration()){
+                //Veringere konsumierte Waren
+
+                for (Map.Entry<String, Integer> entry : consume.entrySet()) {
+                    String commodity = entry.getKey();
+                    int amountConsume = entry.getValue();
+
+                    storage.changeCargo(commodity, -amountConsume);
+                }
+
+                for (Map.Entry<String, Integer> entry : produce.entrySet()) {
+                    String commodity = entry.getKey();
+                    int amountProduce = entry.getValue();
+
+                    todayProduced.put(commodity, amountProduce);
+                }
+
+                step.setCounter(0);
+            }
+            else {
+                step.setCounter(step.getCounter()+1);
+            }
+        }
+
+        return todayProduced;
     }
 
-    public void setConsume(Map<String, Integer> consume) {
-        this.consume = consume;
+    public Set<Station> getNearStations() {
+        return nearStations;
     }
 
-    public void setStorage(Map<String, Integer> storage) {
+    public List<ProductionStep> getProductionSteps() {
+        return productionSteps;
+    }
+
+    public void setProductionSteps(List<ProductionStep> productionSteps) {
+        this.productionSteps = productionSteps;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    // Darf nur aufgerufen werden, wenn sicher ist, dass die entsprechende commodity konsumiert wird
+    public int getFreeStorageForCommodity(String commodity){
+        int realAmount = storage.getCargo().get(commodity);
+        int maxAmount = storage.getMaxima().get(commodity);
+        return maxAmount-realAmount;
+    }
+
+    public void setStorage(Storage storage) {
+//        System.out.println(storage);
+//        System.out.println("setStorage called");
+//        System.out.println("Factory:" + this.buildingName);
         this.storage = storage;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " Factory{" +
-                "produce=" + produce +
-                ", consume=" + consume +
-                ", storage=" + storage +
-                ", duration=" + duration +
+        return "Factory{" +
+                "storage=" + storage +
+                ", nearStations=" + nearStations +
+                ", productionSteps=" + productionSteps +
+                ", width=" + width +
+                ", depth=" + depth +
+                ", dz=" + dz +
+                ", buildingName='" + buildingName + '\'' +
+                ", buildmenu='" + buildmenu + '\'' +
+                ", originColumn=" + originColumn +
+                ", originRow=" + originRow +
                 '}';
     }
 }

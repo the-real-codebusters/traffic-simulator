@@ -15,6 +15,8 @@ public class Station {
     private static final AtomicLong NEXT_ID = new AtomicLong(0);
     private final long id = NEXT_ID.getAndIncrement();
     private int maxPlanes = 0;
+
+    //TODO Mehrere TrafficLines für eine Station
     private TrafficLine roadTrafficLine;
     private TrafficLine railTrafficLine;
     private TrafficLine airTrafficLine;
@@ -24,13 +26,18 @@ public class Station {
     private ConnectedTrafficPart railTrafficPart;
 
 
-
     private Set<Station> directlyRoadConnectedStations = new HashSet<>();
     private Set<Station> directlyRailConnectedStations = new HashSet<>();
     private Set<Station> directlyAirConnectedStations = new HashSet<>();
 
     private Pathfinder pathfinder;
     private BasicModel model;
+
+    private Factory nearFactory;
+    private int actualSearchLevel;
+
+    private List<TransportPackage> storedPackages = new ArrayList<>();
+
 
     // wird verwendet um einen saubere Flugzeugbewegung auf/zwischen den Runways zu ermöglichen
     private boolean visited;
@@ -61,6 +68,8 @@ public class Station {
         this.railTrafficPart = railTrafficPart;
         this.airTrafficPart = airTrafficPart;
         this.model = model;
+
+        model.getMap().getTrafficLineGraph().addStation(this);
     }
 
     public Station(Pathfinder pathfinder, BasicModel model) {
@@ -73,6 +82,9 @@ public class Station {
 
         this.pathfinder = pathfinder;
         this.model = model;
+
+        model.getMap().getTrafficLineGraph().addStation(this);
+
     }
 
     /**
@@ -81,6 +93,10 @@ public class Station {
      * @return
      */
     public boolean isDirectlyConnectedTo(Station station, TrafficType trafficType){
+
+        System.out.println("directlyRoadConnectedStations in isDirectlyConnectedTo für Station "+id);
+        directlyRoadConnectedStations.forEach((x) -> System.out.println( "verbunden mit Station: "+x.getId()));
+
         if(trafficType.equals(TrafficType.ROAD)){
             return directlyRoadConnectedStations.contains(station);
         }
@@ -167,7 +183,7 @@ public class Station {
      * @param building
      * @return
      */
-    public void addBuildingAndSetStationInBuilding(Stop building, boolean firstStation){
+    public boolean addBuildingAndSetStationInBuilding(Stop building, boolean firstStation){
         building.setStation(this);
         if(building.getTrafficType().equals(TrafficType.AIR)){
             if(building instanceof Tower){
@@ -184,8 +200,10 @@ public class Station {
 
         if(!firstStation){
             ConnectedTrafficPart trafficPart = getTrafficPartForTrafficType(building.getTrafficType());
+            if(trafficPart == null) return false;
             trafficPart.setAssociatedTrafficPartInEveryBuilding();
         }
+        return true;
     }
 
     public boolean isWholeAirstation(){
@@ -219,6 +237,15 @@ public class Station {
 
     public boolean hasPartOfTrafficType(TrafficType trafficType){
         return getTrafficPartForTrafficType(trafficType) != null;
+    }
+
+    public Vertex getSomeVertexForTrafficType(TrafficType trafficType){
+        for(Stop stop: components){
+            if(stop.getTrafficType().equals(trafficType)){
+                return stop.getVertices().iterator().next();
+            }
+        }
+        throw new RuntimeException("Found no Vertex for trafficType "+trafficType);
     }
 
     public ConnectedTrafficPart getTrafficPartForTrafficType(TrafficType trafficType){
@@ -298,6 +325,14 @@ public class Station {
         else throw new IllegalArgumentException("traffic type was "+type);
     }
 
+    public void addTransportPackage(TransportPackage transportPackage){
+        if (nearFactory == transportPackage.getConsumerFactory()){
+            nearFactory.getStorage().changeCargo(transportPackage.getCommodity(), transportPackage.getAmount());
+        } else {
+            storedPackages.add(transportPackage);
+        }
+    }
+
     public ConnectedTrafficPart getRoadTrafficPart() {
         return roadTrafficPart;
     }
@@ -368,5 +403,29 @@ public class Station {
 
     public void setRailTrafficPart(ConnectedTrafficPart railTrafficPart) {
         this.railTrafficPart = railTrafficPart;
+    }
+
+    public Factory getNearFactory() {
+        return nearFactory;
+    }
+
+    public void setNearFactory(Factory nearFactory) {
+        this.nearFactory = nearFactory;
+    }
+
+    public int getActualSearchLevel() {
+        return actualSearchLevel;
+    }
+
+    public void setActualSearchLevel(int actualSearchLevel) {
+        this.actualSearchLevel = actualSearchLevel;
+    }
+
+    public List<TransportPackage> getStoredPackages() {
+        return storedPackages;
+    }
+
+    public void setStoredPackages(List<TransportPackage> storedPackages) {
+        this.storedPackages = storedPackages;
     }
 }

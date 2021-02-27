@@ -55,6 +55,8 @@ public class TrafficLine {
      */
     public Vehicle addNewVehicle(Vehicle vehicle){
 
+        System.out.println("addNewVehicle called for "+vehicle.getGraphic());
+
         if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
 //        int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
 //        int columnInTileGrid = startVertexForNewVehicles.getyCoordinateInGameMap();
@@ -65,7 +67,7 @@ public class TrafficLine {
 //                rowInTileGrid, columnInTileGrid);
 
         vehicle.setPathfinder(model.getPathfinder());
-        vehicle.setPosition(stations.get(0).getComponents().get(0).getVertices().iterator().next());
+        vehicle.setPosition(stations.get(0).getSomeVertexForTrafficType(trafficType));
         vehicle.setNextStation(stations.get(0));
 //        if (trafficType != TrafficType.AIR) {
             vehicle.updateNextStation();
@@ -77,10 +79,8 @@ public class TrafficLine {
             vehicles.add(vehicle);
             System.out.println(vehicle.getTrafficType());
             System.out.println("Speed of new vehicle"+vehicle.getSpeed());
+            System.out.println("path of new vehicle"+vehicle.pathToNextStation);
         }
-//        else{
-//            throw new RuntimeException("Neues Vehicle konnte keinen Weg finden");
-//        }
 
         return vehicle;
     }

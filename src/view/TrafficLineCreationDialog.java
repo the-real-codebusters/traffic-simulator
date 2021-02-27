@@ -114,18 +114,13 @@ public class TrafficLineCreationDialog {
             Controller controller = view.getController();
             for(VehicleTypeRow row: tableView.getItems()){
                     String nameLocalized = row.getInformation().split(name+": ")[1].split(" ")[0];
-                    System.out.println("name1: " + nameLocalized);
+//                    System.out.println("name1: " + nameLocalized);
                     Locale locale = new Locale("en_US");
                     ResourceBundle bundleEN = ResourceBundle.getBundle("Bundle", locale);
-                    // TODO: aus irgendeinem Grund ist für Silowagen eine Spezialbehandlung nötig. Fehler finden
                     String nameEN;
-                    if(nameLocalized.equals("Silowagen")){
-                        nameEN = "bulk_truck";
-                    } else {
-                        nameEN = bundleEN.getString(nameLocalized);
-                    }
+                    nameEN = bundleEN.getString(nameLocalized);
 //                    String nameEN = bundleEN.getString(nameLocalized);
-                    System.out.println("name2: " + nameEN);
+//                    System.out.println("name2: " + nameEN);
                     mapDesiredNumbers.put(nameEN, row.getDesiredNumber());
 
             }

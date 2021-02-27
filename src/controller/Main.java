@@ -50,6 +50,7 @@ public class Main extends Application {
         //if (parser.parse("resources/planverkehr/planverkehr.json", model, resourceBundle)) {
    if (parser.parse("resources/VitaExMachina/VitaExMachina.json", model, resourceBundle)) {
 
+
 //            model.printModelAttributes();
             View view = new View(stage, model);
             stage.setTitle("Planverkehr");

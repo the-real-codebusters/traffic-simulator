@@ -1,5 +1,8 @@
 package model;
 
+import com.sun.nio.sctp.SendFailedNotification;
+import javafx.geometry.Point2D;
+
 import java.util.*;
 
 public class BasicModel {
@@ -17,6 +20,7 @@ public class BasicModel {
     private Set<String> buildmenus = new HashSet<>();
     private List<Building> buildings = new ArrayList<>();
     private List<Vehicle> vehiclesTypes = new ArrayList<>();
+    private List<Factory> factoryObjects = new ArrayList<>();
 
     // Die Verkehrslinien, die seit dem letzten Tag neu erstellt wurden oder nur eine Station haben und damit unfertig sind.
     private Queue<ConnectedTrafficPart> newCreatedOrIncompleteConnectedTrafficParts = new ArrayDeque<>();
@@ -58,7 +62,6 @@ public class BasicModel {
         // gelbe Punkte platzieren (?)
         // flugzeug von a nach b sich bewegen und zurück
         //
-
 
 
         // In der Zeit einer Runde, also seit dem letzten Aufruf dieser Methode, können Haltestellen platziert worden
@@ -138,7 +141,7 @@ public class BasicModel {
 
                     if(trafficLine.getTrafficType().equals(TrafficType.RAIL)){
                         //Dann spawne nur, wenn nicht reserviert
-                        Vertex vertex = trafficLine.getStartStation().getComponents().get(0).getVertices().iterator().next();
+                        Vertex vertex = trafficLine.getStartStation().getSomeVertexForTrafficType(TrafficType.RAIL);
                         boolean reserved = vertex.getRailblock().isReservedAtDay(day, (Train) newVehicle) ||
                                 vertex.getRailblock().isReservedAtDay(day+1, (Train) newVehicle);
                         System.out.println("Reserved at day: " + day + " " + reserved);
@@ -206,8 +209,110 @@ public class BasicModel {
                 movements.add(movement);
             }
         }
+
+        produceAndConsume();
+
+
         day++;
         return movements;
+    }
+
+    private void produceAndConsume(){
+        for(Factory factory : factoryObjects){
+            Map<String, Integer> todayProduced = factory.produceAndConsume();
+//            System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
+//            System.out.println(todayProduced);
+            if (todayProduced.size() > 0) {
+                List<TransportPackage> transportPackages = findDestinationForTransport(todayProduced, factory);
+                for(TransportPackage transportPackage : transportPackages){
+                    boolean producerHasStation =  transportPackage.getProducerFactory().getNearStations().size() > 0;
+                    boolean consumerHasStation =  transportPackage.getConsumerFactory().getNearStations().size() > 0;
+
+                    if(consumerHasStation && producerHasStation){
+                        List<Station> path = pathfinder.findPathToConsumer(transportPackage);
+                        transportPackage.setPath(path);
+                        Station producerStation = transportPackage.getNextStationForTransport();
+                        producerStation.getStoredPackages().add(transportPackage);
+
+                        System.out.println("Weg zu Konsumer");
+                        path.forEach((x) -> System.out.println("Station id : "+x.getId()));
+                    }
+                    //TODO Ansonsten vernichte Ware
+
+                }
+            }
+        }
+    }
+
+    //TODO: duration von sand pit auf 15 zurücksetzen
+
+    private List<TransportPackage> findDestinationForTransport(Map<String, Integer> todayProduced, Factory producer){
+        List<TransportPackage> transportPackages = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : todayProduced.entrySet()){
+            Set<Factory> consumers = new HashSet<>();
+            String producedCommodity = entry.getKey();
+            Integer producedAmount = entry.getValue();
+            for (Factory factory : factoryObjects){
+                List<ProductionStep> steps = factory.getProductionSteps();
+                for (ProductionStep step : steps){
+                    if (step.getConsume().containsKey(producedCommodity)){
+                        consumers.add(factory);
+                    }
+                }
+            }
+            Map<Factory, Double> weights = calculateWeighting(consumers, producedCommodity, producer);
+            Map<Factory, Double> probabilities = calculateProbabilities(weights);
+            Factory destination = pickConsumerFactory(probabilities);
+            TransportPackage transportPackage = new TransportPackage(producer, destination, producedCommodity, producedAmount);
+            transportPackages.add(transportPackage);
+        }
+        System.out.println("Transport packages: "+transportPackages);
+        return transportPackages;
+    }
+
+    private Factory pickConsumerFactory(Map<Factory, Double> probabilities){
+        double randomInRange0To1= Math.random();
+        double probCounter = 0;
+        for (Map.Entry<Factory, Double> entry : probabilities.entrySet()){
+            probCounter += entry.getValue();
+            if (probCounter > randomInRange0To1){
+//                System.out.println("Ziel: " + entry.getKey().buildingName);
+                return entry.getKey();
+            }
+        }
+        throw new RuntimeException("consumer in pickConsumerFactory not found");
+    }
+
+    private Map<Factory, Double> calculateWeighting(Set<Factory> consumers, String commodity, Factory producer){
+        Map<Factory, Double> weights = new HashMap<>();
+        for (Factory consumer : consumers){
+            int freeStorage = consumer.getFreeStorageForCommodity(commodity);
+            int consumerX = consumer.getOriginRow();
+            int consumerY = consumer.getOriginColumn();
+            int producerX = producer.getOriginRow();
+            int producerY = producer.getOriginColumn();
+//            System.out.println("Points: " + consumerX + " " + consumerY + " " + producerX + " " + producerY);
+            double distance = new Point2D(consumerX, consumerY).distance(new Point2D(producerX, producerY));
+            double weight = (double)freeStorage/distance;
+//            System.out.println("Distance: " + distance + " Free storage: " + freeStorage + " weight: " + weight);
+            weights.put(consumer, weight);
+        }
+        return weights;
+    }
+
+    private Map<Factory, Double> calculateProbabilities(Map<Factory, Double> weights){
+        Map<Factory, Double> probabilities = new HashMap<>();
+        double totalWeight = 0;
+        for (Double weight : weights.values()){
+            totalWeight+= weight;
+        }
+        for (Map.Entry<Factory, Double> entry : weights.entrySet()){
+            double probability = entry.getValue()/totalWeight;
+            probabilities.put(entry.getKey(), probability);
+//            System.out.println("Factory: " + entry.getKey().buildingName + " probability: " + probability);
+        }
+//        System.out.println(probabilities);
+        return probabilities;
     }
 
     private void createCarReservations(VehicleMovement movement, List<InstantCarReservation> reservations, Vehicle vehicle){
@@ -246,106 +351,106 @@ public class BasicModel {
         }
     }
 
-    /**
-     * Bewegt Flugzeug zum ersten Runway zurueck
-     * @param trafficLine
-     * @param station
-     * @param airMovements
-     */
-    private void moveBackToOriginRunway(TrafficLine trafficLine, Station station, List<VehicleMovement> airMovements) {
-        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
-            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
-                Vertex first = station.getLast();
-                Vertex last = trafficLine.getStations().get(0).getFirst();
+//    /**
+//     * Bewegt Flugzeug zum ersten Runway zurueck
+//     * @param trafficLine
+//     * @param station
+//     * @param airMovements
+//     */
+//    private void moveBackToOriginRunway(TrafficLine trafficLine, Station station, List<VehicleMovement> airMovements) {
+//        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+//            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+//                Vertex first = station.getLast();
+//                Vertex last = trafficLine.getStations().get(0).getFirst();
+//
+//                for (Station s: trafficLine.getStations()) {
+//                    s.setVisited(false);
+//                }
+//                //TODO: geschwindigkeit berücksichtigen
+//                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
+//                double distanceToNextVertex = first.getDistanceToPosition(last);
+//                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+//                airMovements.add(vmFirst);
+//            }
+//        }
+//
+//    }
 
-                for (Station s: trafficLine.getStations()) {
-                    s.setVisited(false);
-                }
-                //TODO: geschwindigkeit berücksichtigen
-                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
-                double distanceToNextVertex = first.getDistanceToPosition(last);
-                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
-                airMovements.add(vmFirst);
-            }
-        }
-
-    }
-
-    /**
-     * Bewegt Flugzeug zum nachfolgenden Runway
-     * @param trafficLine
-     * @param station
-     * @param airMovements
-     * @param counter
-     */
-    private void flyToNextRunway(TrafficLine trafficLine, Station station, List<VehicleMovement> airMovements, int counter) {
-        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
-            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
-                // bewegung zwischen beiden runways
-                Vertex first = station.getLast();
-
-                Iterator<Vertex> iter = trafficLine.getStations().get(counter + 1).getComponents().get(0).getVertices().iterator();
-                Vertex last = null;
-                while (iter.hasNext()) {
-                    Vertex current = iter.next();
-                    if (current.isFirst()) {
-                        last = current;
-                        break;
-                    }
-                }
-                //TODO: geschwindigkeit berücksichtigen
-                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
-                double distanceToNextVertex = first.getDistanceToPosition(last);
-                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
-                airMovements.add(vmFirst);
-            }
-        }
-        station.setLast(null);
-
-    }
-
-    /**
-     * Bewegt Flugzeug auf dem Runway
-     * @param station
-     * @param airMovements
-     */
-    private void moveOnRunway(Station station, List<VehicleMovement> airMovements) {
-        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
-            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
-
-                Iterator<Vertex> iter = station.getComponents().get(0).getVertices().iterator();
-                Vertex first = null;
-                Vertex last = null;
-                while (iter.hasNext()) {
-                    Vertex current = iter.next();
-                    if (i == 1) {
-                        if (current.isFirst()) {
-                            // TODO: Koordinate oberhalb von Runway berechnen
-                            Vertex stay = new Vertex(current.getName(), current.getxCoordinateRelativeToTileOrigin(), current.getyCoordinateRelativeToTileOrigin(), current.getxCoordinateInGameMap()-1, current.getyCoordinateInGameMap());
-                            first = stay;
-                            last = stay;
-                            //break;
-                        }
-                    }
-                    if (current.isFirst()) {
-                        first = current;
-                    }
-                    if (current.isLast()) {
-                        last = current;
-                    }
-                }
-                //TODO: geschwindigkeit berücksichtigen
-                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
-                double distanceToNextVertex = first.getDistanceToPosition(last);
-                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
-                airMovements.add(vmFirst);
-                station.setVisited(true);
-                station.setFirst(first);
-                station.setLast(last);
-            }
-        }
-
-    }
+//    /**
+//     * Bewegt Flugzeug zum nachfolgenden Runway
+//     * @param trafficLine
+//     * @param station
+//     * @param airMovements
+//     * @param counter
+//     */
+//    private void flyToNextRunway(TrafficLine trafficLine, Station station, List<VehicleMovement> airMovements, int counter) {
+//        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+//            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+//                // bewegung zwischen beiden runways
+//                Vertex first = station.getLast();
+//
+//                Iterator<Vertex> iter = trafficLine.getStations().get(counter + 1).getComponents().get(0).getVertices().iterator();
+//                Vertex last = null;
+//                while (iter.hasNext()) {
+//                    Vertex current = iter.next();
+//                    if (current.isFirst()) {
+//                        last = current;
+//                        break;
+//                    }
+//                }
+//                //TODO: geschwindigkeit berücksichtigen
+//                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
+//                double distanceToNextVertex = first.getDistanceToPosition(last);
+//                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+//                airMovements.add(vmFirst);
+//            }
+//        }
+//        station.setLast(null);
+//
+//    }
+//
+//    /**
+//     * Bewegt Flugzeug auf dem Runway
+//     * @param station
+//     * @param airMovements
+//     */
+//    private void moveOnRunway(Station station, List<VehicleMovement> airMovements) {
+//        for(Map.Entry<Vehicle, Integer> entry: station.getAirTrafficLine().getDesiredNumbersOfVehicles().entrySet()) {
+//            for(int i = 0; i < station.getAirTrafficLine().getDesiredNumberOfVehiclesForVehicle(entry.getKey()); i++) {
+//
+//                Iterator<Vertex> iter = station.getComponents().get(0).getVertices().iterator();
+//                Vertex first = null;
+//                Vertex last = null;
+//                while (iter.hasNext()) {
+//                    Vertex current = iter.next();
+//                    if (i == 1) {
+//                        if (current.isFirst()) {
+//                            // TODO: Koordinate oberhalb von Runway berechnen
+//                            Vertex stay = new Vertex(current.getName(), current.getxCoordinateRelativeToTileOrigin(), current.getyCoordinateRelativeToTileOrigin(), current.getxCoordinateInGameMap()-1, current.getyCoordinateInGameMap());
+//                            first = stay;
+//                            last = stay;
+//                            //break;
+//                        }
+//                    }
+//                    if (current.isFirst()) {
+//                        first = current;
+//                    }
+//                    if (current.isLast()) {
+//                        last = current;
+//                    }
+//                }
+//                //TODO: geschwindigkeit berücksichtigen
+//                VehicleMovement vmFirst = new VehicleMovement(first, entry.getKey().getGraphic(), false, TrafficType.AIR);
+//                double distanceToNextVertex = first.getDistanceToPosition(last);
+//                vmFirst.appendPairOfPositionAndDistance(last, distanceToNextVertex);
+//                airMovements.add(vmFirst);
+//                station.setVisited(true);
+//                station.setFirst(first);
+//                station.setLast(last);
+//            }
+//        }
+//
+//    }
 
     /**
      * Gibt Vehicle-Objekte zurück, die zu dem angegebenen TrafficType passen. Aus diesen Vehicle-Objekten können
@@ -622,5 +727,11 @@ public class BasicModel {
         }
     }
 
+    public List<Factory> getFactoryObjects() {
+        return factoryObjects;
+    }
 
+    public void setFactoryObjects(List<Factory> factoryObjects) {
+        this.factoryObjects = factoryObjects;
+    }
 }
