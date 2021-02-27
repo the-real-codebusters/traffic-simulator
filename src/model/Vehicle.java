@@ -76,7 +76,6 @@ public class Vehicle {
     }
 
     public void updateNextStation() {
-        TransportPackage oldTransportPackage = vehicleTransportPackage;
 
         if(vehicleTransportPackage != null){
             System.out.println("vehicleTransportPackage "+vehicleTransportPackage.toString());
@@ -87,16 +86,12 @@ public class Vehicle {
             }
         }
 
-//        boolean isAtEndStation = false;
         if (vehicleTransportPackage != null && vehicleTransportPackage.getPath().size() == 1 && nextStation.equals(vehicleTransportPackage.getNextStationForTransport())) {
             deliverTransportPackage();
         }
         if (vehicleTransportPackage == null) {
             collectTransportPackage();
         }
-//        if(oldTransportPackage != null && oldTransportPackage.getPath().size() > 0){
-//            oldTransportPackage.getPath().remove(0);
-//        }
 
         TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);

@@ -236,10 +236,11 @@ public class BasicModel {
                             transportPackage.setPath(path);
                             Station producerStation = transportPackage.getNextStationForTransport();
                             producerStation.getStoredPackages().add(transportPackage);
+
+                            System.out.println("Weg zu Konsumer");
+                            path.forEach((x) -> System.out.println("Station id : "+x.getId()));
                         }
 
-                        System.out.println("Weg zu Konsumer");
-                        path.forEach((x) -> System.out.println("Station id : "+x.getId()));
                     }
                     //TODO Ansonsten vernichte Ware
 

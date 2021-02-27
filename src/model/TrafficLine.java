@@ -69,9 +69,7 @@ public class TrafficLine {
         vehicle.setPathfinder(model.getPathfinder());
         vehicle.setPosition(stations.get(0).getSomeVertexForTrafficType(trafficType));
         vehicle.setNextStation(stations.get(0));
-//        if (trafficType != TrafficType.AIR) {
-            vehicle.updateNextStation();
-//        }
+        vehicle.updateNextStation();
 
         vehicle.savePathToNextStation(startVertexForNewVehicles);
         if(vehicle.pathToNextStation.size() > 0){
