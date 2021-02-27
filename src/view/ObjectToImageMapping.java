@@ -521,7 +521,7 @@ public class ObjectToImageMapping {
 
         mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
         mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
-        mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
+        mapping.put("railstation-nw-se", "stations/rail/railstation-nw-se");
         mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
 
         //Fahrzeuge RAiL
@@ -540,10 +540,10 @@ public class ObjectToImageMapping {
         mapping.put("quantum_wagon-sw", "vehicles/rail/quantum_wagon_sw");
 
         //Fahrzeuge ROAD
-        mapping.put("recycling_truck-ne", "vehicles/road/recycling_truck-ne");
-        mapping.put("recycling_truck-nw", "vehicles/road/recycling_truck-nw");
-        mapping.put("recycling_truck-se", "vehicles/road/recycling_truck-se");
-        mapping.put("recycling_truck-sw", "vehicles/road/recycling_truck-sw");
+        mapping.put("recycling_truck-ne", "vehicles/road/recycling-truck_ne");
+        mapping.put("recycling_truck-nw", "vehicles/road/recycling-truck_nw");
+        mapping.put("recycling_truck-se", "vehicles/road/recycling-truck_se");
+        mapping.put("recycling_truck-sw", "vehicles/road/recycling-truck_sw");
 
 
         //Fahrzeuge AIR
