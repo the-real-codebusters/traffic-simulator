@@ -537,19 +537,19 @@
       "kind" : "road vehicle",
       "graphic" : "recycling_truck",
       "cargo" : {"steel" : 20},
-      "speed" : 2.2
+      "speed" : 1.2
     },
     "data bus" : {
       "kind" : "road vehicle",
       "graphic" : "data_bus",
       "cargo" : {"neural networks" : 10},
-      "speed" : 1.8
+      "speed" : 2.8
     },
     "nanospeeder" : {
       "kind" : "road vehicle",
       "graphic" : "nanospeeder",
       "cargo" : {"nanotechnology" : 5},
-      "speed" : 0.6
+      "speed" : 4.6
     },
 
     "engine" : {
@@ -574,31 +574,37 @@
       "kind" : "plane",
       "graphic" : "ufo_iron_ore",
       "cargo" : {"iron ore" : 10},
-      "speed" : 1.3
+      "speed" : 3.3
     },
     "ufo steel" : {
       "kind" : "plane",
       "graphic" : "ufo_steel",
       "cargo" : {"steel" : 7},
-      "speed" : 1.3
+      "speed" : 3.3
     },
     "ufo robot pieces" : {
       "kind" : "plane",
       "graphic" : "ufo_robot_pieces",
       "cargo" : {"robot pieces" : 7},
-      "speed" : 1.3
+      "speed" : 3.3
+    },
+    "battery" : {
+      "kind" : "plane",
+      "graphic" : "battery",
+      "cargo" : {"energy" : 7},
+      "speed" : 4.7
     },
     "drone" : {
       "kind" : "plane",
       "graphic" : "drone",
-      "cargo" : {"energy" : 7},
-      "speed" : 0.7
+      "cargo" : {"nanotechnology" : 1},
+      "speed" : 2.7
     },
     "air taxi" : {
       "kind" : "plane",
       "graphic" : "air_taxi",
       "cargo" : {"human data" : 7},
-      "speed" : 0.7
+      "speed" : 3.7
     }
 
   },

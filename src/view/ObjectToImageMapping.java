@@ -540,6 +540,16 @@ public class ObjectToImageMapping {
         mapping.put("quantum_wagon-sw", "vehicles/rail/quantum_wagon_sw");
 
         //Fahrzeuge ROAD
+        mapping.put("data_bus-ne", "vehicles/road/data_bus-ne");
+        mapping.put("data_bus-nw", "vehicles/road/data_bus-nw");
+        mapping.put("data_bus-se", "vehicles/road/data_bus-se");
+        mapping.put("data_bus-sw", "vehicles/road/data_bus-sw");
+
+        mapping.put("nanospeeder-ne", "vehicles/road/nanospeeder-ne");
+        mapping.put("nanospeeder-nw", "vehicles/road/nanospeeder-nw");
+        mapping.put("nanospeeder-se", "vehicles/road/nanospeeder-se");
+        mapping.put("nanospeeder-sw", "vehicles/road/nanospeeder-sw");
+
         mapping.put("recycling_truck-ne", "vehicles/road/recycling-truck_ne");
         mapping.put("recycling_truck-nw", "vehicles/road/recycling-truck_nw");
         mapping.put("recycling_truck-se", "vehicles/road/recycling-truck_se");
@@ -567,10 +577,16 @@ public class ObjectToImageMapping {
         mapping.put("drone-se", "vehicles/air/drone-se");
         mapping.put("drone-sw", "vehicles/air/drone-sw");
 
+        mapping.put("battery-ne", "vehicles/air/battery-ne");
+        mapping.put("battery-nw", "vehicles/air/battery-nw");
+        mapping.put("battery-se", "vehicles/air/battery-se");
+        mapping.put("battery-sw", "vehicles/air/battery-sw");
+
         mapping.put("air_taxi-ne", "vehicles/air/air_taxi-ne");
         mapping.put("air_taxi-nw", "vehicles/air/air_taxi-nw");
         mapping.put("air_taxi-se", "vehicles/air/air_taxi-se");
         mapping.put("air_taxi-sw", "vehicles/air/air_taxi-sw");
+
 
 
         mapping.put("runway", "airport/runway");
@@ -578,16 +594,9 @@ public class ObjectToImageMapping {
         mapping.put("big tower", "airport/big tower");
         mapping.put("terminal", "airport/terminal");
 
-
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
         mapping.put("remove", "remove");
-
-
-//        mapping.put("battery-ne", "vehicles/air/battery-ne");
-//         mapping.put("battery-nw", "vehicles/air/battery-nw");
-//         mapping.put("battery-se", "vehicles/air/battery-se");
-//         mapping.put("battery-sw", "vehicles/air/battery-sw");
 
     }
 
