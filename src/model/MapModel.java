@@ -84,7 +84,7 @@ public class MapModel {
 
                 createdNewStation = true;
             }
-            Factory nearFactory = getNearFactory((Stop) instance, row, column);
+            Factory nearFactory = getNearFactory(row, column);
             if (nearFactory != null) {
                 station.setNearFactory(nearFactory);
                 nearFactory.getNearStations().add(station);
@@ -314,13 +314,8 @@ public class MapModel {
         return false;
     }
 
-    /**
-     * @param stop   die zu platzierende Haltestelle
-     * @param row
-     * @param column
-     * @return
-     */
-    private Factory getNearFactory(Stop stop, int row, int column) {
+
+    private Factory getNearFactory(int row, int column) {
 
         // Wenn es sich um einen Busstop oder einen Bahnhof handelt, muss mindestens eine Zeile/Spalte
         // Abstand zu einer Fabrik eingehalten werden
@@ -329,24 +324,28 @@ public class MapModel {
 
         Point2D tileCoords = new Point2D(row, column);
         Map<Tile, Point2D> neighbors = getAllNeighbors(tileCoords);
+        if(neighbors.size() == 0) return null;
         for (Tile neighbor : neighbors.keySet()) {
             if (neighbor.getBuilding() instanceof Factory) {
                 return (Factory) neighbor.getBuilding();
             }
 
             Map<Tile, Point2D> neighborsOfNeighbor = getAllNeighbors(neighbors.get(neighbor));
+            if(neighborsOfNeighbor.size() == 0) return null;
             for (Tile neighborOfNeighbor : neighborsOfNeighbor.keySet()) {
                 if (neighborOfNeighbor.getBuilding() instanceof Factory) {
                     return (Factory) neighborOfNeighbor.getBuilding();
                 }
 
                 Map<Tile, Point2D> thirdNeighbors = getAllNeighbors(neighborsOfNeighbor.get(neighborOfNeighbor));
+                if(thirdNeighbors.size() == 0) return null;
                 for (Tile thirdNeighbor : thirdNeighbors.keySet()) {
                     if (thirdNeighbor.getBuilding() instanceof Factory) {
                         return (Factory) thirdNeighbor.getBuilding();
                     }
 
                     Map<Tile, Point2D> fourthNeighbors = getAllNeighbors(thirdNeighbors.get(thirdNeighbor));
+                    if(fourthNeighbors.size() == 0) return null;
                     for (Tile fourthNeighbor : fourthNeighbors.keySet()) {
                         if (fourthNeighbor.getBuilding() instanceof Factory) {
                             return (Factory) fourthNeighbor.getBuilding();
