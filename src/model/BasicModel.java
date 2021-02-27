@@ -56,6 +56,10 @@ public class BasicModel {
      * @return eine Liste von Fahrzeugbewegungen des aktuellen Tags
      */
     public List<VehicleMovement> simulateOneDay(){
+
+        produceAndConsume();
+
+
 //        System.out.println("simulate day "+day);
 
         // runway platzieren (2x) -> Koordinaten speichern
@@ -209,8 +213,6 @@ public class BasicModel {
                 movements.add(movement);
             }
         }
-
-        produceAndConsume();
 
 
         day++;

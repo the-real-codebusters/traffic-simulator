@@ -649,8 +649,14 @@ public class Pathfinder {
                     actualParentNode = parentNodes.get(actualParentNode);
                     path.add(actualParentNode);
                 }
+
+
                 // Damit Liste start -> ziel anzeigt und nicht ziel -> start
                 Collections.reverse(path);
+
+//                //Entferne den Startknoten, da die Rückgabe exklusive des Startknotens sein soll
+//                path.remove(0);
+
                 return path;
             }
             // Wenn wir in den else-Teil gehen, haben wir noch kein Ziel gefunden

@@ -81,20 +81,22 @@ public class Vehicle {
         if(vehicleTransportPackage != null){
             System.out.println("vehicleTransportPackage "+vehicleTransportPackage.toString());
             System.out.println("vehicle package path size "+vehicleTransportPackage.getPath().size());
-            System.out.println("nextStation vehicle"+nextStation.getId());
-            System.out.println("next station for package"+vehicleTransportPackage.getNextStationForTransport());
+            System.out.println("nextStation vehicle "+nextStation.getId());
+            if(vehicleTransportPackage.getPath().size() > 0){
+                System.out.println("next station for package"+vehicleTransportPackage.getNextStationForTransport().getId());
+            }
         }
 
-
+//        boolean isAtEndStation = false;
         if (vehicleTransportPackage != null && vehicleTransportPackage.getPath().size() == 1 && nextStation.equals(vehicleTransportPackage.getNextStationForTransport())) {
             deliverTransportPackage();
         }
         if (vehicleTransportPackage == null) {
             collectTransportPackage();
         }
-        if(oldTransportPackage != null && vehicleTransportPackage.getPath().size() > 0){
-            oldTransportPackage.getPath().remove(0);
-        }
+//        if(oldTransportPackage != null && oldTransportPackage.getPath().size() > 0){
+//            oldTransportPackage.getPath().remove(0);
+//        }
 
         TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
@@ -213,7 +215,7 @@ public class Vehicle {
             vehicleTransportPackage = null;
     }
 
-    private void collectTransportPackage(){
+    public void collectTransportPackage(){
         List<TransportPackage> stationPackages = nextStation.getStoredPackages();
         for (TransportPackage transportPackage : stationPackages){
             String packageCommodity = transportPackage.getCommodity();
@@ -228,6 +230,7 @@ public class Vehicle {
                         nextStation.addTransportPackage(splitPackages.get("stationPackage"));
                     }
                     nextStation.getStoredPackages().remove(transportPackage);
+                    transportPackage.getPath().remove(0);
                     break;
                 }
             }
