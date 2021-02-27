@@ -541,7 +541,10 @@ public class MenuPane extends AnchorPane {
         Image image = view.getResourceForImageName(imageName);
         factoryImageView.setImage(image);
 
+        List<Label> labels = new ArrayList<Label>();
+
         // System.out.println("building = " + factory);
+        labels.addAll(List.of(factoryNameLabel, productionLabel, factoryNearStationsLabel, factoryMaximaStorageLabel, factoryRealStorageLabel, consumptionLabel));
         factoryNameLabel.setText("factory name: " + factory.getBuildingName());
         StringBuilder production = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getProduce().entrySet()){
@@ -572,6 +575,16 @@ public class MenuPane extends AnchorPane {
                 maxStored.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
             }
             factoryMaximaStorageLabel.setText("Maximum cargo capacity: " + maxStored);
+
+            for(Label label: labels){
+                if(label.getText().length() > 30){
+                    label.setFont(new Font("Arial", 5));
+                }
+                else {
+                    label.setFont(new Font("Arial", 15));
+                }
+            }
+
         }
         else {
             System.out.println("factory storage was null. name "+factory.getBuildingName());

@@ -38,7 +38,7 @@ public class TrafficGraph {
         adjacencyMap.remove(nameOfVertex);
         mapOfVertexes.remove(nameOfVertex);
 
-        System.out.println("Vertex "+nameOfVertex+" removed");
+//        System.out.println("Vertex "+nameOfVertex+" removed");
     }
 
 
@@ -72,7 +72,7 @@ public class TrafficGraph {
             adjacencyMap.get(nameOfVertex2).add(vertex1);
         }
 
-        System.out.println("addEdgeBidirectional between "+nameOfVertex1+" and "+nameOfVertex2);
+//        System.out.println("addEdgeBidirectional between "+nameOfVertex1+" and "+nameOfVertex2);
     }
 
 
@@ -107,7 +107,7 @@ public class TrafficGraph {
 
         boolean hasEdge = adjacencyMap.get(nameOfVertex1).contains(vertex2);
 
-        System.out.println("hasEdge between "+nameOfVertex1+" and "+nameOfVertex2+" was "+hasEdge);
+//        System.out.println("hasEdge between "+nameOfVertex1+" and "+nameOfVertex2+" was "+hasEdge);
         return hasEdge;
     }
 
@@ -120,7 +120,7 @@ public class TrafficGraph {
      */
     public Vertex joinVertices(Vertex vertex1, Vertex vertex2) {
 
-        System.out.println("join Vertices called");
+//        System.out.println("join Vertices called");
         List<Vertex> connectionsFromVertex2 = adjacencyMap.get(vertex2.getName());
 
         // Ausgehende Kanten von vertex2 werden zu vertex1 hinzugefügt

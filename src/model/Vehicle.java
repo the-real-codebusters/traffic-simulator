@@ -76,14 +76,22 @@ public class Vehicle {
     }
 
     public void updateNextStation() {
-        if (nextStation == vehicleTransportPackage.getNextStationForTransport()) {
-            TransportPackage oldTransportPackage = vehicleTransportPackage;
+        TransportPackage oldTransportPackage = vehicleTransportPackage;
+
+        if(vehicleTransportPackage != null){
+            System.out.println("vehicleTransportPackage "+vehicleTransportPackage.toString());
+        }
+
+        if (vehicleTransportPackage != null && vehicleTransportPackage.getPath().size() > 0 && nextStation.equals(vehicleTransportPackage.getNextStationForTransport())) {
             deliverTransportPackage();
-            if (vehicleTransportPackage == null) {
-                collectTransportPackage();
-            }
+        }
+        if (vehicleTransportPackage == null) {
+            collectTransportPackage();
+        }
+        if(oldTransportPackage != null && vehicleTransportPackage.getPath().size() > 0){
             oldTransportPackage.getPath().remove(0);
         }
+
         TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
         nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
     }
@@ -135,26 +143,26 @@ public class Vehicle {
             vehicleMovement.appendPairOfPositionAndDistance(nextVertex, distanceToNextVertex);
             currentPosition = nextVertex;
             wayToGo -= distanceToNextVertex;
-            System.out.println("pathToNextStation for vehicle "+graphic+" in while loop");
-            pathToNextStation.forEach((x) -> System.out.println(x.getName()));
+//            System.out.println("pathToNextStation for vehicle "+graphic+" in while loop");
+//            pathToNextStation.forEach((x) -> System.out.println(x.getName()));
         }
 
-        System.out.println("Movement after while loop: ");
+//        System.out.println("Movement after while loop: ");
         for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
             System.out.println(p.coordsRelativeToMapOrigin());
         }
 
-        System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+//        System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
 
 
         if(pathToNextStation.size() == 0 && wayToGo >= 0){
             // Station ist erreicht
             updateNextStation();
             savePathToNextStationAndUpdateMovement((Vertex) currentPosition, vehicleMovement);
-            System.out.println("Movement after method at last vertex to next station: ");
-            for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
-                System.out.println(p.coordsRelativeToMapOrigin());
-            }
+//            System.out.println("Movement after method at last vertex to next station: ");
+//            for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
+//                System.out.println(p.coordsRelativeToMapOrigin());
+//            }
             return vehicleMovement;
         }
         // Ansonsten wurde die Zielstation nicht erreicht
@@ -168,12 +176,12 @@ public class Vehicle {
             pathToNextStation.add(0, (Vertex) currentPosition);
             vehicleMovement.removeLastPair();
 
-            System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
+//            System.out.println("wayToGo in getMovementForNextDay "+wayToGo);
 
             PositionOnTilemap previouslyLastPosition;
             if(vehicleMovement.getNumberOfPoints() == 0){
-                System.out.println("way to go "+wayToGo);
-                System.out.println("path to next station "+pathToNextStation);
+//                System.out.println("way to go "+wayToGo);
+//                System.out.println("path to next station "+pathToNextStation);
                 previouslyLastPosition = vehicleMovement.getStartPosition();
             }
             else previouslyLastPosition = vehicleMovement.getLastPair().getKey();
@@ -187,7 +195,7 @@ public class Vehicle {
             throw new RuntimeException("wayToGo in getMovementForNextDay() was >0 : "+wayToGo);
         }
 
-        System.out.println("Movement after method: ");
+//        System.out.println("Movement after method: ");
         for(PositionOnTilemap p: vehicleMovement.getAllPositions()){
             System.out.println(p.coordsRelativeToMapOrigin());
         }
@@ -196,6 +204,7 @@ public class Vehicle {
 
 
     private void deliverTransportPackage(){
+            System.out.println("deliverTransportPackage called; path "+vehicleTransportPackage.getPath().size());
             nextStation.addTransportPackage(vehicleTransportPackage);
             vehicleTransportPackage = null;
     }

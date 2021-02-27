@@ -133,8 +133,8 @@ public class BasicModel {
 
             for(TrafficLine trafficLine : activePart.getTrafficLines()){
 
-                System.out.println("active traffic Line "+trafficLine.getName());
-                System.out.println("activeVehicles size "+activeVehicles.size());
+//                System.out.println("active traffic Line "+trafficLine.getName());
+//                System.out.println("activeVehicles size "+activeVehicles.size());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
 
@@ -144,7 +144,7 @@ public class BasicModel {
                         Vertex vertex = trafficLine.getStartStation().getSomeVertexForTrafficType(TrafficType.RAIL);
                         boolean reserved = vertex.getRailblock().isReservedAtDay(day, (Train) newVehicle) ||
                                 vertex.getRailblock().isReservedAtDay(day+1, (Train) newVehicle);
-                        System.out.println("Reserved at day: " + day + " " + reserved);
+//                        System.out.println("Reserved at day: " + day + " " + reserved);
                         if(!reserved){
                             trafficLine.addNewVehicle(newVehicle);
                         }
@@ -153,13 +153,13 @@ public class BasicModel {
 
                         trafficLine.addNewVehicle(newVehicle);
                     }
-                    System.out.println("activeVehicles size in if "+activeVehicles.size());
+//                    System.out.println("activeVehicles size in if "+activeVehicles.size());
                 }
                 // Der Liste der aktiven Fahrzeuge werden die Fahrzeuge jeder aktiven Linie hinzugefügt
                 activeVehicles.addAll(trafficLine.getVehicles()); //TODO
 
-                System.out.println("trafficLine.getVehicles() "+trafficLine.getVehicles());
-                System.out.println("activeVehicles size after add All "+activeVehicles.size());
+//                System.out.println("trafficLine.getVehicles() "+trafficLine.getVehicles());
+//                System.out.println("activeVehicles size after add All "+activeVehicles.size());
 
             }
 
@@ -179,7 +179,7 @@ public class BasicModel {
             // -1 - less than, 1 - greater than, 0 - equal
             return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
         });
-        System.out.println("activeVehicles: "+activeVehicles);
+//        System.out.println("activeVehicles: "+activeVehicles);
         List<InstantCarReservation> reservations = new ArrayList<>();
         for(int i=0; i<activeVehicles.size(); i++){
             Vehicle vehicle = activeVehicles.get(i);
@@ -230,9 +230,11 @@ public class BasicModel {
 
                     if(consumerHasStation && producerHasStation){
                         List<Station> path = pathfinder.findPathToConsumer(transportPackage);
-                        transportPackage.setPath(path);
-                        Station producerStation = transportPackage.getNextStationForTransport();
-                        producerStation.getStoredPackages().add(transportPackage);
+                        if(path.size() > 0){
+                            transportPackage.setPath(path);
+                            Station producerStation = transportPackage.getNextStationForTransport();
+                            producerStation.getStoredPackages().add(transportPackage);
+                        }
 
                         System.out.println("Weg zu Konsumer");
                         path.forEach((x) -> System.out.println("Station id : "+x.getId()));
@@ -462,7 +464,7 @@ public class BasicModel {
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
             //TODO hier wird manchmal eine exception geworfen. Warum?
-            System.out.println("Typ eines Vehicles : "+v.getTrafficType());
+//            System.out.println("Typ eines Vehicles : "+v.getTrafficType());
             if(v.getTrafficType().equals(type)){
                 desiredVehicles.add(v);
             }
@@ -478,7 +480,7 @@ public class BasicModel {
         else if(Math.abs(d1[0] - d2[0]) == 2){
             if(d1[1] == d2[1] && d1[1] == 0) contrawise = true;
         }
-        System.out.println("checkIfDirectionsContrawise "+contrawise);
+//        System.out.println("checkIfDirectionsContrawise "+contrawise);
         return contrawise;
     }
 

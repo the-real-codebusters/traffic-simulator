@@ -94,8 +94,8 @@ public class Station {
      */
     public boolean isDirectlyConnectedTo(Station station, TrafficType trafficType){
 
-        System.out.println("directlyRoadConnectedStations in isDirectlyConnectedTo für Station "+id);
-        directlyRoadConnectedStations.forEach((x) -> System.out.println( "verbunden mit Station: "+x.getId()));
+//        System.out.println("directlyRoadConnectedStations in isDirectlyConnectedTo für Station "+id);
+//        directlyRoadConnectedStations.forEach((x) -> System.out.println( "verbunden mit Station: "+x.getId()));
 
         if(trafficType.equals(TrafficType.ROAD)){
             return directlyRoadConnectedStations.contains(station);
@@ -135,9 +135,9 @@ public class Station {
             nextStations = pathfinder.findAllDirectlyConnectedStations(this, trafficType);
         }
 
-        System.out.println("Connected Stations for Station "+this.getId());
+//        System.out.println("Connected Stations for Station "+this.getId());
         for(Station n: nextStations){
-            System.out.println("Next Station "+n.getId());
+//            System.out.println("Next Station "+n.getId());
             n.getDirectlyConnectedStations(trafficType).add(this);
         }
         setDirectlyConnectedStations(nextStations, trafficType);
@@ -147,17 +147,17 @@ public class Station {
     }
 
     private void setEntryConnections(){
-        System.out.println("setEntryConnections called");
+//        System.out.println("setEntryConnections called");
         List<Vertex> ownEntrys = getEntrys();
-        System.out.println("ownEntrys "+ownEntrys);
+//        System.out.println("ownEntrys "+ownEntrys);
 
         List<Vertex> otherEntrys = new ArrayList<>();
             for(Station otherStation : directlyAirConnectedStations){
                 otherEntrys.addAll(otherStation.getEntrys());
             }
-        System.out.println("directlyAirConnectedStations "+directlyAirConnectedStations);
-
-        System.out.println("otherEntrys "+otherEntrys);
+//        System.out.println("directlyAirConnectedStations "+directlyAirConnectedStations);
+//
+//        System.out.println("otherEntrys "+otherEntrys);
             TrafficGraph graph = model.getMap().getGraphForTrafficType(TrafficType.AIR);
 
             for(Vertex ownEntry : ownEntrys){

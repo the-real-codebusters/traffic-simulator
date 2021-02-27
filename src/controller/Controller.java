@@ -69,11 +69,11 @@ public class Controller {
 
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
-        System.out.println("Movements in controller");
+//        System.out.println("Movements in controller");
         for(VehicleMovement m : movements){
-            System.out.println("Movement: ");
+//            System.out.println("Movement: ");
             for(PositionOnTilemap p: m.getAllPositions()){
-                System.out.println(p.coordsRelativeToMapOrigin());
+//                System.out.println(p.coordsRelativeToMapOrigin());
             }
         }
         view.getMenuPane().setDayLabel(model.getDay());
@@ -149,10 +149,10 @@ public class Controller {
 
         MenuPane menuPane = view.getMenuPane();
         Building selectedBuilding = menuPane.getSelectedBuilding();
-        System.out.println(selectedBuilding.getBuildingName());
-            System.out.println("is a stop: " + (selectedBuilding instanceof Stop));
-
-        System.out.println("can place building: " + model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding));
+//        System.out.println(selectedBuilding.getBuildingName());
+//            System.out.println("is a stop: " + (selectedBuilding instanceof Stop));
+//
+//        System.out.println("can place building: " + model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding));
 
         if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
@@ -202,9 +202,9 @@ public class Controller {
             }
 
             view.drawMap();
-            if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {
-                System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
-            }
+//            if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {
+//                System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
+//            }
         }
         }
     }
@@ -214,10 +214,10 @@ public class Controller {
     }
 
     public void showTrafficPartInView(Building building){
-        System.out.println("building "+building.getBuildingName()+" in showTrafficPartInView");
+//        System.out.println("building "+building.getBuildingName()+" in showTrafficPartInView");
         if(building instanceof PartOfTrafficGraph){
             ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
-            System.out.println("trafficPart "+trafficPart+" in showTrafficPartInView");
+//            System.out.println("trafficPart "+trafficPart+" in showTrafficPartInView");
 
             if(trafficPart != null){
                 view.getMenuPane().showTrafficPart(trafficPart);
@@ -227,11 +227,11 @@ public class Controller {
 
     public void selectStationsForTrafficLine(MouseEvent event){
         Building building = getBuildingForMouseEvent(event);
-        System.out.println("building "+building.getBuildingName()+" in selectStationsForTrafficLine");
+//        System.out.println("building "+building.getBuildingName()+" in selectStationsForTrafficLine");
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
             TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
-            System.out.println("trafficType in selectStationsForTrafficLine "+trafficType);
+//            System.out.println("trafficType in selectStationsForTrafficLine "+trafficType);
 
             if(stationsOfPlannedTrafficLine.size() == 0){
                 trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
@@ -253,7 +253,7 @@ public class Controller {
                 else {
                     stationsOfPlannedTrafficLine.add(station);
                 }
-                System.out.println("stationsOfPlannedTrafficLine in controller: ");
+//                System.out.println("stationsOfPlannedTrafficLine in controller: ");
                 stationsOfPlannedTrafficLine.forEach((x) -> System.out.println("Station id: "+x.getId()));
                 //Zeigt Liste in Popup an
                 view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine, getResourceBundle());
@@ -281,14 +281,14 @@ public class Controller {
         clearPlannedTrafficLine();
         TrafficLineGraph trafficLineGraph = model.getMap().getTrafficLineGraph();
         trafficLineGraph.generateEntriesFromStationList(stationList);
-        trafficLineGraph.printGraph();
+//        trafficLineGraph.printGraph();
     }
 
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {
         Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
         for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
             Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
-            System.out.println("vehicle in createNewTrafficLine " + vehicle.getGraphic());
+//            System.out.println("vehicle in createNewTrafficLine " + vehicle.getGraphic());
             mapDesiredNumbers.put(vehicle, entry.getValue());
         }
         return mapDesiredNumbers;

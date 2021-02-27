@@ -39,7 +39,7 @@ public class MapGenerator {
 
         Random randomGenerator = new Random();
         for (Building factory : factoryBuildings) {
-            int maxNumberOfPlacements = ((mapDepth * mapWidth) / (factory.getDepth() * factory.getWidth())) / 50;
+            int maxNumberOfPlacements = ((mapDepth * mapWidth) / (factory.getDepth() * factory.getWidth())) / 250;
             int numberOfPlacements;
             if (maxNumberOfPlacements == 0) numberOfPlacements = 1;
             else numberOfPlacements = randomGenerator.nextInt(maxNumberOfPlacements) + 1;

@@ -28,7 +28,7 @@ public class TrafficLine {
         this.name = name;
         setDesiredNumbersOfVehicles(desiredNumbersOfVehicles);
 
-        System.out.println("Stations in TrafficLine: "+stations);
+//        System.out.println("Stations in TrafficLine: "+stations);
 
         if(trafficType.equals(TrafficType.ROAD)){
             for(Station station : stations){
@@ -55,7 +55,7 @@ public class TrafficLine {
      */
     public Vehicle addNewVehicle(Vehicle vehicle){
 
-        System.out.println("addNewVehicle called for "+vehicle.getGraphic());
+//        System.out.println("addNewVehicle called for "+vehicle.getGraphic());
 
         if(startVertexForNewVehicles == null) throw new NullPointerException("startVertexForNewVehicles was null");
 //        int rowInTileGrid = startVertexForNewVehicles.getxCoordinateInGameMap();
@@ -77,9 +77,9 @@ public class TrafficLine {
         if(vehicle.pathToNextStation.size() > 0){
             //Dann konnte ein Weg gefunden werden
             vehicles.add(vehicle);
-            System.out.println(vehicle.getTrafficType());
-            System.out.println("Speed of new vehicle"+vehicle.getSpeed());
-            System.out.println("path of new vehicle"+vehicle.pathToNextStation);
+//            System.out.println(vehicle.getTrafficType());
+//            System.out.println("Speed of new vehicle"+vehicle.getSpeed());
+//            System.out.println("path of new vehicle"+vehicle.pathToNextStation);
         }
 
         return vehicle;
@@ -103,8 +103,8 @@ public class TrafficLine {
         }
         stations = sortedStations;
 
-        System.out.println("sorted Stations");
-        stations.forEach(x -> System.out.println("station "+x.getId()));
+//        System.out.println("sorted Stations");
+//        stations.forEach(x -> System.out.println("station "+x.getId()));
     }
 
 
@@ -179,7 +179,7 @@ public class TrafficLine {
     public Vehicle getMissingVehicleOrNull(){
             for (Map.Entry<Vehicle, Integer> entry : desiredNumbersOfVehicles.entrySet()) {
                 if(getNumberOfVehicleInstances(entry.getKey().getGraphic()) < entry.getValue()){
-                    System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
+//                    System.out.println("tried to add new Vehicle : "+entry.getKey().getGraphic());
                     return entry.getKey();
                 }
             }

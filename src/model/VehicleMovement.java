@@ -89,8 +89,8 @@ public class VehicleMovement {
             lastPosition = getLastPair().getKey().coordsRelativeToMapOrigin();
         }
         //x, y
-        System.out.println("getDirectionOfLastMove: secondLastPositionX:"+secondLastPosition.getX()+" lastPositionX: "+lastPosition.getX());
-        System.out.println("getDirectionOfLastMove: secondLastPositionY:"+secondLastPosition.getY()+" lastPositionY: "+lastPosition.getY());
+//        System.out.println("getDirectionOfLastMove: secondLastPositionX:"+secondLastPosition.getX()+" lastPositionX: "+lastPosition.getX());
+//        System.out.println("getDirectionOfLastMove: secondLastPositionY:"+secondLastPosition.getY()+" lastPositionY: "+lastPosition.getY());
 
         int[] direction = new int[] {0,0};
         if (secondLastPosition.getX() == lastPosition.getX()) {
@@ -111,7 +111,7 @@ public class VehicleMovement {
                 direction[0] = 1;
             }
         }
-        System.out.println("getDirectionOfLastMove "+direction[0] +"   "+direction[1]);
+//        System.out.println("getDirectionOfLastMove "+direction[0] +"   "+direction[1]);
         return direction;
     }
 
