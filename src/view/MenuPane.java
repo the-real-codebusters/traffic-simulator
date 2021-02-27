@@ -38,7 +38,7 @@ public class MenuPane extends AnchorPane {
     private Canvas canvas;
     private Controller controller;
     private MouseEvent hoveredEvent;
-    private int result;
+//    private int result;
     private HBox trafficPartTabContent;
     private VBox factoryTabContent;
 
@@ -512,7 +512,7 @@ public class MenuPane extends AnchorPane {
         factoryNameLabel.setText("factory name: " + factory.getBuildingName());
         StringBuilder production = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getProduce().entrySet()){
-            production.append(entry.getKey());//.append(" (").append(entry.getValue()).append("); ");
+            production.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
         }
         if(production.toString().equals("")) {
             production = new StringBuilder("nothing");
@@ -520,12 +520,15 @@ public class MenuPane extends AnchorPane {
         productionLabel.setText("production: " + production);
         StringBuilder consumption = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getConsume().entrySet()){
-            consumption.append(entry.getKey()).append("  ");
+            consumption.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ").append("  ");
         }
         if(consumption.toString().equals("")) {
             consumption = new StringBuilder("nothing");
         }
         consumptionLabel.setText("consumption: " + consumption);
+
+        int index = tabContents.indexOf(factoryTabContent);
+        tabPane.getSelectionModel().select(index);
 
     }
 

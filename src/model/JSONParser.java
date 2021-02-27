@@ -356,7 +356,7 @@ public class JSONParser {
                 Iterator<String> keysCons = cons.keys();
                 while (keysCons.hasNext()) {
                     String type = keysCons.next();
-                    int amount = cons.optInt(data);
+                    int amount = cons.optInt(type);
                     consumeMap.put(type, amount);
                 }
             }
@@ -366,6 +366,8 @@ public class JSONParser {
             else {
                 throw new JSONParserException (resourceBundle.getString("invalidAttributeForProduction") + data);
             }
+            System.out.println("consume map: "+consumeMap);
+            System.out.println("production map: "+produceMap);
 
             factory.getProductionSteps().add(new ProductionStep(produceMap, consumeMap, duration));
         }
