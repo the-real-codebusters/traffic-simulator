@@ -9,7 +9,7 @@ public class Train extends Vehicle {
     private List<Vehicle> wagons = new ArrayList<>();
     private Vehicle engine;
 //    private List<VehicleMovement> movementsOfLastDay = new ArrayList<>();
-    private final double wagonShift = 0.97;
+    private final double wagonShift = 1.03;
 
     private int numberOfVertices = 10;
     private int verticesCounter = 0;
