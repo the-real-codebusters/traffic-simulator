@@ -14,14 +14,13 @@ import view.View;
 import java.util.*;
 
 public class Controller {
-    private View view;
-    private BasicModel model;
-    private Pathfinder pathfinder;
-    private ResourceBundle resourceBundle;
+    private final View view;
+    private final BasicModel model;
+    private final ResourceBundle resourceBundle;
 
     //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
     //zu dieser Liste hinzugefügt werden
-    private List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
+    private final List<Station> stationsOfPlannedTrafficLine = new ArrayList<>();
     private ConnectedTrafficPart trafficPartOfPlannedTrafficLine;
 
     public Controller(View view, BasicModel model, ResourceBundle resourceBundle) {
@@ -46,7 +45,7 @@ public class Controller {
         TrafficGraph railGraph = model.getMap().getRailGraph();
         TrafficGraph airGraph = model.getMap().getAirGraph();
 
-        pathfinder = new Pathfinder(roadGraph, railGraph, airGraph, model.getMap().getTrafficLineGraph());
+        Pathfinder pathfinder = new Pathfinder(roadGraph, railGraph, airGraph, model.getMap().getTrafficLineGraph());
         model.setPathfinder(pathfinder);
 
         simulateOneDay();
