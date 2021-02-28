@@ -6,6 +6,7 @@ public class MapGenerator {
     private MapModel mapModel;
     private BasicModel basicModel;
 
+
     public MapGenerator(MapModel mapModel, BasicModel basicModel) {
         this.mapModel = mapModel;
         this.basicModel = basicModel;
@@ -19,6 +20,7 @@ public class MapGenerator {
 
         generateHeightMap();
         generateFactories(mapWidth, mapDepth, basicModel);
+        createHills();
 
         return mapFieldGrid;
     }
@@ -116,6 +118,19 @@ public class MapGenerator {
         }
     }
 
+    private void createHills(){
+        int numberHills = (mapModel.getWidth()*mapModel.getDepth()) / 1500;
+        int height = 5;
+        for(int i=0; i<numberHills; i++){
+            Random random = new Random();
+            int randomY = random.nextInt(mapModel.getWidth()-2)+1;
+            int randomX = random.nextInt(mapModel.getDepth()-2)+1;
+
+            for(int y=0; y<height; y++){
+                mapModel.changeGroundHeight(randomX, randomY, 1);
+            }
+        }
+    }
 
     public void generateNature(int row, int col) {
 

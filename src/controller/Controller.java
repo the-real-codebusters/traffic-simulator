@@ -48,15 +48,16 @@ public class Controller {
         Pathfinder pathfinder = new Pathfinder(roadGraph, railGraph, airGraph, model.getMap().getTrafficLineGraph());
         model.setPathfinder(pathfinder);
 
-        simulateOneDay();
+        //Starte Game-Loop
+        gameLoop();
     }
 
-    public void simulateOneDay(){
+    /**
+     * Hält Game-Loop am laufen. Bewegungen werden durch die View angezeigt
+     */
+    public void gameLoop(){
         List<VehicleMovement> movements = model.simulateOneDay();
-        for(VehicleMovement m : movements){
-            for(PositionOnTilemap p: m.getAllPositions()){
-            }
-        }
+
         view.getMenuPane().setDayLabel(model.getDay());
         if(movements.size() > 0){
             view.translateVehicles(movements);
@@ -66,10 +67,13 @@ public class Controller {
         }
     }
 
+    /**
+     * Wartet die Zeit eines Tags. Dient zur Überbrückung der Zeit, wenn es keine Fahrzeuge gibt
+     */
     public void waitForOneDay(){
         Timeline timeline = new Timeline(new KeyFrame(
-                Duration.seconds(view.getTickDuration()),
-                ae -> simulateOneDay()));
+                Duration.seconds(view.getDayDuration()),
+                ae -> gameLoop()));
         timeline.play();
     }
 
@@ -104,7 +108,6 @@ public class Controller {
             canvas.getGraphicsContext2D().setFill(Color.YELLOW);
             canvas.getGraphicsContext2D().fillOval(pointOnCanvas.getX()-2.5, pointOnCanvas.getY()-2.5, 5, 5);
             canvas.getGraphicsContext2D().setFill(Color.BLACK);
-//            System.out.println("drawVertexesOfGraph: " + pointOnCanvas);
         }
     }
 
@@ -115,7 +118,7 @@ public class Controller {
      * diese mit dem ausgewählten Feld kombiniert werden kann. Anschließend wird das Gebäude auf der Karte platziert
      * und die entsprechenden Points dem Verkehrsgraph hinzugefügt. Wenn es sich um eine Haltestelle handelt, wird
      * außerdem entweder eine neue Station erstellt oder die Haltestelle der passenden Station hinzugefügt. Außerdem wird
-     * entweder eine neue Verkehrslinie erstellt oder die Station der vorhandenen Verkehrslinie hinzugefügt.
+     * entweder ein neuer Verkehrsbereich erstellt oder die Station dem vorhandenen Verkehrsbereich hinzugefügt.
      * @param event MouseEvent, wodurch die Methode ausgelöst wurde
      */
     public void managePlacement(MouseEvent event) {
@@ -124,69 +127,62 @@ public class Controller {
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
         if(isoCoord != null){
-        int xCoord = (int) isoCoord.getX();
-        int yCoord = (int) isoCoord.getY();
+            int xCoord = (int) isoCoord.getX();
+            int yCoord = (int) isoCoord.getY();
 
+            MenuPane menuPane = view.getMenuPane();
+            Building selectedBuilding = menuPane.getSelectedBuilding();
 
-        MenuPane menuPane = view.getMenuPane();
-        Building selectedBuilding = menuPane.getSelectedBuilding();
-//        System.out.println(selectedBuilding.getBuildingName());
-//            System.out.println("is a stop: " + (selectedBuilding instanceof Stop));
-//
-//        System.out.println("can place building: " + model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding));
+            if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
 
-        if (model.getMap().canPlaceBuilding(xCoord, yCoord, selectedBuilding)) {
-
-            // Wenn ein Gebäude entfernt werden soll
-            if(selectedBuilding.getBuildingName().equals("remove")){
-                Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
-                Building buildingOnSelectedTile = selectedTile.getBuilding();
-                int endRow = buildingOnSelectedTile.getOriginRow() + buildingOnSelectedTile.getWidth();
-                int endColumn = buildingOnSelectedTile.getOriginColumn() + buildingOnSelectedTile.getDepth();
-                for(int row = buildingOnSelectedTile.getOriginRow(); row < endRow; row++){
-                    for(int column = buildingOnSelectedTile.getOriginColumn(); column < endColumn; column++){
-                        selectedBuilding = new Building();
-                        selectedBuilding.setBuildingName("ground");
-                        selectedBuilding.setWidth(1);
-                        selectedBuilding.setDepth(1);
-                        model.getMap().placeBuilding(row, column, selectedBuilding);
+                // Wenn ein Gebäude entfernt werden soll
+                if(selectedBuilding.getBuildingName().equals("remove")){
+                    Tile selectedTile = model.getMap().getTileGrid()[xCoord][yCoord];
+                    Building buildingOnSelectedTile = selectedTile.getBuilding();
+                    int endRow = buildingOnSelectedTile.getOriginRow() + buildingOnSelectedTile.getWidth();
+                    int endColumn = buildingOnSelectedTile.getOriginColumn() + buildingOnSelectedTile.getDepth();
+                    for(int row = buildingOnSelectedTile.getOriginRow(); row < endRow; row++){
+                        for(int column = buildingOnSelectedTile.getOriginColumn(); column < endColumn; column++){
+                            selectedBuilding = new Building();
+                            selectedBuilding.setBuildingName("ground");
+                            selectedBuilding.setWidth(1);
+                            selectedBuilding.setDepth(1);
+                            model.getMap().placeBuilding(row, column, selectedBuilding);
+                        }
                     }
+
+
+                    // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
+                    if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
+
+                        model.getMap().removePointsOnTile(buildingOnSelectedTile);
+                    }
+                    return;
+                }
+
+                if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
+                    selectedBuilding = null;
+                    model.getMap().changeGroundHeight(xCoord, yCoord, 1);
+                }
+
+                if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_down")){
+                    selectedBuilding = null;
+                    model.getMap().changeGroundHeight(xCoord, yCoord, -1);
+                }
+
+                if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail
+                    || selectedBuilding instanceof JustCombines) {
+                    selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
                 }
 
 
-                // Wenn eine Straße/Rail abgerissen wird, sollen die zugehörigen Points aus Graph entfernt werden
-                if(buildingOnSelectedTile instanceof PartOfTrafficGraph){
-
-                    model.getMap().removePointsOnTile(buildingOnSelectedTile);
+                if(selectedBuilding != null) {
+                    model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
                 }
-                return;
+
+                //Neuzeichnen der Map zum Anzeigen des neuen Buildings
+                view.drawMap();
             }
-
-            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_up")){
-                selectedBuilding = null;
-                model.getMap().changeGroundHeight(xCoord, yCoord, 1);
-            }
-
-            if (selectedBuilding != null && selectedBuilding.getBuildingName().equals("height_down")){
-                selectedBuilding = null;
-                model.getMap().changeGroundHeight(xCoord, yCoord, -1);
-            }
-
-            if (selectedBuilding instanceof Road || selectedBuilding instanceof Rail
-                || selectedBuilding instanceof JustCombines) {
-                selectedBuilding = model.checkCombines(xCoord, yCoord, selectedBuilding);
-            }
-
-
-            if(selectedBuilding != null) {
-                Building placedBuilding = model.getMap().placeBuilding(xCoord, yCoord, selectedBuilding);
-            }
-
-            view.drawMap();
-//            if(model.getNewCreatedOrIncompleteTrafficParts().size() > 0) {
-//                System.out.println("Size of incompleteConnectedTrafficParts "+model.getNewCreatedOrIncompleteTrafficParts().size());
-//            }
-        }
         }
     }
 
@@ -194,11 +190,10 @@ public class Controller {
         return model.getMap().canPlaceBuilding(row, column, building);
     }
 
+    //Zeigt auf der MenuPane Informationen zum Verkehrsbereich des buildings an
     public void showTrafficPartInView(Building building){
-//        System.out.println("building "+building.getBuildingName()+" in showTrafficPartInView");
         if(building instanceof PartOfTrafficGraph){
             ConnectedTrafficPart trafficPart = ((PartOfTrafficGraph) building).getAssociatedPartOfTraffic();
-//            System.out.println("trafficPart "+trafficPart+" in showTrafficPartInView");
 
             if(trafficPart != null){
                 view.getMenuPane().showTrafficPart(trafficPart);
@@ -206,20 +201,24 @@ public class Controller {
         }
     }
 
+    /**
+     * Im Modus der Auswahl der Stationen für eine Verkehrslinie werden ausgewählte Stationen in einem Popup angezeigt
+     * @param event
+     */
     public void selectStationsForTrafficLine(MouseEvent event){
         Building building = getBuildingForMouseEvent(event);
-//        System.out.println("building "+building.getBuildingName()+" in selectStationsForTrafficLine");
+        //Nur Stops sind Teil einer Station
         if(building instanceof Stop){
             Station station = ((Stop) building).getStation();
             TrafficType trafficType = view.getTrafficLinePopup().getTrafficType();
-//            System.out.println("trafficType in selectStationsForTrafficLine "+trafficType);
+
+            // Bei Flughäfen darf nur ein vollständiger Flughafen ausgewählt werden. Deswegen springe aus der Methode
+            if(trafficType.equals(TrafficType.AIR) && !station.isWholeAirstation()){
+                return;
+            }
 
             if(stationsOfPlannedTrafficLine.size() == 0){
                 trafficPartOfPlannedTrafficLine = station.getTrafficPartForTrafficType(trafficType);
-            }
-
-            if(trafficType.equals(TrafficType.AIR) && !station.isWholeAirstation()){
-                return;
             }
 
             //True, wenn Station Teil eines Verkehrsteils mit dem angegebenen typ ist und wenn die Station Teil des
@@ -234,7 +233,6 @@ public class Controller {
                 else {
                     stationsOfPlannedTrafficLine.add(station);
                 }
-//                System.out.println("stationsOfPlannedTrafficLine in controller: ");
                 stationsOfPlannedTrafficLine.forEach((x) -> System.out.println("Station id: "+x.getId()));
                 //Zeigt Liste in Popup an
                 view.getTrafficLinePopup().showList(stationsOfPlannedTrafficLine, getResourceBundle());
@@ -242,6 +240,11 @@ public class Controller {
         }
     }
 
+    /**
+     * Gibt das Gebäude zurück, auf das geklickt wurde
+     * @param event
+     * @return
+     */
     public Building getBuildingForMouseEvent(MouseEvent event){
         double mouseX = event.getX();
         double mouseY = event.getY();
@@ -254,23 +257,31 @@ public class Controller {
         return building;
     }
 
-
     public void createNewTrafficLine(Map<Vehicle, Integer> mapDesiredNumbers,
                                      TrafficType trafficType, String name){
         List<Station> stationList = new ArrayList<>(stationsOfPlannedTrafficLine);
         TrafficLine trafficLine = new TrafficLine(model, trafficType, stationList, mapDesiredNumbers, name);
         trafficPartOfPlannedTrafficLine.addTrafficLine(trafficLine);
+
+        //Lösche geplante TrafficLine wieder aus dem Controller, da sie jetzt erstellt wurde
         clearPlannedTrafficLine();
+
+        //Immer wenn eine neue Verkehrslinie hinzugefügt wurde, sollen die Stationen im Graph der TrafficLines eingetragen werden,
+        //der zum Warentransport verwendet wird
         TrafficLineGraph trafficLineGraph = model.getMap().getTrafficLineGraph();
         trafficLineGraph.generateEntriesFromStationList(stationList);
-//        trafficLineGraph.printGraph();
     }
 
+    /**
+     * Generiert aus einer Map von Fahrzeugnamen und den gewünschten Anzahlen eine Map aus Fahrzeugen und den gewünschten
+     * Anzahlen
+     * @param desiredNumbersOfVehicleNames
+     * @return
+     */
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {
         Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
         for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
             Vehicle vehicle = model.getVehicleTypeForName(entry.getKey());
-//            System.out.println("vehicle in createNewTrafficLine " + vehicle.getGraphic());
             mapDesiredNumbers.put(vehicle, entry.getValue());
         }
         return mapDesiredNumbers;
@@ -279,10 +290,6 @@ public class Controller {
     public void clearPlannedTrafficLine(){
         stationsOfPlannedTrafficLine.clear();
         this.trafficPartOfPlannedTrafficLine = null;
-    }
-
-    public int getDayFromModel(){
-        return model.getDay();
     }
 
     public Tile[][] getFields() { return model.getFieldGridOfMap(); }
@@ -303,17 +310,9 @@ public class Controller {
         return model.getBuildingsForBuildmenu(buildmenu);
     }
 
-//    public Locale getLocale() {
-//        return opening.getLocale();
-//    }
-
     public Locale getLocale() {
         return resourceBundle.getLocale();
     }
-
-//    public ResourceBundle getResourceBundle() {
-//        return opening.getResourceBundle();
-//    }
 
     public ResourceBundle getResourceBundle() {
         return resourceBundle;

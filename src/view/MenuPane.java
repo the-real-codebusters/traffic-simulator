@@ -208,7 +208,7 @@ public class MenuPane extends AnchorPane {
         slider.setLayoutX(view.getCanvas().getWidth()-15);
         slider.setMin(0.01);
         slider.setMax(5);
-        slider.setValue(view.getTickDuration());
+        slider.setValue(view.getDayDuration());
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
         slider.setBlockIncrement(1);
@@ -317,7 +317,7 @@ public class MenuPane extends AnchorPane {
                     @Override
                     public void handle(ActionEvent event) {
                         view.setTickDuration(1.0);
-                        slider.setValue(view.getTickDuration());
+                        slider.setValue(view.getDayDuration());
 
                     }
                 });

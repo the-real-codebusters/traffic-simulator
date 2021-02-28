@@ -979,6 +979,7 @@ public class MapModel {
             startHeight += 1;
             for (int row = xCoord - startHeight - 1; row <= xCoord + startHeight + 1; row++) {
                 for (int col = yCoord - startHeight - 1; col <= yCoord + startHeight + 1; col++) {
+                    if(row >= depth || col >= width || row < 0 || col < 0) return false;
                     if (!(tileGrid[row][col].isWater() || tileGrid[row][col].getBuilding() instanceof Nature
                             || tileGrid[row][col].getBuilding().getBuildingName().equals("ground")
                             || tileGrid[row][col].getBuilding().getBuildingName().equals("grass"))) {
