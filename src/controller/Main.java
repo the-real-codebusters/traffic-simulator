@@ -53,7 +53,7 @@ public class Main extends Application {
     }
 
     private void showVitaExMachinaAnimation(Stage stage){
-        File mediaFile = new File("resources/VitaExMachina_test.mp4");
+        File mediaFile = new File("resources/fin.mp4");
         final String MEDIA_URL = mediaFile.toURI().toString();
         Media media = new Media(MEDIA_URL);
         MediaPlayer mediaPlayer = new MediaPlayer(media);
