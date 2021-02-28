@@ -16,10 +16,6 @@ public class ErrorAlert {
      * @param errorMessage
      */
     public static void showAlert(String errorMessage, ResourceBundle resourceBundle) {
-        //TODO: Dialog modifizieren
-//        Alert alert = new Alert(Alert.AlertType.ERROR, errorMessage);
-//        alert.show();
-
         Alert alert = new Alert(Alert.AlertType.ERROR,errorMessage, ButtonType.OK);
         alert.setTitle(resourceBundle.getString("error"));
         alert.setHeaderText(resourceBundle.getString("anErrorOccurred"));

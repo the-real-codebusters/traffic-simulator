@@ -75,6 +75,7 @@ public class OpeningScreen {
 
         VBox vbox = new VBox(20);
 
+        // MediaPlayer ist für das Abspielen des Intro-Videos verantwortlich
         final String MEDIA_URL = mediaFile.toURI().toString();
         Media media = new Media(MEDIA_URL);
         MediaPlayer mediaPlayer = new MediaPlayer(media);
@@ -83,36 +84,17 @@ public class OpeningScreen {
         mediaView.setFitHeight(1080/2);
         mediaPlayer.setAutoPlay(true);
 
-//        Pane filePane = new Pane();
         openButton.setPrefSize(200, 50);
-//        openButton.setAlignment(Pos.CENTER);
         vbox.setAlignment(Pos.CENTER);
-//        filePane.getChildren().add(openButton);
-//        filePane.setLayoutX(270);
-//        filePane.setLayoutY(mediaView.getFitHeight());
-
-//        languages.setLayoutX(325);
-//        languages.setLayoutY((600+filePane.getHeight()));
-//        filePane.getChildren().add(languages);
-
 
         vbox.getChildren().addAll(mediaView, openButton, languages);
-
-//        Group root = new Group();
-//        root.getChildren().add(vbox);
         Scene scene = new Scene(vbox);
-//        root.getChildren().add(filePane);
-//        root.getChildren().add(languages);
         stage.setScene(scene);
     }
 
 
     public Button getOpenButton() {
         return openButton;
-    }
-
-    public Locale getLocale() {
-        return locale;
     }
 
     public ResourceBundle getResourceBundle() {

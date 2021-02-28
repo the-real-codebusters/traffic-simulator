@@ -339,14 +339,6 @@
       "rails":[["ne","c"], ["nw","c"], ["se","c"], ["sw","c"]],
       "dz" : 0
     },
-    "tower" : {
-      "buildmenu" : "airport",
-      "width" : 1,
-      "depth" : 1,
-      "special" : "tower",
-      "maxplanes" : "3",
-      "dz" : 0
-    },
     "big tower" : {
       "buildmenu" : "airport",
       "width" : 2,
