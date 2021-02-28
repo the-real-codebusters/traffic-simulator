@@ -3,12 +3,10 @@ package model;
 import java.util.*;
 
 public class MapGenerator {
-    private String generatorName;
     private MapModel mapModel;
     private BasicModel basicModel;
 
-    public MapGenerator(String generatorName, MapModel mapModel, BasicModel basicModel) {
-        this.generatorName = generatorName;
+    public MapGenerator(MapModel mapModel, BasicModel basicModel) {
         this.mapModel = mapModel;
         this.basicModel = basicModel;
     }

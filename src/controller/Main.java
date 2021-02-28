@@ -10,6 +10,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import model.BasicModel;
 import model.JSONParser;
+import org.json.JSONArray;
 import view.OpeningScreen;
 import view.View;
 import javafx.application.Application;
@@ -22,16 +23,23 @@ import java.util.ResourceBundle;
 public class Main extends Application {
 
     View view;
+    private JSONParser parser;
+    private BasicModel model;
+    boolean result = false;
+    String pathToFile;
+
+    OpeningScreen opening;
+
 
     public void start(Stage stage) throws Exception {
 
-        OpeningScreen opening = new OpeningScreen(stage);
+        opening = new OpeningScreen(stage);
 
         Button openButton = opening.getOpenButton();
         openButton.setOnAction(e -> {
             File file = new FileChooser().showOpenDialog(stage);
             if(file!= null){
-                String pathToFile = file.getPath();
+                pathToFile = file.getPath();
 
                 if(pathToFile.contains("VitaExMachina")){
                     System.out.println("VitaExMachina contained");
@@ -39,6 +47,7 @@ public class Main extends Application {
                     startGame(pathToFile, stage, opening);
                 }
                 else {
+                    setModel();
                     startGame(pathToFile, stage, opening);
                     stage.setScene(view.getScene());
                 }
@@ -52,7 +61,7 @@ public class Main extends Application {
     }
 
     private void showVitaExMachinaAnimation(Stage stage){
-        File mediaFile = new File("resources/Codebusters.mp4");
+        File mediaFile = new File("resources/VitaExMachina_test.mp4");
         System.out.println("media file line ready");
         final String MEDIA_URL = mediaFile.toURI().toString();
         Media media = new Media(MEDIA_URL);
@@ -68,20 +77,31 @@ public class Main extends Application {
         Scene scene = new Scene(new AnchorPane(mediaView));
         System.out.println("scene line ready");
 
-        stage.setScene(scene);
+
+        Stage stage1 = new Stage();
+        stage1.setScene(scene);
+        stage1.show();
         System.out.println("scene set line ready");
+
+        setModel();
 
         mediaPlayer.setOnEndOfMedia(() -> {
             System.out.println("on end reached");
+            stage1.close();
             stage.setScene(view.getScene());
         });
     }
 
+    private void setModel(){
+        parser = new JSONParser();
+        model = new BasicModel();
+        result = parser.parse(pathToFile, model, opening.getResourceBundle());
+        model.generateMap();
+    }
+
     private void startGame(String pathToFile, Stage stage, OpeningScreen opening){
         System.out.println("Program started");
-        JSONParser parser = new JSONParser();
-        BasicModel model = new BasicModel();
-        boolean result = parser.parse(pathToFile, model, opening.getResourceBundle());
+
         if (result) {
             view = new View(stage, model);
             Controller controller = new Controller(view, model, opening.getResourceBundle());

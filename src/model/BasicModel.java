@@ -30,16 +30,16 @@ public class BasicModel {
 
     private Pathfinder pathfinder;
 
-    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
-                      Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
-        this.commodities = commodities;
-        this.day = day;
-        this.speedOfDay = speedOfDay;
-        this.map = map;
-        this.gamemode = gamemode;
-        this.buildmenus = buildmenus;
-        this.buildings = buildings;
-    }
+//    public BasicModel(Set<String> commodities, int day, double speedOfDay, MapModel map, String gamemode,
+//                      Set<String> buildmenus, ArrayList<Building> buildings, TrafficGraph roadsGraph) {
+//        this.commodities = commodities;
+//        this.day = day;
+//        this.speedOfDay = speedOfDay;
+//        this.map = map;
+//        this.gamemode = gamemode;
+//        this.buildmenus = buildmenus;
+//        this.buildings = buildings;
+//    }
 
     public BasicModel() {
         this.commodities = new HashSet<String>();
@@ -48,6 +48,15 @@ public class BasicModel {
         this.map = null;
         this.gamemode = null;
         this.buildmenus = null;
+
+
+    }
+
+    public void generateMap(){
+        // Ein generator wird erzeugt, der eine Map generiert (im Model)
+        MapGenerator generator = new MapGenerator(map, this);
+        Tile[][] generatedMap = generator.generateMap(this);
+        map.setTileGrid(generatedMap);
     }
 
 

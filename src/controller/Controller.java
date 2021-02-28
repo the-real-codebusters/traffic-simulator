@@ -37,11 +37,6 @@ public class Controller {
         MapModel map = model.getMap();
 //        model.printModelAttributes();
 
-        // Ein generator wird erzeugt, der eine Map generiert (im Model)
-        MapGenerator generator = new MapGenerator(map.getMapgen(), map, model);
-        Tile[][] generatedMap = generator.generateMap(model);
-        map.setTileGrid(generatedMap);
-
         view.setController(this);
         view.storeImageRatios();
         view.generateMenuPane(this);
