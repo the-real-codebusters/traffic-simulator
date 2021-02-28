@@ -247,6 +247,7 @@ public class Controller {
         double mouseX = event.getX();
         double mouseY = event.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
+        if(isoCoord == null) return  null;
         int xCoord = (int) isoCoord.getX();
         int yCoord = (int) isoCoord.getY();
 

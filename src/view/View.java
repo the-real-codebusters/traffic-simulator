@@ -393,7 +393,7 @@ public class View {
      * @return ein Point2D mit isometrischen Koordinaten
      */
     public Point2D findTileCoord(double mouseX, double mouseY) {
-        Point2D newIsoCoord =null;
+        Point2D newIsoCoord = null;
         for(Map.Entry<List<Point2D>, Point2D> entry : polygonEdgesToIsoCoords.entrySet()){
             if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
                 newIsoCoord = entry.getValue();
