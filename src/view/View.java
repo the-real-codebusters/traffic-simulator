@@ -294,9 +294,9 @@ public class View {
         }
 
         // Zeichnet die Knoten des Graphen als gelbe Punkte ein
-        if (controller != null) {
-            controller.drawVertexesOfGraph();
-        }
+//        if (controller != null) {
+//            controller.drawVertexesOfGraph();
+//        }
 
         // Zeichnet eine Vorschau, falls nötig
         Building selectedBuilding = menuPane.getSelectedBuilding();
@@ -991,7 +991,7 @@ public class View {
 
             //Rufe simulateOneDay auf, wenn Animation vorbei. Dadurch entsteht ein Kreislauf, da simulateOneDay dann
             //wieder translateVehicles aufruft.
-            controller.simulateOneDay();
+            controller.gameLoop();
 
         });
 
@@ -1059,9 +1059,9 @@ public class View {
         }
 
         // Zeichnet die Knoten des Graphen als gelbe Punkte ein
-        if (controller != null) {
-            controller.drawVertexesOfGraph();
-        }
+//        if (controller != null) {
+//            controller.drawVertexesOfGraph();
+//        }
     }
 
 

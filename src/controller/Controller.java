@@ -49,13 +49,13 @@ public class Controller {
         model.setPathfinder(pathfinder);
 
         //Starte Game-Loop
-        simulateOneDay();
+        gameLoop();
     }
 
     /**
      * Hält Game-Loop am laufen. Bewegungen werden durch die View angezeigt
      */
-    public void simulateOneDay(){
+    public void gameLoop(){
         List<VehicleMovement> movements = model.simulateOneDay();
 
         view.getMenuPane().setDayLabel(model.getDay());
@@ -73,7 +73,7 @@ public class Controller {
     public void waitForOneDay(){
         Timeline timeline = new Timeline(new KeyFrame(
                 Duration.seconds(view.getDayDuration()),
-                ae -> simulateOneDay()));
+                ae -> gameLoop()));
         timeline.play();
     }
 

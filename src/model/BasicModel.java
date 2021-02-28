@@ -68,7 +68,6 @@ public class BasicModel {
 
         produceAndConsume();
 
-
 //        System.out.println("simulate day "+day);
 
         // runway platzieren (2x) -> Koordinaten speichern
