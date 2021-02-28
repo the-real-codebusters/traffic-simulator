@@ -64,7 +64,7 @@
       "depth" : 1,
       "points":{"c" : [0.5, 0.5], "ne" : [0.5, 1], "nw" : [0, 0.5]},
       "roads":[["ne","c"], ["nw","c"]],
-      "dz" : 1
+      "dz" : 0
     },
     "road-ne-se-sw" : {
       "width" : 1,
@@ -78,7 +78,7 @@
       "depth" : 1,
       "points":{"c" : [0.5, 0.5], "ne" : [0.5, 1], "se" : [1, 0.5]},
       "roads":[["ne","c"], ["se","c"]],
-      "dz" : 1
+      "dz" : 0
     },
     "road-ne-sw" : {
       "width" : 1,
@@ -106,14 +106,14 @@
       "depth" : 1,
       "points":{"c" : [0.5, 0.5], "nw" : [0, 0.5], "sw" : [0.5, 0]},
       "roads":[["nw","c"], ["sw","c"]],
-      "dz" : 1
+      "dz" : 0
     },
     "road-se-sw" : {
       "width" : 1,
       "depth" : 1,
       "points":{"c" : [0.5, 0.5], "se" : [1, 0.5], "sw" : [0.5, 0]},
       "roads":[["se","c"], ["sw","c"]],
-      "dz" : 1
+      "dz" : 0
     },
     "railstation-nw-se" : {
       "buildmenu" : "rail",
@@ -140,7 +140,7 @@
       "points":{"nw" : [0, 0.5], "se" : [1, 0.5]},
       "rails":[["nw","se"]],
       "combines" : {"rail-ne-sw" : "railcrossing"},
-      "dz" : 1
+      "dz" : 0
     },
     "rail-ne-sw" : {
       "buildmenu" : "rail",
@@ -149,7 +149,7 @@
       "points":{"ne" : [0.5, 1], "sw" : [0.5, 0]},
       "rails":[["ne","sw"]],
       "combines" : {"rail-nw-se" : "railcrossing"},
-      "dz" : 1
+      "dz" : 0
     },
     "rail-nw-sw" : {
       "buildmenu" : "rail",
@@ -157,7 +157,7 @@
       "depth" : 1,
       "points":{"nw" : [0, 0.5], "sw" : [0.5, 0]},
       "rails":[["nw","sw"]],
-      "dz" : 1
+      "dz" : 0
     },
     "rail-ne-se" : {
       "buildmenu" : "rail",
@@ -165,7 +165,7 @@
       "depth" : 1,
       "points":{"ne" : [0.5, 1], "se" : [1, 0.5]},
       "rails":[["ne","se"]],
-      "dz" : 1
+      "dz" : 0
     },
     "rail-se-sw" : {
       "buildmenu" : "rail",
@@ -173,7 +173,7 @@
       "depth" : 1,
       "points":{"se" : [1, 0.5], "sw" : [0.5, 0]},
       "rails":[["se","sw"]],
-      "dz" : 1
+      "dz" : 0
     },
     "rail-ne-nw" : {
       "buildmenu" : "rail",
@@ -181,7 +181,7 @@
       "depth" : 1,
       "points":{"ne" : [0.5, 1], "nw" : [0, 0.5]},
       "rails":[["ne","nw"]],
-      "dz" : 1
+      "dz" : 0
     },
     "railsignal" : {
       "buildmenu" : "rail",
@@ -194,7 +194,7 @@
       "points":{"c" : [0.5, 0.5], "nw" : [0, 0.5], "se" : [1, 0.5]},
       "signals":["c"],
       "rails":[["nw","c"], ["se","c"]],
-      "dz" : 1
+      "dz" : 0
     },
     "railsignal-ne-sw" : {
       "width" : 1,
@@ -202,7 +202,7 @@
       "points":{"c" : [0.5, 0.5], "ne" : [0.5, 1], "sw" : [0.5, 0]},
       "signals":["c"],
       "rails":[["ne","c"], ["sw","c"]],
-      "dz" : 1
+      "dz" : 0
     },
     "railcurve-ne-s" : {
       "buildmenu" : "rail",
