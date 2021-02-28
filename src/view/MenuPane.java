@@ -105,7 +105,7 @@ public class MenuPane extends AnchorPane {
     }
 
     private void createFactoryTab() {
-        String name = "factory";
+        String name = resourceBundle.getString("factory");
         VBox box = new VBox(10);
         box.setPrefHeight(120);
         box.setPadding(new Insets(5, 20, 5, 20));
@@ -128,11 +128,8 @@ public class MenuPane extends AnchorPane {
         hbox.getChildren().addAll(factoryImageView, box, box2);
 
         factoryRealStorageLabel.setFont(new Font("Arial", 15));
-//        box.getChildren().add(factoryRealStorageLabel);
         factoryMaximaStorageLabel.setFont(new Font("Arial", 15));
-//        box.getChildren().add(factoryMaximaStorageLabel);
         factoryNearStationsLabel.setFont(new Font("Arial", 15));
-//        box.getChildren().add(factoryNearStationsLabel);
 
         factoryNameLabel.setFont(new Font("Arial", 15));
         box.getChildren().add(factoryNameLabel);
@@ -140,9 +137,9 @@ public class MenuPane extends AnchorPane {
         box.getChildren().add(productionLabel);
         consumptionLabel.setFont(new Font("Arial", 15));
         box.getChildren().add(consumptionLabel);
-        factoryNameLabel.setText("factory name: not selected");
-        productionLabel.setText("production: nothing");
-        consumptionLabel.setText("consumption: nothing");
+        factoryNameLabel.setText(resourceBundle.getString("factory name"));
+        productionLabel.setText(resourceBundle.getString("production"));
+        consumptionLabel.setText(resourceBundle.getString("consumption"));
 
         setFactoryLabels(factoryNameLabel, productionLabel, consumptionLabel);
         factoryTabContent = hbox;
@@ -545,36 +542,41 @@ public class MenuPane extends AnchorPane {
 
         // System.out.println("building = " + factory);
         labels.addAll(List.of(factoryNameLabel, productionLabel, factoryNearStationsLabel, factoryMaximaStorageLabel, factoryRealStorageLabel, consumptionLabel));
-        factoryNameLabel.setText("factory name: " + factory.getBuildingName());
+        String factoryName = resourceBundle.getString(factory.getBuildingName());
+        factoryNameLabel.setText(resourceBundle.getString("factory name") + factoryName);
         StringBuilder production = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getProduce().entrySet()){
-            production.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+            String producedGood = resourceBundle.getString(entry.getKey());
+            production.append(producedGood).append(" (").append(entry.getValue()).append("); ");
         }
         if(production.toString().equals("")) {
-            production = new StringBuilder("nothing");
+            production = new StringBuilder(resourceBundle.getString("nothing"));
         }
-        productionLabel.setText("production: " + production);
+        productionLabel.setText(resourceBundle.getString("production") + production);
         StringBuilder consumption = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getConsume().entrySet()){
-            consumption.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ").append("  ");
+            String consumedGood = resourceBundle.getString(entry.getKey());
+            consumption.append(consumedGood).append(" (").append(entry.getValue()).append("); ").append("  ");
         }
         if(consumption.toString().equals("")) {
-            consumption = new StringBuilder("nothing");
+            consumption = new StringBuilder(resourceBundle.getString("nothing"));
         }
-        consumptionLabel.setText("consumption: " + consumption);
+        consumptionLabel.setText(resourceBundle.getString("consumption") + consumption);
 
         if(factory.getStorage() != null){
             StringBuilder realStored = new StringBuilder();
             for(Map.Entry<String, Integer> entry : factory.getStorage().getCargo().entrySet()){
-                realStored.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+                String storedGood = resourceBundle.getString(entry.getKey());
+                realStored.append(storedGood).append(" (").append(entry.getValue()).append("); ");
             }
-            factoryRealStorageLabel.setText("stored cargo: " + realStored);
+            factoryRealStorageLabel.setText(resourceBundle.getString("stored cargo") + realStored);
 
             StringBuilder maxStored = new StringBuilder();
             for(Map.Entry<String, Integer> entry : factory.getStorage().getMaxima().entrySet()){
-                maxStored.append(entry.getKey()).append(" (").append(entry.getValue()).append("); ");
+                String maxStorageForGood = resourceBundle.getString(entry.getKey());
+                maxStored.append(maxStorageForGood).append(" (").append(entry.getValue()).append("); ");
             }
-            factoryMaximaStorageLabel.setText("Maximum cargo capacity: " + maxStored);
+            factoryMaximaStorageLabel.setText(resourceBundle.getString("maximum cargo capacity") + maxStored);
 
             boolean labelTooLong = false;
             for(Label label: labels){
@@ -594,7 +596,6 @@ public class MenuPane extends AnchorPane {
 
         }
         else {
-            System.out.println("factory storage was null. name "+factory.getBuildingName());
             factoryRealStorageLabel.setText("");
             factoryMaximaStorageLabel.setText("");
         }
@@ -603,7 +604,7 @@ public class MenuPane extends AnchorPane {
         for(Station station : factory.getNearStations()){
             nearStations.append(station.getId()).append("; ");
         }
-        factoryNearStationsLabel.setText("Near Station-Ids: " + nearStations);
+        factoryNearStationsLabel.setText(resourceBundle.getString("near station-IDs") + nearStations);
 
 
         int index = tabContents.indexOf(factoryTabContent);
