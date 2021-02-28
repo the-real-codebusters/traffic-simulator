@@ -18,76 +18,73 @@ import java.io.File;
 
 public class Main extends Application {
 
-    View view;
-    private JSONParser parser;
+    private View view;
     private BasicModel model;
-    private boolean result = false;
-    private String pathToFile;
+    private boolean parserSuccessful = false;
+    private String pathToJSONFile;
 
-    private OpeningScreen opening;
+    private OpeningScreen openingScreen;
 
     public void start(Stage stage) throws Exception {
 
-        opening = new OpeningScreen(stage);
+        openingScreen = new OpeningScreen(stage);
 
-        Button openButton = opening.getOpenButton();
+        Button openButton = openingScreen.getOpenButton();
         openButton.setOnAction(e -> {
             File file = new FileChooser().showOpenDialog(stage);
             if(file!= null){
-                pathToFile = file.getPath();
+                pathToJSONFile = file.getPath();
 
-                if(pathToFile.contains("VitaExMachina")){
+                //Wenn VitaExMachina im Namen vorkommt, zeige ein kurzes Einleitungsvideo des Szenarios
+                if(pathToJSONFile.contains("VitaExMachina")){
                     showVitaExMachinaAnimation(stage);
-                    startGame(pathToFile, stage, opening);
+                    startGame(pathToJSONFile, stage, openingScreen);
                 }
                 else {
-                    setModel();
-                    startGame(pathToFile, stage, opening);
+                    parseAndCreateModel();
+                    startGame(pathToJSONFile, stage, openingScreen);
                     stage.setScene(view.getScene());
                 }
-
-
             }
         });
         stage.show();
     }
 
     private void showVitaExMachinaAnimation(Stage stage){
-        File mediaFile = new File("resources/fin.mp4");
+        File mediaFile = new File("resources/VitaExMachina/introduction.mp4");
         final String MEDIA_URL = mediaFile.toURI().toString();
         Media media = new Media(MEDIA_URL);
         MediaPlayer mediaPlayer = new MediaPlayer(media);
 
         MediaView mediaView = new MediaView(mediaPlayer);
 
-        mediaView.setFitWidth(1920/2);
-        mediaView.setFitHeight(1080/2);
+        mediaView.setFitWidth(720);
+        mediaView.setFitHeight(480);
         mediaPlayer.setAutoPlay(true);
         Scene scene = new Scene(new AnchorPane(mediaView));
 
         stage.setScene(scene);
 
-
+        //Zeige eigentliches Programm nach Video
         mediaPlayer.setOnEndOfMedia(() -> {
             stage.setScene(view.getScene());
         });
-
-        setModel();
+        parseAndCreateModel();
     }
 
-    private void setModel(){
-        parser = new JSONParser();
+    private void parseAndCreateModel(){
+        JSONParser parser = new JSONParser();
         model = new BasicModel();
-        result = parser.parse(pathToFile, model, opening.getResourceBundle());
+        parserSuccessful = parser.parse(pathToJSONFile, model, openingScreen.getResourceBundle());
         model.generateMap();
     }
 
     private void startGame(String pathToFile, Stage stage, OpeningScreen opening){
-        System.out.println("Program started");
 
-        if (result) {
+        if (parserSuccessful) {
             view = new View(stage, model);
-            Controller controller = new Controller(view, model, opening.getResourceBundle());
+            new Controller(view, model, opening.getResourceBundle());
+            //Zeige name der JSON-Datei als Titel
             String title = pathToFile.substring(pathToFile.lastIndexOf('\\') + 1, pathToFile.length()-5);
             stage.setTitle(title);
         }
@@ -96,5 +93,4 @@ public class Main extends Application {
     public static void main(String[] args) {
         Application.launch(Main.class, args);
     }
-
 }
