@@ -16,7 +16,7 @@ public class ObjectToImageMapping {
             createVitaExMachinaMapping();
         }
         else {
-                //TODO
+                // Hier könnten weitere Szenarien eingebunden werden
         }
     }
 
@@ -40,7 +40,6 @@ public class ObjectToImageMapping {
         mapping.put("water", "ground/water");
         mapping.put("tree", "ground/trees");
         mapping.put("stone", "ground/stones");
-//        mapping.put("tree_no_ground", "ground/trees_no_ground");
 
 
         // Flache Rails (unvollständig)
@@ -68,28 +67,22 @@ public class ObjectToImageMapping {
         mapping.put("railswitch-sw-e", "rail/railswitch-sw-e");
 
         mapping.put("railcrossing", "rail/railroadcrossing");
-//        mapping.put("railsignal-ne-sw", "rail/rails_railsignal-ne-sw");
-//        mapping.put("railsignal-nw-se", "rail/rails_railsignal-nw-se");
         mapping.put("railsignal-ne-sw", "rail/railsignal-ne-sw");
         mapping.put("railsignal-nw-se", "rail/railsignal-nw-se");
         mapping.put("railsignal", "rail/railsignal");
 
-        // Verschiedenes
+        // Stations und Airport
         mapping.put("railstation-nw-se", "stations/rail/railstation_nw_se");
         mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
         mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
         mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
-
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
         mapping.put("big tower", "airport/big tower");
         mapping.put("tower", "airport/tower");
-
-        //TODO Use real building
         mapping.put("terminal", "airport/terminal");
 
-
-
+        // Verschiedenes
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
         mapping.put("remove", "remove");
@@ -312,7 +305,6 @@ public class ObjectToImageMapping {
         mapping.put("mechanical engineering", "factories_test/mechanical engineering");
         mapping.put("recycling factory", "factories_test/recycling factory");
         mapping.put("steel factory", "factories_test/steel factory");
-
         mapping.put("emotion research department", "factories_test/emotion research department");
         mapping.put("final factory", "factories_test/final factory");
         mapping.put("fusion power plant", "factories_test/fusion power plant");
@@ -327,8 +319,6 @@ public class ObjectToImageMapping {
         mapping.put("plantandtree", "ground/plantandtree");
         mapping.put("stones_one", "ground/stones_one");
         mapping.put("stones_two", "ground/stones_two");
-
-//        mapping.put("water", "ground/wasserblau");
         mapping.put("water", "ground/wasserrosa");
 
         // Grasfelder mit verschiedenen Höhen
@@ -351,11 +341,12 @@ public class ObjectToImageMapping {
         mapping.put("0011", "ground_heights/Slope_SW");
         mapping.put("0001", "ground_heights/Slope_W");
         mapping.put("0111", "ground_heights/Slope_WSE");
+        mapping.put("grass", "ground/grass");
 
         mapping.put("height_up" , "height_up");
         mapping.put("height_down" , "height_down");
         mapping.put("remove", "remove");
-        mapping.put("grass", "ground/grass");
+
 
         mapping.put("rail-ne-sw", "rail/rail-ne-sw");
         mapping.put("rail-nw-se", "rail/rail-nw-se");
@@ -518,14 +509,12 @@ public class ObjectToImageMapping {
         mapping.put("road-se0111", "road/slope_nw_se/road_Slope_nw-se_WSE");
 
         //Stations
-
         mapping.put("busstop-nw-se", "stations/road/busstop-nw-se");
         mapping.put("busstop-ne-sw", "stations/road/busstop-ne-sw");
         mapping.put("railstation-nw-se", "stations/rail/railstation-nw-se");
         mapping.put("railstation-ne-sw", "stations/rail/railstation-ne-sw");
 
-        //Fahrzeuge RAiL
-
+        //Fahrzeuge RAIL
         mapping.put("the_engine-ne", "vehicles/rail/the_engine-ne");
         mapping.put("the_engine-nw", "vehicles/rail/the_engine-nw");
         mapping.put("the_engine-se", "vehicles/rail/the_engine-se");
@@ -587,16 +576,11 @@ public class ObjectToImageMapping {
         mapping.put("air_taxi-se", "vehicles/air/air_taxi-se");
         mapping.put("air_taxi-sw", "vehicles/air/air_taxi-sw");
 
-
-
+        // Airport
         mapping.put("runway", "airport/runway");
         mapping.put("taxiway", "airport/taxiway");
         mapping.put("big tower", "airport/big tower");
         mapping.put("terminal", "airport/terminal");
-
-        mapping.put("height_up" , "height_up");
-        mapping.put("height_down" , "height_down");
-        mapping.put("remove", "remove");
 
     }
 

@@ -25,6 +25,7 @@ import model.Vehicle;
 import java.util.*;
 import java.util.List;
 
+// Klasse für das Fenster zur Erstellung einer TrafficLine
 public class TrafficLineCreationDialog {
 
     private TableView<VehicleTypeRowForTrafficLineCrationDialog> tableView;
@@ -39,6 +40,7 @@ public class TrafficLineCreationDialog {
         VBox listBox = new VBox();
         listBox.setSpacing(5);
 
+        // ResourceBundle aus dem die Klasse die sprachspezifischen Einträge bekommen kann
         ResourceBundle resourceBundle = view.getResourceBundleFromController();
 
         String createNewTrafficLine = resourceBundle.getString("createNewTrafficLine");
@@ -82,10 +84,10 @@ public class TrafficLineCreationDialog {
                 String cargoName = resourceBundle.getString(entry.getKey());
                 info+= cargoName+": "+entry.getValue()+" ";
             }
-//            Label txtImg = new Label(info);
+
             String imageName = view.getObjectToImageMapping().getImageNameForObjectName(v.getGraphic()+"-nw");
             Image img = view.getResourceForImageName(imageName, iconWidth, view.getImageNameToImageRatio().get(imageName)*30);
-//            txtImg.setGraphic(new ImageView(img));
+
             Map<String, Object> map = new HashMap<>();
             map.put("text", info);
             map.put("image", img);
@@ -95,7 +97,6 @@ public class TrafficLineCreationDialog {
         dropdown.setItems(FXCollections.observableList(dropdownLabels));
         setDropdownCellfactory(dropdown);
         HBox vehiclesHbox = new HBox();
-//        vehiclesHbox.setPadding(new Insets(0, 10, 0, 10));
         vehiclesHbox.setSpacing(5);
         vehiclesHbox.getChildren().add(dropdown);
         numberVehiclesField = getIntegerFormattedTextField();
@@ -113,17 +114,18 @@ public class TrafficLineCreationDialog {
             Controller controller = view.getController();
             for(VehicleTypeRowForTrafficLineCrationDialog row: tableView.getItems()){
                     String nameLocalized = row.getInformation().split(name+": ")[1].split(" ")[0];
-//                    System.out.println("name1: " + nameLocalized);
+
+                    // namen der Vehicles müssen hier wieder auf Englisch benutzt werden, da an anderen Stellen
+                    // im Code wieder darauf zugegriffen wird
                     Locale locale = new Locale("en_US");
                     ResourceBundle bundleEN = ResourceBundle.getBundle("Bundle", locale);
                     String nameEN;
                     nameEN = bundleEN.getString(nameLocalized);
-//                    String nameEN = bundleEN.getString(nameLocalized);
-//                    System.out.println("name2: " + nameEN);
                     mapDesiredNumbers.put(nameEN, row.getDesiredNumber());
 
             }
 
+            // Map das ein Vehicle auf die gewünschte Anzahl abbildet
             Map<Vehicle, Integer> vehicleMapDesiredNumbers = controller.getVehicleMapOfDesiredNumbers(mapDesiredNumbers);
             boolean isAcceptable = true;
             if(trafficType.equals(TrafficType.RAIL)){
@@ -142,6 +144,9 @@ public class TrafficLineCreationDialog {
                 controller.createNewTrafficLine(vehicleMapDesiredNumbers, trafficType, textField.getText());
                 window.close();
             }
+            // Dieser Zweig wird ausgeführt, wenn bei Erstellung einer TrafficLine des Typs RAIL keine
+            // Lokomotive ausgewählt wird. Der benutzer wird gewarnt und darüber informiert, dass die aktuelle
+            // Auswahl nicht möglich ist, da ein Zug immer eine Lokomotive benötigt
             else {
                 String selectionNotPossible = resourceBundle.getString("selectionNotPossible");
                 String oneTrainOfType = resourceBundle.getString("oneTrainOfType");
@@ -188,9 +193,7 @@ public class TrafficLineCreationDialog {
                 if (map == null){
                     return null;
                 } else {
-                    // it was before 21.02.2021
                      return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().getUrl();
-                    //return (String) map.get("text") +";"+ ((ImageView)map.get("image")).getImage().impl_getUrl();
                 }
             }
 
@@ -236,7 +239,6 @@ public class TrafficLineCreationDialog {
             Map<String, Object> selected = dropdown.getSelectionModel().getSelectedItem();
             Image image = (Image) selected.get("image");
             String infos = (String) selected.get("text");
-            System.out.println("infos: " + infos);
             String textNumberInput = numberVehiclesField.getText();
             if(textNumberInput != null && !textNumberInput.equals("")){
                 Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
@@ -273,16 +275,11 @@ public class TrafficLineCreationDialog {
         return tableView;
     }
 
-//    private ListView getStationsListView(){
-//
-//    }
-
 }
 
 class IconListCell extends ListCell<Map<String, Object>>{
 private final Label lbl;
         {
-//                                setContentDisplay(ContentDisplay.CENTER);
         lbl = new Label();
         lbl.setTextFill(Color.BLACK);
         }
