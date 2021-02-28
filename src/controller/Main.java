@@ -1,6 +1,5 @@
 package controller;
 
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
@@ -10,27 +9,23 @@ import javafx.scene.media.MediaView;
 import javafx.stage.FileChooser;
 import model.BasicModel;
 import model.JSONParser;
-import org.json.JSONArray;
 import view.OpeningScreen;
 import view.View;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class Main extends Application {
 
     View view;
     private JSONParser parser;
     private BasicModel model;
-    boolean result = false;
-    String pathToFile;
+    private boolean result = false;
+    private String pathToFile;
 
-    OpeningScreen opening;
-
-
+    private OpeningScreen opening;
+    
     public void start(Stage stage) throws Exception {
 
         opening = new OpeningScreen(stage);
@@ -42,7 +37,6 @@ public class Main extends Application {
                 pathToFile = file.getPath();
 
                 if(pathToFile.contains("VitaExMachina")){
-                    System.out.println("VitaExMachina contained");
                     showVitaExMachinaAnimation(stage);
                     startGame(pathToFile, stage, opening);
                 }
@@ -56,40 +50,30 @@ public class Main extends Application {
             }
 
         });
-
         stage.show();
     }
 
     private void showVitaExMachinaAnimation(Stage stage){
         File mediaFile = new File("resources/VitaExMachina_test.mp4");
-        System.out.println("media file line ready");
         final String MEDIA_URL = mediaFile.toURI().toString();
         Media media = new Media(MEDIA_URL);
         MediaPlayer mediaPlayer = new MediaPlayer(media);
-        System.out.println("media player line ready");
 
         MediaView mediaView = new MediaView(mediaPlayer);
-        System.out.println("media view line ready");
 
         mediaView.setFitWidth(1920/2);
         mediaView.setFitHeight(1080/2);
         mediaPlayer.setAutoPlay(true);
         Scene scene = new Scene(new AnchorPane(mediaView));
-        System.out.println("scene line ready");
 
+        stage.setScene(scene);
 
-        Stage stage1 = new Stage();
-        stage1.setScene(scene);
-        stage1.show();
-        System.out.println("scene set line ready");
-
-        setModel();
 
         mediaPlayer.setOnEndOfMedia(() -> {
-            System.out.println("on end reached");
-            stage1.close();
             stage.setScene(view.getScene());
         });
+
+        setModel();
     }
 
     private void setModel(){
@@ -109,30 +93,6 @@ public class Main extends Application {
             stage.setTitle(title);
         }
     }
-
-
-
-
-//        System.out.println("Program started");
-//        JSONParser parser = new JSONParser();
-//        BasicModel model = new BasicModel();
-////        Locale locale = new Locale("en", "US");
-//        Locale locale = new Locale("de", "DE");
-//        ResourceBundle resourceBundle = ResourceBundle.getBundle("Bundle", locale);
-//
-////        if (parser.parse("resources/planverkehr/planverkehr.json", model, resourceBundle)) {
-//   if (parser.parse("resources/VitaExMachina/VitaExMachina.json", model, resourceBundle)) {
-//
-//
-////            model.printModelAttributes();
-//            View view = new View(stage, model);
-//            stage.setTitle("Planverkehr");
-//            Controller controller = new Controller(view, model, resourceBundle);
-//
-////            stage.setMaximized(true);
-//            stage.show();
-//        }
-//    }
 
     public static void main(String[] args) {
         Application.launch(Main.class, args);
