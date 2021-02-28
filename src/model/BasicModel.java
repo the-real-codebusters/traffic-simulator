@@ -422,7 +422,7 @@ public class BasicModel {
             System.out.println("Position gesetzt für Vehicle "+vehicle.getName()+" : "+movement.getLastPair().getKey());
             vehicle.setPosition(movement.getLastPair().getKey());
             vehicle.setHasWaitedInLastRound(false);
-            if(vehicle.isShouldBeRemoved()){
+            if(vehicle.isShouldBeRemovedInLastDay()){
                 vehicle.getTrafficLine().getVehicles().remove(vehicle);
             }
 

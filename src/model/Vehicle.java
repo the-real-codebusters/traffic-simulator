@@ -39,6 +39,7 @@ public class Vehicle {
 
     private TransportPackage vehicleTransportPackage;
     private boolean shouldBeRemoved = false;
+    private boolean shouldBeRemovedInLastDay = false;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -63,6 +64,7 @@ public class Vehicle {
      */
     public void savePathToNextStationAndUpdateMovement(Vertex startVertex, VehicleMovement movement){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
+        shouldBeRemoved = false;
         if(pathToNextStation.size() == 0){
             System.out.println("Kein neuer Weg gefunden");
             //Kein Weg gefunden
@@ -113,6 +115,7 @@ public class Vehicle {
      * @return Ein VehicleMovement Objekt
      */
     public VehicleMovement getMovementForNextDay(){
+        shouldBeRemovedInLastDay = shouldBeRemoved;
 
         pathToNextStationBeforeMovement = new ArrayList<>(pathToNextStation);
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
@@ -435,5 +438,9 @@ public class Vehicle {
 
     public boolean isShouldBeRemoved() {
         return shouldBeRemoved;
+    }
+
+    public boolean isShouldBeRemovedInLastDay() {
+        return shouldBeRemovedInLastDay;
     }
 }
