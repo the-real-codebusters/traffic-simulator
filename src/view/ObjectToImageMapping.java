@@ -308,18 +308,18 @@ public class ObjectToImageMapping {
     private void createVitaExMachinaMapping(){
 
         // Fabriken
-        mapping.put("data processing", "factories/data processing");
-        mapping.put("mechanical engineering", "factories/mechanical engineering");
-        mapping.put("recycling factory", "factories/recycling factory");
-        mapping.put("steel factory", "factories/steel factory");
+        mapping.put("data processing", "factories_test/data processing");
+        mapping.put("mechanical engineering", "factories_test/mechanical engineering");
+        mapping.put("recycling factory", "factories_test/recycling factory");
+        mapping.put("steel factory", "factories_test/steel factory");
 
-        mapping.put("emotion research department", "factories/emotion research department");
-        mapping.put("final factory", "factories/final factory");
-        mapping.put("fusion power plant", "factories/fusion power plant");
-        mapping.put("human research department", "factories/human research department");
-        mapping.put("institut of quantum physics", "factories/institut of quantum physics");
-        mapping.put("iron ore mine", "factories/iron ore mine");
-        mapping.put("nanotechnology lab", "factories/nanotechnology lab");
+        mapping.put("emotion research department", "factories_test/emotion research department");
+        mapping.put("final factory", "factories_test/final factory");
+        mapping.put("fusion power plant", "factories_test/fusion power plant");
+        mapping.put("human research department", "factories_test/human research department");
+        mapping.put("institut of quantum physics", "factories_test/institut of quantum physics");
+        mapping.put("iron ore mine", "factories_test/iron ore mine");
+        mapping.put("nanotechnology lab", "factories_test/nanotechnology lab");
 
         //Nature
         mapping.put("plant", "ground/plant");
