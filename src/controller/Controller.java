@@ -9,18 +9,14 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
-import view.OpeningScreen;
 import view.View;
 
-
 import java.util.*;
-
 
 public class Controller {
     private View view;
     private BasicModel model;
     private Pathfinder pathfinder;
-    private OpeningScreen opening;
     private ResourceBundle resourceBundle;
 
     //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen

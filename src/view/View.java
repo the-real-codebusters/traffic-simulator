@@ -52,7 +52,6 @@ public class View {
     private double canvasCenterWidth = canvas.getWidth() / 2;
     private double canvasCenterHeight = canvas.getHeight() / 2;
 
-
     // Gibt die Verschiebung des sichtbaren Bereichs der Karte in x-Richtung an
     private double cameraOffsetX = 0.0;
     // Gibt die Verschiebung des sichtbaren Bereichs der Karte in y-Richtung an
