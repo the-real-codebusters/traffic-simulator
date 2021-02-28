@@ -259,12 +259,11 @@ public class MenuPane extends AnchorPane {
 
         String speed = resourceBundle.getString("speed");
         String height = resourceBundle.getString("height");
-        String vehicles = resourceBundle.getString("vehicles");
         String remove = resourceBundle.getString("remove");
 
         tabNames.addAll(List.of(speed));
         tabNames.addAll(buildmenusLocalized);
-        tabNames.addAll(List.of(height, vehicles, remove));
+        tabNames.addAll(List.of(height, remove));
 
         // dummys:
         for (int i = 0; i < tabNames.size(); i++) {
