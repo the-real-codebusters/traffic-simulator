@@ -365,14 +365,14 @@ public class MapModel {
      * @return
      */
     private Map<Tile, Point2D> getAllNeighbors(Point2D coords) {
-        //TODO Was wenn außerhalb der Map?
         int xCoord = (int) coords.getX();
         int yCoord = (int) coords.getY();
 
         Map<Tile, Point2D> neighbors = new LinkedHashMap<>();
 
-        boolean toCloseToBorder = xCoord == 0 || yCoord==0 || xCoord == width-1 || yCoord == depth-1;
-        if(!toCloseToBorder){
+        // Es muss ein Mindestabstand zum Rand der Map eingehalten werden
+        boolean tooCloseToBorder = xCoord < 1 || yCoord < 1 || xCoord > depth-2 || yCoord > width-2;
+        if(!tooCloseToBorder){
             Tile tileNW = tileGrid[xCoord - 1][yCoord];     // NW
             Tile tileNE = tileGrid[xCoord][yCoord + 1];     // NE
             Tile tileSE = tileGrid[xCoord + 1][yCoord];     // SE

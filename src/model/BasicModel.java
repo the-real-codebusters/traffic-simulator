@@ -580,8 +580,16 @@ public class BasicModel {
                         String newBuildingName = entry.getValue();
 
                         Building combinedBuilding = getBuildingByName(newBuildingName).getNewInstance();
-                        // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
-                        return combinedBuilding;
+                        // Das aus einer Kombination entstehende Building soll nur zurückgegeben werden, wenn der
+                        // dz-Wert noch eingehalten wird
+                        Map<String, Integer> cornerHeights = selectedTile.getCornerHeights();
+                        int minCorner = selectedTile.findMinCorner(cornerHeights);
+                        int maxCorner = selectedTile.findMaxCorner(cornerHeights);
+                        int heightDifference = maxCorner - minCorner;
+                            if(heightDifference <= combinedBuilding.getDz()) {
+                            // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
+                            return combinedBuilding;
+                        }
                     }
                 }
             }
