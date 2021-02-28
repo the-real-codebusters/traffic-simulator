@@ -13,71 +13,60 @@ import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import model.*;
-
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 
 public class View {
 
     private Stage stage;
+    private Scene scene;
+    private Controller controller;
+    private MenuPane menuPane;
 
     private double tileImageWidth = 128;
     private double tileImageWidthHalf = tileImageWidth / 2;
     private double tileImageHeight = 64;
     private double tileImageHeightHalf = tileImageHeight / 2;
-    double heightOffset = 16;
     private int mapWidth;
     private int mapDepth;
 
-    private Controller controller;
-
-    // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
+    // Gibt für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    Screen screen = Screen.getPrimary();
-    Rectangle2D screenBounds = screen.getVisualBounds();
+    private final Canvas canvas = new Canvas(1200, 550);
+    private final double canvasCenterWidth = canvas.getWidth() / 2;
+    private final double canvasCenterHeight = canvas.getHeight() / 2;
 
-    private Canvas canvas = new Canvas(1200, 600);
-    private double canvasCenterWidth = canvas.getWidth() / 2;
-    private double canvasCenterHeight = canvas.getHeight() / 2;
+    private BorderPane borderPane;
 
+    // Höhenunterschied bei Grafiken nicht flacher Tiles
+    private double heightOffset = 16;
 
     // Gibt die Verschiebung des sichtbaren Bereichs der Karte in x-Richtung an
     private double cameraOffsetX = 0.0;
     // Gibt die Verschiebung des sichtbaren Bereichs der Karte in y-Richtung an
     private double cameraOffsetY = 0.0;
-    private Tile[][] fields;
 
     private double previousMouseX = -1.0;
     private double previousMouseY = -1.0;
 
-    private MenuPane menuPane;
-
     private Map<String, Image> imageCache = new HashMap<>();
     private ObjectToImageMapping objectToImageMapping;
-    private Map<String, ImagePattern> imagePatternCache = new HashMap<>();
 
-    private static final double MAX_SCALE = 10.0d;
-    private static final double MIN_SCALE = .1d;
 
+    private Tile[][] fields;
     private double tickDuration = 1;
-    BorderPane borderPane;
     private ParallelTransition parallelTransition;
     private AnimationTimer timer;
-    private Scene scene;
 
-    private Map<List<Point2D>, Point2D> rowColToCanvasCoordinates = new LinkedHashMap<>();
+    // Map die Canvas-Koordinaten der Ecken eines Polygons auf isometrische Koordinaten abbildet
+    private Map<List<Point2D>, Point2D> polygonEdgesToIsoCoords = new LinkedHashMap<>();
 
     public View(Stage primaryStage, BasicModel model) {
         this.stage = primaryStage;
@@ -95,25 +84,33 @@ public class View {
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         borderPane.setCenter(canvas);
         borderPane.setPrefSize(canvas.getWidth(), canvas.getHeight()+110+90);
-
         canvas.setFocusTraversable(true);
+
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
         scrollOnKeyPressed();
         scrollOnMouseDragged();
-
         zoom();
+
+
+        Screen screen = Screen.getPrimary();
+        Rectangle2D screenBounds = screen.getVisualBounds();
         stage.setX((screenBounds.getWidth() - 1200) / 2);
         stage.setY((screenBounds.getHeight() - 800) / 2);
         scene = new Scene(borderPane);
-//        this.stage.setScene(new Scene(borderPane));
     }
 
+    /**
+     * Erzeugt Menu-Leiste und setzt sie in den oberen Bereich der Border-Pane
+     * @param controller
+     */
     public void generateMenuPane(Controller controller){
         menuPane = new MenuPane(controller, this, canvas, objectToImageMapping);
         borderPane.setTop(menuPane);
     }
 
-
+    /**
+     * Ermöglicht das Zoomen auf die Mausposition durch scrollen mit dem Mausrad
+     */
     public void zoom (){
         canvas.setOnScroll(scrollEvent -> {
             double scrollDelta = scrollEvent.getDeltaY();
@@ -125,12 +122,12 @@ public class View {
                 Point2D currentIsoCoord = findTileCoord(scrollEvent.getX(), scrollEvent.getY());
 
                 if(currentIsoCoord != null) {
-                    double abstandX = (currentIsoCoord.getX() - mapWidth / 2) * (zoomFactor - 1);
-                    double abstandY = (currentIsoCoord.getY() - mapDepth / 2) * (zoomFactor - 1);
-                    double xVerschiebung = abstandX * tileImageWidthHalf;
-                    double yVerschiebung = abstandX * tileImageHeightHalf;
-                    xVerschiebung += abstandY * tileImageWidthHalf;
-                    yVerschiebung -= abstandY * tileImageHeightHalf;
+                    double distanceX = (currentIsoCoord.getX() - mapWidth / 2) * (zoomFactor - 1);
+                    double distanceY = (currentIsoCoord.getY() - mapDepth / 2) * (zoomFactor - 1);
+                    double shiftX = distanceX * tileImageWidthHalf;
+                    double shiftY = distanceX * tileImageHeightHalf;
+                    shiftX += distanceY * tileImageWidthHalf;
+                    shiftY -= distanceY * tileImageHeightHalf;
 
 
                     tileImageWidth = plannedTileImageWidth;
@@ -142,8 +139,8 @@ public class View {
                     heightOffset = heightOffset * zoomFactor;
 
                     // verschiebt indirekt den Mittelpunkt und damit das ganze Spielfeld
-                    cameraOffsetX += xVerschiebung;
-                    cameraOffsetY += yVerschiebung;
+                    cameraOffsetX += shiftX;
+                    cameraOffsetY += shiftY;
 
                 }
                 drawMap();
@@ -153,7 +150,7 @@ public class View {
     }
 
     /**
-     * Verschiebt den zweidimensionalen Punkt point um die angegebenen Tiles in X- bze Y-Richtung
+     * Verschiebt den zweidimensionalen Punkt point um die angegebenen Tiles in X- bzw. Y-Richtung
      * @param point
      * @param changedTilesWitdh
      * @param changedTilesDepth
@@ -166,7 +163,7 @@ public class View {
     }
 
     /**
-     * Ermögliche Verschieben der Karte mit den Pfeiltasten
+     * Ermöglicht Verschieben der Karte mit den Pfeiltasten
      */
     public void scrollOnKeyPressed() {
         canvas.setOnKeyPressed(ke -> {
@@ -229,7 +226,7 @@ public class View {
         int startCol = 0;
         int endCol = 0;
 
-        rowColToCanvasCoordinates.clear();
+        polygonEdgesToIsoCoords.clear();
 
         // Es wird den sichtbaren Ausschnitt aus dem Array iteriert
         for (int col = maximumY; col >= minimumY; col--) {
@@ -351,8 +348,8 @@ public class View {
         coordsOnCanvas.add(south);
 
 
-        if(!rowColToCanvasCoordinates.keySet().contains(coordsOnCanvas)){
-            rowColToCanvasCoordinates.put(coordsOnCanvas, new Point2D(row, col));
+        if(!polygonEdgesToIsoCoords.keySet().contains(coordsOnCanvas)){
+            polygonEdgesToIsoCoords.put(coordsOnCanvas, new Point2D(row, col));
         }
     }
 
@@ -397,7 +394,7 @@ public class View {
      */
     public Point2D findTileCoord(double mouseX, double mouseY) {
         Point2D newIsoCoord =null;
-        for(Map.Entry<List<Point2D>, Point2D> entry : rowColToCanvasCoordinates.entrySet()){
+        for(Map.Entry<List<Point2D>, Point2D> entry : polygonEdgesToIsoCoords.entrySet()){
             if(isPointInsidePolygon(mouseX, mouseY, entry.getKey())){
                 newIsoCoord = entry.getValue();
             }
