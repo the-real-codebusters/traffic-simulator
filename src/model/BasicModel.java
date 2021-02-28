@@ -141,6 +141,7 @@ public class BasicModel {
 //                System.out.println("activeVehicles size "+activeVehicles.size());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
+                    newVehicle.setTrafficLine(trafficLine);
 
 
                     if(trafficLine.getTrafficType().equals(TrafficType.RAIL)){
@@ -176,48 +177,104 @@ public class BasicModel {
 
         List<VehicleMovement> movements = new ArrayList<>();
 
-        Collections.sort(activeVehicles, (v1, v2) -> {
-            if(v1.isHasWaitedInLastRound() && !v2.isHasWaitedInLastRound()){
-                return -1;
-            }
-            // -1 - less than, 1 - greater than, 0 - equal
-            return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
-        });
+//        Collections.sort(activeVehicles, (v1, v2) -> {
+//            boolean vehicle1BeforeV2 = vehicle1ShouldMoveBeforeVehicle2(v1, v2);
+////            if(v1.isHasWaitedInLastRound() && !v2.isHasWaitedInLastRound()){
+////                return -1;
+////            }
+////            // -1 - less than, 1 - greater than, 0 - equal
+////            return v1.getSpeed() < v2.getSpeed() ? -1 : (v1.getSpeed() > v2.getSpeed()) ? 1 : 0;
+//        });
 //        System.out.println("activeVehicles: "+activeVehicles);
-        List<InstantCarReservation> reservations = new ArrayList<>();
+        List<InstantCarReservation> carReservations = new ArrayList<>();
+        List<VehicleMovement> carMovements = new ArrayList<>();
         for(int i=0; i<activeVehicles.size(); i++){
             Vehicle vehicle = activeVehicles.get(i);
             // Für jedes Fahrzeug wird sich die Bewegung für den aktuellen Tag gespeichert
             if(vehicle instanceof Train){
                 List<VehicleMovement> trainMovements = ((Train) vehicle).getTrainMovementsForNextDay();
-                if (!trainMovements.get(0).isWait()){
-                    vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                if(vehicle.isShouldBeRemoved()){
+                    vehicle.getTrafficLine().getVehicles().remove(vehicle);
                 }
-                movements.addAll(trainMovements);
+                else {
+                    if (!trainMovements.get(0).isWait()){
+                        vehicle.setPosition(trainMovements.get(0).getLastPair().getKey());
+                    }
+                    movements.addAll(trainMovements);
+                }
             }
             else if(vehicle.getTrafficType().equals(TrafficType.ROAD)){
-                VehicleMovement movement = vehicle.getMovementForNextDay();
-                createCarReservations(movement, reservations, vehicle);
-                movements.add(movement);
+                carMovements.add(vehicle.getMovementForNextDay());
             }
             else if(vehicle.getTrafficType().equals(TrafficType.AIR)){
                 VehicleMovement movement = vehicle.getMovementForNextDay();
-                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
-                vehicle.setPosition(movement.getLastPair().getKey());
-                movements.add(movement);
+                if(vehicle.isShouldBeRemoved()){
+                    vehicle.getTrafficLine().getVehicles().remove(vehicle);
+                }
+                else {
+                    // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+                    vehicle.setPosition(movement.getLastPair().getKey());
+                    movements.add(movement);
+                }
             }
             else {
-                VehicleMovement movement = vehicle.getMovementForNextDay();
-                // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
-                vehicle.setPosition(movement.getLastPair().getKey());
-                movements.add(movement);
+                throw new RuntimeException("Vehicle of wrong type");
             }
         }
 
+        Collections.sort(carMovements, this::vehicle1ShouldMoveBeforeVehicle2);
+
+        for(int i=0; i<carMovements.size(); i++){
+            createCarReservations(carMovements.get(i), carReservations, carMovements.get(i).getVehicle());
+            movements.add(carMovements.get(i));
+        }
 
         day++;
         return movements;
     }
+
+    //-1: true
+    //: 0 equal
+    //1: false
+    private int vehicle1ShouldMoveBeforeVehicle2(VehicleMovement v1, VehicleMovement v2){
+        boolean withinSameDirections = v1.checkIfDirectionsStayTheSame() && v2.checkIfDirectionsStayTheSame();
+        Vehicle v1Type = v1.getVehicle();
+        Vehicle v2Type = v2.getVehicle();
+
+        if(withinSameDirections){
+            int[] directionV1 = v1.getDirectionOfLastMove();
+            int[] directionV2 = v1.getDirectionOfLastMove();
+            if(v1.checkIfSameLastDirection(directionV2)){
+                Point2D v1Start = v1.getStartPosition().coordsRelativeToMapOrigin();
+                Point2D v2Start = v2.getStartPosition().coordsRelativeToMapOrigin();
+
+                double directionAndPositionV1 = directionV1[0] * v1Start.getX() + directionV1[1] * v1Start.getY();
+                double directionAndPositionV2 = directionV2[0] * v2Start.getX() + directionV2[1] * v2Start.getY();
+                if(directionAndPositionV1 > directionAndPositionV2){
+                    return -1;
+                }
+                else {
+                    return 1;
+                }
+            }
+            else {
+                return 0;
+            }
+
+        }
+        else {
+            double speedDifference = v1Type.getSpeed() - v2Type.getSpeed();
+            if(speedDifference < 0.01) {
+                return 0;
+//                boolean randomConstantDecision = v1Type.getName().compareTo(v2Type.getName()) > 0;
+            }
+            else {
+                if(speedDifference < 0) return -1;
+                else return 1;
+            }
+        }
+    }
+
 
     private void produceAndConsume(){
         for(Factory factory : factoryObjects){
@@ -346,14 +403,20 @@ public class BasicModel {
             PositionOnTilemap startPos = movement.getStartPosition();
             reservations.add(new InstantCarReservation(startPos.getxCoordinateInGameMap(), startPos.getyCoordinateInGameMap(), movement));
             vehicle.revertMovementForNextDay();
+            vehicle.setShouldBeRemoved(false);
             movement.setWait(true);
             vehicle.setHasWaitedInLastRound(true);
         }
         else {
             reservations.addAll(newRes);
             // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
+            System.out.println("Position gesetzt für Vehicle "+vehicle.getName()+" : "+movement.getLastPair().getKey());
             vehicle.setPosition(movement.getLastPair().getKey());
             vehicle.setHasWaitedInLastRound(false);
+            if(vehicle.isShouldBeRemoved()){
+                vehicle.getTrafficLine().getVehicles().remove(vehicle);
+            }
+
         }
     }
 
@@ -464,7 +527,7 @@ public class BasicModel {
      * @param type
      * @return
      */
-    public List<Vehicle> getVehicleTypesForName(TrafficType type){
+    public List<Vehicle> getVehicleTypeForName(TrafficType type){
         List<Vehicle> desiredVehicles = new ArrayList<>();
         for(Vehicle v: vehiclesTypes){
             //TODO hier wird manchmal eine exception geworfen. Warum?
@@ -493,7 +556,7 @@ public class BasicModel {
      * dann Instanzen über getNewInstance() erzeugt werden.
      * @return
      */
-    public Vehicle getVehicleTypesForName(String name){
+    public Vehicle getVehicleTypeForName(String name){
         for(Vehicle v: vehiclesTypes){
             if(v.getGraphic().equals(name)){
                 return v;

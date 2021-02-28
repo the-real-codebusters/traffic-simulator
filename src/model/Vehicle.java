@@ -30,9 +30,15 @@ public class Vehicle {
 
     protected String kind;
 
+    protected TrafficLine trafficLine;
+
     private long id;
 
+    protected String name = "vehicle "+(int)(Math.random()*100);
+
+
     private TransportPackage vehicleTransportPackage;
+    private boolean shouldBeRemoved = false;
 
     /**
      * Gibt eine neue Instanz des Fahrzeugs zurück
@@ -58,10 +64,12 @@ public class Vehicle {
     public void savePathToNextStationAndUpdateMovement(Vertex startVertex, VehicleMovement movement){
         pathToNextStation = pathfinder.findPathToDesiredStation(nextStation, startVertex, trafficType);
         if(pathToNextStation.size() == 0){
-//            System.out.println("Kein neuer Weg gefunden");
+            System.out.println("Kein neuer Weg gefunden");
             //Kein Weg gefunden
-            TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
-            line.getVehicles().remove(this);
+//            trafficLine.getVehicles().remove(this);
+            shouldBeRemoved = true;
+//            TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+//            line.getVehicles().remove(this);
             movement.setLastMovementBeforeRemove(true);
         }
     }
@@ -93,8 +101,10 @@ public class Vehicle {
             collectTransportPackage();
         }
 
-        TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
-        nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+//        TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+        nextStation = trafficLine.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+//        nextStation = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+
     }
 
     /**
@@ -108,13 +118,13 @@ public class Vehicle {
         // Pro Tag sollen so viele Tiles zurückgelegt werden, wie in speed steht
         double wayToGo = speed;
 
-        if(isAirmovementInNearOfStation()){
+        if(pathToNextStation.size() > 0 && isAirmovementInNearOfStation()){
             wayToGo = 0.8;
         }
 
         // Die Bewegung startet an der aktuellen Position
         PositionOnTilemap currentPosition = position;
-        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType);
+        VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType, this);
         double distanceToNextVertex = 0;
         // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
         // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
@@ -215,8 +225,8 @@ public class Vehicle {
         for (TransportPackage transportPackage : stationPackages){
             String packageCommodity = transportPackage.getCommodity();
             if (this.storage.getMaxima().containsKey(packageCommodity)){
-                TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
-                if(line.getStations().contains(transportPackage.getNextStationForTransport())) {
+//                TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
+                if(trafficLine.getStations().contains(transportPackage.getNextStationForTransport())) {
                     if (hasEnoughCargoCapacity(transportPackage)) {
                         this.vehicleTransportPackage = transportPackage;
                     } else {
@@ -405,5 +415,25 @@ public class Vehicle {
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public TrafficLine getTrafficLine() {
+        return trafficLine;
+    }
+
+    public void setTrafficLine(TrafficLine trafficLine) {
+        this.trafficLine = trafficLine;
+    }
+
+    public void setShouldBeRemoved(boolean shouldBeRemoved) {
+        this.shouldBeRemoved = shouldBeRemoved;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isShouldBeRemoved() {
+        return shouldBeRemoved;
     }
 }

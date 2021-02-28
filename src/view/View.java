@@ -121,7 +121,8 @@ public class View {
             double scrollDelta = scrollEvent.getDeltaY();
             double zoomFactor = Math.exp(scrollDelta * 0.01);
 
-            if ((tileImageWidth > 2 && tileImageHeight > 2 && scrollDelta < 0) || (scrollDelta >= 0 && tileImageWidth < canvasCenterWidth*2)) {
+            double plannedTileImageWidth = tileImageWidth * zoomFactor;
+            if ((plannedTileImageWidth > 10 && scrollDelta < 0) || (scrollDelta >= 0 && plannedTileImageWidth < canvasCenterWidth*2)) {
 
                 Point2D currentIsoCoord = findTileCoord(scrollEvent.getX(), scrollEvent.getY());
 
@@ -134,7 +135,7 @@ public class View {
                     yVerschiebung -= abstandY * tileImageHeightHalf;
 
 
-                    tileImageWidth = tileImageWidth * zoomFactor;
+                    tileImageWidth = plannedTileImageWidth;
                     tileImageHeight = tileImageHeight * zoomFactor;
 
                     tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
@@ -867,7 +868,6 @@ public class View {
      * Soll in Zukunft auch movements von Flugzeugen und Zügen darstellen
      */
     public void translateVehicles(List<VehicleMovement> movements){
-
 
 
         List<VehicleAnimation> animations = new ArrayList<>();

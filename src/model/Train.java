@@ -9,13 +9,12 @@ public class Train extends Vehicle {
     private List<Vehicle> wagons = new ArrayList<>();
     private Vehicle engine;
 //    private List<VehicleMovement> movementsOfLastDay = new ArrayList<>();
-    private final double wagonShift = 0.97;
+    private final double wagonShift = 1.03;
 
     private int numberOfVertices = 10;
     private int verticesCounter = 0;
     private BasicModel model;
 //    private List<Vertex> pathForFewDays = new ArrayList<>();
-    private String name = "train "+(int)(Math.random()*100);
 
     public Train(List<Vehicle> wagons, Vehicle engine, BasicModel model) {
         trafficType = TrafficType.RAIL;
@@ -96,7 +95,7 @@ public class Train extends Vehicle {
         for(int i=1; i<=wagons.size(); i++){
             int[] direction = reverseDirection(engineMovement.getDirectionOfLastMove());
             VehicleMovement movement =
-                    engineMovement.getNewShiftedMovement(wagonShift*i, direction, wagons.get(i-1).getGraphic());
+                    engineMovement.getNewShiftedMovement(wagonShift*i, direction, wagons.get(i-1).getGraphic(), wagons.get(i-1));
             movements.add(movement);
         }
         numberOfVertices += pathToNextStationBeforeMovement.size() - pathToNextStation.size();
@@ -144,7 +143,7 @@ public class Train extends Vehicle {
         for(int i=0; i<3; i++){
             double wayToGo = speed;
             // Die Bewegung startet an der aktuellen Position
-            VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType);
+            VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType, this);
             double distanceToNextVertex = 0;
             // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
             // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen
@@ -177,8 +176,7 @@ public class Train extends Vehicle {
             if(currentPlannedPathToNextStation.size() == 0 && wayToGo >= 0){
                 // Station gefunden
                 //Aus For-Schleife der movements springen
-                TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
-                Station stationAfterNext = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+                Station stationAfterNext = trafficLine.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
                 Vertex vertexOfNextStation = nextStation.getSomeVertexForTrafficType(TrafficType.RAIL);
                 List<Vertex> nextPath = pathfinder.findPathToDesiredStation(stationAfterNext, vertexOfNextStation, trafficType);
                 currentPlannedPathToNextStation.addAll(nextPath);
