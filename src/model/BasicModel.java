@@ -574,14 +574,15 @@ public class BasicModel {
         }
         if(combinations != null){
             for (Map.Entry<String, String> entry : combinations.entrySet()) {
-                if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
-                    String newBuildingName = entry.getValue();
+                // Wenn buildingOnSelectedTile = null ist, hovern wir über ein Wasserfeld
+                if (buildingOnSelectedTile != null) {
+                    if (buildingOnSelectedTile.getBuildingName().equals(entry.getKey())) {
+                        String newBuildingName = entry.getValue();
 
-//                    System.out.println(sBuilding.getBuildingName() + " and " +
-//                            buildingOnSelectedTile.getBuildingName() + " can be combined to " + newBuildingName);
-                    Building combinedBuilding = getBuildingByName(newBuildingName).getNewInstance();
-                    // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
-                    return combinedBuilding;
+                        Building combinedBuilding = getBuildingByName(newBuildingName).getNewInstance();
+                        // Wenn eine Kombination einmal gefunden wurde, soll nicht weiter gesucht werden
+                        return combinedBuilding;
+                    }
                 }
             }
         }

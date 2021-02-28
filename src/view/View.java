@@ -91,18 +91,15 @@ public class View {
         Label mousePosLabel = new Label();
         mousePosLabel.setFont(new Font("Arial", 15));
 
-        Label cornerLabel = new Label();
-        mousePosLabel.setFont(new Font("Arial", 15));
-
         borderPane = new BorderPane();
         VBox vBox = new VBox();
         borderPane.setBottom(vBox);
-        vBox.getChildren().addAll(mousePosLabel, isoCoordLabel, cornerLabel);
+        vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         borderPane.setCenter(canvas);
 //        borderPane.setPrefSize(1200, 750);
 
         canvas.setFocusTraversable(true);
-        showCoordinatesOnClick(mousePosLabel, isoCoordLabel, cornerLabel);
+        showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
         scrollOnKeyPressed();
         scrollOnMouseDragged();
 
@@ -743,7 +740,7 @@ public class View {
      * @param mousePosLabel Label, das die Koordinaten der Mausposition in Pixel anzeigen soll
      * @param isoCoordLabel Label, das die Koordinaten des angeklickten Tile anzeigen soll
      */
-    public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel, Label cornerLabel) {
+    public void showCoordinatesOnClick(Label mousePosLabel, Label isoCoordLabel) {
 
         canvas.setOnMouseClicked(event -> {
             double mouseX = event.getX();
@@ -761,20 +758,10 @@ public class View {
                 String tileCoordinates = controller.getResourceBundle().getString("tileCoordinates");
                 String tileCoords = "   " + tileCoordinates + " x: " + newIsoCoord.getX() + " y: " + newIsoCoord.getY();
                 isoCoordLabel.setText(tileCoords);
-//                String buildingName = fields[(int)newIsoCoord.getX()][(int)newIsoCoord.getY()].getBuilding().getBuildingName();
-//                        cornerLabel.setText(buildingName);
 
-
-                Map<String, Integer> cornerHeights;
-                Tile tile = controller.getTileOfMapTileGrid((int) newIsoCoord.getX(), (int) newIsoCoord.getY());
-
-                cornerHeights = tile.getCornerHeights();
-                cornerLabel.setText("   " + cornerHeights.toString());
             } else {
                 String outsideOfMap = controller.getResourceBundle().getString("outsideOfMap");
                 isoCoordLabel.setText("   " + outsideOfMap);
-                String undefinedHeights = controller.getResourceBundle().getString("undefinedHeights");
-                cornerLabel.setText("   " + undefinedHeights);
             }
         });
     }
