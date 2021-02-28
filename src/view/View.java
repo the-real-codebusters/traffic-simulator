@@ -103,7 +103,7 @@ public class View {
 
         zoom();
         stage.setX((screenBounds.getWidth() - 1200) / 2);
-        stage.setY((screenBounds.getHeight() - 750) / 2);
+        stage.setY((screenBounds.getHeight() - 800) / 2);
         scene = new Scene(borderPane);
 //        this.stage.setScene(new Scene(borderPane));
     }
