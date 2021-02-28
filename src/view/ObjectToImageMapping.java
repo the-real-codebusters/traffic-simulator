@@ -314,11 +314,11 @@ public class ObjectToImageMapping {
         mapping.put("nanotechnology lab", "factories_test/nanotechnology lab");
 
         //Nature
-        mapping.put("plant", "ground/plant");
-        mapping.put("tree", "ground/tree");
-        mapping.put("plantandtree", "ground/plantandtree");
-        mapping.put("stones_one", "ground/stones_one");
-        mapping.put("stones_two", "ground/stones_two");
+        mapping.put("plant_hologram", "ground/plant");
+        mapping.put("neotree", "ground/tree");
+        mapping.put("plantandneotree", "ground/plantandtree");
+        mapping.put("crystal_stones", "ground/stones_one");
+        mapping.put("diffuse_matter", "ground/stones_two");
         mapping.put("water", "ground/wasserrosa");
 
         // Grasfelder mit verschiedenen Höhen

@@ -488,34 +488,34 @@
       "productions" : {"produce":{"steel":8},"duration":15},
       "dz" : 1
     },
-    "tree" : {
+    "neotree" : {
       "buildmenu" : "nature",
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
       "dz" : 0
     },
-    "plant" : {
+    "plant_hologram" : {
       "buildmenu" : "nature",
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
       "dz" : 0
     },
-    "plantandtree" : {
+    "plantandneotree" : {
       "buildmenu" : "nature",
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
       "dz" : 0
     },
-    "stones_one" : {
+    "crystal_stones" : {
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
       "dz" : 0
     },
-    "stones_two" : {
+    "diffuse_matter" : {
       "width" : 1,
       "depth" : 1,
       "special" : "nature",
