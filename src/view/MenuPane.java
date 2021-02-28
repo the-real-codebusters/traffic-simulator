@@ -294,10 +294,6 @@ public class MenuPane extends AnchorPane {
 
                 List<Building> buildings = controller.getBuildingsByBuildmenu(bundleEN.getString(tabName));
                 for (Building building : buildings) {
-
-                    //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
-                    String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
-                    if (imageName == null) continue;
                     ImageView imageView = imageViewWithLayout(building);
 
                     container.getChildren().add(imageView);

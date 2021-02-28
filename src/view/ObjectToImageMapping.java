@@ -48,7 +48,7 @@ public class ObjectToImageMapping {
         mapping.put("rail-ne-se", "rail/rail-ne-se");
         mapping.put("rail-nw-sw", "rail/rail-nw-sw");
         mapping.put("rail-ne-nw", "rail/rail-ne-nw");
-        mapping.put("rail-sw-se", "rail/rail-se-sw");
+        mapping.put("rail-se-sw", "rail/rail-se-sw");
         mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
         mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
         mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
@@ -353,7 +353,7 @@ public class ObjectToImageMapping {
         mapping.put("rail-ne-se", "rail/rail-ne-se");
         mapping.put("rail-nw-sw", "rail/rail-nw-sw");
         mapping.put("rail-ne-nw", "rail/rail-ne-nw");
-        mapping.put("rail-sw-se", "rail/rail-se-sw");
+        mapping.put("rail-se-sw", "rail/rail-se-sw");
         mapping.put("railcurve-ne-s", "rail/railcurve-ne-s");
         mapping.put("railcurve-ne-w", "rail/railcurve-ne-w");
         mapping.put("railcurve-nw-e", "rail/railcurve-nw-e");
