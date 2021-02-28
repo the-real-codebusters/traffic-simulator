@@ -9,18 +9,14 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import model.*;
 import view.MenuPane;
-import view.OpeningScreen;
 import view.View;
 
-
 import java.util.*;
-
 
 public class Controller {
     private View view;
     private BasicModel model;
     private Pathfinder pathfinder;
-    private OpeningScreen opening;
     private ResourceBundle resourceBundle;
 
     //Wenn eine Verkehrslinie erstellt werden soll und der Benutzer Stationen auswählen kann, sollen die Stationen
@@ -31,16 +27,13 @@ public class Controller {
     public Controller(View view, BasicModel model, ResourceBundle resourceBundle) {
         this.view = view;
         this.model = model;
-//        this.opening = opening;
         this.resourceBundle = resourceBundle;
 
         MapModel map = model.getMap();
-//        model.printModelAttributes();
 
         view.setController(this);
         view.storeImageRatios();
         view.generateMenuPane(this);
-
 
         // Breite und Tiefe der Map aus dem Model werden in der View übernommen
         view.setMapWidth(map.getWidth());
@@ -56,19 +49,13 @@ public class Controller {
         pathfinder = new Pathfinder(roadGraph, railGraph, airGraph, model.getMap().getTrafficLineGraph());
         model.setPathfinder(pathfinder);
 
-//        new TrafficLineCreationDialog(view);
         simulateOneDay();
     }
 
-    //TODO Was wenn zwei TrafficLines zu einer verbunden werden?
-
     public void simulateOneDay(){
         List<VehicleMovement> movements = model.simulateOneDay();
-//        System.out.println("Movements in controller");
         for(VehicleMovement m : movements){
-//            System.out.println("Movement: ");
             for(PositionOnTilemap p: m.getAllPositions()){
-//                System.out.println(p.coordsRelativeToMapOrigin());
             }
         }
         view.getMenuPane().setDayLabel(model.getDay());
