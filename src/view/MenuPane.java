@@ -30,19 +30,18 @@ import javafx.scene.control.Button;
 
 public class MenuPane extends AnchorPane {
 
-    private List<Node> tabContents = new ArrayList();
-    private List<String> tabNames = new ArrayList<>();
+    private final List<Node> tabContents = new ArrayList();
+    private final List<String> tabNames = new ArrayList<>();
     private HBox hBox;
-    private TabPane tabPane = new TabPane();
-    private View view;
-    private Canvas canvas;
+    private final TabPane tabPane = new TabPane();
+    private final View view;
+    private final Canvas canvas;
     private Controller controller;
     private MouseEvent hoveredEvent;
-//    private int result;
     private HBox trafficPartTabContent;
     private HBox factoryTabContent;
 
-    // factory labels
+    // Factory labels
     private Label factoryNameLabel;
     private Label productionLabel;
     private Label consumptionLabel;
@@ -50,8 +49,6 @@ public class MenuPane extends AnchorPane {
     private Label factoryRealStorageLabel;
     private Label factoryNearStationsLabel;
     private ImageView factoryImageView;
-
-
 
     private boolean selectTrafficLineStationsMode = false;
     private TrafficLinePopup trafficLinePopup;
@@ -88,13 +85,14 @@ public class MenuPane extends AnchorPane {
         for (int i = 0; i < tabNames.size(); i++) {
             addTab(tabNames.get(i), tabContents.get(i), false);
         }
-        createTrafficpartTab();
-
+        createTrafficPartTab();
         createFactoryTab();
-
     }
 
-    private void createTrafficpartTab(){
+    /**
+     * Erzeugt Tab für TrafficPart
+     */
+    private void createTrafficPartTab(){
 
         String trafficPart = resourceBundle.getString("trafficPart");
         HBox box = boxWithLayout();
@@ -104,6 +102,10 @@ public class MenuPane extends AnchorPane {
         trafficPartTabContent = box;
     }
 
+
+    /**
+     * Erzeugt Factory-Tab
+     */
     private void createFactoryTab() {
         String name = resourceBundle.getString("factory");
         VBox box = new VBox(10);
@@ -235,7 +237,10 @@ public class MenuPane extends AnchorPane {
         });
     }
 
-
+    /**
+     * Setzt den Text des Labels auf den aktuellen Tag
+     * @param day aktueller Tag
+     */
     public void setDayLabel(int day){
 
         dayLabel.setText(resourceBundle.getString("dayLabel") + day);
@@ -244,14 +249,15 @@ public class MenuPane extends AnchorPane {
 
     /**
      * Erstellt die Inhalte der Tabs in der tabPane nach den buildmenus in der JSONDatei und zusätzlich height und
-     * vehicles
+     * remove und speed
      */
     private void generateTabContents() {
 
-        // Get Buildmenus from Controller
+        // Holt buildmenus aus Controller
         Set<String> buildmenus = controller.getBuildmenus();
         Set<String> buildmenusLocalized = new HashSet<>();
 
+        // Übersetze Namen der Einträge aus Buildmenus (Airport, Road, Rail usw)
         for (String buildmenu : buildmenus){
             buildmenusLocalized.add(resourceBundle.getString(buildmenu));
         }
@@ -279,6 +285,7 @@ public class MenuPane extends AnchorPane {
 
             HBox container = boxWithLayout();
 
+            // Nehme Englische Einträge in ResourceBundle für die buildmenus
             Locale locale = new Locale("en_US");
             ResourceBundle bundleEN = ResourceBundle.getBundle("Bundle", locale);
 
@@ -287,16 +294,11 @@ public class MenuPane extends AnchorPane {
 
                 List<Building> buildings = controller.getBuildingsByBuildmenu(bundleEN.getString(tabName));
                 for (Building building : buildings) {
-
-                    //TODO Wenn alle Grafiken fertig und eingebunden sind, sollten die zwei folgenden Zeilen gelöscht werden
-                    String imageName = mapping.getImageNameForObjectName(building.getBuildingName());
-                    if (imageName == null) continue;
                     ImageView imageView = imageViewWithLayout(building);
 
                     container.getChildren().add(imageView);
                 }
             }
-
 
             if (tabName.equals(height)) {
                 Building height_up = new Building(1, 1, "height_up");
@@ -323,7 +325,7 @@ public class MenuPane extends AnchorPane {
 
                 // erzeuge einen Button zum Starten/Pausieren von Simulation
                 createAnimationButton();
-                // erzeuge SLider
+                // erzeuge Slider
                 createTickSlider();
                 container.getChildren().add(0, animationButton);
                 container.getChildren().add(1, slider);
@@ -384,6 +386,7 @@ public class MenuPane extends AnchorPane {
         double mouseY = mouseEvent.getY();
         Point2D isoCoord = view.findTileCoord(mouseX, mouseY);
 
+        // Wenn sich die Koordinaten innerhalb der Map befinden
         if(isoCoord != null) {
             int xCoord = (int) isoCoord.getX();
             int yCoord = (int) isoCoord.getY();
@@ -392,13 +395,16 @@ public class MenuPane extends AnchorPane {
                 // Tu erstmal nichts
                 return isoCoord;
             }
+            // Prüfe ob Building platziert werden darf und zeichne Vorschau falls ja
             if (controller.canPlaceBuildingAtPlaceInMapGrid(xCoord, yCoord, selectedBuilding)) {
                 String imageName = mapping.getImageNameForObjectName(selectedBuilding.getBuildingName());
+                // Wenn das Building mehr als ein Tile einnimt
                 if (selectedBuilding.getWidth() > 1 || selectedBuilding.getDepth() > 1) {
                     Tile tile = controller.getTileOfMapTileGrid(xCoord, yCoord);
                     tile.setBuildingOrigin(true);
                     view.drawBuildingOverMoreTiles(tile, selectedBuilding, xCoord, yCoord);
                     tile.setBuildingOrigin(false);
+                    // Wenn das Building auf ein Tile passt
                 } else {
                     double ratio = view.getImageNameToImageRatio().get(imageName);
                     double tileWidth = view.getTileImageWidth();
@@ -406,10 +412,15 @@ public class MenuPane extends AnchorPane {
                     view.drawTileImage(xCoord, yCoord, image, transparent);
                 }
                 return isoCoord;
+                // Wenn das Building nicht platziert werden darf, dann gib null zurück
             } else return null;
         } return null;
     }
 
+    /**
+     * Zeige Inhalte des Tabs für TrafficPart
+     * @param part
+     */
     public void showTrafficPart(ConnectedTrafficPart part){
         trafficPartTabContent.getChildren().clear();
         String trafficType = resourceBundle.getString("trafficType");
@@ -438,8 +449,7 @@ public class MenuPane extends AnchorPane {
                 }
             }
             box = secondBox;
-        }
-        else {
+        } else {
             List<Station> stations = part.getStations();
             VBox vbox = new VBox();
             vbox.getChildren().add(stationList);
@@ -462,18 +472,6 @@ public class MenuPane extends AnchorPane {
         trafficPartTabContent.getChildren().addAll(typeLabel, box, newTrafficLine);
         int index = tabContents.indexOf(trafficPartTabContent);
         tabPane.getSelectionModel().select(index);
-
-//        trafficPartTabContent.getChildren().clear();
-//        Label type = new Label("Traffic type: \n"+part.getTrafficType().name());
-//        String stationList = "Stations \n";
-//        for(Station station : part.getStations()){
-//            stationList += "ID: "+station.getId()+"\n";
-//        }
-//        Label stations = new Label(stationList);
-//        Button newTrafficLine = new Button("new Traffic Line");
-//        trafficPartTabContent.getChildren().addAll(type, stations, newTrafficLine);
-//        int index = tabContents.indexOf(trafficPartTabContent);
-//        tabPane.getSelectionModel().select(index);
     }
 
 
@@ -530,6 +528,10 @@ public class MenuPane extends AnchorPane {
         });
     }
 
+    /**
+     * Zeigt Inhalte des Factory-Tabs mit Informationen über die angeklickte Fabrik
+     * @param building
+     */
     private void showFactoryInformation(Building building){
         Factory factory = (Factory) building;
 
@@ -537,12 +539,16 @@ public class MenuPane extends AnchorPane {
         Image image = view.getResourceForImageName(imageName);
         factoryImageView.setImage(image);
 
-        List<Label> labels = new ArrayList<Label>();
+        List<Label> labels = new ArrayList<>();
 
-        // System.out.println("building = " + factory);
-        labels.addAll(List.of(factoryNameLabel, productionLabel, factoryNearStationsLabel, factoryMaximaStorageLabel, factoryRealStorageLabel, consumptionLabel));
+        labels.addAll(List.of(factoryNameLabel, productionLabel, factoryNearStationsLabel, factoryMaximaStorageLabel,
+                factoryRealStorageLabel, consumptionLabel));
+
+        // Füge Name der Fabrik zum Label hinzu
         String factoryName = resourceBundle.getString(factory.getBuildingName());
         factoryNameLabel.setText(resourceBundle.getString("factory name") + factoryName);
+
+        // Füge Produzierte Waren zum Label hinzu
         StringBuilder production = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getProduce().entrySet()){
             String producedGood = resourceBundle.getString(entry.getKey());
@@ -552,6 +558,8 @@ public class MenuPane extends AnchorPane {
             production = new StringBuilder(resourceBundle.getString("nothing"));
         }
         productionLabel.setText(resourceBundle.getString("production") + production);
+
+        // Füge komsumierte Waren zum Label hinzu
         StringBuilder consumption = new StringBuilder();
         for(Map.Entry<String, Integer> entry : factory.getProductionSteps().get(0).getConsume().entrySet()){
             String consumedGood = resourceBundle.getString(entry.getKey());
@@ -562,7 +570,9 @@ public class MenuPane extends AnchorPane {
         }
         consumptionLabel.setText(resourceBundle.getString("consumption") + consumption);
 
+
         if(factory.getStorage() != null){
+            // Füge tatsächlichen Warenbestand zum Label hinzu
             StringBuilder realStored = new StringBuilder();
             for(Map.Entry<String, Integer> entry : factory.getStorage().getCargo().entrySet()){
                 String storedGood = resourceBundle.getString(entry.getKey());
@@ -570,6 +580,7 @@ public class MenuPane extends AnchorPane {
             }
             factoryRealStorageLabel.setText(resourceBundle.getString("stored cargo") + realStored);
 
+            // Füge max. Lagerkapazität zu Label hinzu
             StringBuilder maxStored = new StringBuilder();
             for(Map.Entry<String, Integer> entry : factory.getStorage().getMaxima().entrySet()){
                 String maxStorageForGood = resourceBundle.getString(entry.getKey());
@@ -577,6 +588,7 @@ public class MenuPane extends AnchorPane {
             }
             factoryMaximaStorageLabel.setText(resourceBundle.getString("maximum cargo capacity") + maxStored);
 
+            // Prüfe ob Labelinhalt zu lang und verkleinere ggf. die Schrift
             boolean labelTooLong = false;
             for(Label label: labels){
                 if(label.getText().length() > 100){
@@ -593,32 +605,31 @@ public class MenuPane extends AnchorPane {
                     }
                 }
 
-        }
-        else {
+        } else {
+            // Wenn eine Fabrik kein Storage hat, sind die entsprechenden Labels leer
             factoryRealStorageLabel.setText("");
             factoryMaximaStorageLabel.setText("");
         }
 
+        // Füge IDs der nahegelegenen Stationen zu Label hinzu
         StringBuilder nearStations = new StringBuilder();
         for(Station station : factory.getNearStations()){
             nearStations.append(station.getId()).append("; ");
         }
         factoryNearStationsLabel.setText(resourceBundle.getString("near station-IDs") + nearStations);
 
-
         int index = tabContents.indexOf(factoryTabContent);
         tabPane.getSelectionModel().select(index);
 
     }
 
+    /**
+     * Zeigt TrafficLinePopup an
+     * @param trafficType
+     */
     private void showTrafficLineDialog(TrafficType trafficType){
-
         selectTrafficLineStationsMode = true;
         trafficLinePopup = new TrafficLinePopup(view, trafficType);
-    }
-
-    public void setController(Controller controller) {
-        this.controller = controller;
     }
 
     public Building getSelectedBuilding() {
@@ -635,14 +646,6 @@ public class MenuPane extends AnchorPane {
 
     public TrafficLinePopup getTrafficLinePopup() {
         return trafficLinePopup;
-    }
-
-    public void setTrafficLinePopup(TrafficLinePopup trafficLinePopup) {
-        this.trafficLinePopup = trafficLinePopup;
-    }
-
-    public boolean isSelectTrafficLineStationsMode() {
-        return selectTrafficLineStationsMode;
     }
 
     public void setSelectTrafficLineStationsMode(boolean selectTrafficLineStationsMode) {

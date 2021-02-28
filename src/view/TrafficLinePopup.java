@@ -12,12 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+// Popup das aufgeht, bevor eine TrafficLine erstellt wird und in dem die Stationen
+// für die TrafficLine ausgewählt werden sollen
 public class TrafficLinePopup extends Popup {
 
-    private ListView listView = new ListView();
-    private String message;
-    private Button readyButton;
-    private TrafficType trafficType;
+    private final ListView listView = new ListView();
+    private final String message;
+    private final Button readyButton;
+    private final TrafficType trafficType;
 
     public TrafficLinePopup(View view, TrafficType trafficType){
         Stage stage = view.getStage();
@@ -26,19 +28,11 @@ public class TrafficLinePopup extends Popup {
         String ready = resourceBundle.getString("ready");
         readyButton = new Button(ready);
 
-//        Label message = new Label("Wähle alle Stationen aus, die zu der Verkehrslinie gehören sollen");
-//        // set background
-//        message.setStyle(" -fx-background-color: grey; " +
-//                "-fx-font: 24 arial;" +
-//                "-fx-border-width: 2;\n" +
-//                "-fx-border-color: black;");
-//
-//        // add the label
-//        getContent().add(message);
         this.trafficType = trafficType;
         String trafficTypeString = resourceBundle.getString(trafficType.name());
         String selectStations = resourceBundle.getString("selectStations");
         message = selectStations + trafficTypeString;
+
         readyButton.setOnAction( e -> {
             hide();
             view.getMenuPane().setSelectTrafficLineStationsMode(false);
@@ -52,7 +46,6 @@ public class TrafficLinePopup extends Popup {
         });
         setAnchorX(stage.getWidth()+stage.getX());
         setAnchorY(stage.getY());
-//        setAnchorLocation(AnchorLocation.CONTENT_BOTTOM_RIGHT);
 
         listView.setEditable(false);
         showList(new ArrayList<>(), resourceBundle);
