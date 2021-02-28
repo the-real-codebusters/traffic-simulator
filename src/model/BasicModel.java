@@ -141,6 +141,7 @@ public class BasicModel {
 //                System.out.println("activeVehicles size "+activeVehicles.size());
                 if(trafficLine.getTotalDesiredNumbersOfVehicles() > trafficLine.getVehicles().size()){
                     Vehicle newVehicle = trafficLine.getMissingVehicleOrNull().getNewInstance();
+                    newVehicle.setTrafficLine(trafficLine);
 
 
                     if(trafficLine.getTrafficType().equals(TrafficType.RAIL)){

@@ -215,10 +215,13 @@ public class TrafficLine {
                 Vehicle vehicle = entry.getKey();
                 if(vehicle.getKind().equals("engine")){
                     engine = vehicle.getNewInstance();
+                    engine.setTrafficLine(this);
                 }
                 else {
                     for(int i=0; i<entry.getValue(); i++){
-                        wagons.add(vehicle.getNewInstance());
+                        Vehicle wagon = vehicle.getNewInstance();
+                        wagons.add(wagon);
+                        wagon.setTrafficLine(this);
                     }
                 }
             }
