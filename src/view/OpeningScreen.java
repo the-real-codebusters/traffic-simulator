@@ -1,11 +1,14 @@
 package view;
 
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -19,7 +22,7 @@ import java.util.ResourceBundle;
 // Sorgt für die Anzeige einer Animation beim Öffnen des Programms und enthält einen Button
 public class OpeningScreen {
 
-    private final File mediaFile = new File("resources/IMG_7659.mp4");
+    private final File mediaFile = new File("resources/Codebusters.mp4");
     final Button openButton = new Button("Choose the json file");
     private Locale locale;
 
@@ -35,7 +38,6 @@ public class OpeningScreen {
             return null;
         }
     };
-
 
 
     public OpeningScreen(Stage stage) {
@@ -71,31 +73,36 @@ public class OpeningScreen {
                 });
 
 
-
+        VBox vbox = new VBox(20);
 
         final String MEDIA_URL = mediaFile.toURI().toString();
         Media media = new Media(MEDIA_URL);
         MediaPlayer mediaPlayer = new MediaPlayer(media);
         MediaView mediaView = new MediaView(mediaPlayer);
-        mediaView.setFitHeight(750);
-        mediaView.setFitWidth(725);
+        mediaView.setFitWidth(1920/2);
+        mediaView.setFitHeight(1080/2);
         mediaPlayer.setAutoPlay(true);
 
-        Pane filePane = new Pane();
+//        Pane filePane = new Pane();
         openButton.setPrefSize(200, 50);
-        filePane.getChildren().add(openButton);
-        filePane.setLayoutX(270);
-        filePane.setLayoutY(470);
+//        openButton.setAlignment(Pos.CENTER);
+        vbox.setAlignment(Pos.CENTER);
+//        filePane.getChildren().add(openButton);
+//        filePane.setLayoutX(270);
+//        filePane.setLayoutY(mediaView.getFitHeight());
 
-        languages.setLayoutX(325);
-        languages.setLayoutY(650);
-        filePane.getChildren().add(languages);
+//        languages.setLayoutX(325);
+//        languages.setLayoutY((600+filePane.getHeight()));
+//        filePane.getChildren().add(languages);
 
-        Group root = new Group();
-        root.getChildren().add(mediaView);
-        Scene scene = new Scene(root);
-        root.getChildren().add(filePane);
-        root.getChildren().add(languages);
+
+        vbox.getChildren().addAll(mediaView, openButton, languages);
+
+//        Group root = new Group();
+//        root.getChildren().add(vbox);
+        Scene scene = new Scene(vbox);
+//        root.getChildren().add(filePane);
+//        root.getChildren().add(languages);
         stage.setScene(scene);
     }
 

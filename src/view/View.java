@@ -70,7 +70,6 @@ public class View {
     private ObjectToImageMapping objectToImageMapping;
     private Map<String, ImagePattern> imagePatternCache = new HashMap<>();
 
-    private double zoomFactor = 1.0;
     private static final double MAX_SCALE = 10.0d;
     private static final double MIN_SCALE = .1d;
 
@@ -78,6 +77,7 @@ public class View {
     BorderPane borderPane;
     private ParallelTransition parallelTransition;
     private AnimationTimer timer;
+    private Scene scene;
 
     private Map<List<Point2D>, Point2D> rowColToCanvasCoordinates = new LinkedHashMap<>();
 
@@ -96,7 +96,7 @@ public class View {
         borderPane.setBottom(vBox);
         vBox.getChildren().addAll(mousePosLabel, isoCoordLabel);
         borderPane.setCenter(canvas);
-//        borderPane.setPrefSize(1200, 750);
+        borderPane.setPrefSize(canvas.getWidth(), canvas.getHeight()+110+90);
 
         canvas.setFocusTraversable(true);
         showCoordinatesOnClick(mousePosLabel, isoCoordLabel);
@@ -104,10 +104,10 @@ public class View {
         scrollOnMouseDragged();
 
         zoom();
-//        stage.setX((screenBounds.getWidth() - 1200) / 2);
-//        stage.setY((screenBounds.getHeight() - 750) / 2);
-//        stage.setY(0);
-        this.stage.setScene(new Scene(borderPane));
+        stage.setX((screenBounds.getWidth() - 1200) / 2);
+        stage.setY((screenBounds.getHeight() - 750) / 2);
+        scene = new Scene(borderPane);
+//        this.stage.setScene(new Scene(borderPane));
     }
 
     public void generateMenuPane(Controller controller){
@@ -1361,6 +1361,10 @@ public class View {
 
     public ResourceBundle getResourceBundleFromController() {
         return controller.getResourceBundle();
+    }
+
+    public Scene getScene() {
+        return scene;
     }
 }
 
