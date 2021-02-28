@@ -1297,7 +1297,7 @@ public class View {
         return parallelTransition;
     }
 
-    public double getTickDuration() {
+    public double getDayDuration() {
         return tickDuration;
     }
 
