@@ -22,13 +22,12 @@ import javafx.util.StringConverter;
 import model.TrafficType;
 import model.Vehicle;
 
-import javax.print.attribute.standard.PresentationDirection;
 import java.util.*;
 import java.util.List;
 
 public class TrafficLineCreationDialog {
 
-    private TableView<VehicleTypeRow> tableView;
+    private TableView<VehicleTypeRowForTrafficLineCrationDialog> tableView;
     private ComboBox<Map<String, Object>> dropdown = new ComboBox<>();
     private TextField numberVehiclesField;
     private final int iconWidth = 30;
@@ -112,7 +111,7 @@ public class TrafficLineCreationDialog {
         createButton.setOnAction( (e) -> {
             Map<String, Integer> mapDesiredNumbers = new HashMap<>();
             Controller controller = view.getController();
-            for(VehicleTypeRow row: tableView.getItems()){
+            for(VehicleTypeRowForTrafficLineCrationDialog row: tableView.getItems()){
                     String nameLocalized = row.getInformation().split(name+": ")[1].split(" ")[0];
 //                    System.out.println("name1: " + nameLocalized);
                     Locale locale = new Locale("en_US");
@@ -241,7 +240,7 @@ public class TrafficLineCreationDialog {
             String textNumberInput = numberVehiclesField.getText();
             if(textNumberInput != null && !textNumberInput.equals("")){
                 Integer numberOfDesiredVehicles = Integer.valueOf(numberVehiclesField.getText());
-                VehicleTypeRow row = new VehicleTypeRow(infos, image, numberOfDesiredVehicles);
+                VehicleTypeRowForTrafficLineCrationDialog row = new VehicleTypeRowForTrafficLineCrationDialog(infos, image, numberOfDesiredVehicles);
                 tableView.getItems().removeIf(n -> (n.getInformation().equals(infos)));
                 if(numberOfDesiredVehicles > 0){
                     tableView.getItems().add(row);
@@ -251,21 +250,21 @@ public class TrafficLineCreationDialog {
         return button;
     }
 
-    private TableView<VehicleTypeRow> getVehicleTableView(View view){
-        TableView<VehicleTypeRow> tableView = new TableView();
+    private TableView<VehicleTypeRowForTrafficLineCrationDialog> getVehicleTableView(View view){
+        TableView<VehicleTypeRowForTrafficLineCrationDialog> tableView = new TableView();
         tableView.setPrefHeight(500);
 
-        TableColumn<VehicleTypeRow, ImageView> column1 = new TableColumn<>("Icon");
+        TableColumn<VehicleTypeRowForTrafficLineCrationDialog, ImageView> column1 = new TableColumn<>("Icon");
         column1.setCellValueFactory(new PropertyValueFactory<>("image"));
         column1.setPrefWidth(iconWidth+10);
 
         String information = view.getResourceBundleFromController().getString("information");
-        TableColumn<VehicleTypeRow, String> column2 = new TableColumn<>(information);
+        TableColumn<VehicleTypeRowForTrafficLineCrationDialog, String> column2 = new TableColumn<>(information);
         column2.setCellValueFactory(new PropertyValueFactory<>("Information"));
         column2.setPrefWidth(350);
 
         String desiredNumber = view.getResourceBundleFromController().getString("desiredNumber");
-        TableColumn<VehicleTypeRow, Integer> column3 = new TableColumn<>(desiredNumber);
+        TableColumn<VehicleTypeRowForTrafficLineCrationDialog, Integer> column3 = new TableColumn<>(desiredNumber);
         column3.setCellValueFactory(new PropertyValueFactory<>("desiredNumber"));
         column3.setPrefWidth(120);
 
