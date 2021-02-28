@@ -22,4 +22,13 @@ public class VehiclePosition extends PositionOnTilemap {
         yCoordinateRelativeToTileOrigin = point2D.getY() - yCoordinateInGameMap;
     }
 
+    @Override
+    public String toString() {
+        return "VehiclePosition{" +
+                "xCoordinateRelativeToTileOrigin=" + xCoordinateRelativeToTileOrigin +
+                ", yCoordinateRelativeToTileOrigin=" + yCoordinateRelativeToTileOrigin +
+                ", xCoordinateInGameMap=" + xCoordinateInGameMap +
+                ", yCoordinateInGameMap=" + yCoordinateInGameMap +
+                '}';
+    }
 }

@@ -19,13 +19,15 @@ public class VehicleMovement {
     private boolean wait;
     private TrafficType trafficType;
     boolean lastMovementBeforeRemove = false;
+    private Vehicle vehicle;
 
 
-    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName, boolean wait, TrafficType trafficType) {
+    public VehicleMovement(PositionOnTilemap startPosition, String vehicleName, boolean wait, TrafficType trafficType, Vehicle vehicle) {
         this.vehicleName = vehicleName;
         this.startPosition = startPosition;
         this.wait = wait;
         this.trafficType = trafficType;
+        this.vehicle = vehicle;
     }
 
     public Pair<PositionOnTilemap, Double> getPairOfPositionAndDistance(int i){
@@ -115,16 +117,60 @@ public class VehicleMovement {
         return direction;
     }
 
+    public int[] getDirectionOfFirstMove(){
+        Point2D secondPosition;
+        Point2D firstPosition;
+        if(positionsOnMap.size()>0){
+            secondPosition = positionsOnMap.get(0).coordsRelativeToMapOrigin();
+            firstPosition = startPosition.coordsRelativeToMapOrigin();
+        }
+        else {
+            secondPosition = startPosition.coordsRelativeToMapOrigin();
+            firstPosition = startPosition.coordsRelativeToMapOrigin();
+        }
+
+        int[] direction = new int[] {0,0};
+        if (firstPosition.getX() == secondPosition.getX()) {
+            if (firstPosition.getY() > secondPosition.getY()) {
+                direction[1] = -1;
+            }
+            else {
+                direction[1] = 1;
+            }
+        }
+        else{
+            // nach links oben fahren
+            if (firstPosition.getX() > secondPosition.getX()) {
+                direction[0] = -1;
+            }
+            else {
+                direction[0] = 1;
+            }
+        }
+        return direction;
+    }
+
+    public boolean checkIfDirectionsStayTheSame(){
+        int[] first = getDirectionOfFirstMove();
+        int[] last = getDirectionOfLastMove();
+        return first[0] == last[0] && first[1] == last[1];
+    }
+
+    public boolean checkIfSameLastDirection(int[] otherDirection){
+        int[] last = getDirectionOfLastMove();
+        return otherDirection[0] == last[0] && otherDirection[1] == last[1];
+    }
+
     public List<PositionOnTilemap> getAllPositions(){
         List<PositionOnTilemap> pos = new ArrayList<>(positionsOnMap);
         pos.add(startPosition);
         return pos;
     }
 
-    public VehicleMovement getNewShiftedMovement(double shift, int direction[], String vehicleName){
+    public VehicleMovement getNewShiftedMovement(double shift, int direction[], String vehicleName, Vehicle vehicle){
         Point2D shiftedPoint = startPosition.coordsRelativeToMapOrigin().add(direction[0] * shift, direction[1]*shift);
         PositionOnTilemap startP = startPosition.getnewPositionShiftedTowardsGivenPointByGivenDistance(shiftedPoint, shift);
-        VehicleMovement shiftedMovement = new VehicleMovement(startP, vehicleName, wait, trafficType);
+        VehicleMovement shiftedMovement = new VehicleMovement(startP, vehicleName, wait, trafficType, vehicle);
         for(int i=0; i<positionsOnMap.size(); i++){
             shiftedPoint = positionsOnMap.get(i).coordsRelativeToMapOrigin().add(direction[0] * shift, direction[1]*shift);
             PositionOnTilemap pos = positionsOnMap.get(i).getnewPositionShiftedTowardsGivenPointByGivenDistance(shiftedPoint, shift);
@@ -135,6 +181,10 @@ public class VehicleMovement {
 
     public String getVehicleName() {
         return vehicleName;
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
     public void setVehicleName(String vehicleName) {

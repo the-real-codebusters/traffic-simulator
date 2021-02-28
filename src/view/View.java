@@ -882,7 +882,6 @@ public class View {
     public void translateVehicles(List<VehicleMovement> movements){
 
 
-
         List<VehicleAnimation> animations = new ArrayList<>();
         boolean clearOnFinished = false;
         for(VehicleMovement movement : movements){

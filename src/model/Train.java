@@ -15,7 +15,6 @@ public class Train extends Vehicle {
     private int verticesCounter = 0;
     private BasicModel model;
 //    private List<Vertex> pathForFewDays = new ArrayList<>();
-    private String name = "train "+(int)(Math.random()*100);
 
     public Train(List<Vehicle> wagons, Vehicle engine, BasicModel model) {
         trafficType = TrafficType.RAIL;
@@ -96,7 +95,7 @@ public class Train extends Vehicle {
         for(int i=1; i<=wagons.size(); i++){
             int[] direction = reverseDirection(engineMovement.getDirectionOfLastMove());
             VehicleMovement movement =
-                    engineMovement.getNewShiftedMovement(wagonShift*i, direction, wagons.get(i-1).getGraphic());
+                    engineMovement.getNewShiftedMovement(wagonShift*i, direction, wagons.get(i-1).getGraphic(), wagons.get(i-1));
             movements.add(movement);
         }
         numberOfVertices += pathToNextStationBeforeMovement.size() - pathToNextStation.size();
@@ -144,7 +143,7 @@ public class Train extends Vehicle {
         for(int i=0; i<3; i++){
             double wayToGo = speed;
             // Die Bewegung startet an der aktuellen Position
-            VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType);
+            VehicleMovement vehicleMovement = new VehicleMovement(currentPosition, graphic, false, trafficType, this);
             double distanceToNextVertex = 0;
             // Solange der zur Verfügung stehende Weg an dem tag noch nicht verbraucht ist und solange es noch Wegstrecke
             // in pathToNextStation gibt, soll dem vehicleMovement ein Paar aus der nächsten Position, also dem angefahrenen

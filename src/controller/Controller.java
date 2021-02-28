@@ -102,7 +102,7 @@ public class Controller {
     }
 
     public List<Vehicle> getVehicleTypesForTrafficType(TrafficType type){
-        return model.getVehicleTypesForName(type);
+        return model.getVehicleTypeForName(type);
     }
 
     /**
@@ -287,7 +287,7 @@ public class Controller {
     public Map<Vehicle, Integer> getVehicleMapOfDesiredNumbers(Map<String, Integer> desiredNumbersOfVehicleNames) {
         Map<Vehicle, Integer> mapDesiredNumbers = new HashMap<>();
         for (Map.Entry<String, Integer> entry : desiredNumbersOfVehicleNames.entrySet()) {
-            Vehicle vehicle = model.getVehicleTypesForName(entry.getKey());
+            Vehicle vehicle = model.getVehicleTypeForName(entry.getKey());
 //            System.out.println("vehicle in createNewTrafficLine " + vehicle.getGraphic());
             mapDesiredNumbers.put(vehicle, entry.getValue());
         }
