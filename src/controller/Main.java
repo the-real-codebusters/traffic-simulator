@@ -25,7 +25,7 @@ public class Main extends Application {
     private String pathToFile;
 
     private OpeningScreen opening;
-    
+
     public void start(Stage stage) throws Exception {
 
         opening = new OpeningScreen(stage);
@@ -48,7 +48,6 @@ public class Main extends Application {
 
 
             }
-
         });
         stage.show();
     }

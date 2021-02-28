@@ -41,11 +41,9 @@ public class View {
     private int mapDepth;
 
     private Controller controller;
-    private ResourceBundle resourceBundle;
 
     // Gint für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
-
 
     Screen screen = Screen.getPrimary();
     Rectangle2D screenBounds = screen.getVisualBounds();
@@ -152,50 +150,6 @@ public class View {
             }
 
         });
-    }
-//        public void zoom1 (){
-//        canvas.setOnScroll(scrollEvent -> {
-//            double scrollDelta = scrollEvent.getDeltaY();
-//            System.out.println(scrollDelta);
-//            double zoomFactor = Math.exp(scrollDelta * 0.01);
-//           tileImageWidth = tileImageWidth * zoomFactor;
-//            tileImageHeight = tileImageHeight * zoomFactor;
-//
-//            tileImageWidthHalf = tileImageWidthHalf * zoomFactor;
-//             tileImageHeightHalf = tileImageHeightHalf * zoomFactor;
-//             if (scrollDelta > 0) {
-//
-//
-//                 int halfX = (int) (canvas.getBoundsInParent().getWidth() / 2);
-//                 int halfY = (int) (canvas.getBoundsInParent().getHeight() / 2);
-//
-//
-//                 setPivot(scrollEvent.getX() - halfX, scrollEvent.getY() - halfY);
-//             }
-//            drawMap();
-//
-//        });
-//    }
-
-//    public void setPivot( double x, double y) {
-//        canvas.setTranslateX(canvas.getTranslateX()-x);
-//        canvas.setTranslateY(canvas.getTranslateY()-y);
-//    }
-//
-//    public static double clamp( double value, double min, double max) {
-//
-//        if( Double.compare(value, min) < 0)
-//            return min;
-//
-//        if( Double.compare(value, max) > 0)
-//            return max;
-//
-//        return value;
-//    }
-
-    // TODO was ist das überhaupt?
-    public double getQuadraticTileWidthOrDepth(){
-        return Math.sqrt(Math.pow(tileImageWidth/2, 2) + Math.pow(tileImageHeight/2, 2));
     }
 
     /**
