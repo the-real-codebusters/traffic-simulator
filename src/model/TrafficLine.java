@@ -30,22 +30,10 @@ public class TrafficLine {
 
 //        System.out.println("Stations in TrafficLine: "+stations);
 
-        if(trafficType.equals(TrafficType.ROAD)){
-            for(Station station : stations){
-                station.setRoadTrafficLine(this);
-            }
-        }
-        else if(trafficType.equals(TrafficType.AIR)){
-            for(Station station : stations){
-                station.setAirTrafficLine(this);
-            }
+        for(Station station : stations){
+            station.getTrafficLinesForTrafficType(trafficType).add(this);
         }
 
-        else if(trafficType.equals(TrafficType.RAIL)){
-            for(Station station : stations){
-                station.setRailTrafficLine(this);
-            }
-        }
     }
 
     //TODO Wenn Vehicles kurz vor der station sind, werden sie schneller. Was ist da los?

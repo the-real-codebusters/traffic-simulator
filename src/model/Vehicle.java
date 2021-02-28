@@ -30,7 +30,7 @@ public class Vehicle {
 
     protected String kind;
 
-    private TrafficLine trafficLine;
+    protected TrafficLine trafficLine;
 
     private long id;
 

@@ -177,8 +177,7 @@ public class Train extends Vehicle {
             if(currentPlannedPathToNextStation.size() == 0 && wayToGo >= 0){
                 // Station gefunden
                 //Aus For-Schleife der movements springen
-                TrafficLine line = nextStation.getTrafficLineForTrafficType(trafficType);
-                Station stationAfterNext = line.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
+                Station stationAfterNext = trafficLine.getNextStation(nextStation, movementInTrafficLineGoesForward, this);
                 Vertex vertexOfNextStation = nextStation.getSomeVertexForTrafficType(TrafficType.RAIL);
                 List<Vertex> nextPath = pathfinder.findPathToDesiredStation(stationAfterNext, vertexOfNextStation, trafficType);
                 currentPlannedPathToNextStation.addAll(nextPath);

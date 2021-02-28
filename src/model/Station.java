@@ -17,9 +17,9 @@ public class Station {
     private int maxPlanes = 0;
 
     //TODO Mehrere TrafficLines für eine Station
-    private TrafficLine roadTrafficLine;
-    private TrafficLine railTrafficLine;
-    private TrafficLine airTrafficLine;
+    private Set<TrafficLine> roadTrafficLines = new HashSet<>();
+    private Set<TrafficLine> railTrafficLines = new HashSet<>();
+    private Set<TrafficLine> airTrafficLines = new HashSet<>();
 
     private ConnectedTrafficPart roadTrafficPart;
     private ConnectedTrafficPart airTrafficPart;
@@ -50,27 +50,27 @@ public class Station {
     private Queue<VehicleMovement> airPlanesWaiting = new ArrayDeque<>();
 
 
-    public Station(BasicModel model, TrafficLine roadTrafficLine, TrafficLine railTrafficLine,
-                   TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart roadTrafficPart,
-                   ConnectedTrafficPart railTrafficPart, ConnectedTrafficPart airTrafficPart) {
-        // Stations haben unendliche Lagerkapazität
-        Map<String, Integer> maximumCargo = new HashMap<>();
-        for(String commodity: model.getCommodities()) {
-            maximumCargo.put(commodity, Integer.MAX_VALUE);
-        }
-        storage = new Storage(maximumCargo);
-
-        this.roadTrafficLine = roadTrafficLine;
-        this.railTrafficLine = railTrafficLine;
-        this.airTrafficLine = airTrafficLine;
-        this.pathfinder = pathfinder;
-        this.roadTrafficPart = roadTrafficPart;
-        this.railTrafficPart = railTrafficPart;
-        this.airTrafficPart = airTrafficPart;
-        this.model = model;
-
-        model.getMap().getTrafficLineGraph().addStation(this);
-    }
+//    public Station(BasicModel model, TrafficLine roadTrafficLine, TrafficLine railTrafficLine,
+//                   TrafficLine airTrafficLine, Pathfinder pathfinder, ConnectedTrafficPart roadTrafficPart,
+//                   ConnectedTrafficPart railTrafficPart, ConnectedTrafficPart airTrafficPart) {
+//        // Stations haben unendliche Lagerkapazität
+//        Map<String, Integer> maximumCargo = new HashMap<>();
+//        for(String commodity: model.getCommodities()) {
+//            maximumCargo.put(commodity, Integer.MAX_VALUE);
+//        }
+//        storage = new Storage(maximumCargo);
+//
+//        this.roadTrafficLine = roadTrafficLine;
+//        this.railTrafficLine = railTrafficLine;
+//        this.airTrafficLine = airTrafficLine;
+//        this.pathfinder = pathfinder;
+//        this.roadTrafficPart = roadTrafficPart;
+//        this.railTrafficPart = railTrafficPart;
+//        this.airTrafficPart = airTrafficPart;
+//        this.model = model;
+//
+//        model.getMap().getTrafficLineGraph().addStation(this);
+//    }
 
     public Station(Pathfinder pathfinder, BasicModel model) {
         // Stations haben unendliche Lagerkapazität
@@ -109,10 +109,10 @@ public class Station {
         else throw new IllegalArgumentException("Argument in isDirectlyConnectedTo was "+trafficType);
     }
 
-    public TrafficLine getTrafficLineForTrafficType(TrafficType trafficType){
-        if(trafficType.equals(TrafficType.ROAD)) return roadTrafficLine;
-        if(trafficType.equals(TrafficType.RAIL)) return railTrafficLine;
-        if(trafficType.equals(TrafficType.AIR)) return airTrafficLine;
+    public Set<TrafficLine> getTrafficLinesForTrafficType(TrafficType trafficType){
+        if(trafficType.equals(TrafficType.ROAD)) return roadTrafficLines;
+        if(trafficType.equals(TrafficType.RAIL)) return railTrafficLines;
+        if(trafficType.equals(TrafficType.AIR)) return airTrafficLines;
         throw new RuntimeException("Unklarer Verkehrstyp in getTrafficLineForTrafficType");
     }
 
@@ -358,30 +358,6 @@ public class Station {
 
     public void setRoadTrafficPart(ConnectedTrafficPart roadTrafficPart) {
         this.roadTrafficPart = roadTrafficPart;
-    }
-
-    public TrafficLine getRoadTrafficLine() {
-        return roadTrafficLine;
-    }
-
-    public void setRoadTrafficLine(TrafficLine roadTrafficLine) {
-        this.roadTrafficLine = roadTrafficLine;
-    }
-
-    public TrafficLine getRailTrafficLine() {
-        return railTrafficLine;
-    }
-
-    public void setRailTrafficLine(TrafficLine railTrafficLine) {
-        this.railTrafficLine = railTrafficLine;
-    }
-
-    public TrafficLine getAirTrafficLine() {
-        return airTrafficLine;
-    }
-
-    public void setAirTrafficLine(TrafficLine airTrafficLine) {
-        this.airTrafficLine = airTrafficLine;
     }
 
     public boolean isVisited() {
