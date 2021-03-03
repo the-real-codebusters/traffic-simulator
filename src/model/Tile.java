@@ -31,6 +31,13 @@ public class Tile {
         Map<String, Integer> absoluteCornerHeights = new LinkedHashMap<>();
         absoluteCornerHeights.putAll(cornerHeights);
 
+        //N : 11
+        //S : 10
+        //W : 12
+        //E : 11
+
+        //11,10,12,11
+
         String absoluteHeight = "";
         int minHeight = Integer.MAX_VALUE;
         for (Integer corner : cornerHeights.values()){

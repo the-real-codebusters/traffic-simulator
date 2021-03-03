@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TransportPackage {
@@ -8,7 +9,7 @@ public class TransportPackage {
     private Factory consumerFactory;
     private String commodity;
     private int amount;
-    private List<Station> path;
+    private List<Station> path = new ArrayList<>();
 
     public TransportPackage(Factory producerFactory, Factory consumerFactory, String commodity, int amount) {
         this.producerFactory = producerFactory;
@@ -57,17 +58,23 @@ public class TransportPackage {
         this.path = path;
     }
 
-    public Station getNextStationForTransport(){
+    public Station getNextStationForTransport() {
         return path.get(0);
     }
 
     @Override
     public String toString() {
+        path.forEach((x) -> System.out.print(" ID "+x.getId()));
         return "TransportPackage{" +
                 "producerFactory=" + producerFactory +
                 ", consumerFactory=" + consumerFactory +
                 ", commodity='" + commodity + '\'' +
                 ", amount=" + amount +
+                ", path=" + path+
                 '}';
+
+
     }
 }
+
+

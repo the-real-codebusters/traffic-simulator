@@ -565,6 +565,7 @@ public class MenuPane extends AnchorPane {
             String consumedGood = resourceBundle.getString(entry.getKey());
             consumption.append(consumedGood).append(" (").append(entry.getValue()).append("); ").append("  ");
         }
+
         if(consumption.toString().equals("")) {
             consumption = new StringBuilder(resourceBundle.getString("nothing"));
         }

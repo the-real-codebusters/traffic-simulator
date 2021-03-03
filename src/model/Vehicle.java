@@ -96,7 +96,8 @@ public class Vehicle {
             }
         }
 
-        if (vehicleTransportPackage != null && vehicleTransportPackage.getPath().size() == 1 && nextStation.equals(vehicleTransportPackage.getNextStationForTransport())) {
+
+        if (vehicleTransportPackage != null && nextStation.equals(vehicleTransportPackage.getNextStationForTransport())) {
             deliverTransportPackage();
         }
         if (vehicleTransportPackage == null) {
@@ -219,8 +220,11 @@ public class Vehicle {
 
     private void deliverTransportPackage(){
             System.out.println("deliverTransportPackage called; path "+vehicleTransportPackage.getPath().size());
-            nextStation.addTransportPackage(vehicleTransportPackage);
+//        vehicleTransportPackage.getPath().remove(0);
+
+        nextStation.addTransportPackage(vehicleTransportPackage);
             vehicleTransportPackage = null;
+
     }
 
     public void collectTransportPackage(){
@@ -238,8 +242,8 @@ public class Vehicle {
                         nextStation.addTransportPackage(splitPackages.get("stationPackage"));
                     }
                     nextStation.getStoredPackages().remove(transportPackage);
-                    transportPackage.getPath().remove(0);
-                    System.out.println("vehicle "+this.getGraphic()+" hat package genommen: "+transportPackage);
+                    vehicleTransportPackage.getPath().remove(0);
+                    System.out.println("vehicle "+this.getGraphic()+" hat package genommen: "+vehicleTransportPackage);
                     break;
                 }
             }
@@ -250,12 +254,18 @@ public class Vehicle {
     }
 
     private Map<String, TransportPackage> splitPackage(TransportPackage transportPackage){
+        System.out.println("package splitted");
         int capacity = getCapacityForCommodity(transportPackage.getCommodity());
         TransportPackage vehiclePackage = new TransportPackage(transportPackage.getProducerFactory(),
                 transportPackage.getConsumerFactory(), transportPackage.getCommodity(), capacity);
+
+        vehiclePackage.getPath().addAll(transportPackage.getPath());
+
         int remainingAmount = transportPackage.getAmount() - capacity;
         TransportPackage stationPackage = new TransportPackage(transportPackage.getProducerFactory(),
                 transportPackage.getConsumerFactory(), transportPackage.getCommodity(), remainingAmount);
+
+        stationPackage.getPath().addAll(transportPackage.getPath());
 
         Map<String, TransportPackage> splitPackages = new HashMap<>();
         splitPackages.put("vehiclePackage", vehiclePackage);

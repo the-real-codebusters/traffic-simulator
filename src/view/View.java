@@ -40,7 +40,7 @@ public class View {
     // Gibt für den Namen eines Bildes das ursprüngliche Verhältnis von Höhe und Breite des Bildes an
     private Map<String, Double> imageNameToImageRatio = new HashMap<>();
 
-    private final Canvas canvas = new Canvas(1200, 550);
+    private final Canvas canvas = new Canvas(1500, 800);
     private final double canvasCenterWidth = canvas.getWidth() / 2;
     private final double canvasCenterHeight = canvas.getHeight() / 2;
 
@@ -261,6 +261,8 @@ public class View {
                                     Image image = getSingleFieldImage(col, row, fields);
                                     String imageName = objectToImageMapping.getImageNameForObjectName(buildingName);
                                     Image r = getResourceForImageName(imageName);
+
+
 
                                     // Verhältnis Zwischen Höhe und Breite eines Bildes
                                     double ratio = r.getHeight() / r.getWidth();

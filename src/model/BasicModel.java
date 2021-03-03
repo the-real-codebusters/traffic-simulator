@@ -287,15 +287,17 @@ public class BasicModel {
     private void produceAndConsume(){
         for(Factory factory : factoryObjects){
             Map<String, Integer> todayProduced = factory.produceAndConsume();
-//            System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
-//            System.out.println(todayProduced);
+
             if (todayProduced.size() > 0) {
+                System.out.println("Factory "+factory.getBuildingName()+" produziert an Tag "+day);
+                System.out.println(todayProduced);
                 List<TransportPackage> transportPackages = findDestinationForTransport(todayProduced, factory);
                 for(TransportPackage transportPackage : transportPackages){
                     boolean producerHasStation =  transportPackage.getProducerFactory().getNearStations().size() > 0;
                     boolean consumerHasStation =  transportPackage.getConsumerFactory().getNearStations().size() > 0;
 
                     if(consumerHasStation && producerHasStation){
+                        System.out.println("beide hatten Station");
                         List<Station> path = pathfinder.findPathToConsumer(transportPackage);
                         if(path.size() > 0){
                             transportPackage.setPath(path);
@@ -402,9 +404,9 @@ public class BasicModel {
                     //Dann soll sich das Auto nicht bewegen, da das Tile schon besetzt ist
                     shouldWait = true;
                 }
-                else{
-                    System.out.println("############Bewegung in entgegengesetzte Richtung entdeckt##########");
-                }
+//                else{
+//                    System.out.println("############Bewegung in entgegengesetzte Richtung entdeckt##########");
+//                }
             }
         }
         if(shouldWait){
@@ -418,7 +420,7 @@ public class BasicModel {
         else {
             reservations.addAll(newRes);
             // Die Startposition für den nächsten tag ist die letzte Position des aktuellen Tages
-            System.out.println("Position gesetzt für Vehicle "+vehicle.getName()+" : "+movement.getLastPair().getKey());
+//            System.out.println("Position gesetzt für Vehicle "+vehicle.getName()+" : "+movement.getLastPair().getKey());
             vehicle.setPosition(movement.getLastPair().getKey());
             vehicle.setHasWaitedInLastRound(false);
             if(vehicle.isShouldBeRemovedInLastDay()){
